@@ -86,3 +86,11 @@
  (equal? (foldl + '(1 2 3 4 5 6))
 	 21))
 
+
+(with-test
+ (define (foldr fn lst)
+   (foldl (lambda (x acc) (fn acc x))
+	  (reverse! lst)))
+ (equal? (foldr - '(1 2 3 4))
+	 -2))
+
