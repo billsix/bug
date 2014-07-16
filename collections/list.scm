@@ -69,3 +69,20 @@
 		 '(1 2 3 4 5 -2))
 	 '(2 -2)))
  
+(with-tests
+ (define (foldl fn lst)
+   (define (foldlPrime acc lst)
+     (cond ((null? lst) acc)
+	   (else (foldlPrime (fn acc (car lst))
+			     (cdr lst)))))
+   (cond ((null? lst) lst)
+	 (else (foldlPrime (car lst) (cdr lst)))))
+ (equal? (foldl + '())
+	 '())
+ (equal? (foldl + '(1))
+	 1)
+ (equal? (foldl + '(1 2))
+	 3)
+ (equal? (foldl + '(1 2 3 4 5 6))
+	 21))
+
