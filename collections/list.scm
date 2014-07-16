@@ -23,3 +23,17 @@
    (not (all? (list #f)))
    (not (all? (list #t #f #t)))
    (all? (list #t #t #t)))))
+
+
+(define-macro (with-tests definition #!rest test)
+  `(with-test ,definition (all? (list ,@test))))
+
+(with-tests
+ (define-macro (when bool statement)
+   `(if ,bool
+	,statement
+	#f))
+ (equal? (when 5 3) 3)
+ (equal? (when #f 3) #f))
+
+
