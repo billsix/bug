@@ -36,4 +36,19 @@
  (equal? (when 5 3) 3)
  (equal? (when #f 3) #f))
 
-
+(with-tests
+ (define (reverse! lst)
+   (define (reversePrime! lst prev)
+     (cond ((null? (cdr lst))
+	    (set-cdr! lst prev)
+	    lst)
+	   (else
+	    (let ((rest (cdr lst)))
+	      (set-cdr! lst prev)
+	      (reversePrime! rest lst)))))
+   (cond ((null? lst) '())
+	 (else (reversePrime! lst '()))))
+ (equal? (reverse! '())
+	 '())
+ (equal? (reverse! '(1 2 3 4 5 6))
+	 '(6 5 4 3 2 1)))
