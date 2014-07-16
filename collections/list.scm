@@ -52,3 +52,20 @@
 	 '())
  (equal? (reverse! '(1 2 3 4 5 6))
 	 '(6 5 4 3 2 1)))
+
+(with-tests
+ (define (filter p? lst)
+   (define (filterPrime lst acc)
+     (cond ((null? lst) acc)
+	   (else (let ((head (car lst)))
+		   (if (p? head)
+		       (filterPrime (cdr lst) (cons head acc))
+		       (filterPrime (cdr lst) acc))))))
+   (reverse! (filterPrime lst '())))
+ (equal? (filter (lambda (x) (not (= 4 (expt x 2))))
+		 '(1 2 3 4 5 -2))
+	 '(1 3 4 5))
+ (equal? (filter (lambda (x) (= 4 (expt x 2)))
+		 '(1 2 3 4 5 -2))
+	 '(2 -2)))
+ 
