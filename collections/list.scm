@@ -28,6 +28,23 @@
 (define-macro (with-tests definition #!rest test)
   `(with-test ,definition (all? (list ,@test))))
 
+;; showing off the unit test framework
+(with-tests
+ ;; this definition happens at compile-time and runtime
+ (define foobarbaz 5) 
+ ;; the following lines only happen at compile time.
+ ;; therefore, any mutations to foobarbaz are not reflected in runtime
+ (equal? (* 2 foobarbaz) 10)
+ (begin
+   (set! foobarbaz 20)
+   (equal? (* 2 foobarbaz) 40))
+ (equal? foobarbaz 20))
+;; if the following line were uncommented, it would print 5
+;;(pp foobarbaz)
+
+
+
+
 (with-tests
  (define-macro (when bool statement)
    `(if ,bool
@@ -35,6 +52,9 @@
 	#f))
  (equal? (when 5 3) 3)
  (equal? (when #f 3) #f))
+
+
+;; list functions
 
 (with-tests
  (define (reverse! lst)
