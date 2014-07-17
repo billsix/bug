@@ -136,3 +136,10 @@
 				    (+ x 2)))
 		  '(10 20 30 40))
 	 '(10 11 12 20 21 22 30 31 32 40 41 42)))
+
+(with-tests
+ (define (enumerate-interval low high)
+   (if (> low high)
+       '()
+       (cons low (enumerate-interval (+ low 1) high))))
+ (equal? (enumerate-interval 1 10) '(1 2 3 4 5 6 7 8 9 10)))
