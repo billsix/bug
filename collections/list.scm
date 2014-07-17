@@ -109,6 +109,17 @@
  (equal? (filter (lambda (x) (= 4 (expt x 2)))
 		 '(1 2 3 4 5 -2))
 	 '(2 -2)))
+
+;; remove
+;;   remove :: a -> [a] -> [a]
+;;   returns a new list with all occurances of x removed
+(with-tests
+ (define (remove x lst)
+   (filter (lambda (y) (not (equal? x y)))
+	   lst))
+ (equal? (remove 5 '(1 5 2 5 3 5 4 5 5))
+	 '(1 2 3 4)))
+
  
 ;; fold-left
 ;;    fold-left :: (a -> b -> a) -> a -> [b] -> a
@@ -188,15 +199,6 @@
  (equal? (iota 5 start: 2 step: (/ 3 2))
 	 '(2 7/2 5)))
 
-;; remove
-;;   remove :: a -> [a] -> [a]
-;;   returns a new list with all occurances of x removed
-(with-tests
- (define (remove x lst)
-   (filter (lambda (y) (not (equal? x y)))
-	   lst))
- (equal? (remove 5 '(1 5 2 5 3 5 4 5 5))
-	 '(1 2 3 4)))
 
 ;; permutations
 ;;   permutations :: [a] -> [[a]]
