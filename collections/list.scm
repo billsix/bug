@@ -123,3 +123,14 @@
  (equal? (fold-right - 0 '(2 2 5 4))
  	 1))
 
+(with-tests
+ (define (flatmap fn lst)
+   (fold-left append '() (map fn lst)))
+ (equal? (flatmap (lambda (x) (list x x x))
+		  '(1 2 3 4 5))
+	 '(1 1 1 2 2 2 3 3 3 4 4 4 5 5 5))
+ (equal? (flatmap (lambda (x) (list x
+				    (+ x 1)
+				    (+ x 2)))
+		  '(10 20 30 40))
+	 '(10 11 12 20 21 22 30 31 32 40 41 42)))
