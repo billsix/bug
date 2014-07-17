@@ -68,9 +68,10 @@
 
 ;; reverse!
 ;;   reverse! :: [a] -> [a]
-;;   reverses the list, destructively.
+;;   reverses the list, possibly destructively.
 (with-tests
  (define (reverse! lst)
+   ;; reversePrime assumes that lst is not null
    (define (reversePrime! lst prev)
      (cond ((null? (cdr lst))
 	    (set-cdr! lst prev)
@@ -79,6 +80,7 @@
 	    (let ((rest (cdr lst)))
 	      (set-cdr! lst prev)
 	      (reversePrime! rest lst)))))
+   ;; ensure that reversePrime's constraints are preserved
    (if (null? lst) 
        '()
        (reversePrime! lst '())))
