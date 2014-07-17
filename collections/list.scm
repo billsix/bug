@@ -1,3 +1,6 @@
+
+;; with-test
+;;   Collocates a definiton with a test.  The test is run at compile-time.
 (define-macro (with-test definition test)
   ;; only executed at compile time
   (eval `(begin
@@ -12,6 +15,9 @@
   ;;the actual macro expansion is just the definition
   definition)
 
+;; all?
+;;   all? :: [a] -> Bool
+;;   Tests if all the elements in a list are non-false
 (with-test
  (define (all? lst)
    (cond ((null? lst) #t)
@@ -25,6 +31,9 @@
    (all? (list #t #t #t)))))
 
 
+;; with-tests
+;;   Collocates a definition with a collection of tests.  Tests are
+;;   run sequentially, and are expected to return true or false
 (define-macro (with-tests definition #!rest test)
   `(with-test ,definition (all? (list ,@test))))
 
@@ -44,7 +53,10 @@
 
 
 
-
+;; when
+;;   when the bool value is non-false, return the value of statement.
+;;   when the bool value is false, return false
+;; TODO - statement needs to be wrapped in a begin
 (with-tests
  (define-macro (when bool statement)
    `(if ,bool
@@ -54,8 +66,9 @@
  (equal? (when #f 3) #f))
 
 
-;; list functions
-
+;; reverse!
+;;   reverse! :: [a] -> [a]
+;;   reverses the list, destructively.
 (with-tests
  (define (reverse! lst)
    (define (reversePrime! lst prev)
@@ -74,6 +87,10 @@
  (equal? (reverse! '(1 2 3 4 5 6))
 	 '(6 5 4 3 2 1)))
 
+;; filter
+;;   filter :: (a -> Bool) -> [a] -> [a]
+;;   return a new list, consisting only the elements where the predicate p?
+;;   returns true
 (with-tests
  (define (filter p? lst)
    (define (filterPrime lst acc)
@@ -91,6 +108,10 @@
 		 '(1 2 3 4 5 -2))
 	 '(2 -2)))
  
+;; fold-left
+;;    fold-left :: (a -> b -> a) -> a -> [b] -> a
+;;    reduce the list to a scalar by applying the reducing function repeatedly,
+;;    starting from the "left" side of the list
 (with-tests
  (define (fold-left fn initial lst)
    (define (fold-leftPrime acc lst)
@@ -110,6 +131,10 @@
 	 21))
 
 
+;; fold-right
+;;    fold-right :: (b -> a -> a) -> a -> [b] -> a
+;;    reduce the list to a scalar by applying the reducing function repeatedly,
+;;    starting from the "right" side of the list
 (with-tests
  (define (fold-right fn initial lst)
    (define (fold-rightPrime acc lst)
@@ -125,6 +150,8 @@
  (equal? (fold-right - 0 '(2 2 5 4))
  	 1))
 
+;; flatmap
+;;   flatmap :: (a -> [b]) -> [a] -> [b]
 (with-tests
  (define (flatmap fn lst)
    (fold-left append '() (map fn lst)))
@@ -137,6 +164,8 @@
 		  '(10 20 30 40))
 	 '(10 11 12 20 21 22 30 31 32 40 41 42)))
 
+;; enumerate-interval
+;;   enumerate-interval :: (Num a) => a -> a -> Optional a -> a
 (with-tests
  (define (enumerate-interval low high #!key (step 1))
    (if (> low high)
@@ -148,6 +177,7 @@
 	 '(1 3 5 7 9)))
 
 ;; iota - from common lisp
+;;   iota :: (Num a) => a -> Optional a -> Optional a -> a
 (with-tests
  (define (iota n #!key (start 0) (step 1)) 
    (enumerate-interval start n step: step))
