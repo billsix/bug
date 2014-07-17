@@ -90,27 +90,36 @@
 	 '(2 -2)))
  
 (with-tests
- (define (foldl fn lst)
-   (define (foldlPrime acc lst)
-     (cond ((null? lst) acc)
-	   (else (foldlPrime (fn acc (car lst))
-			     (cdr lst)))))
-   (cond ((null? lst) lst)
-	 (else (foldlPrime (car lst) (cdr lst)))))
- (equal? (foldl + '())
-	 '())
- (equal? (foldl + '(1))
-	 1)
- (equal? (foldl + '(1 2))
-	 3)
- (equal? (foldl + '(1 2 3 4 5 6))
+ (define (fold-left fn initial lst)
+   (define (fold-leftPrime acc lst)
+     (if (null? lst) 
+	 acc
+	 (fold-leftPrime (fn acc 
+			     (car lst))
+			 (cdr lst))))
+   (fold-leftPrime initial lst))
+ (equal? (fold-left + 0 '())
+ 	 0)
+ (equal? (fold-left + 0 '(1))
+ 	 1)
+ (equal? (fold-left + 0 '(1 2))
+ 	 3)
+ (equal? (fold-left + 0 '(1 2 3 4 5 6))
 	 21))
 
 
-(with-test
- (define (foldr fn lst)
-   (foldl (lambda (x acc) (fn acc x))
-	  (reverse! lst)))
- (equal? (foldr - '(1 2 3 4))
-	 -2))
+(with-tests
+ (define (fold-right fn initial lst)
+   (define (fold-rightPrime acc lst)
+     (if (null? lst)
+	 acc
+	 (fn (car lst)
+	     (fold-rightPrime acc (cdr lst)))))
+   (fold-rightPrime initial lst))
+ (equal? (fold-right - 0 '())
+	 0)
+ (equal? (fold-right - 0 '(1 2 3 4))
+	 -2)
+ (equal? (fold-right - 0 '(2 2 5 4))
+ 	 1))
 
