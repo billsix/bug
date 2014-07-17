@@ -186,3 +186,32 @@
  (equal? (iota 5 start: 2 step: (/ 3 2))
 	 '(2 7/2 5)))
 
+;; remove
+;;   remove :: a -> [a] -> [a]
+;;   returns a new list with all occurances of x removed
+(with-tests
+ (define (remove x lst)
+   (filter (lambda (y) (not (equal? x y)))
+	   lst))
+ (equal? (remove 5 '(1 5 2 5 3 5 4 5 5))
+	 '(1 2 3 4)))
+
+;; permutations
+;;   permutations :: [a] -> [[a]]
+;;   returns all permutations of the list
+(with-tests
+ (define (permutations lst)
+   (if (null? lst)
+       (list '())
+       (flatmap (lambda (x) 
+		  (map (lambda (y) (cons x y))
+		       (permutations (remove x lst))))
+		lst)))
+ (equal? (permutations '())
+	 '(()))
+ (equal? (permutations '(1))
+	 '((1)))
+ (equal? (permutations '(1 2))
+	 '((1 2) (2 1)))
+ (equal? (permutations '(1 2 3))
+	 '((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))))
