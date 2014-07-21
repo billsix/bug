@@ -1,3 +1,7 @@
+;; Copyright 2014 - William Emerison Six
+;;  All rights reserved
+;;  Distributed under LGPL 2.0 or Apache 2.0
+
 
 ;; with-test
 ;;   Collocates a definiton with a test.  The test is run at compile-time.
