@@ -56,6 +56,15 @@
 ;;(pp foobarbaz)
 
 
+;; identity should be defined somewhere else, not in list.scm
+(with-test
+ (define (identity x) x)
+ (equal? "foo" (identity "foo")))
+;; thish should be defined somewhere else too
+(with-test
+ (define (noop ) 'noop)
+ (equal? (noop) 'noop))
+
 
 ;; when
 ;;   when the bool value is non-false, return the value of statement.
@@ -93,29 +102,61 @@
  (equal? (reverse! '(1 2 3 4 5 6))
 	 '(6 5 4 3 2 1)))
 
+;; first :: [a] -> Optional (() -> b) -> Either a b
+;;   first returns the first element of the list, 'noop if the list is empty and no
+;;   thunk is passed
 (with-tests
- (define (first lst)
+ (define (first lst #!key (onNull noop))
    (if (null? lst) 
-       'null-list
+       (onNull)
        (car lst)))
+ (equal? (first '())
+	 'noop)
  (equal? (first '(1 2 3))
 	 1)
  (equal? (first '(2 3 1 1 1))
-	 2))
+	 2)
+ (equal? (first '() onNull: (lambda () 5))
+	 5)
+ (equal? (first '(1 2 3) onNull: (lambda () 5))
+	 1))
 
+;; but-first :: [a] -> Optional (() -> b) -> Either [a] b
+;;   but-first returns all of the elements of the list, except for the first
 (with-tests
- (define (last lst)
+ (define (but-first lst #!key (onNull noop))
+   (if (null? lst)
+       (onNull)
+       (cdr lst)))
+ (equal? (but-first '()) 
+	 'noop)
+ (equal? (but-first '() onNull: (lambda () 5)) 
+	 5)
+ (equal? (but-first '( 1 2 3))
+	 '(2 3)))
+
+;;  last :: [a] -> Optional (() -> b) -> Either a b
+;;    last returns the last element of the list
+(with-tests
+ (define (last lst #!key (onNull noop))
    (define (last-Prime lst)
      (if (null? (cdr lst)) 
 	 (car lst)
 	 (last (cdr lst))))
    (if (null? lst)
-       'null-list
+       (onNull)
        (last-Prime lst)))
+ (equal? (last '()) 
+	 'noop)
  (equal? (last '(1))
 	 1)
  (equal? (last '(1 2))
-	 2))
+	 2)
+ (equal? (last '() onNull: (lambda () 5))
+	 5)
+ (equal? (last '(1) onNull: (lambda () 5))
+	 1))
+
 ;; filter
 ;;   filter :: (a -> Bool) -> [a] -> [a]
 ;;   return a new list, consisting only the elements where the predicate p?
