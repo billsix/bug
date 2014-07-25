@@ -93,6 +93,29 @@
  (equal? (reverse! '(1 2 3 4 5 6))
 	 '(6 5 4 3 2 1)))
 
+(with-tests
+ (define (first lst)
+   (if (null? lst) 
+       'null-list
+       (car lst)))
+ (equal? (first '(1 2 3))
+	 1)
+ (equal? (first '(2 3 1 1 1))
+	 2))
+
+(with-tests
+ (define (last lst)
+   (define (last-Prime lst)
+     (if (null? (cdr lst)) 
+	 (car lst)
+	 (last (cdr lst))))
+   (if (null? lst)
+       'null-list
+       (last-Prime lst)))
+ (equal? (last '(1))
+	 1)
+ (equal? (last '(1 2))
+	 2))
 ;; filter
 ;;   filter :: (a -> Bool) -> [a] -> [a]
 ;;   return a new list, consisting only the elements where the predicate p?
@@ -146,6 +169,17 @@
  	 3)
  (equal? (fold-left + 0 '(1 2 3 4 5 6))
 	 21))
+
+
+;;  (define (scan-left fn initial lst)
+;;    (define (scan-leftPrime acc lst)
+;;      (if (null? lst) 
+;; 	 acc
+;; 	 (let ((newacc (fn acc 
+;; 			   (car lst))))
+;; 	   (scan-leftPrime newacc
+;; 			   (cdr lst)))))
+;;    (scan-leftPrime (list initial) lst))
 
 
 ;; fold-right
@@ -223,3 +257,20 @@
 	 '((1 2) (2 1)))
  (equal? (permutations '(1 2 3))
 	 '((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))))
+
+;; sublists
+;;   sublists :: [a] -> [[a]]
+;;   Returns a list of every sub-list
+(with-tests
+ (define (sublists lst)
+   (if (null? lst)
+       '()
+       (cons lst (sublists (cdr lst)))))
+ (equal? (sublists '())
+	 '())
+ (equal? (sublists '(1))
+	 '((1)))
+ (equal? (sublists '(1 2))
+	 '((1 2) (2)))
+ (equal? (sublists '(1 2 3))
+	 '((1 2 3) (2 3) (3))))
