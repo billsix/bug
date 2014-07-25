@@ -219,10 +219,10 @@
  (define (scan-left fn initial lst)
    (define (scan-leftPrime acc-list lst)
      (if (null? lst)
-	 acc-list
-	 (let ((newacc (fn (last acc-list)
+	 (reverse! acc-list)
+	 (let ((newacc (fn (first acc-list)
 			   (car lst))))
-	   (scan-leftPrime (append acc-list (list newacc))
+	   (scan-leftPrime (cons newacc acc-list)
 			   (cdr lst)))))
    (scan-leftPrime (list initial) lst))
  (equal? (scan-left + 0 '())
