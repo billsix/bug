@@ -188,7 +188,7 @@
  (equal? (remove 5 '(1 5 2 5 3 5 4 5 5))
 	 '(1 2 3 4)))
 
- 
+
 ;; fold-left
 ;;    fold-left :: (a -> b -> a) -> a -> [b] -> a
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
@@ -211,16 +211,25 @@
  (equal? (fold-left + 0 '(1 2 3 4 5 6))
 	 21))
 
+;; scan-left :: (a -> b -> a) -> a -> [b] -> [a]
+;;   scan-left is like fold-left, but every intermediate value
+;;   of fold-left's acculumalotr is put onto a list, which
+;;   is the value of scan-left
+(with-tests
+ (define (scan-left fn initial lst)
+   (define (scan-leftPrime acc-list lst)
+     (if (null? lst)
+	 acc-list
+	 (let ((newacc (fn (last acc-list)
+			   (car lst))))
+	   (scan-leftPrime (append acc-list (list newacc))
+			   (cdr lst)))))
+   (scan-leftPrime (list initial) lst))
+ (equal? (scan-left + 0 '())
+	 '(0))
+ (equal? (scan-left + 0 '( 1 1 1 2 20 30))
+	 '(0 1 2 3 5 25 55)))
 
-;;  (define (scan-left fn initial lst)
-;;    (define (scan-leftPrime acc lst)
-;;      (if (null? lst) 
-;; 	 acc
-;; 	 (let ((newacc (fn acc 
-;; 			   (car lst))))
-;; 	   (scan-leftPrime newacc
-;; 			   (cdr lst)))))
-;;    (scan-leftPrime (list initial) lst))
 
 
 ;; fold-right
