@@ -78,6 +78,19 @@
  (equal? (when 5 3) 3)
  (equal? (when #f 3) #f))
 
+;; aif
+;;   anaphoric-if evaluates bool, binds it to the variable "it",
+;;   which is accessible in body.
+(with-tests
+ (define-macro (aif bool body)
+   `(let ((it ,bool))
+      (when it
+	    ,body)))
+ (equal? (aif (+ 5 10) (* 2 it))
+	 30)
+ (equal? (aif #f (* 2 it))
+	 #f))
+
 
 ;; reverse!
 ;;   reverse! :: [a] -> [a]
