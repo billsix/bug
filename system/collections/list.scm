@@ -2,45 +2,13 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.0 or Apache 2.0
 
-(include "../test.scm")
+(include "../lang#.scm")
+(include "../lang-macros.scm")
 
+(at-compile-time 
+ (include "system/lang.scm"))
 
-
-;; identity should be defined somewhere else, not in list.scm
-(with-test
- (define (identity x) x)
- (equal? "foo" (identity "foo")))
-;; thish should be defined somewhere else too
-(with-test
- (define (noop ) 'noop)
- (equal? (noop) 'noop))
-
-
-;; when
-;;   when the bool value is non-false, return the value of statement.
-;;   when the bool value is false, return false
-;; TODO - statement needs to be wrapped in a begin
-(with-tests
- (define-macro (when bool statement)
-   `(if ,bool
-	,statement
-	#f))
- (equal? (when 5 3) 3)
- (equal? (when #f 3) #f))
-
-;; aif
-;;   anaphoric-if evaluates bool, binds it to the variable "it",
-;;   which is accessible in body.
-(with-tests
- (define-macro (aif bool body)
-   `(let ((it ,bool))
-      (when it
-	    ,body)))
- (equal? (aif (+ 5 10) (* 2 it))
-	 30)
- (equal? (aif #f (* 2 it))
-	 #f))
-
+(include "list#.scm")
 
 ;; reverse!
 ;;   reverse! :: [a] -> [a]
@@ -58,8 +26,8 @@
 	      (reversePrime! rest lst)))))
    ;; ensure that reversePrime's constraints are preserved
    (if (null? lst) 
-       '()
-       (reversePrime! lst '())))
+       (lambda () '())
+       (lambda () (reversePrime! lst '()))))
  (equal? (reverse! '())
 	 '())
  (equal? (reverse! '(1 2 3 4 5 6))
@@ -71,8 +39,8 @@
 (with-tests
  (define (first lst #!key (onNull noop))
    (if (null? lst) 
-       (onNull)
-       (car lst)))
+       (lambda () (onNull))
+       (lambda () (car lst))))
  (equal? (first '())
 	 'noop)
  (equal? (first '(1 2 3))
@@ -89,8 +57,8 @@
 (with-tests
  (define (but-first lst #!key (onNull noop))
    (if (null? lst)
-       (onNull)
-       (cdr lst)))
+       (lambda () (onNull))
+       (lambda () (cdr lst))))
  (equal? (but-first '()) 
 	 'noop)
  (equal? (but-first '() onNull: (lambda () 5)) 
@@ -104,11 +72,11 @@
  (define (last lst #!key (onNull noop))
    (define (last-Prime lst)
      (if (null? (cdr lst)) 
-	 (car lst)
-	 (last (cdr lst))))
+	 (lambda () (car lst))
+	 (lambda () (last (cdr lst)))))
    (if (null? lst)
-       (onNull)
-       (last-Prime lst)))
+       (lambda () (onNull))
+       (lambda () (last-Prime lst))))
  (equal? (last '()) 
 	 'noop)
  (equal? (last '(1))
@@ -128,11 +96,11 @@
  (define (filter p? lst)
    (define (filterPrime lst acc)
      (if (null? lst) 
-	 acc
-	 (let ((head (car lst)))
-	   (filterPrime (cdr lst) (if (p? head)
-				      (cons head acc)
-				      acc)))))
+	 (lambda () acc)
+	 (lambda () (let ((head (car lst)))
+		      (filterPrime (cdr lst) (if (p? head)
+						 (lambda () (cons head acc))
+						 (lambda () acc)))))))
    (reverse! (filterPrime lst '())))
  (equal? (filter (lambda (x) (not (= 4 (expt x 2))))
 		 '(1 2 3 4 5 -2))
@@ -160,10 +128,10 @@
  (define (fold-left fn initial lst)
    (define (fold-leftPrime acc lst)
      (if (null? lst) 
-	 acc
-	 (fold-leftPrime (fn acc 
-			     (car lst))
-			 (cdr lst))))
+	 (lambda () acc)
+	 (lambda () (fold-leftPrime (fn acc 
+					(car lst))
+				    (cdr lst)))))
    (fold-leftPrime initial lst))
  (equal? (fold-left + 0 '())
  	 0)
@@ -182,11 +150,11 @@
  (define (scan-left fn initial lst)
    (define (scan-leftPrime acc-list lst)
      (if (null? lst)
-	 (reverse! acc-list)
-	 (let ((newacc (fn (first acc-list)
-			   (car lst))))
-	   (scan-leftPrime (cons newacc acc-list)
-			   (cdr lst)))))
+	 (lambda () (reverse! acc-list))
+	 (lambda () (let ((newacc (fn (first acc-list)
+				      (car lst))))
+		      (scan-leftPrime (cons newacc acc-list)
+				      (cdr lst))))))
    (scan-leftPrime (list initial) lst))
  (equal? (scan-left + 0 '())
 	 '(0))
@@ -203,9 +171,9 @@
  (define (fold-right fn initial lst)
    (define (fold-rightPrime acc lst)
      (if (null? lst)
-	 acc
-	 (fn (car lst)
-	     (fold-rightPrime acc (cdr lst)))))
+	 (lambda () acc)
+	 (lambda () (fn (car lst)
+			(fold-rightPrime acc (cdr lst))))))
    (fold-rightPrime initial lst))
  (equal? (fold-right - 0 '())
 	 0)
@@ -233,8 +201,8 @@
 (with-tests
  (define (enumerate-interval low high #!key (step 1))
    (if (> low high)
-       '()
-       (cons low (enumerate-interval (+ low step) high step: step))))
+       (lambda () '())
+       (lambda () (cons low (enumerate-interval (+ low step) high step: step)))))
  (equal? (enumerate-interval 1 10) 
 	 '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2) 
@@ -257,11 +225,11 @@
 (with-tests
  (define (permutations lst)
    (if (null? lst)
-       (list '())
-       (flatmap (lambda (x) 
-		  (map (lambda (y) (cons x y))
-		       (permutations (remove x lst))))
-		lst)))
+       (lambda () (list '()))
+       (lambda () (flatmap (lambda (x) 
+			     (map (lambda (y) (cons x y))
+				  (permutations (remove x lst))))
+			   lst))))
  (equal? (permutations '())
 	 '(()))
  (equal? (permutations '(1))
@@ -277,8 +245,8 @@
 (with-tests
  (define (sublists lst)
    (if (null? lst)
-       '()
-       (cons lst (sublists (cdr lst)))))
+       (lambda () '())
+       (lambda () (cons lst (sublists (cdr lst))))))
  (equal? (sublists '())
 	 '())
  (equal? (sublists '(1))
