@@ -26,8 +26,8 @@
 	      (reversePrime! rest lst)))))
    ;; ensure that reversePrime's constraints are preserved
    (if (null? lst) 
-       (lambda () '())
-       (lambda () (reversePrime! lst '()))))
+       ['()]
+       {reversePrime! lst '()}))
  (equal? (reverse! '())
 	 '())
  (equal? (reverse! '(1 2 3 4 5 6))
@@ -39,8 +39,8 @@
 (with-tests
  (define (first lst #!key (onNull noop))
    (if (null? lst) 
-       (lambda () (onNull))
-       (lambda () (car lst))))
+       {onNull}
+       {car lst}))
  (equal? (first '())
 	 'noop)
  (equal? (first '(1 2 3))
@@ -57,8 +57,8 @@
 (with-tests
  (define (but-first lst #!key (onNull noop))
    (if (null? lst)
-       (lambda () (onNull))
-       (lambda () (cdr lst))))
+       {onNull}
+       {cdr lst}))
  (equal? (but-first '()) 
 	 'noop)
  (equal? (but-first '() onNull: (lambda () 5)) 
@@ -72,11 +72,11 @@
  (define (last lst #!key (onNull noop))
    (define (last-Prime lst)
      (if (null? (cdr lst)) 
-	 (lambda () (car lst))
-	 (lambda () (last (cdr lst)))))
+	 {car lst}
+	 {last (cdr lst)}))
    (if (null? lst)
-       (lambda () (onNull))
-       (lambda () (last-Prime lst))))
+       {onNull}
+       {last-Prime lst}))
  (equal? (last '()) 
 	 'noop)
  (equal? (last '(1))
@@ -96,11 +96,12 @@
  (define (filter p? lst)
    (define (filterPrime lst acc)
      (if (null? lst) 
-	 (lambda () acc)
-	 (lambda () (let ((head (car lst)))
-		      (filterPrime (cdr lst) (if (p? head)
-						 (lambda () (cons head acc))
-						 (lambda () acc)))))))
+	 [acc]
+	 {let ((head (car lst)))
+	   (filterPrime (cdr lst) 
+			(if (p? head)
+			    {cons head acc}
+			    [acc]))}))
    (reverse! (filterPrime lst '())))
  (equal? (filter (lambda (x) (not (= 4 (expt x 2))))
 		 '(1 2 3 4 5 -2))
@@ -128,10 +129,10 @@
  (define (fold-left fn initial lst)
    (define (fold-leftPrime acc lst)
      (if (null? lst) 
-	 (lambda () acc)
-	 (lambda () (fold-leftPrime (fn acc 
-					(car lst))
-				    (cdr lst)))))
+	 [acc]
+	 {fold-leftPrime (fn acc 
+			     (car lst))
+			 (cdr lst)}))
    (fold-leftPrime initial lst))
  (equal? (fold-left + 0 '())
  	 0)
@@ -150,11 +151,11 @@
  (define (scan-left fn initial lst)
    (define (scan-leftPrime acc-list lst)
      (if (null? lst)
-	 (lambda () (reverse! acc-list))
-	 (lambda () (let ((newacc (fn (first acc-list)
-				      (car lst))))
-		      (scan-leftPrime (cons newacc acc-list)
-				      (cdr lst))))))
+	 {reverse! acc-list}
+	 {let ((newacc (fn (first acc-list)
+			   (car lst))))
+	   (scan-leftPrime (cons newacc acc-list)
+			   (cdr lst))}))
    (scan-leftPrime (list initial) lst))
  (equal? (scan-left + 0 '())
 	 '(0))
@@ -171,9 +172,9 @@
  (define (fold-right fn initial lst)
    (define (fold-rightPrime acc lst)
      (if (null? lst)
-	 (lambda () acc)
-	 (lambda () (fn (car lst)
-			(fold-rightPrime acc (cdr lst))))))
+	 [acc]
+	 {fn (car lst)
+	     (fold-rightPrime acc (cdr lst))}))
    (fold-rightPrime initial lst))
  (equal? (fold-right - 0 '())
 	 0)
@@ -187,12 +188,12 @@
 (with-tests
  (define (flatmap fn lst)
    (fold-left append '() (map fn lst)))
- (equal? (flatmap (lambda (x) (list x x x))
+ (equal? (flatmap [|x| (list x x x)]
 		  '(1 2 3 4 5))
 	 '(1 1 1 2 2 2 3 3 3 4 4 4 5 5 5))
- (equal? (flatmap (lambda (x) (list x
-				    (+ x 1)
-				    (+ x 2)))
+ (equal? (flatmap [|x| (list x
+			     (+ x 1)
+			     (+ x 2))]
 		  '(10 20 30 40))
 	 '(10 11 12 20 21 22 30 31 32 40 41 42)))
 
@@ -201,8 +202,8 @@
 (with-tests
  (define (enumerate-interval low high #!key (step 1))
    (if (> low high)
-       (lambda () '())
-       (lambda () (cons low (enumerate-interval (+ low step) high step: step)))))
+       ['()]
+       {cons low (enumerate-interval (+ low step) high step: step)}))
  (equal? (enumerate-interval 1 10) 
 	 '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2) 
@@ -225,11 +226,11 @@
 (with-tests
  (define (permutations lst)
    (if (null? lst)
-       (lambda () (list '()))
-       (lambda () (flatmap (lambda (x) 
-			     (map (lambda (y) (cons x y))
-				  (permutations (remove x lst))))
-			   lst))))
+       {list '()}
+       {flatmap [|x| 
+		 (map [|y| (cons x y)]
+		      (permutations (remove x lst)))]
+		lst}))
  (equal? (permutations '())
 	 '(()))
  (equal? (permutations '(1))
@@ -245,8 +246,8 @@
 (with-tests
  (define (sublists lst)
    (if (null? lst)
-       (lambda () '())
-       (lambda () (cons lst (sublists (cdr lst))))))
+       ['()]
+       {cons lst (sublists (cdr lst))}))
  (equal? (sublists '())
 	 '())
  (equal? (sublists '(1))

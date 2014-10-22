@@ -47,13 +47,12 @@
    `(begin
       ,definition
       (if (eval ,test)
-	  (lambda () 'no-op)
-	  (lambda ()
-	    (begin
-	    (pp "Test Failed")
-	    (pp (quote ,test))
-	    (pp (quote ,definition))
-	    (error "Test Failed"))))))
+	  ['no-op]
+	  [(begin
+	     (pp "Test Failed")
+	     (pp (quote ,test))
+	     (pp (quote ,definition))
+	     (error "Test Failed"))])))
   ;;the actual macro expansion is just the definition
   definition)
 
@@ -96,8 +95,8 @@
 (with-tests
  (define-macro (when bool statement)
    `(if ,bool
-	(lambda () ,statement)
-	(lambda () #f)))
+	[,statement]
+	[#f]))
  (equal? (when 5 3) 3)
  (equal? (when #f 3) #f))
 

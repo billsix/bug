@@ -10,11 +10,11 @@
 ;;(at-both-times (pp "defined in 'at-both-time'"))
 
 (with-test
- (define (identity x) x)
+ (define identity [|x| x])
  (equal? "foo" (identity "foo")))
 ;; thish should be defined somewhere else too
 (with-test
- (define (noop ) 'noop)
+ (define noop  ['noop])
  (equal? (noop) 'noop))
 
 
