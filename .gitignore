@@ -1,0 +1,9 @@
+*~
+autom4te.cache/
+config.log
+config.status
+configure
+Makefile
+demo/Makefile
+install-sh
+src/Makefile

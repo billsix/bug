@@ -1,3 +1,15 @@
+# @configure_input@
+
+package = @PACKAGE_NAME@
+version = @PACKAGE_VERSION@
+tarname = @PACKAGE_TARNAME@
+distdir = $(tarname)-$(version)
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+
+
 all: libbug.a
 
 %.scm : %.bscm
@@ -21,5 +33,12 @@ install:
 
 uninstall:
 	rm $(DESTDIR)$(libdir)/libbug.a 
+
+Makefile: Makefile.in ../config.status
+	cd .. && ./config.status $@
+
+../config.status: ../configure
+	cd .. && ./config.status --recheck
+
 
 .PHONY: all clean install uninstall

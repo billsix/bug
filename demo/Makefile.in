@@ -1,0 +1,50 @@
+# @configure_input@
+
+package = @PACKAGE_NAME@
+version = @PACKAGE_VERSION@
+tarname = @PACKAGE_TARNAME@
+distdir = $(tarname)-$(version)
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+
+
+%.scm : %.bscm
+	bug-gscpp $< $@ 
+
+%.c : %.scm
+	gsc -c $< 
+
+%.o : %.c
+	gsc -obj $< 
+
+sources = ../src/lang.scm ../src/lang-macros.scm demo.c
+
+all: demo
+
+demo:  $(sources)
+	gsc -link demo.c
+	gsc -obj demo.c demo_.c
+	gcc -o demo ../src/libbug.a demo.o demo_.o    -lgambc -lm -ldl -lutil
+
+clean:
+	-rm demo.c demo_.c *.o
+	-rm demo
+
+install:
+	install -d $(DESTDIR)$(bindir)
+	install -m 0755 demo $(DESTDIR)$(bindir)
+
+uninstall:
+	rm $(DESTDIR)$(bindir)/demo
+
+
+Makefile: Makefile.in ../config.status
+	cd .. && ./config.status $@
+
+../config.status: ../configure
+	cd .. && ./config.status --recheck
+
+
+.PHONY: all clean

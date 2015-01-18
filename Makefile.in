@@ -1,17 +1,28 @@
-package =  bug
-version = 0.0.1
-tarname = $(package)
+# @configure_input@
+
+package = @PACKAGE_NAME@
+version = @PACKAGE_VERSION@
+tarname = @PACKAGE_TARNAME@
 distdir = $(tarname)-$(version)
-prefix = /usr/local
-export prefix
-exec_prefix = $(prefix)
-export exec_prefix 
-bindir=$(exec_prefix)/bin
-export bindir
-libdir=$(exec_prefix)/lib
-export libdir
-all libbug.a install uninstall:
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+
+all:
 	cd src && $(MAKE) $@
+	cd demo && $(MAKE) $@
+
+libbug.a:
+	cd src && $(MAKE) $@
+
+install:
+	cd src && $(MAKE) $@
+	cd demo && $(MAKE) $@
+
+uninstall:
+	cd src && $(MAKE) $@
+	cd demo && $(MAKE) $@
 
 dist: $(distdir).tar.gz
 
@@ -24,23 +35,26 @@ $(distdir): FORCE
 	cp bug-gsc/bug-gscpp $(distdir)/bug-gsc/bug-gscpp
 	cp bug-gsc/foo.scm $(distdir)/bug-gsc/foo.scm
 	mkdir -p $(distdir)/demo
-	cp demo/Makefile $(distdir)/demo/Makefile
+	cp demo/Makefile.in $(distdir)/demo/Makefile.in
 	cp demo/demo.scm $(distdir)/demo/demo.scm
+	cp configure.ac $(distdir)
+	cp configure $(distdir)
 	cp README $(distdir)/README
 	cp LICENSE-2.0.txt $(distdir)/LICENSE-2.0.txt
 	cp LGPL.txt $(distdir)/LGPL.txt
-	cp Makefile $(distdir)/Makefile
+	cp Makefile.in $(distdir)/Makefile.in
 	mkdir -p $(distdir)/src/
 	cp src/lang#.scm $(distdir)/src/lang#.scm
 	mkdir -p $(distdir)/src/collections/
 	cp src/collections/list.bscm $(distdir)/src/collections/list.bscm
 	cp src/collections/list#.scm $(distdir)/src/collections/list#.scm
 	cp src/lang.bscm $(distdir)/src/lang.bscm
-	cp src/Makefile $(distdir)/src/Makefile
+	cp src/Makefile.in $(distdir)/src/Makefile.in
 	cp src/lang-macros.bscm $(distdir)/src/lang-macros.bscm
 
 distcheck: $(distdir).tar.gz
 	gzip -cd $(distdir).tar.gz | tar xvf -
+	cd $(distdir) && ./configure
 	cd $(distdir) && $(MAKE) demo
 	cd $(distdir) && $(MAKE) DESTDIR=$${PWD}/_inst install
 	cd $(distdir) && $(MAKE) DESTDIR=$${PWD}/_inst uninstall
@@ -52,6 +66,12 @@ distcheck: $(distdir).tar.gz
 	cd $(distdir) && $(MAKE) clean
 	rm -rf $(distdir)
 	@echo "*** Package $(distdir).tar.gz is read for distribution"
+
+Makefile: Makefile.in config.status
+	./config.status $@
+
+config.status: configure
+	./config.status --recheck
 
 
 
