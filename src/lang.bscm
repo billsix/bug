@@ -1,4 +1,4 @@
-;; Copyright 2014 - William Emerison Six
+;; Copyright 2014,2015 - William Emerison Six
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.0 or Apache 2.0
 
