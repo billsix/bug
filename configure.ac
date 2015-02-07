@@ -28,6 +28,10 @@ AC_PROG_INSTALL
 
 AC_CONFIG_FILES([Makefile
                  demo/Makefile
-                 src/Makefile])
+                 src/Makefile
+		 src/config.bscm
+		 ])
+AC_SUBST(ac_unique_file)
+AC_CONFIG_SRCDIR(src/config.bscm.in)
 AC_OUTPUT
 

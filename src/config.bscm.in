@@ -1,0 +1,14 @@
+;; Copyright 2014,2015 - William Emerison Six
+;;  All rights reserved
+;;  Distributed under LGPL 2.0 or Apache 2.0
+
+(namespace ("lang#"
+	    package
+	    version
+	    prefix
+	    ))
+
+(define package  "@PACKAGE_NAME@")
+(define version  "@PACKAGE_VERSION@")
+(define prefix "@prefix@")
+(define ac_unique_file "@ac_unique_file@")

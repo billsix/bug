@@ -7,3 +7,4 @@ Makefile
 demo/Makefile
 install-sh
 src/Makefile
+src/config.bscm

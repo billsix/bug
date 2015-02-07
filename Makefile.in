@@ -31,26 +31,12 @@ $(distdir).tar.gz : $(distdir)
 	rm -rf $(distdir)
 
 $(distdir): FORCE
-	mkdir -p $(distdir)/bug-gsc
-	cp bug-gsc/bug-gscpp $(distdir)/bug-gsc/bug-gscpp
-	cp bug-gsc/foo.scm $(distdir)/bug-gsc/foo.scm
-	mkdir -p $(distdir)/demo
-	cp demo/Makefile.in $(distdir)/demo/Makefile.in
-	cp demo/demo.scm $(distdir)/demo/demo.scm
-	cp configure.ac $(distdir)
-	cp configure $(distdir)
-	cp README $(distdir)/README
-	cp LICENSE-2.0.txt $(distdir)/LICENSE-2.0.txt
-	cp LGPL.txt $(distdir)/LGPL.txt
-	cp Makefile.in $(distdir)/Makefile.in
-	mkdir -p $(distdir)/src/
-	cp src/lang#.scm $(distdir)/src/lang#.scm
-	mkdir -p $(distdir)/src/collections/
-	cp src/collections/list.bscm $(distdir)/src/collections/list.bscm
-	cp src/collections/list#.scm $(distdir)/src/collections/list#.scm
-	cp src/lang.bscm $(distdir)/src/lang.bscm
-	cp src/Makefile.in $(distdir)/src/Makefile.in
-	cp src/lang-macros.bscm $(distdir)/src/lang-macros.bscm
+	mkdir $(distdir)
+	cd $(distdir) ; \
+	git clone ../../bug . ; \
+	rm -rf .git* ; \
+	cp ../configure.ac . ; \
+	cp ../configure . 
 
 distcheck: $(distdir).tar.gz
 	gzip -cd $(distdir).tar.gz | tar xvf -
@@ -65,7 +51,7 @@ distcheck: $(distdir).tar.gz
 	fi	
 	cd $(distdir) && $(MAKE) clean
 	rm -rf $(distdir)
-	@echo "*** Package $(distdir).tar.gz is read for distribution"
+	@echo "*** Package $(distdir).tar.gz is ready for distribution"
 
 Makefile: Makefile.in config.status
 	./config.status $@
