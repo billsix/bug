@@ -27,6 +27,7 @@ AC_PROG_INSTALL
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
+                 bug-gsc/Makefile
                  demo/Makefile
                  src/Makefile
 		 src/config.bscm

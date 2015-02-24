@@ -1,0 +1,35 @@
+# @configure_input@
+
+package = @PACKAGE_NAME@
+version = @PACKAGE_VERSION@
+tarname = @PACKAGE_TARNAME@
+distdir = $(tarname)-$(version)
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+
+all: 
+	gcc -std=c99 bug-gscpp.c
+
+
+clean:
+	-rm a.out
+
+
+install:
+#	install -d $(DESTDIR)$(bindir)
+#	install -m 0755 demo $(DESTDIR)$(bindir)
+
+uninstall:
+#	rm $(DESTDIR)$(bindir)/demo
+
+
+Makefile: Makefile.in ../config.status
+	cd .. && ./config.status $@
+
+../config.status: ../configure
+	cd .. && ./config.status --recheck
+
+
+.PHONY: all clean

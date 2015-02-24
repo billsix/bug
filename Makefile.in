@@ -10,6 +10,7 @@ bindir = @bindir@
 libdir = @libdir@
 
 all:
+	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
 	cd demo && $(MAKE) $@
 

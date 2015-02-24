@@ -1,5 +1,11 @@
 #!/usr/bin/env gsi-script
 
+;; Copyright 2014,2015 - William Emerison Six
+;;  All rights reserved
+;;  Distributed under LGPL 2.0 or Apache 2.0
+
+
+
 ;; example usage 
 ;;  ./bug-gscpp foo.scm  aoeu.scm
 ;;  foo.scm is the input file, aoeu.scm is the outputfile
