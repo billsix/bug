@@ -29,7 +29,7 @@ ssize_t xwrite(const void *buf, size_t count)
   if( (result = write(outputfd,buf,count)) == -1)
     {
       puts("Error writing to the output file");
-      printf("%d\n", count);
+      printf("%zd\n", count);
       exit(1);
     }
   return result;
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 {
   if(argc < 2)
     {
-      puts("Usage: bug-gscpp inputfile");
+      puts("Usage: bug-gscpp inputfile outputfile");
       exit(1);
     }
   // open input file
@@ -56,7 +56,14 @@ int main(int argc, char** argv)
   }
   // open output file
   {
-    outputfd = STDOUT_FILENO;
+    char* outputFileName = argv[2];
+    outputfd = creat(outputFileName, S_IRWXU);
+    if(outputfd == -1)
+      {
+	// TODO:  Handle errnos
+	printf("Error: unable to open output file %s, errno %d \n",outputFileName, errno);
+	exit(1);
+      }
   }
   // read the input file into a buffer, translate special characters
   // like "[]{}||" into valid scheme code, write to output file

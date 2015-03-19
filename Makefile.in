@@ -9,19 +9,20 @@ exec_prefix = @exec_prefix@
 bindir = @bindir@
 libdir = @libdir@
 
-all:
+PREPROCESSOR_PATH=$(shell pwd)/bug-gsc/
+
+all: 
+	cd bug-gsc/ && $(MAKE) $@
+	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd src && $(MAKE) $@
+	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd demo && $(MAKE) $@
+
+install:
 	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
 	cd demo && $(MAKE) $@
 
-libbug.a:
-	cd src && $(MAKE) $@
-
-install:
-	cd src && $(MAKE) $@
-	cd demo && $(MAKE) $@
-
 uninstall:
+	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
 	cd demo && $(MAKE) $@
 
@@ -61,18 +62,15 @@ config.status: configure
 	./config.status --recheck
 
 
-
 FORCE:
 	-rm -rf $(distdir).tar.gz >/dev/null 2>&1
 	-rm -rf $(distdir) >/dev/null 2>&1
 
 clean:
+	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
 	cd demo && $(MAKE) $@
 	-rm $(distdir).tar.gz
-
-demo: libbug.a
-	cd demo && $(MAKE) $@
 
 
 .PHONY: FORCE all clean install uninstall
