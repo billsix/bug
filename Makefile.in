@@ -9,6 +9,8 @@ exec_prefix = @exec_prefix@
 bindir = @bindir@
 libdir = @libdir@
 
+PREPROCESSOR_PATH=$(shell pwd)/bug-gsc/
+
 all: 
 	cd bug-gsc/ && $(MAKE) $@
 	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd src && $(MAKE) $@
