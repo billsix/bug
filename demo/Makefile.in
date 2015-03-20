@@ -24,9 +24,14 @@ sources = ../src/lang.scm ../src/lang-macros.scm demo.c
 all: demo
 
 demo:  $(sources)
-	gsc -link demo.c
+	gsc -link -l ../src/libbug demo
 	gsc -obj demo.c demo_.c
-	gcc -o demo ../src/libbug.a demo.o demo_.o    -lgambc -lm -ldl -lutil
+	cp ../src/libbug.so .
+	gcc -o demo libbug.so demo.o demo_.o    -lgambc -lm -ldl -lutil 
+	rm libbug.so
+
+# $ gcc m3.o m3_.o mylib.so -lgambc
+# $ LD_LIBRARY_PATH=.:/usr/local/lib ./a.out
 
 clean:
 	-rm demo.c demo_.c *.o

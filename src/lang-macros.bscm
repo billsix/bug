@@ -39,6 +39,11 @@
 	  ,(caddr ifTrue)
 	  ,(caddr ifFalse))))
 
+(at-both-times
+ (define-macro (my-include f)
+   (eval `(include ,(string-append (getenv "BUG_HOME") "/" f)))))
+
+
 ;; with-test
 ;;   Collocates a definiton with a test.  The test is run at compile-time
 ;;   only.

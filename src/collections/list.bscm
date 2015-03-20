@@ -4,11 +4,11 @@
 
 (include "../lang#.scm")
 (include "../lang-macros.scm")
-
+	 
 (at-compile-time 
- (include "lang.scm"))
+ (my-include "lang.scm"))
 
-(include "list#.scm")
+(my-include "collections/list#.scm")
 
 ;; reverse!
 ;;   reverse! :: [a] -> [a]
@@ -28,9 +28,9 @@
    (if (null? lst) 
        ['()]
        {reversePrime! lst '()}))
- (equal? (reverse! '())
+ (equal? (reverse! (list))
 	 '())
- (equal? (reverse! '(1 2 3 4 5 6))
+ (equal? (reverse! (list 1 2 3 4 5 6))
 	 '(6 5 4 3 2 1)))
 
 ;; first :: [a] -> Optional (() -> b) -> Either a b
