@@ -24,16 +24,27 @@
 (print "Executing (aif 5 3) results in -> ")
 (pp (aif 5 3))
 
-(print "Executing (first '(1 2 3 4 5 6))) results in -> ")
-(pp (first '(1 2 3 4 5 6)))
-
-(print "Executing (last '(1 2 3 4 5 6))) results in -> ")
-(pp (last '(1 2 3 4 5 6)))
-
-(print "Executing (but-first '(1 2 3 4 5 6))) results in -> ")
-(pp (but-first '(1 2 3 4 5 6)))
-
 (print "Executing (reverse! (list 1 2 3 4))) results in -> ")
 (pp (reverse! (list 1 2 3 4)))
+
+
+;; showing off the unit test framework
+(with-tests
+ ;; this definition happens at compile-time and runtime
+ (define foobarbaz 5)
+ ;; the following lines only happen at compile time.
+ ;; therefore, any mutations to foobarbaz are not reflected in runtime
+ (equal? (* 2 foobarbaz) 10)
+ (begin
+   (set! foobarbaz 20)
+   (print "At compile time foobarbaz => ")
+   (pp foobarbaz)
+   (equal? (* 2 foobarbaz) 40))
+ (equal? foobarbaz 20))
+
+(print "At runtime foobarbaz => ")
+;; This will print 5
+(pp foobarbaz)
+
 
 
