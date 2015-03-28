@@ -13,28 +13,28 @@ libdir=@libdir@
 all: libbug.so
 
 %.scm : %.bscm
-	bug-gscpp $< $@ 
+	bug-gscpp $< $@
 
 %.c : %.scm
-	gsc -c $< 
+	gsc -c $<
 
 %.o : %.c
-	gsc -obj $< 
+	gsc -obj $<
 
-libbug.so: lang-macros.scm lang.scm lang.c collections/list.scm collections/list.c 
-	gsc -link -o libbug.c lang collections/list
-	gsc -obj -cc-options "-D___SHARED" libbug.c lang.c collections/list.c
-	gcc -shared  libbug.o lang.o collections/list.o -o libbug.so
+libbug.so: lang-macros.scm lang.scm lang.c collections/list.scm collections/list.c collections/stream.scm collections/stream-macros.scm collections/stream.c
+	gsc -link -o libbug.c lang collections/list collections/stream
+	gsc -obj -cc-options "-D___SHARED" libbug.c lang.c collections/list.c collections/stream.c
+	gcc -shared  libbug.o lang.o collections/list.o collections/stream.o -o libbug.so
 
 clean:
-	-rm libbug.so collections/list.scm collections/list.o  lang.o lang.scm lang-macros.scm
+	-rm libbug.so collections/list.scm collections/list.o collections/stream.scm collections/stream-macros.scm collections/stream.o lang.o lang.scm lang-macros.scm
 
 install:
 	install -d $(DESTDIR)$(libdir)
 	install -m 0755 libbug.so $(DESTDIR)$(libdir)
 
 uninstall:
-	rm $(DESTDIR)$(libdir)/libbug.so 
+	rm $(DESTDIR)$(libdir)/libbug.so
 
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@

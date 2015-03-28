@@ -2,62 +2,62 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(include "lang#.scm")
+(##include "lang#.scm")
 
 
 ;; at-compile-time
 ;;  Evaluate the form in the compiler's address space.  When the program is
 ;;  executed, form will not be evaluated.
 
-(define-macro at-compile-time
+(##define-macro at-compile-time
   [|form|
-   (eval form)
+   (##eval form)
    `(quote noop)])
- 
-;; at-both-times
-;;  Evaluate the form in the compiler's address space, and also when the 
-;;  resulting program is executed. 
 
-(define-macro at-both-times
+;; at-both-times
+;;  Evaluate the form in the compiler's address space, and also when the
+;;  resulting program is executed.
+
+(##define-macro at-both-times
   [|form|
-   (eval form)
+   (##eval form)
    form])
 
 ;;  lang#if
-;;    A Smalltalk-like if.  
+;;    A Smalltalk-like if.
 ;;    Sample use:
-;;      (if #t 
+;;      (if #t
 ;;        [4]
 ;;        [5])
 
 (at-both-times
- (define-macro if
+ (##define-macro if
    [|pred ifTrue ifFalse|
     `(##if ,pred
 	   ,(caddr ifTrue)
 	   ,(caddr ifFalse))]))
- 
+
 (at-both-times
- (define-macro my-include
+ (##define-macro my-include
    [|f|
-    (eval `(include ,(string-append (getenv "BUG_HOME") "/" f)))]))
+    (##eval `(##include ,(##string-append (##getenv "BUG_HOME") "/" f)))]))
 
 
 ;; with-test
 ;;   Collocates a definiton with a test.  The test is run at compile-time
 ;;   only.
-(define-macro with-test
+(##define-macro with-test
   [|definition test|
-   (eval
-    `(begin
+   (##eval
+    `(##begin
        ,definition
-       (if (eval ,test)
+       (if (##eval ,test)
 	   ['no-op]
-	   [(begin
+	   [(##begin
 	      (pp "Test Failed")
-	      (pp (quote ,test))
-	      (pp (quote ,definition))
-	      (error "Test Failed"))])))
+	      (pp (##quote ,test))
+	      (pp (##quote ,definition))
+	      (##error "Test Failed"))])))
    ;;the actual macro expansion is just the definition
    definition])
 
@@ -66,18 +66,18 @@
 ;;   macro "with-tests" can verify that a list of tests
 ;;   all pass
 (at-compile-time
- (define all?
+ (##define all?
    [|lst|
-    (cond ((null? lst) #t)
-	  ((not (car lst)) #f)
-	  (else (all? (cdr lst))))]))
+    (##cond ((##null? lst) #t)
+	    ((##not (##car lst)) #f)
+	    (else (all? (##cdr lst))))]))
 
 ;; with-tests
 ;;   Collocates a definition with a collection of tests.  Tests are
 ;;   run sequentially, and are expected to return true or false
-(define-macro with-tests
+(##define-macro with-tests
   [|definition #!rest test|
-   `(with-test ,definition (all? (list ,@test)))])
+   `(with-test ,definition (all? (##list ,@test)))])
 
 
 ;; when
@@ -85,26 +85,24 @@
 ;;   when the bool value is false, return false
 ;; TODO - statement needs to be wrapped in a begin
 (with-tests
- (define-macro when
+ (##define-macro when
    [|bool statement|
     `(if ,bool
 	 [,statement]
 	 [#f])])
- (equal? (when 5 3) 3)
- (equal? (when #f 3) #f))
+ (##equal? (when 5 3) 3)
+ (##equal? (when #f 3) #f))
 
 ;; aif
 ;;   anaphoric-if evaluates bool, binds it to the variable "it",
 ;;   which is accessible in body.
 (with-tests
- (define-macro aif
+ (##define-macro aif
    [|bool body|
-    `(let ((it ,bool))
+    `(##let ((it ,bool))
        (when it
 	     ,body))])
- (equal? (aif (+ 5 10) (* 2 it))
+ (##equal? (aif (+ 5 10) (* 2 it))
 	 30)
- (equal? (aif #f (* 2 it))
+ (##equal? (aif #f (* 2 it))
 	 #f))
-
-
