@@ -5,6 +5,10 @@
 (##include "../lang#.scm")
 (##include "../lang-macros.scm")
 
+
+(at-compile-time
+ (my-include "lang.scm"))
+
 (at-both-times
  (my-include "lang#.scm"))
 
@@ -24,3 +28,29 @@
    (##equal? (cdr s)
 	     2)))
 
+(with-tests
+ (##define ref
+   [|s n #!key (onOutOfBounds noop)|
+    (##define refPrime
+      [|s n|
+       (if (##equal? n 0)
+	   {car s}
+	   {if (##not (##null? (cdr s)))
+	       {refPrime (cdr s) (- n 1)}
+	       {onOutOfBounds}})])
+    (if (< n 0)
+	{onOutOfBounds}
+	{refPrime s n})])
+ (##let ((s (cons 5 (cons 4 (cons 3 (cons 2 (cons 1 '())))))))
+   (all?
+    (##list
+     (##equal? (ref s -1)
+     	       'noop)
+     (##equal? (ref s 0)
+	       5)
+     (##equal? (ref s 4)
+     	       1)
+     (##equal? (ref s 5)
+     	       'noop)
+     (##equal? (ref s 5 onOutOfBounds: ['out])
+     	       'out)))))

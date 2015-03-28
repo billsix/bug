@@ -57,7 +57,7 @@
 	      (pp "Test Failed")
 	      (pp (##quote ,test))
 	      (pp (##quote ,definition))
-	      (##error "Test Failed"))])))
+	      (error "Test Failed"))])))
    ;;the actual macro expansion is just the definition
    definition])
 
