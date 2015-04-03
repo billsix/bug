@@ -10,7 +10,7 @@ bindir = @bindir@
 libdir = @libdir@
 
 all:  bug-gscpp.c
-	gcc -std=c99 bug-gscpp.c  -o bug-gscpp
+	$(CC) -std=c99 bug-gscpp.c  -o bug-gscpp
 
 
 clean:

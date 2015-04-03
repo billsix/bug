@@ -2,7 +2,7 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(##namespace ("list#"
+(namespace ("list#"
 	      reverse!
 	      first
 	      but-first
@@ -19,3 +19,6 @@
 	      sublists
 
 	      ))
+
+;; don't redefine anything that gambit defined
+(include "~~lib/gambit#.scm")

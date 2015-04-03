@@ -2,13 +2,13 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(##namespace ("lang#"
+(namespace ("lang#"
 	      package
 	      version
 	      prefix
 	      ))
 
-(##define package  "@PACKAGE_NAME@")
-(##define version  "@PACKAGE_VERSION@")
-(##define prefix "@prefix@")
-(##define ac_unique_file "@ac_unique_file@")
+(define package  "@PACKAGE_NAME@")
+(define version  "@PACKAGE_VERSION@")
+(define prefix "@prefix@")
+(define ac_unique_file "@ac_unique_file@")

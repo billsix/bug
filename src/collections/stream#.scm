@@ -2,12 +2,14 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(##namespace ("stream#"
-	      cons
-	      car
-	      cdr
-	      ;; ref
-	      ;; map
-	      ;; for-each
-	      ))
+(namespace ("stream#"
+	    cons
+	    car
+	    cdr
+	    ref
+	    ;; map
+	    ;; for-each
+	    ))
 
+;; don't redefine anything that gambit defined
+(include "~~lib/gambit#.scm")

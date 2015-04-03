@@ -2,7 +2,7 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(##namespace ("lang#"
+(namespace ("lang#"
 	      at-compile-time
 	      at-run-time
 	      at-both-times
@@ -15,3 +15,6 @@
 	      identity
 	      noop
 	      ))
+
+;; don't redefine anything that gambit defined
+(include "~~lib/gambit#.scm")

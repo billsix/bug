@@ -2,8 +2,8 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(##include "../lang#.scm")
-(##include "../lang-macros.scm")
+(include "../lang#.scm")
+(include "../lang-macros.scm")
 
 (at-compile-time
  (my-include "lang.scm"))
@@ -11,14 +11,14 @@
 (my-include "collections/stream#.scm")
 
 (with-tests
- (##define-macro cons
+ (define-macro stream#cons
    [|a b|
-    `(##cons ,a (##delay ,b))])
- (##begin
-   (##let ((s (##cons 1 2)))
+    `(##cons ,a (delay ,b))])
+ (begin
+   (let ((s (stream#cons 1 2)))
      (all?
-      (##list
-       (##equal? (##car s)
+      (list
+       (equal? (##car s)
 		 1)
-       (##equal? (##force (##cdr s))
+       (equal? (force (##cdr s))
 		 2))))))
