@@ -22,19 +22,28 @@ all: libbug.so
 	gsc -obj $<
 
 libbug.so: lang-macros.scm lang.scm lang.c collections/list.scm collections/list.c collections/stream.scm collections/stream-macros.scm collections/stream.c
+	#build the shared library
 	gsc -link -o libbug.c lang collections/list collections/stream
 	gsc -obj -cc-options "-D___SHARED" libbug.c lang.c collections/list.c collections/stream.c
 	$(CC) -shared  libbug.o lang.o collections/list.o collections/stream.o -o libbug.so
+	#build the loadable library
+	gsc -link -flat -o libbug.o1.c lang collections/list collections/stream  > /dev/null
+	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c lang.c collections/list.c collections/stream.c
+	$(CC) -shared  libbug.o1.o lang.o collections/list.o collections/stream.o -o libbug.o1
+
+
 
 clean:
-	-rm libbug.so collections/list.scm collections/list.o collections/stream.scm collections/stream-macros.scm collections/stream.o lang.o lang.scm lang-macros.scm lang.c libbug.c libbug.o collections/list.c collections/stream.c 
+	-rm libbug.so libbug.o1 collections/list.scm collections/list.o collections/stream.scm collections/stream-macros.scm collections/stream.o lang.o lang.scm lang-macros.scm lang.c libbug.c libbug.o collections/list.c collections/stream.c 
 
 install:
 	install -d $(DESTDIR)$(libdir)
 	install -m 0755 libbug.so $(DESTDIR)$(libdir)
+	install -m 0755 libbug.o1 $(DESTDIR)$(libdir)
 
 uninstall:
 	rm $(DESTDIR)$(libdir)/libbug.so
+	rm $(DESTDIR)$(libdir)/libbug.o1
 
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@
