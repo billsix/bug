@@ -26,15 +26,12 @@ all: demo
 demo:  $(sources)
 	gsc -link -l ../src/libbug demo
 	gsc -obj demo.c demo_.c
-	cp ../src/libbug.so .
-	LD_RUN_PATH=$(libdir) $(CC) -o demo libbug.so demo.o demo_.o    -lgambc -lm -ldl -lutil 
-	rm libbug.so
+	LD_RUN_PATH=$(libdir) $(CC) -o demo -L../src demo.o demo_.o    -lgambc -lm -ldl -lutil -lbug
 
 # $ gcc m3.o m3_.o mylib.so -lgambc
 # $ LD_LIBRARY_PATH=.:/usr/local/lib ./a.out
 
 clean:
-	-rm libbug.so
 	-rm demo.c demo_.c *.o
 	-rm demo
 
