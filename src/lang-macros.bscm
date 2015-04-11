@@ -30,12 +30,21 @@
 ;;        [4]
 ;;        [5])
 
+
 (at-both-times
  (define-macro if
    [|pred ifTrue ifFalse|
-    `(##if ,pred
-	   ,(caddr ifTrue)
-	   ,(caddr ifFalse))]))
+    ;; (expression? [5]) => true
+    ;; (expression? [(pp 4) 6]) => false
+    (let ((expression?
+	   [|lst| (equal? 3 (length lst))]))
+      `(##if ,pred
+	     ,(##if (expression? ifTrue)
+		    (caddr ifTrue)
+		    `(begin ,@(cddr ifTrue)))
+	     ,(##if (expression? ifFalse)
+		    (caddr ifFalse)
+		    `(begin ,@(cddr ifFalse)))))]))
 
 (at-both-times
  (define-macro my-include
@@ -65,7 +74,7 @@
 ;;   all? is defined at compile-time only, so that the subsequent
 ;;   macro "with-tests" can verify that a list of tests
 ;;   all pass
-(at-compile-time
+(at-both-times
  (define all?
    [|lst|
     (cond ((null? lst) #t)

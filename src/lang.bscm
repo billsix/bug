@@ -5,16 +5,90 @@
 (include "lang#.scm")
 (include "lang-macros.scm")
 
-;; uncomment this to see how they work when interpreting/compiling
-;;(at-compile-time (pp "defined in 'at-compile-time'"))
-;;(at-both-times (pp "defined in 'at-both-time'"))
 
+;; identity
+;;   identity :: a -> a
+;;
+;;   Return the input
 (with-test
  (define identity [|x| x])
  (equal? "foo" (identity "foo")))
-;; thish should be defined somewhere else too
+
+;; identity
+;;   identity :: () -> Symbol
+;;
+;;   Return the symbol 'noop. Useful when
+;;   a procedure expects a procedure as an
+;;   argument, but the caller has no need
+;;   for worthwhile procedure to actually be
+;;   called
+
 (with-test
  (define noop  ['noop])
  (equal? (noop) 'noop))
 
+;; satisfies-relation
+;;   satisfies-relation :: (a -> b) -> [(a,b)] -> Bool
+;;
+;;   For a given relation (i.e. function), and a
+;;   list of 2-element lists, evaluatie whether the function
+;;   when applied to the first element of the list
+;;   evaluates to the second element of the list
+;;
+;;   Reference: http://en.wikipedia.org/wiki/Binary_relation
+(with-tests
+ (define satisfies-relation
+   [|fn list-of-pairs|
+    ;;   satisfies-relation-prime :: (a -> b) -> (a,b) -> Bool
+    (define satisfies-relation-prime
+      [|fn pair|
+       (let ((independent-variable (car pair))
+	     (dependent-variable (cadr pair)))
+	 (equal? (fn independent-variable)
+		 dependent-variable))])
+    (all? (map [|pair| (satisfies-relation-prime fn pair)]
+	       list-of-pairs))])
+ (satisfies-relation [|x| (+ x 1)]
+		     `((0 1)
+		       (1 2)
+		       (2 3))))
+
+
+;; numeric-if
+;;   numeric-if :: (Num a) =>  a -> Thunk -> Thunk -> Thunk
+;;
+;;   An if expression for numbers, based on their sign.
+(with-test
+ (define numeric-if
+   [|expr #!key (ifPositive noop) (ifZero noop)(ifNegative noop)|
+    (cond ((> expr 0) (ifPositive))
+	  ((= expr 0) (ifZero))
+	  (else (ifNegative)))])
+ (satisfies-relation
+  [|n|
+   (numeric-if n
+	       ifPositive: ['pos]
+	       ifZero: ['zero]
+	       ifNegative: ['neg])]
+  `((5 pos)
+    (0 zero)
+    (-5 neg))))
+
+
+;; while
+;;   while :: Thunk -> Thunk -> Symbol
+;;
+;;   Imperative while loop.
+(with-tests
+ (define while
+   [|pred body|
+    (if (pred)
+	[(body)
+	 (while pred body)]
+	{noop})])
+ (let ((a 0))
+   (begin
+     (while {< a 5}
+	    {set! a (+ a 1)})
+     (equal? a 5))))
 
