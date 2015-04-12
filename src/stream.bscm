@@ -2,21 +2,6 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(include "../lang#.scm")
-(include "../lang-macros.scm")
-
-
-(at-compile-time
- (my-include "lang.scm"))
-
-(at-both-times
- (begin
-   (my-include "lang#.scm")))
-
-
-(my-include "collections/stream#.scm")
-(my-include "collections/stream-macros.scm")
-
 (with-tests
  (define stream#car ##car)
  (let ((s (stream#cons 1 2)))

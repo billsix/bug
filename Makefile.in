@@ -14,17 +14,14 @@ PREPROCESSOR_PATH=$(shell pwd)/bug-gsc/
 all: 
 	cd bug-gsc/ && $(MAKE) $@
 	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd src && $(MAKE) $@
-	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd demo && $(MAKE) $@
 
 install:
 	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
-	cd demo && $(MAKE) $@
 
 uninstall:
 	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
-	cd demo && $(MAKE) $@
 
 dist: $(distdir).tar.gz
 
@@ -69,7 +66,6 @@ FORCE:
 clean:
 	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
-	cd demo && $(MAKE) $@
 	-rm $(distdir).tar.gz
 
 

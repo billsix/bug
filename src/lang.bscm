@@ -2,9 +2,6 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(include "lang#.scm")
-(include "lang-macros.scm")
-
 
 ;; identity
 ;;   identity :: a -> a

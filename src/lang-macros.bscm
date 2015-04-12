@@ -2,9 +2,6 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-(include "lang#.scm")
-
-
 ;; at-compile-time
 ;;  Evaluate the form in the compiler's address space.  When the program is
 ;;  executed, form will not be evaluated.
