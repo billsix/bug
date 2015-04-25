@@ -72,6 +72,21 @@
     (-5 neg))))
 
 
+;; complement
+;;   complement :: (a -> Bool) -> (a -> Bool)
+;;
+;;   Negates a predicate
+(with-test
+ (define complement
+   [|f|
+    [|#!rest args| (not (apply f args))]])
+ (satisfies-relation
+  [|x| ((complement pair?) x)]
+  `(
+    (1 #t)
+    ((1 2) #f))))
+
+
 ;; while
 ;;   while :: Thunk -> Thunk -> Symbol
 ;;

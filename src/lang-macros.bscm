@@ -43,12 +43,6 @@
 		    (caddr ifFalse)
 		    `(begin ,@(cddr ifFalse)))))]))
 
-(at-both-times
- (define-macro my-include
-   [|f|
-    (eval `(include ,(string-append (getenv "BUG_HOME") "/" f)))]))
-
-
 ;; with-test
 ;;   Collocates a definiton with a test.  The test is run at compile-time
 ;;   only.
@@ -112,3 +106,55 @@
 	 30)
  (equal? (aif #f (* 2 it))
 	 #f))
+
+
+;; setf!
+;;   Sets a value using its getter, as done in Common Lisp.
+;;
+;;   Implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
+
+;; this dummy structure is used in a test
+(at-compile-time
+ (define-structure foo bar baz))
+(with-tests
+ (define-macro setf!
+   [|get-expression val|
+    (if (not (pair? get-expression))
+	[`(set! ,get-expression ,val)]
+	{case (car get-expression)
+	  ((car) `(set-car! ,@(cdr get-expression) ,val))
+	  ((cdr) `(set-cdr! ,@(cdr get-expression) ,val))
+	  ((cadr) `(setf! (car (cdr ,@(cdr get-expression))) ,val))
+	  ((cddr) `(setf! (cdr (cdr ,@(cdr get-expression))) ,val))
+	  ;; TODO - handle other atypical cases
+	  (else `(,(string->symbol (string-append (symbol->string (car get-expression))
+						  "-set!"))
+		  ,@(cdr get-expression)
+		  ,val))})])
+ ;; test variable
+ (let ((a 5))
+   (setf! a 10)
+   (equal? a 10))
+ (begin
+   (let ((a (make-foo 1 2)))
+     (setf! (foo-bar a) 10)
+     (equal? (make-foo 10 2)
+	     a)))
+ ;; test car
+ (let ((a (list 1 2)))
+   (setf! (car a) 10)
+   (equal? a '(10 2)))
+ ;; test cdr
+ (let ((a (list 1 2)))
+   (setf! (cdr a) (list 10))
+   (equal? a '(1 10)))
+ ;; test cadr
+ (let ((a (list (list 1 2) (list 3 4))))
+   (setf! (cadr a) 10)
+   (equal? a '((1 2) 10)))
+ ;; test cddr
+ (let ((a (list (list 1 2) (list 3 4))))
+   (setf! (cddr a) (list 10))
+   (equal? a '((1 2) (3 4) 10)))
+
+ )

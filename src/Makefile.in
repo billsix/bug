@@ -21,7 +21,7 @@ all: libbug.so
 %.o : %.c
 	gsc -obj $<
 
-SCHEME_FILES= lang-macros.scm lang.scm  list.scm stream.scm stream-macros.scm
+SCHEME_FILES= lang-macros.scm lang.scm lang2.scm  list.scm stream.scm stream-macros.scm
 MAIN_PROGRAM= main.c
 libbug.so: $(SCHEME_FILES) $(MAIN_PROGRAM)
 	#build the shared library

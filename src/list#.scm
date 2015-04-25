@@ -3,22 +3,25 @@
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
 (namespace ("list#"
-	      reverse!
-	      first
-	      but-first
-	      last
-	      filter
-	      remove
-	      fold-left
-	      scan-left
-	      fold-right
-	      flatmap
-	      enumerate-interval
-	      iota
-	      permutations
-	      sublists
+	    copy
+	    proper?
+	    reverse!
+	    first
+	    but-first
+	    last
+	    but-last
+	    filter
+	    remove
+	    fold-left
+	    scan-left
+	    fold-right
+	    flatmap
+	    enumerate-interval
+	    iota
+	    permutations
+	    sublists
 
-	      ))
+	    ))
 
 ;; don't redefine anything that gambit defined
 (include "~~lib/gambit#.scm")

@@ -40,7 +40,7 @@ $(distdir): FORCE
 distcheck: $(distdir).tar.gz
 	gzip -cd $(distdir).tar.gz | tar xvf -
 	cd $(distdir) && ./configure
-	cd $(distdir) && export PATH=$(shell pwd)/bug-gsc/:$(PATH) && export BUG_PATH=$(shell pwd)/src/ && $(MAKE)
+	cd $(distdir) && export PATH=$(shell pwd)/bug-gsc/:$(PATH) && $(MAKE)
 	cd $(distdir) && $(MAKE) DESTDIR=$${PWD}/_inst install
 	cd $(distdir) && $(MAKE) DESTDIR=$${PWD}/_inst uninstall
 	@remaining="`find $${PWD}/$(distdir)/_inst -type f | wc -l`"; \

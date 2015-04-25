@@ -12,8 +12,16 @@
 	      with-tests
 	      when
 	      aif
+	      setf!
+
 	      identity
 	      noop
+	      satisfies-relation
+	      numeric-if
+	      complement
+	      while
+
+	      compose
 	      ))
 
 ;; don't redefine anything that gambit defined
