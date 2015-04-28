@@ -28,7 +28,6 @@ AC_PROG_INSTALL
 
 AC_CONFIG_FILES([Makefile
                  bug-gsc/Makefile
-                 demo/Makefile
                  src/Makefile
 		 src/config.bscm
 		 ])
