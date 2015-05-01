@@ -2,15 +2,20 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
+(namespace (""
+	    cons
+	    car
+	    cdr))
+
 (with-tests
  (define-macro stream#cons
    [|a b|
-    `(##cons ,a (delay ,b))])
+    `(cons ,a (delay ,b))])
  (begin
    (let ((s (stream#cons 1 2)))
      (all?
       (list
-       (equal? (##car s)
-		 1)
-       (equal? (force (##cdr s))
-		 2))))))
+       (equal? (car s)
+	       1)
+       (equal? (force (cdr s))
+	       2))))))

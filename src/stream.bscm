@@ -2,15 +2,21 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
+
+
+(namespace (""
+	    car
+	    cdr))
+
 (with-tests
- (define stream#car ##car)
+ (define stream#car car)
  (let ((s (stream#cons 1 2)))
    (equal? (stream#car s)
 	   1)))
 
 (with-tests
  (define stream#cdr
-   [|s| (force (##cdr s))])
+   [|s| (force (cdr s))])
  (let ((s (stream#cons 1 2)))
    (equal? (stream#cdr s)
 	   2)))

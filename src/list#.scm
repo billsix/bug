@@ -23,5 +23,3 @@
 
 	    ))
 
-;; don't redefine anything that gambit defined
-(include "~~lib/gambit#.scm")

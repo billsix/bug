@@ -20,14 +20,12 @@
    (eval form)
    form])
 
-;;  lang#if
+;;  if
 ;;    A Smalltalk-like if.
 ;;    Sample use:
 ;;      (if #t
 ;;        [4]
 ;;        [5])
-
-
 (at-both-times
  (define-macro if
    [|pred ifTrue ifFalse|
@@ -36,14 +34,16 @@
     (let ((expression?
 	   [|lst| (equal? 3 (length lst))]))
       `(##if ,pred
-	     ,(##if (expression? ifTrue)
-		    (caddr ifTrue)
-		    `(begin ,@(cddr ifTrue)))
-	     ,(##if (expression? ifFalse)
-		    (caddr ifFalse)
-		    `(begin ,@(cddr ifFalse)))))]))
+	   ,(##if (expression? ifTrue)
+		(caddr ifTrue)
+		`(begin ,@(cddr ifTrue)))
+	   ,(##if (expression? ifFalse)
+		(caddr ifFalse)
+		`(begin ,@(cddr ifFalse)))))]))
 
-;; with-test
+
+
+ ;; with-test
 ;;   Collocates a definiton with a test.  The test is run at compile-time
 ;;   only.
 (define-macro with-test
@@ -51,7 +51,7 @@
    (eval
     `(begin
        ,definition
-       (if (eval ,test)
+       (if ,test
 	   ['no-op]
 	   [(begin
 	      (pp "Test Failed")
@@ -77,7 +77,7 @@
 ;;   run sequentially, and are expected to return true or false
 (define-macro with-tests
   [|definition #!rest test|
-   `(with-test ,definition (all? (list ,@test)))])
+   `(with-test ,definition (and ,@test))])
 
 
 ;; when
@@ -88,8 +88,8 @@
  (define-macro when
    [|bool statement|
     `(if ,bool
-	 [,statement]
-	 [#f])])
+	      [,statement]
+	      [#f])])
  (equal? (when 5 3) 3)
  (equal? (when #f 3) #f))
 
@@ -106,6 +106,7 @@
 	 30)
  (equal? (aif #f (* 2 it))
 	 #f))
+
 
 
 ;; setf!
