@@ -61,16 +61,6 @@
    ;;the actual macro expansion is just the definition
    definition])
 
-;; all?
-;;   all? is defined at compile-time only, so that the subsequent
-;;   macro "with-tests" can verify that a list of tests
-;;   all pass
-(at-both-times
- (define all?
-   [|lst|
-    (cond ((null? lst) #t)
-	    ((not (car lst)) #f)
-	    (else (all? (cdr lst))))]))
 
 ;; with-tests
 ;;   Collocates a definition with a collection of tests.  Tests are
