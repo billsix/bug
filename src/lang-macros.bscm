@@ -112,7 +112,7 @@
    [|get-expression val|
     (if (not (pair? get-expression))
 	[`(set! ,get-expression ,val)]
-	{case (car get-expression)
+	[(case (car get-expression)
 	  ((car) `(set-car! ,@(cdr get-expression) ,val))
 	  ((cdr) `(set-cdr! ,@(cdr get-expression) ,val))
 	  ((cadr) `(setf! (car (cdr ,@(cdr get-expression))) ,val))
@@ -121,7 +121,7 @@
 	  (else `(,(string->symbol (string-append (symbol->string (car get-expression))
 						  "-set!"))
 		  ,@(cdr get-expression)
-		  ,val))})])
+		  ,val)))])])
  ;; test variable
  (let ((a 5))
    (setf! a 10)

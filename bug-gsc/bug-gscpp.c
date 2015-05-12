@@ -78,21 +78,33 @@ int main(int argc, char** argv)
       {
 	for(int i = 0; i < bytesRead; i++)
 	  {
-	    void handleLambda(char * buf, int * i);
 	    switch(buf[i]){
+	    case '[': {
+	      static const char text[] = "(lambda ";
+	      xwrite(text,ARRAY_SIZE(text) - 1);
+	      // skip whitespace
+	      {
+		i++;
+		while(isspace(buf[i]))
+		  {
+		    xwrite(&buf[i], 1);
+		    i++;
+		  }
+	      }
+	      if(buf[i] == '|')
+		{
+		  xwrite("(", 1);
+		}
+	      else
+		{
+		  xwrite("() ", 3);
+		  i--;
+		}
+	      break;
+	    }
 	    case '|':
 	    case ']':
 	      xwrite(")", 1);
-	      break;
-	    case '}':
-	      xwrite("))", 2);
-	      break;
-	    case '[':
-	      handleLambda(buf,&i);
-	      break;
-	    case '{':
-	      handleLambda(buf,&i);
-	      xwrite("(", 1);
 	      break;
 	    default:
 	      xwrite(&buf[i], 1);
@@ -103,26 +115,3 @@ int main(int argc, char** argv)
   }
 }
 
-void handleLambda(char * buf, int * i)
-{
-  static const char text[] = "(lambda ";
-  xwrite(text,ARRAY_SIZE(text) - 1);
-  // skip whitespace
-  {
-    (*i)++;
-    while(isspace(buf[*i]))
-      {
-	xwrite(&buf[*i], 1);
-	(*i)++;
-      }
-  }
-  if(buf[*i] == '|')
-    {
-      xwrite("(", 1);
-    }
-  else
-    {
-      xwrite("() ", 3);
-      (*i)--;
-    }
-}

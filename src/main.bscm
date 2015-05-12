@@ -112,11 +112,11 @@
     (if (pred)
 	[(body)
 	 (while pred body)]
-	{noop})])
+	[(noop)])])
  (let ((a 0))
    (begin
-     (while {< a 5}
-	    {set! a (+ a 1)})
+     (while [(< a 5)]
+	    [(set! a (+ a 1))])
      (equal? a 5))))
 
 
@@ -169,7 +169,7 @@
     ;; ensure that reversePrime's constraints are preserved
     (if (null? lst)
 	['()]
-	{reversePrime! lst '()})])
+	[(reversePrime! lst '())])])
  (satisfies-relation
   reverse!
   `(
@@ -183,8 +183,8 @@
  (define first
    [|lst #!key (onNull noop)|
     (if (null? lst)
-	{onNull}
-	{car lst})])
+	[(onNull)]
+	[(car lst)])])
  ;; test without the onNull handler
  (satisfies-relation
   first
@@ -205,8 +205,8 @@
  (define but-first
    [|lst #!key (onNull noop)|
     (if (null? lst)
-	{onNull}
-	{cdr lst})])
+	[(onNull)]
+	[(cdr lst)])])
  (satisfies-relation
   but-first
   `(
@@ -225,11 +225,11 @@
     (define last-Prime
       [|lst|
        (if (null? (cdr lst))
-	   {car lst}
-	   {last (cdr lst)})])
+	   [(car lst)]
+	   [(last (cdr lst))])])
     (if (null? lst)
-	{onNull}
-	{last-Prime lst})])
+	[(onNull)]
+	[(last-Prime lst)])])
  (satisfies-relation
   last
   `(
@@ -253,8 +253,8 @@
 	(but-first
 	 (reverse! lst)))])
     (if (null? lst)
-	{onNull}
-	{but-last-prime lst})])
+	[(onNull)]
+	[(but-last-prime lst)])])
  (satisfies-relation
   but-last
   `(
@@ -279,11 +279,11 @@
       [|lst acc|
        (if (null? lst)
 	   [acc]
-	   {let ((head (car lst)))
+	   [(let ((head (car lst)))
 	     (filterPrime (cdr lst)
 			  (if (p? head)
-			      {cons head acc}
-			      [acc]))})])
+			      [(cons head acc)]
+			      [acc])))])])
     (reverse! (filterPrime lst '()))])
  (satisfies-relation
   [|l| (filter [|x| (not (= 4 (expt x 2)))]
@@ -316,9 +316,9 @@
       [|acc lst|
        (if (null? lst)
 	   [acc]
-	   {fold-leftPrime (fn acc
+	   [(fold-leftPrime (fn acc
 			       (car lst))
-			   (cdr lst)})])
+			   (cdr lst))])])
     (fold-leftPrime initial lst]])
  (satisfies-relation
   [|l| (fold-left + 0 l)]
@@ -338,11 +338,11 @@
     (define scan-leftPrime
       [|acc-list lst|
        (if (null? lst)
-	   {reverse! acc-list}
-	   {let ((newacc (fn (first acc-list)
+	   [(reverse! acc-list)]
+	   [(let ((newacc (fn (first acc-list)
 			       (car lst))))
 	     (scan-leftPrime (cons newacc acc-list)
-			     (cdr lst))})])
+			     (cdr lst)))])])
     (scan-leftPrime (list initial) lst)])
  (satisfies-relation
   [|l| (scan-left + 0 l)]
@@ -363,8 +363,8 @@
       [|acc lst|
        (if (null? lst)
 	   [acc]
-	   {fn (car lst)
-	       (fold-rightPrime acc (cdr lst))})])
+	   [(fn (car lst)
+	       (fold-rightPrime acc (cdr lst)))])])
     (fold-rightPrime initial lst)])
  (satisfies-relation
   [|l| (fold-right - 0 l)]
@@ -401,7 +401,7 @@
    [|low high #!key (step 1)|
     (if (> low high)
 	['()]
-	{cons low (enumerate-interval (+ low step) high step: step)})])
+	[(cons low (enumerate-interval (+ low step) high step: step))])])
  (equal? (enumerate-interval 1 10)
 	   '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2)
@@ -428,14 +428,14 @@
     (define permutationsPrime
       [|lst|
        (if (null? lst)
-	   {list '()}
-	   {flatmap [|x|
+	   [(list '())]
+	   [(flatmap [|x|
 		     (map [|y| (cons x y)]
 			    (permutationsPrime (remove x lst)))]
-		    lst})])
+		    lst)])])
     (if (null? lst)
 	['()]
-	{permutationsPrime lst})])
+	[(permutationsPrime lst)])])
  (satisfies-relation
   permutations
   `(
@@ -458,7 +458,7 @@
    [|lst|
     (if (null? lst)
 	['()]
-	{cons lst (sublists (cdr lst))})])
+	[(cons lst (sublists (cdr lst)))])])
  (satisfies-relation
   sublists
   `(
@@ -477,8 +477,8 @@
 	(fold-left [|acc fn| (fn acc)] accum list-of-fns)])
      (let ((reversed-fns (reverse! fns)))
        (if (null? fns)
-	   {apply identity args}
-	   {compose-prime (cdr reversed-fns) (apply (car reversed-fns) args)}))]])
+	   [(apply identity args)]
+	   [(compose-prime (cdr reversed-fns) (apply (car reversed-fns) args))]))]])
  (equal? ((compose) 5)
 	 5)
  (equal? ((compose [|x| (* x 2)])
@@ -520,13 +520,13 @@
     (define stream#refPrime
       [|s n|
        (if (equal? n 0)
-	   {stream#car s}
-	   {if (not (null? (stream#cdr s)))
-	       {stream#refPrime (stream#cdr s) (- n 1)}
-	       {onOutOfBounds}})])
+	   [(stream#car s)]
+	   [(if (not (null? (stream#cdr s)))
+	       [(stream#refPrime (stream#cdr s) (- n 1))]
+	       [(onOutOfBounds)])])])
     (if (< n 0)
-	{onOutOfBounds}
-	{stream#refPrime s n})])
+	[(onOutOfBounds)]
+	[(stream#refPrime s n)])])
  (let ((s (stream#cons 5
 		       (stream#cons 4
 				    (stream#cons 3
