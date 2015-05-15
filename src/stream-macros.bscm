@@ -7,15 +7,15 @@
 	    car
 	    cdr))
 
-(with-tests
- (define-macro stream#cons
+{with-tests
+ {define-macro stream#cons
    [|a b|
-    `(cons ,a (delay ,b))])
- (begin
-   (let ((s (stream#cons 1 2)))
+    `(cons ,a {delay ,b})]}
+ {begin
+   {let ((s (stream#cons 1 2)))
      (all?
       (list
        (equal? (car s)
 	       1)
-       (equal? (force (cdr s))
-	       2))))))
+       (equal? {force (cdr s)}
+	       2)))}}}
