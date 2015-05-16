@@ -27,25 +27,30 @@ libbug.so: $(SCHEME_FILES) $(MAIN_PROGRAM)
 	#build the shared library
 	gsc -link -o libbug.c main
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c 
-	$(CC) -shared  libbug.o main.o -o libbug.so
+	$(CC) -shared  libbug.o main.o -o libbug.so.$(version)
+	# for reasons I don't yet understand, leaving main.[co] around causes
+	# problems in subsequent makes
+	rm main.c main.o
 	#build the loadable library
-	gsc -link -flat -o libbug.o1.c main  > /dev/null
-	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c main.c 
-	$(CC) -shared  libbug.o1.o main.o -o libbug.o1
+	gsc -link -flat -o libbug.$(version).o1.c main  > /dev/null
+	gsc -obj -cc-options "-D___DYNAMIC" libbug.$(version).o1.c main.c 
+	$(CC) -shared  libbug.$(version).o1.o main.o -o libbug.$(version).o1
+	# for reasons I don't yet understand, leaving main.[co] around causes
+	# problems in subsequent makes
+	rm main.c main.o
 
 
 
 clean:
 	-rm libbug.so \
-	libbug.o1 \
+	libbug.$(version).o1 \
 	bug-gsc/bug-gscpp \
 	lang-macros.scm \
 	lang.scm \
 	libbug.c \
 	libbug.o \
-	libbug.o1 \
-	libbug.o1.c \
-	libbug.o1.o \
+	libbug.$(version).o1.c \
+	libbug.$(version).o1.o \
 	libbug.so \
 	list.scm \
 	main.c \
@@ -55,12 +60,12 @@ clean:
 
 install:
 	install -d $(DESTDIR)$(libdir)
-	install -m 0755 libbug.so $(DESTDIR)$(libdir)
-	install -m 0755 libbug.o1 $(DESTDIR)$(libdir)
+	install -m 0755 libbug.so.$(version) $(DESTDIR)$(libdir)
+	install -m 0755 libbug.$(version).o1 $(DESTDIR)$(libdir)
 
 uninstall:
-	rm $(DESTDIR)$(libdir)/libbug.so
-	rm $(DESTDIR)$(libdir)/libbug.o1
+	rm $(DESTDIR)$(libdir)/libbug.so.$(version)
+	rm $(DESTDIR)$(libdir)/libbug.$(version).o1
 
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@
