@@ -117,20 +117,20 @@
 {at-compile-time
  {define-macro non-working-aif
    [|bool body|
-    (with-gensyms
+    {with-gensyms
      (it)
      `(let ((,it ,bool))
-	(when ,it
-	      ,body)))]}}
+	{when ,it
+	      ,body})}]}}
 {with-tests
  'ignore ;; testing with-gensyms, which has already been defined
  (equal? {let ((it 0))
-	   (aif (+ 5 10) (* 2 it))}
+	   {aif (+ 5 10) (* 2 it)}}
 	 ;; in the true aif, 'it' is captured and set, hence it
 	 ;; is not 0
 	 30)
  (equal? {let ((it 0))
-	   (non-working-aif (+ 5 10) it)}
+	   {non-working-aif (+ 5 10) it}}
 	 ;; when using with-gensyms, it is not captured, hence
 	 ;; it is 0
 	 0)}
