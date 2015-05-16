@@ -96,6 +96,46 @@
  (equal? (aif #f (* 2 it))
 	 #f)}
 
+;; with-gensyms
+;;   Utility for macros to minimize explicit use of gensym.
+;;   Gensym creates a symbol at compile time which is guaranteed
+;;   to be unique.  Macros which intentionally capture variables,
+;;   such as aif, are the anomaly.
+;;   Usually, variables local to a macro should not clash
+;;   with variables local to the macro caller.
+;;
+{at-both-times
+ {define-macro with-gensyms
+   [|symbols #!rest body|
+    `{let ,(map [|symbol| `(,symbol {gensym})]
+		symbols)
+       ,@body}]}}
+
+;; for testing purposes, create a bogus version of aif
+;; which uses with-gensyms to intentionally *not* capture
+;; 'it'
+{at-compile-time
+ {define-macro non-working-aif
+   [|bool body|
+    (with-gensyms
+     (it)
+     `(let ((,it ,bool))
+	(when ,it
+	      ,body)))]}}
+{with-tests
+ 'ignore ;; testing with-gensyms, which has already been defined
+ (equal? {let ((it 0))
+	   (aif (+ 5 10) (* 2 it))}
+	 ;; in the true aif, 'it' is captured and set, hence it
+	 ;; is not 0
+	 30)
+ (equal? {let ((it 0))
+	   (non-working-aif (+ 5 10) it)}
+	 ;; when using with-gensyms, it is not captured, hence
+	 ;; it is 0
+	 0)}
+
+
 
 
 ;; setf!
@@ -146,5 +186,6 @@
  {let ((a (list (list 1 2) (list 3 4))))
    {setf! (cddr a) (list 10)}
    (equal? a '((1 2) (3 4) 10))}
- 
+
  }
+
