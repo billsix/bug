@@ -8,20 +8,28 @@ prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
 libdir = @libdir@
+mandir = @mandir@
 
 PREPROCESSOR_PATH=$(shell pwd)/bug-gsc/
 
 all: 
 	cd bug-gsc/ && $(MAKE) $@
 	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd src && $(MAKE) $@
+	bzip2 -k man/bug-gscpp.1
+	bzip2 -k man/bug-gsi.1
 
 install:
 	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
+	install -d $(DESTDIR)$(mandir)/man1
+	install -m 0755 man/bug-gscpp.1.bz2  $(DESTDIR)$(mandir)/man1/
+	install -m 0755 man/bug-gsi.1.bz2  $(DESTDIR)$(mandir)/man1/
 
 uninstall:
-	cd bug-gsc/ && $(MAKE) $@
-	cd src && $(MAKE) $@
+	-cd bug-gsc/ && $(MAKE) $@
+	-cd src && $(MAKE) $@
+	-rm $(DESTDIR)$(mandir)/man1/bug-gscpp.1.bz2
+	-rm $(DESTDIR)$(mandir)/man1/bug-gsi.1.bz2
 
 dist: $(distdir).tar.gz
 
