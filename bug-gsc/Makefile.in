@@ -9,20 +9,29 @@ exec_prefix = @exec_prefix@
 bindir = @bindir@
 libdir = @libdir@
 
-all:  bug-gscpp.c
+all:  bug-gscpp bug-gsi
+
+
+
+bug-gscpp: bug-gscpp.c
 	$(CC) -std=c99 bug-gscpp.c  -o bug-gscpp
 
+bug-gsi: bug-gsi.c
+	$(CC) -std=c99 bug-gsi.c  -o bug-gsi
 
 clean:
 	-rm bug-gscpp
+	-rm bug-gsi
 
 
 install:
 	install -d $(DESTDIR)$(bindir)
 	install -m 0755 bug-gscpp $(DESTDIR)$(bindir)
+	install -m 0755 bug-gsi $(DESTDIR)$(bindir)
 
 uninstall:
 	rm $(DESTDIR)$(bindir)/bug-gscpp
+	rm $(DESTDIR)$(bindir)/bug-gsi
 
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@
