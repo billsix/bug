@@ -49,7 +49,6 @@ int main(int argc, char** argv)
 
       // executer bug-gscpp
       int returnCode = execlp("bug-gscpp","bug-gscpp",NULL);
-      puts("In parent, should never get here");
     }
   else
     {
@@ -65,8 +64,6 @@ int main(int argc, char** argv)
 
       // execute gsi, using stdin and stdout
       int returnCode = execlp("gsi","gsi","-:d-,tE",NULL);
-      puts("In child, should never get here");
-
     }
   return 0;
 }

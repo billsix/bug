@@ -15,8 +15,8 @@ PREPROCESSOR_PATH=$(shell pwd)/bug-gsc/
 all: 
 	cd bug-gsc/ && $(MAKE) $@
 	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd src && $(MAKE) $@
-	bzip2 -k man/bug-gscpp.1
-	bzip2 -k man/bug-gsi.1
+	bzip2 -f -k man/bug-gscpp.1
+	bzip2 -f -k man/bug-gsi.1
 
 install:
 	cd bug-gsc/ && $(MAKE) $@

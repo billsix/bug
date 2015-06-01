@@ -4,58 +4,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <ctype.h>
 
-#include <errno.h>
-
-#define SIZE_OF_INPUT_BUFFER 10000
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
-// file descriptor for the input
-int inputfd;
-// file descriptor where the output will go
-int outputfd;
-
-// write to outputfd or die
-ssize_t xwrite(const void *buf, size_t count)
+// wrapper to handle ignore errors, and to
+// retry reading from the stream
+char *xfgets(char *s, int size, FILE *stream)
 {
-  ssize_t result;
-  // TODO  check for EAGAIN
-  if( (result = write(outputfd,buf,count)) == -1)
-    {
-      puts("Error writing to the output file");
-      printf("%zd\n", count);
-      exit(1);
-    }
-  return result;
+  char * result;
+ attemptToRead:
+  result = fgets(s, size, stream);
+  if(result)
+    return result;
+  if(feof(stream))
+    return result;
+  goto attemptToRead;
 }
 
-
-ssize_t xread(int fd, void *buf, size_t count)
-{
-  ssize_t bytesRead;
- readFromInput:
-  bytesRead = read(fd, buf, count);
-  if(bytesRead == -1)
-    {
-      if(errno == EINTR)
-	goto readFromInput;
-      if (errno == EAGAIN)
-	goto readFromInput;
-      else
-	{
-	  puts ("Unhandled read error");
-	  exit(1);
-	}
-
-    }
-  return bytesRead;
-}
 
 int main(int argc, char** argv)
 {
@@ -67,11 +31,14 @@ int main(int argc, char** argv)
       puts("Usage: bug-gscpp inputfile outputfile");
       exit(1);
     }
+
+  FILE* input;  // the source of the data
+  FILE* output; // the output
   // if no args passed, read from stdin and stdout
   if(argc == 1)
     {
-      inputfd = STDIN_FILENO;
-      outputfd = STDOUT_FILENO;
+      input = stdin;
+      output = stdout;
     }
   // otherwise open the input and output files
   else
@@ -79,22 +46,20 @@ int main(int argc, char** argv)
       // open input file
       {
 	char* programName = argv[1];
-	inputfd = open(programName, O_RDONLY);
-	if(inputfd == -1)
+	input = fopen(programName, "r");
+	if(!input)
 	  {
-	    // TODO:  Handle errnos
-	    printf("Error: unable to open input file %s, errno %d \n",programName, errno);
+	    printf("Error: unable to open input file %s \n",programName);
 	    exit(1);
 	  }
       }
       // open output file
       {
 	char* outputFileName = argv[2];
-	outputfd = creat(outputFileName, S_IRWXU);
-	if(outputfd == -1)
+	output = fopen(outputFileName, "w+");
+	if(!output)
 	  {
-	    // TODO:  Handle errnos
-	    printf("Error: unable to open output file %s, errno %d \n",outputFileName, errno);
+	    printf("Error: unable to open output file %s \n",outputFileName);
 	    exit(1);
 	  }
       }
@@ -102,48 +67,48 @@ int main(int argc, char** argv)
   // read the input file into a buffer, translate special characters
   // like "[]{}||" into valid scheme code, write to output file
   {
-    char buf[SIZE_OF_INPUT_BUFFER];
-    ssize_t bytesRead = 0;
 
-    while(bytesRead = xread(inputfd, buf, SIZE_OF_INPUT_BUFFER),
-	  bytesRead > 0)
+    const int MAX_LINE = 10000;
+    char buf[MAX_LINE]; // buffer, into which to store data from input
+    while(xfgets(buf, MAX_LINE, input) != NULL)
       {
-	for(int i = 0; i < bytesRead; i++)
+	for(int i = 0; buf[i] != 0; i++)
 	  {
 	    switch(buf[i]){
 	    case '[': {
 	      static const char text[] = "(lambda ";
-	      xwrite(text,ARRAY_SIZE(text) - 1);
+	      fputs(text, output);
 	      // skip whitespace
 	      {
 		i++;
 		while(isspace(buf[i]))
 		  {
-		    xwrite(&buf[i], 1);
+		    fputc(buf[i], output);
 		    i++;
 		  }
 	      }
 	      if(buf[i] == '|')
 		{
-		  xwrite("(", 1);
+		  fputc('(', output);
 		}
 	      else
 		{
-		  xwrite("() ", 3);
+		  fputs("() ", output);
 		  i--;
 		}
 	      break;
 	    }
 	    case '|':
 	    case ']':
-	      xwrite(")", 1);
+	      fputc(')', output);
 	      break;
 	    default:
-	      xwrite(&buf[i], 1);
+	      fputc(buf[i], output);
 	    }
 	  }
+	fflush(output);
       }
-    close(outputfd);
+    fclose(output);
   }
 }
 
