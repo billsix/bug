@@ -22,64 +22,37 @@ all: libbug.so
 %.o : %.c
 	gsc -obj $<
 
-SCHEME_HEADERS = lang\#.scm list\#.scm stream\#.scm
-SCHEME_FILES= $(SCHEME_HEADERS) lang-macros.scm stream-macros.scm 
-MAIN_PROGRAM= main.c
-libbug.so: $(SCHEME_FILES) $(MAIN_PROGRAM)
+libbug.so: main.c
 	#build the shared library
 	gsc -link -o libbug.c main
-	gsc -obj -cc-options "-D___SHARED" libbug.c main.c 
+	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
 	$(CC) -shared  libbug.o main.o -o libbug.so.$(version)
 	# for reasons I don't yet understand, leaving main.[co] around causes
 	# problems in subsequent makes
 	rm main.c main.o
 	#build the loadable library
 	gsc -link -flat -o libbug.$(version).o1.c main  > /dev/null
-	gsc -obj -cc-options "-D___DYNAMIC" libbug.$(version).o1.c main.c 
+	gsc -obj -cc-options "-D___DYNAMIC" libbug.$(version).o1.c main.c
 	$(CC) -shared  libbug.$(version).o1.o main.o -o libbug.$(version).o1
 	# for reasons I don't yet understand, leaving main.[co] around causes
 	# problems in subsequent makes
 	rm main.c main.o
 
 
-
-clean:
-	-rm libbug.so \
-	libbug.$(version).o1 \
-	bug-gsc/bug-gscpp \
-	lang-macros.scm \
-	lang.scm \
-	libbug.c \
-	libbug.o \
-	libbug.$(version).o1.c \
-	libbug.$(version).o1.o \
-	libbug.so \
-	list.scm \
-	main.c \
-	main.o \
-	stream-macros.scm \
-	stream.scm
-
 install:
 	install -d $(DESTDIR)$(libdir)
 	install -m 0755 libbug.so.$(version) $(DESTDIR)$(libdir)
 	install -m 0755 libbug.$(version).o1 $(DESTDIR)$(libdir)
 	install -d $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 lang#.bscm $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 list#.bscm $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 stream#.bscm $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 lang-macros.bscm $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 stream-macros.bscm $(DESTDIR)$(includedir)/$(package)/
+	install -m 0755 libbug#.scm $(DESTDIR)$(includedir)/$(package)/
+	install -m 0755 libbug-macros.scm $(DESTDIR)$(includedir)/$(package)/
 
 
 uninstall:
-	rm $(DESTDIR)$(libdir)/libbug.so.$(version)
-	rm $(DESTDIR)$(libdir)/libbug.$(version).o1
-	rm $(DESTDIR)$(includedir)/$(package)/lang#.bscm
-	rm $(DESTDIR)$(includedir)/$(package)/list#.bscm
-	rm $(DESTDIR)$(includedir)/$(package)/stream#.bscm
-	rm $(DESTDIR)$(includedir)/$(package)/lang-macros.bscm
-	rm $(DESTDIR)$(includedir)/$(package)/stream-macros.bscm
+	-rm $(DESTDIR)$(libdir)/libbug.so.$(version)
+	-rm $(DESTDIR)$(libdir)/libbug.$(version).o1
+	-rm $(DESTDIR)$(includedir)/$(package)/libbug#.scm
+	-rm $(DESTDIR)$(includedir)/$(package)/libbug-macros.scm
 
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@

@@ -72,9 +72,7 @@ FORCE:
 	-rm -rf $(distdir) >/dev/null 2>&1
 
 clean:
-	cd bug-gsc/ && $(MAKE) $@
-	cd src && $(MAKE) $@
-	-rm $(distdir).tar.gz
+	git clean -f
 
 
 .PHONY: FORCE all clean install uninstall

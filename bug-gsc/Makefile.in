@@ -19,10 +19,6 @@ bug-gscpp: bug-gscpp.c
 bug-gsi: bug-gsi.c
 	$(CC) -std=c99 bug-gsi.c  -o bug-gsi
 
-clean:
-	-rm bug-gscpp
-	-rm bug-gsi
-
 
 install:
 	install -d $(DESTDIR)$(bindir)
