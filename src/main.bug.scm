@@ -1,56 +1,232 @@
+
 ;; Copyright 2014,2015 - William Emerison Six
-;;  All rights reserved
-;;  Distributed under LGPL 2.1 or Apache 2.0
+;; All rights reserved
+;; Distributed under LGPL 2.1 or Apache 2.0
+;;
+;; INTRODUCTION ----------------------------------------------------------------------
+;;
+;; BUG is Bill's Utilities for Gambit-C, http://gambitscheme.org.  BUG provides
+;; a concise syntax for lambdas, utilities for general-purpose evaluation at
+;; compile-time, a compile-time unit test framework, and a collection of utility
+;; functions that I find useful.  Taken together, these can be used in a "literate
+;; programming" style, as most of BUG is contained within this file.
+;;
+;; PREREQUISITES ---------------------------------------------------------------------
+;;
+;; The reader is assumed to be familiar with Scheme, and with Common  Lisp-style
+;; macros (which Gambit provides).  Suggested reading is "The Structure and
+;; Interpretation of Computer Programs" by Sussman and Abelson, "ANSI Common Lisp"
+;; by Paul Graham, and "On Lisp" by Paul Graham.  Many ideas in BUG are inspired by
+;; those books.
+;;
+;; LAMBDA SYNTAX ---------------------------------------------------------------------
+;;
+;; Before I explain BUG's lambda syntax, I will mention a language construct in C++
+;; which I dislike and why, and then relate that to my need for lambda syntax
+;; in Gambit C.
+;;
+;; In C++, a programmer can pass a variable as a parameter to another subroutine
+;; either by value or by reference.  If passed by value, any changes made to
+;; the parameter by the callee will not be visible to the caller, as a copy was
+;; made.  If passed by reference, any changes made to the parameter by the callee
+;; _will_ be visible to the callee.  That's fine, and no different than C, where
+;; you can pass a copy of your data, or a pointer to it.  Although, actually, it is
+;; different, because in C, a programmer can tell whether a copy is being made or
+;; if a pointer is being passed purely by looking at the definition of the calling
+;; function.
+;;
+;; Is this a problem?  For me, in the case where I'm working on a small program,
+;; and most of the program fits into my head, it's not a problem.  But when dealing
+;; with large programs, other people's code, or code which I wrote long ago, I find
+;; it to be a problem, as I can't tell by looking at a procedure if
+;; certain data structures are mutated by subroutines, and what those implications
+;; are.
+;;
+;; Enough on C++, back to Lisp and to a similar problem.  Lisp is applicative-order,
+;; which means that the arguments to a procedure are evaluated before the procedure
+;; is applied.  This means that, when looking a caller procedure, you know that
+;; an expression passed as a parameter is only evaluated once.  Granted, if
+;; that expression is a lambda, then of course the callee may apply the lambda
+;; zero, once, or many times, but that is clear to see just by looking at the
+;; caller.
+;;
+;; Macros, which allow a Lisp programmer to write Lisp code which alters other Lisp
+;; source code before the compiler compiles, truly are wonderful.  However, since
+;; they rewrite code, they can break the aforementioned assumptions.
+;;
+;; For instance, in "ANSI Common Lisp" on page 154, a macro for "while" is
+;; defined.
+;;
+;; (defmacro while (test &body body)
+;;   `(do ()
+;;        ((not ,test))
+;;      ,@body))
+;;
+;; An example of usage of the while
+;;  (let ((a 0))
+;;     (while (< a 5)
+;;            (incf a))
+;;      a)
+;;   => 5
+;;
+;; Although in this case, just by looking at the calling code, it's not hard to
+;; guess that "while" likely evaluates its' parameteres zero or more times.
+;; However, given the choice between explicitly knowing the implementation
+;; details of while, versus being able to see that the two parameters are
+;; lambdas and as such may be evaluated multiple times, why would a person
+;; choose the former?  I think that historically, the reason people chose the
+;; former is that lambdas are so dominant in Lisp code that if a person had
+;; to write out "(lambda () ...)" everytime they needed one, 20+ percent of
+;; their code would be the word "lambda".
+;;
+;; Using a lambda syntax inspired from Smalltalk 80, in BUG a "while" procedure
+;; looks like this
+;;
+;; {define while
+;;   [|pred body|
+;;    (if (pred)
+;;        [(body)
+;; 	(while pred body)]
+;;        [(noop)])]}
+;;
+;; And usage looks like this
+;;
+;; {let ((a 0))
+;;     (while [(< a 5)]
+;;	    [(set! a (+ a 1))])
+;;     a}}
+;;   => 5
+;;
+;; The new syntax introduced here is using "[]" for lambdas.  "[x]" is translated
+;; into "(lambda () x)", and "[|x y| (z x y)]" into "(lambda (x y) (z x y))".  As
+;; such, it is clear that the calling code of "while" passes two lambdas to "while",
+;; and as such, they may be evaluated zero to many times.  The observant reader
+;; may also notice that while itself is defined as a function instead of a macro,
+;;  using lambda literal syntax instead of the typical
+;; "(define (while pred body) ...)".
+;;
+;; ("bug-gscpp" is the program which does the translating of files, "bug-gsi" is
+;; an interpreter for BUG code)
+;;
+;; Although this does minimize the need for macros when the use of functions
+;; suffices, when legitimate uses of macros do arrive, how can we tell from
+;; the caller that Scheme's evalation rules may not directly apply?  Within
+;; Gambit's internals, macros tend to be named "x-macro", thus being clear
+;; to the caller.  I choose instead to use "{}" instead of "()" when calling
+;; a macro: Gambit treats matched "{}" to be the same as "()".  I'd prefer for
+;; Gambit to force invocations of macros to use "{}", but I can't implement that
+;; in a preprocessor, and I currently don't care enough to modify Gambit itself.
+;;
+;;
+;; IMPLEMENTATION  -------------------------------------------------------------------
+;;
+;;   BUG INFRASTRUCTURE  -------------------------------------------------------------
+;;
+;; I use Gambit's namespaces for all of BUG's code.  From what I understand of them,
+;; namespaces instruct Gambit's reader on how it should associate a given string
+;; which it has read in into an internal symbol.  The following line indicates
+;; that all further symbols read in should have "libbug#" prefixed to them, unless
+;; the symbol itself has a "##" prefix.  I put it in here with the intention
+;; of avoiding the pollution of the global namespace.  All subsequent functions
+;; and macros should be explicitly namespaced, but if not, they will be namespaced
+;; as the following.
 
-|#
-Here is a block comment
-#|
 
-{##namespace ("libbug#")}
+{namespace ("libbug#")}
+
+
+
+;; That's great as a mechanism to minimize namespace collisions with other Gambit
+;; projects, but I still want to be able to reference Scheme procedures.  Currently
+;; in the code I can't, as "(+)", which would normally evalute to "0", would
+;; instead result in an error "*** ERROR IN (console)@3.2 -- Unbound variable:
+;; foobar#+"
+;;
+;; So, instead, let's make regular Gambit code resolve as it normally should
+
+
 (##include "~~lib/gambit#.scm")
 
-;; at-compile-time
-;;  Evaluate the form in the compiler's address space.  When the program is
-;;  executed, form will not be evaluated.
 
-{##namespace ("lang#" at-compile-time)}
+
+;; Lisp dialects typically have a macro system, which allows the Lisp programmer
+;; to extend the syntax allowed by the Lisp system.  Unlike macros in C
+;; which only allows the user to define basic text substitution,
+;; Lisp's macro facilities allow the use of arbitrary Lisp code to manipulate
+;; Lisp code!  If you don't already know why this is great, I have no intention
+;; of persuading you, and you should read Paul Graham's aforementioned works to
+;; further your understanding.
+;;
+;; But either way, from within a macro, we can "eval" the code, and return
+;; code that is non-operational, thus ensuring the a calculation occurs
+;; only at compile time, and not at runtime.
+;; https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html
+;; (After reading this document, I realize I had forgotten about a third "time")
+;;
+;; Also, within BUG, all of the functions and macros should have a namespace
+;; associated with them.  I use "lang#" for basic language procedures, "list#"
+;; for lists, etc.
+
+
+{namespace ("lang#" at-compile-time)}
 {define-macro at-compile-time
   [|form|
    (eval form)
-   `{quote noop}]}
+   `{quote noop}]} ;; noop is just a symbol, the compiler shouldn't do anythi
+                   ;; of value with it
 
 
-;; at-both-times
-;;  Evaluate the form in the compiler's address space, and also when the
-;;  resulting program is executed.
+;; From the hyperlink above, this macro shows how to evaluate code at all
+;; of the "times".  This currently is not frequently used, but is a good
+;; frame of reference.  The vast majority of BUG code will use "with-tests",
+;; which only uses evaluation (1) and (3)
+
 
 {##namespace ("lang#" at-both-times)}
 {define-macro at-both-times
   [|form|
-   (eval form)
-   form]}
+   (eval form)       ;; evaluation (1) in the expansion-time environment
+   `(begin
+      (eval ',form)  ;; evaluation (2) in the expansion-time environment
+                     ;;   of the run-time environment
+      ,form)]}       ;; evaluation (3) in the run-time environment
 
 
 
-;; create header file for external projects,
-;; and a macro file for external projects
+
+;; BUG is a collection of procedures and macros.  Building bug results
+;; in a shared library and a "loadable" library (as in (load "foo.o1").
+;;
+;; Macro definitions and namespace declarations, however do not reside
+;; in such libraries.  I intend to keep the vast majority of BUG code
+;; in this one file (minus the C preprocessor, gsi interpreter glue,
+;; and build files).  As such, I don't want to define the namespaces
+;; or macros definitions in a different file.
+;;
+;; "at-compile-time" allows us to execute arbitrary code at compile time,
+;; so why not open files and write to them during compile time?
+;;
+;; Open one file for the namespaces, "libbug#.scm", and one for the macros,
+;; "libbug-macros.scm"  These files will be pure Gambit scheme code, no
+;; BUG-syntax enhancements, and they are not intended to be read by
+;; a person.  Their documentation is in this file.
+;;
+;; The previous two macros are also written to the libbug-macros.scm file,
+;; and a reference from libbug-macros.scm to libbug#.scm is made, so
+;; a person can now assume that the files must be collocated.
+;;
+;; At the end of this document, the files are closed during compile time.
+
+
+
 {at-compile-time
  {begin
+   ;; file for namespaces
    {define libbug-headers-file
      (open-output-file '(path:
 			 "libbug#.scm"
 			 append:
 			 #f))}
-   {define libbug-macros-file
-     (open-output-file '(path:
-			 "libbug-macros.scm"
-			 append:
-			 #f))}}}
-
-
-;;  add copyright to those two files
-{at-compile-time
- {begin
    (display
     ";; Copyright 2014,2015 - William Emerison Six
 ;;  All rights reserved
@@ -58,26 +234,45 @@ Here is a block comment
 {##namespace (\"lang#\" at-compile-time)}
 {##namespace (\"lang#\" at-both-times)}"
     libbug-headers-file)
-   (display
-    ";; Copyright 2014,2015 - William Emerison Six
+
+   ;; file for macros
+   {define libbug-macros-file
+     (open-output-file '(path:
+			 "libbug-macros.scm"
+			 append:
+			 #f))}
+    (display
+      ";; Copyright 2014,2015 - William Emerison Six
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 {##namespace (\"libbug#\")}
 (##include \"~~lib/gambit#.scm\")
 (##include \"libbug#.scm\")
 
-
-
-
 {define-macro at-compile-time
   [|form|
    (eval form)
    `{quote noop}]}
+
 {define-macro at-both-times
   [|form|
    (eval form)
-   form]}"
+   `(begin
+      (eval ',form)
+      ,form)]}"
     libbug-macros-file)}}
+
+
+
+
+;; Now that those files are open, I want to write to them.  Namespaces
+;; to libbug#.scm, and macros to libbug-macros.scm.  However, I don't want
+;; to have to duplicate the code for each context, like I just did for
+;; the previous two macros.
+;;
+;; So, create a new line on the file, write the unevaluated form to the
+;; file (I'm not quite sure why I need to eval the port, but it works),
+;; and the return the form so that the compiler actually processes it.
 
 
 {define-macro write-and-eval
@@ -88,88 +283,129 @@ Here is a block comment
 
 
 
-;;Sets the namespace for during macro-expansion, for
-;;run-time, and writes to out to libbug#.scm
+;; Although I'm not quite sure if namespaces work correctly at compile
+;; time, I'm going to namespace every function/macro at compile-time,
+;; at run time, and in the libbug-headers file.
 
+;; In the following, I define a new version of "if".  I prefer how
+;; Smalltalk 80 defines an if expression as compared to how Scheme
+;; and common Lisp do.  Scheme and Common Lisp have special evaluation
+;; rules for if.   true and false could be represented as procedures,
+;; with an if function which would just apply the boolean procedure to
+;; the ifTrue and ifFalse procedures
+;;
+;;
 
-{define-macro libbug-internal#namespace
-  [|namespace-name-pair|
-   {begin
-     (eval `{##namespace ,namespace-name-pair})
-     `(write-and-eval
-       libbug-headers-file
-       {##namespace ,namespace-name-pair})}]}
+{at-compile-time
+ {namespace ("lang#" if)}} 
+{write-and-eval
+ libbug-headers-file
+ {namespace ("lang#" if)}}
 
-
-{libbug-internal#namespace ("lang#" if)}
 (write-and-eval
  libbug-macros-file
  {at-both-times
   {define-macro if
     [|pred ifTrue ifFalse|
-     ;; (expression? [5]) => true
-     ;; (expression? [(pp 4) 6]) => false
-     {let ((expression?
+     ;; (single-expression? [5]) => true
+     ;; (single-expression? [(pp 4) 6]) => false
+     {let ((single-expression?
 	    [|lst| (equal? 3 (length lst))]))
        `{##if ,pred
-	      ,{##if (expression? ifTrue)
+	      ,{##if (single-expression? ifTrue)
 		     (caddr ifTrue)
 		     `{begin ,@(cddr ifTrue)}}
-	      ,{##if (expression? ifFalse)
+	      ,{##if (single-expression? ifFalse)
 		     (caddr ifFalse)
 		     `{begin ,@(cddr ifFalse)}}}}]}})
 
 
 
+;; Just like for the definiton of lang#if, the subsequent macro
+;; "with-tests" will be namespaced at compile-time, run-time, and
+;; in libbug-macros-file
+;;
+;; Statically-typed programming languages are compiled/interpreted
+;; by programming language implementations which themselves are
+;; programs.  To add new types of compile-time type checks, the compiler
+;; needs to be updated and redistributed.  Changes to the language
+;; need to be documented are communicated.
+;;
+;; Unit tests, since moving away from the image-based SUnit and into
+;; file-based xUnits implementations, are collections of procedures
+;; which test procedures in other files.
+;;
+;; with-tests in a new type of test procedure, which execute at
+;; compile-time, and should they fail, no executable is produced;
+;; just as with a statically typed language.  The initial impetus
+;; for the creation of this macro was the desire to collocate procedures
+;; with their tests, for linear reading, and for clearly seeing which
+;; tests are intended to test which procedures.
+;;
+;; with-tests, combined with the more general purpose at-compile-time,
+;; provide the basis to create BUG programs in a "Literate Programming"
+;; style.
 
-{libbug-internal#namespace ("lang#" with-test)}
 
-;; with-test
-;;   Collocates a definiton with a test.  The test is run at compile-time
-;;   only.
-(write-and-eval
- libbug-macros-file
- {define-macro with-test
-   [|definition test|
-    (eval
-     `{begin
-	,definition
-	(if ,test
-	    ['no-op]
-	    [(pp "Test Failed")
-	     (pp {quote ,test})
-	     (pp (quote ,definition))
-	     (error "Test Failed")])})
-    ;;the actual macro expansion is just the definition
-    definition]})
-
-{libbug-internal#namespace ("lang#" with-tests)}
-;; with-tests
-;;   Collocates a definition with a collection of tests.  Tests are
-;;   run sequentially, and are expected to return true or false
+{at-compile-time
+ {namespace ("lang#" with-tests)}}
+{write-and-eval
+ libbug-headers-file
+ {namespace ("lang#" with-tests)}}
 (write-and-eval
  libbug-macros-file
  {define-macro with-tests
-   [|definition #!rest test|
-    `{with-test ,definition {and ,@test}}]})
+   [|definition #!rest tests|
+    (eval
+     `{begin
+	,definition
+	(if (and ,@tests)
+	    ['no-op]
+	    [(pp "Test Failed")
+	     (pp {quote ,tests})
+	     (pp (quote ,definition))
+	     (error "Tests Failed")])})
+    ;;the actual macro expansion is just the definition
+    definition]})
 
 
 
-;; At compile time, we need to know where where certain files
-;; will be located after they are installed.  For instace,
-;; the subsequent function needs to know how to reference
-;; the namespace scheme file.  This data currently is only
-;; needed at compile-time
+;; BUG is compiled using the Autotools, and when running "make
+;; install", will be installed to the prefix specified to
+;; "configure".  The headers file defined above at compile-time
+;; will be installed relative to prefix, and as such, external
+;; programs which use BUG need to know where to find it.
+;; More importantly, libbug-macros-file needs to have functions
+;; and macros namespaced accordingly, and as such, will need
+;; to know where the headers file is installed.
+;;
+;; The autotools takes "config.scm.in" as input, and puts the
+;; relevant configuration/installation information into config.scm
+;; This information is then used at compile time when both defining
+;; and exporting macros to an external file.
 {at-compile-time
  {##include "config.scm"}}
 
 
 
-;;Define a macro, both at macro-expansion time, and run-time.
-;;Also write it out to libbug-macros.scm for use in other projects.
+;; For both lang#if and lang#with-tests, defining the namespace
+;; at compile-time, run-time, and in the namespace file at compile-
+;; time was tedious.  This is easily extractable into a macro,
+;; as is used heavily throughout BUG.
+{define-macro libbug-internal#namespace
+  [|namespace-name-pair|
+   {begin
+     (eval `{##namespace ,namespace-name-pair})
+     `{begin
+	(write-and-eval
+	 libbug-headers-file
+	 {##namespace ,namespace-name-pair})}}]}
 
-;;This code is not as easy to follow, and only works for macros
-;;which are quasiquoted.  This needs to be rewritten.
+
+;; Likewise, defining the macros and exporting them has also
+;; been a repetitive process. 
+;; This code is not as easy to follow, and only works for macros
+;; which are quasiquoted.  This needs to be rewritten.
 
 
 (write-and-eval
@@ -191,9 +427,10 @@ Here is a block comment
 						     (cdaddr lambda-value))))))))))
 	  (newval lambda-value))
       (newline libbug-macros-file)
-      (write `{define-macro
-		,name
-		,augmented-lambda-value}
+      (write `{at-both-times
+	       {define-macro
+		 ,name
+		 ,augmented-lambda-value}}
 	     libbug-macros-file)
       `{begin
 	 {with-tests
@@ -203,140 +440,74 @@ Here is a block comment
 	  ,@tests}}}]})
 
 
-
-;; aif
-;;   anaphoric-if evaluates bool, binds it to the variable "it",
-;;   which is accessible in body.
-(libbug-internal#namespace ("lang#" aif))
-;;(libbug-internal#namespace ("lang#" it))
-{libbug-internal#define-macro
- aif
- [|bool body|
-  `{let ((it ,bool))
-     (if it
-	 [,body]
-	 [#f])}]
- (equal? {aif (+ 5 10) (* 2 it)}
-	 30)
- (equal? {aif #f (* 2 it)}
-	 #f)}
-
-;; with-gensyms
-;;   Utility for macros to minimize explicit use of gensym.
-;;   Gensym creates a symbol at compile time which is guaranteed
-;;   to be unique.  Macros which intentionally capture variables,
-;;   such as aif, are the anomaly.
-;;   Usually, variables local to a macro should not clash
-;;   with variables local to the macro caller.
+;;   PROCEDURES  -------------------------------------------------------------
 ;;
-{libbug-internal#namespace ("lang#" with-gensyms)}
-{libbug-internal#define-macro
- with-gensyms
- [|symbols #!rest body|
-  `{let ,(map [|symbol| `(,symbol {gensym})]
-	      symbols)
-     ,@body}]}
+;;  Enough with the boring infrastructer, onto the meat!
+;;  Sometimes, you need to pass a procedure to another procedure, but you
+;;  don't want to change the input.  Although at first this may sound odd,
+;;  but remember that in calculus, the fact that d/dx f(x) is 1 when
+;;  f(x) = x is necessary for determining d/dx g(x) is 2x when g(x) = x^2.
+;;  And f(x) = x is just the identity function.
 
-
-;; setf!
-;;   Sets a value using its getter, as done in Common Lisp.
-;;
-;;   Implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
-
-;; this dummy structure is used in a test
-{libbug-internal#namespace ("lang#" setf!)}
-(write-and-eval
- libbug-macros-file
- {at-compile-time
-  {define-structure foo bar baz}})
-
-{libbug-internal#define-macro
- setf!
- [|get-expression val|
-  (if (not (pair? get-expression))
-      [`{set! ,get-expression ,val}]
-      [{case (car get-expression)
-	 ((car) `{set-car! ,@(cdr get-expression) ,val})
-	 ((cdr) `{set-cdr! ,@(cdr get-expression) ,val})
-	 ((cadr) `{setf! (car (cdr ,@(cdr get-expression))) ,val})
-	 ((cddr) `{setf! (cdr (cdr ,@(cdr get-expression))) ,val})
-	 ;; TODO - handle other atypical cases
-	 (else `(,(string->symbol (string-append (symbol->string (car get-expression))
-						 "-set!"))
-		 ,@(cdr get-expression)
-		 ,val))}])]
- ;; test variable
- {let ((a 5))
-   {setf! a 10}
-   (equal? a 10)}
- {begin
-   {let ((a (make-foo 1 2)))
-     {setf! (foo-bar a) 10}
-     (equal? (make-foo 10 2)
-	     a)}}
- ;; test car
- {let ((a (list 1 2)))
-   {setf! (car a) 10}
-   (equal? a '(10 2))}
- ;; test cdr
- {let ((a (list 1 2)))
-   {setf! (cdr a) (list 10)}
-   (equal? a '(1 10))}
- ;; test cadr
- {let ((a (list (list 1 2) (list 3 4))))
-   {setf! (cadr a) 10}
-   (equal? a '((1 2) 10))}
- ;; test cddr
- {let ((a (list (list 1 2) (list 3 4))))
-   {setf! (cddr a) (list 10)}
-   (equal? a '((1 2) (3 4) 10))}}
-
-
-
-;; identity
-;;   identity :: a -> a
-;;
-;;   Return the input
 {libbug-internal#namespace ("lang#" identity)}
-{with-test
+{with-tests
  {define identity [|x| x]}
  (equal? "foo" (identity "foo"))}
 
-;; noop
-;;   noop :: () -> Symbol
-;;
-;;   Return the symbol 'noop. Useful when
-;;   a procedure expects a procedure as an
-;;   argument, but the caller has no need
-;;   for worthwhile procedure to actually be
-;;   called
+;;  Sometimes you just need a procedure to be passed to another procedure,
+;;  but you just don't need it to do a damn thing.
 
 {libbug-internal#namespace ("lang#" noop)}
-{with-test
+{with-tests
  {define noop  ['noop]}
  (equal? (noop) 'noop)}
 
 
-;; all?
-
-{libbug-internal#namespace ("lang#" all?)}
-{at-both-times
+;; Kind of list and?, but takes a list
+{libbug-internal#namespace ("list#" all?)}
+{with-tests
  {define all?
    [|lst|
     {cond ((null? lst) #t)
 	  ((not (car lst)) #f)
-	  (else (all? (cdr lst)))}]}}
+	  (else (all? (cdr lst)))}]}
+ (all? '())
+ (all? '(1))
+ (all? '(#t))
+ (all? '(#t #t))
+ (not (all? '(#f)))
+ (not (all? '(#t #t #t #f)))}
 
 
-;; satisfies-relation
-;;   satisfies-relation :: (a -> b) -> [(a,b)] -> Bool
+;; Sometimes you need an imperative loop
+{libbug-internal#namespace ("lang#" while)}
+{with-tests
+ {define while
+   [|pred body|
+    (if (pred)
+	[(body)
+	 (while pred body)]
+	[(noop)])]}
+ {let ((a 0))
+     (while [(< a 5)]
+	    [(set! a (+ a 1))])
+     (equal? a 5)}}
+
+
+;;  Are the pairs (0,1),(1,2), and (2,3) all plot points
+;;  of the function f(x) = x + 1?
 ;;
-;;   For a given relation (i.e. function), and a
-;;   list of 2-element lists, evaluatie whether the function
-;;   when applied to the first element of the list
-;;   evaluates to the second element of the list
+;;  Isn't that nicer to say than:
+;;    does f(0) = 1? and
+;;    does f(1) = 2? and
+;;    does f(2) = 3 for the function f(x) = x + 1? 
 ;;
+;;  More generally than asking is a number pair is plotted
+;;  by a function f, we say that pairs of data satisfy
+;;  relations or they don't satisfy the relation, where
+;;  the "relation" is some function.
 ;;   Reference: http://en.wikipedia.org/wiki/Binary_relation
+
 {libbug-internal#namespace ("lang#" satisfies-relation)}
 {with-tests
  {define satisfies-relation
@@ -352,12 +523,9 @@ Here is a block comment
 		       (2 3)))}
 
 
-;; numeric-if
-;;   numeric-if :: (Num a) =>  a -> Thunk -> Thunk -> Thunk
-;;
 ;;   An if expression for numbers, based on their sign.
 {libbug-internal#namespace ("lang#" numeric-if)}
-{with-test
+{with-tests
  {define numeric-if
    [|expr #!key (ifPositive noop) (ifZero noop)(ifNegative noop)|
     {cond ((> expr 0) (ifPositive))
@@ -374,12 +542,9 @@ Here is a block comment
     (-5 neg)))}
 
 
-;; complement
-;;   complement :: (a -> Bool) -> (a -> Bool)
-;;
-;;   Negates a predicate
+;;  Sometimes you want the inverse of a procedure
 {libbug-internal#namespace ("lang#" complement)}
-{with-test
+{with-tests
  {define complement
    [|f|
     [|#!rest args| (not (apply f args))]]}
@@ -390,28 +555,9 @@ Here is a block comment
     ((1 2) #f)))}
 
 
-;; while
-;;   while :: Thunk -> Thunk -> Symbol
-;;
-;;   Imperative while loop.
-{libbug-internal#namespace ("lang#" while)}
-{with-tests
- {define while
-   [|pred body|
-    (if (pred)
-	[(body)
-	 (while pred body)]
-	[(noop)])]}
- {let ((a 0))
-   {begin
-     (while [(< a 5)]
-	    [(set! a (+ a 1))])
-     (equal? a 5)}}}
 
 
-;; copy
-;;   copy :: [a] -> [a]
-;;   Creates a copy of the list data structure, but does
+;;   Creates a copy of the list data structure
 {libbug-internal#namespace ("list#" copy)}
 {with-tests
  {define copy
@@ -422,8 +568,6 @@ Here is a block comment
     ((1 2 3 4 5) (1 2 3 4 5))))}
 
 
-;; proper?
-;;   proper? :: [a] -> Bool
 ;;   Tests that the argument is a list that is properly
 ;;   termitated.
 {libbug-internal#namespace ("list#" proper?)}
@@ -440,9 +584,7 @@ Here is a block comment
 
 
 
-;; reverse!
-;;   reverse! :: [a] -> [a]
-;;   reverses the list, possibly destructively.
+;;   reverses the list quickly by reusing cons cells
 {libbug-internal#namespace ("list#" reverse!)}
 {with-tests
  {define reverse!
@@ -462,9 +604,8 @@ Here is a block comment
     (() ())
     ((1 2 3 4 5 6) (6 5 4 3 2 1))))}
 
-;; first :: [a] -> Optional (() -> b) -> Either a b
-;;   first returns the first element of the list, 'noop if the list is empty and no
-;;   thunk is passed
+;;   first returns the first element of the list, 'noop if the list
+;;   is empty and no thunk is passed
 {libbug-internal#namespace ("list#" first)}
 {with-tests
  {define first
@@ -486,7 +627,6 @@ Here is a block comment
     (() 5)
     ((1 2 3) 1)))}
 
-;; but-first :: [a] -> Optional (() -> b) -> Either [a] b
 ;;   but-first returns all of the elements of the list, except for the first
 {libbug-internal#namespace ("list#" but-first)}
 {with-tests
@@ -505,7 +645,6 @@ Here is a block comment
   `(
     (() 5)))}
 
-;;  last :: [a] -> Optional (() -> b) -> Either a b
 ;;    last returns the last element of the list
 {libbug-internal#namespace ("list#" last)}
 {with-tests
@@ -529,7 +668,6 @@ Here is a block comment
     (() 5)
     ((1) 1)))}
 
-;;  but-last :: [a] -> Optional (() -> b) -> Either [a] b
 ;;    but-last returns all but the last element of the list
 {libbug-internal#namespace ("list#" but-last)}
 {with-tests
@@ -553,8 +691,6 @@ Here is a block comment
     (() 5)
     ((1) ())))}
 
-;; filter
-;;   filter :: (a -> Bool) -> [a] -> [a]
 ;;   return a new list, consisting only the elements where the predicate p?
 ;;   returns true
 {libbug-internal#namespace ("list#" filter)}
@@ -576,8 +712,6 @@ Here is a block comment
   `(
     ((1 2 3 4 5 -2) (1 3 4 5))))}
 
-;; remove
-;;   remove :: a -> [a] -> [a]
 ;;   returns a new list with all occurances of x removed
 {libbug-internal#namespace ("list#" remove)}
 {with-tests
@@ -591,8 +725,6 @@ Here is a block comment
     ((1 5 2 5 3 5 4 5 5) (1 2 3 4))))}
 
 
-;; fold-left
-;;    fold-left :: (a -> b -> a) -> a -> [b] -> a
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the "left" side of the list
 {libbug-internal#namespace ("list#" fold-left)}
@@ -613,7 +745,6 @@ Here is a block comment
     ((1 2) 3)
     ((1 2 3 4 5 6) 21)))}
 
-;; scan-left :: (a -> b -> a) -> a -> [b] -> [a]
 ;;   scan-left is like fold-left, but every intermediate value
 ;;   of fold-left's acculumalotr is put onto a list, which
 ;;   is the value of scan-left
@@ -636,8 +767,6 @@ Here is a block comment
 
 
 
-;; fold-right
-;;    fold-right :: (b -> a -> a) -> a -> [b] -> a
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the "right" side of the list
 {libbug-internal#namespace ("list#" fold-right)}
@@ -656,8 +785,9 @@ Here is a block comment
     ((1 2 3 4) -2)
     ((2 2 5 4) 1)))}
 
-;; flatmap
-;;   flatmap :: (a -> [b]) -> [a] -> [b]
+;;  map a prodecure to a list, but the result of the
+;;  prodecure will be a list itself.  Aggregate all
+;;  of those lists together
 {libbug-internal#namespace ("list#" flatmap)}
 {with-tests
  {define flatmap
@@ -678,8 +808,7 @@ Here is a block comment
   `(
     ((10 20) (10 11 12 20 21 22))))}
 
-;; enumerate-interval
-;;   enumerate-interval :: (Num a) => a -> a -> Optional a -> a
+;;  I think the tests explain it
 {libbug-internal#namespace ("list#" enumerate-interval)}
 {with-tests
  {define enumerate-interval
@@ -693,7 +822,6 @@ Here is a block comment
 	 '(1 3 5 7 9))}
 
 ;; iota - from common lisp
-;;   iota :: (Num a) => a -> Optional a -> Optional a -> a
 {libbug-internal#namespace ("list#" iota)}
 {with-tests
  {define iota
@@ -705,8 +833,7 @@ Here is a block comment
 	 '(2 7/2 5))}
 
 
-;; permutations
-;;   permutations :: [a] -> [[a]]
+
 ;;   returns all permutations of the list
 {libbug-internal#namespace ("list#" permutations)}
 {with-tests
@@ -735,8 +862,6 @@ Here is a block comment
 	      (3 1 2)
 	      (3 2 1)))))}
 
-;; sublists
-;;   sublists :: [a] -> [[a]]
 ;;   Returns a list of every sub-list
 {libbug-internal#namespace ("list#" sublists)}
 {with-tests
@@ -754,6 +879,8 @@ Here is a block comment
     ((1 2 3) ((1 2 3) (2 3) (3)))))}
 
 
+;;  Apply a series of functions to an input.  Much
+;;  like the . operator in math
 {libbug-internal#namespace ("lang#" compose)}
 {with-tests
  {define compose
@@ -843,6 +970,98 @@ Here is a block comment
      (equal? (stream-ref s 5 onOutOfBounds: ['out])
 	     'out)))}}
 
+
+;; setf!
+;;   Sets a value using its getter, as done in Common Lisp.
+;;
+;;   Implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
+
+;; this dummy structure is used in a test
+{libbug-internal#namespace ("lang#" setf!)}
+(write-and-eval
+ libbug-macros-file
+ {at-compile-time
+  {define-structure foo bar baz}})
+
+{libbug-internal#define-macro
+ setf!
+ [|get-expression val|
+  (if (not (pair? get-expression))
+      [`{set! ,get-expression ,val}]
+      [{case (car get-expression)
+	 ((car) `{set-car! ,@(cdr get-expression) ,val})
+	 ((cdr) `{set-cdr! ,@(cdr get-expression) ,val})
+	 ((cadr) `{setf! (car (cdr ,@(cdr get-expression))) ,val})
+	 ((cddr) `{setf! (cdr (cdr ,@(cdr get-expression))) ,val})
+	 ;; TODO - handle other atypical cases
+	 (else `(,(string->symbol (string-append (symbol->string (car get-expression))
+						 "-set!"))
+		 ,@(cdr get-expression)
+		 ,val))}])]
+ ;; test variable
+ {let ((a 5))
+   {setf! a 10}
+   (equal? a 10)}
+ {begin
+   {let ((a (make-foo 1 2)))
+     {setf! (foo-bar a) 10}
+     (equal? (make-foo 10 2)
+	     a)}}
+ ;; test car
+ {let ((a (list 1 2)))
+   {setf! (car a) 10}
+   (equal? a '(10 2))}
+ ;; test cdr
+ {let ((a (list 1 2)))
+   {setf! (cdr a) (list 10)}
+   (equal? a '(1 10))}
+ ;; test cadr
+ {let ((a (list (list 1 2) (list 3 4))))
+   {setf! (cadr a) 10}
+   (equal? a '((1 2) 10))}
+ ;; test cddr
+ {let ((a (list (list 1 2) (list 3 4))))
+   {setf! (cddr a) (list 10)}
+   (equal? a '((1 2) (3 4) 10))}}
+
+
+;;  The following are macros defined in other books, and are not
+;;  extracted from syntactic patterns from within BUG.  Consult
+;;  the prerequisites to understand why they are important.
+
+;; aif
+;;   anaphoric-if evaluates bool, binds it to the variable "it",
+;;   which is accessible in body.
+(libbug-internal#namespace ("lang#" aif))
+;;(libbug-internal#namespace ("lang#" it))
+{libbug-internal#define-macro
+ aif
+ [|bool body|
+  `{let ((it ,bool))
+     (if it
+	 [,body]
+	 [#f])}]
+ (equal? {aif (+ 5 10) (* 2 it)}
+	 30)
+ (equal? {aif #f (* 2 it)}
+	 #f)}
+
+
+;; with-gensyms
+;;   Utility for macros to minimize explicit use of gensym.
+;;   Gensym creates a symbol at compile time which is guaranteed
+;;   to be unique.  Macros which intentionally capture variables,
+;;   such as aif, are the anomaly.
+;;   Usually, variables local to a macro should not clash
+;;   with variables local to the macro caller.
+;;
+{libbug-internal#namespace ("lang#" with-gensyms)}
+{libbug-internal#define-macro
+ with-gensyms
+ [|symbols #!rest body|
+  `{let ,(map [|symbol| `(,symbol {gensym})]
+	      symbols)
+     ,@body}]}
 
 
 ;;  clear the namespace of the macro file
