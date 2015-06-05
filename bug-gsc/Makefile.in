@@ -14,10 +14,10 @@ all:  bug-gscpp bug-gsi
 
 
 bug-gscpp: bug-gscpp.c
-	$(CC) -std=c99 bug-gscpp.c  -o bug-gscpp
+	$(CC) -std=gnu99 bug-gscpp.c  -o bug-gscpp
 
 bug-gsi: bug-gsi.c
-	$(CC) -std=c99 bug-gsi.c  -o bug-gsi
+	$(CC) -std=gnu99 bug-gsi.c  -o bug-gsi
 
 
 install:

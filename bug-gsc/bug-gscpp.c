@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
 // wrapper to handle ignore errors, and to
 // retry reading from the stream
@@ -17,6 +18,11 @@ char *xfgets(char *s, int size, FILE *stream)
     return result;
   if(feof(stream))
     return result;
+  // we don't want to take up all of the CPU
+  // waiting for the slow peripheral (a person)
+  // so sleep
+  struct timespec t = {0,50000000};
+  int ignore = nanosleep(&t,NULL);
   goto attemptToRead;
 }
 
