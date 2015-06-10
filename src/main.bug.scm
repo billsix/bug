@@ -408,36 +408,39 @@
 ;; which are quasiquoted.  This needs to be rewritten.
 
 
-(write-and-eval
- libbug-macros-file
- {define-macro libbug-internal#define-macro
-   [|name lambda-value #!rest tests|
-    {let ((augmented-lambda-value
-	   (append (list 'lambda
-			 (cadr lambda-value))
-		   (list (cons 'quasiquote
-			       (list
-				(append
-				 (cons '##let (cons (list)
-						    (append
-						     (list
-						      `{##include "~~lib/gambit#.scm"}
-						      `{##include ,(string-append bug-configuration#prefix
-										  "/include/bug/libbug#.scm")})
-						     (cdaddr lambda-value))))))))))
-	  (newval lambda-value))
-      (newline libbug-macros-file)
-      (write `{at-both-times
-	       {define-macro
-		 ,name
-		 ,augmented-lambda-value}}
-	     libbug-macros-file)
-      `{begin
-	 {with-tests
-	  {define-macro
-	    ,name
-	    ,lambda-value}
-	  ,@tests}}}]})
+{define-macro libbug-internal#define-macro
+  [|name lambda-value #!rest tests|
+   {let* ((extra-includes `(##let ()
+			     {##include "~~lib/gambit#.scm"}
+			     {##include ,(string-append bug-configuration#prefix
+							"/include/bug/libbug#.scm")}))
+	  (macro-args (cadr lambda-value))
+	  (macro-body (cdaddr lambda-value))
+	  ;; the macro that libbug-internal#define-macro creates should
+	  ;; have the same parameter list, augmented with some namespacing,
+	  ;; with otherwise the same macro body
+	  ;; Note: I can't figure out how add a quasiquote without calling list,
+	  ;; because that results in nested quasiquotes
+	  (augmented-lambda-value 
+	   `(lambda ,macro-args
+	      ,(list 'quasiquote
+		     (append extra-includes
+			     macro-body)))))
+;; write the augmented lambda form out to the macro file for use by external projects
+;; Note: the compile-time tests are not included
+     (newline libbug-macros-file)
+     (write `{at-both-times
+	      {define-macro
+		,name
+		,augmented-lambda-value}}
+	    libbug-macros-file)
+;; define the macro, with the unit tests, for this file
+     `{begin
+	{with-tests
+	 {define-macro
+	   ,name
+	   ,lambda-value}
+	 ,@tests}}}]}
 
 
 ;;   PROCEDURES  -------------------------------------------------------------
