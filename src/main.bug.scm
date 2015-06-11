@@ -443,6 +443,34 @@
 	 ,@tests}}}]}
 
 
+;;
+;;  Now we can define macros, which are useable in this file, and
+;;  in external projects, and test them at compile time, using a reasonable
+;;  syntax.  As a demostration, here is my implementation of aif.
+
+;; aif
+;;   anaphoric-if evaluates bool, binds it to the variable "it",
+;;   which is accessible in body.
+(libbug-internal#namespace ("lang#" aif))
+;;(libbug-internal#namespace ("lang#" it))
+{libbug-internal#define-macro
+ aif
+ [|bool body|
+  `{let ((it ,bool))
+     (if it
+	 [,body]
+	 [#f])}]
+ (equal? {aif (+ 5 10) (* 2 it)}
+	 30)
+ (equal? {aif #f (* 2 it)}
+	 #f)}
+
+;;  Notice that defining this macro seemed just like defining any other macro
+;;  albeit with tests.  Macros which are intended to be exported to other
+;;  projects from BUG should be defined using libbug-internal#define-macro.
+
+
+
 ;;   PROCEDURES  -------------------------------------------------------------
 ;;
 ;;  Enough with the boring infrastructer, onto the meat!
@@ -1031,23 +1059,6 @@
 ;;  The following are macros defined in other books, and are not
 ;;  extracted from syntactic patterns from within BUG.  Consult
 ;;  the prerequisites to understand why they are important.
-
-;; aif
-;;   anaphoric-if evaluates bool, binds it to the variable "it",
-;;   which is accessible in body.
-(libbug-internal#namespace ("lang#" aif))
-;;(libbug-internal#namespace ("lang#" it))
-{libbug-internal#define-macro
- aif
- [|bool body|
-  `{let ((it ,bool))
-     (if it
-	 [,body]
-	 [#f])}]
- (equal? {aif (+ 5 10) (* 2 it)}
-	 30)
- (equal? {aif #f (* 2 it)}
-	 #f)}
 
 
 ;; with-gensyms
