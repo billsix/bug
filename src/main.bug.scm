@@ -86,14 +86,14 @@
 ;;   [|pred body|
 ;;    (if (pred)
 ;;        [(body)
-;; 	(while pred body)]
+;; 	   (while pred body)]
 ;;        [(noop)])]}
 ;;
 ;; And usage looks like this
 ;;
 ;; {let ((a 0))
 ;;     (while [(< a 5)]
-;;	    [(set! a (+ a 1))])
+;;	      [(set! a (+ a 1))])
 ;;     a}}
 ;;   => 5
 ;;
@@ -137,12 +137,27 @@
 
 
 ;; That's great as a mechanism to minimize namespace collisions with other Gambit
-;; projects, but I still want to be able to reference Scheme procedures.  Currently
-;; in the code I can't, as "(+)", which would normally evalute to "0", would
-;; instead result in an error "*** ERROR IN (console)@3.2 -- Unbound variable:
-;; foobar#+"
+;; projects, but I still want to be able to reference Scheme procedures.  If
+;; I were to uncomment the following line
 ;;
-;; So, instead, let's make regular Gambit code resolve as it normally should
+;; (define baz (+))
+;;
+;; I would get the following warnings
+;;
+;;  *** WARNING -- "libbug#+" is not defined,
+;;  ***            referenced in: ("/home/wsix/opt/bug/src/main.c")
+;;  *** WARNING -- "libbug#baz" is not defined,
+;;  ***            referenced in: ("/home/wsix/opt/bug/src/main.c")
+;;  *** WARNING -- "libbug#define" is not defined,
+;;  ***            referenced in: ("/home/wsix/opt/bug/src/main.c")
+
+;;
+;; These warnings appear at compile time, because we specified that the current
+;; namespace is "libbug#".  So after Gambit reads it in, it prefixes "libbug#"
+;; to each symbol before Gambit evaluates it.
+;;
+;; By including the following, all of the definitions which Gambit provides
+;; will be used, without a "libbug#" prefix.
 
 
 (##include "~~lib/gambit#.scm")
@@ -297,7 +312,7 @@
 ;;
 
 {at-compile-time
- {namespace ("lang#" if)}} 
+ {namespace ("lang#" if)}}
 {write-and-eval
  libbug-headers-file
  {namespace ("lang#" if)}}
@@ -384,7 +399,10 @@
 ;; This information is then used at compile time when both defining
 ;; and exporting macros to an external file.
 {at-compile-time
- {##include "config.scm"}}
+ {begin
+   {##include "config.scm"}
+   {define bug-configuration#libbugsharp
+     (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}}}
 
 
 
@@ -403,44 +421,38 @@
 
 
 ;; Likewise, defining the macros and exporting them has also
-;; been a repetitive process. 
+;; been a repetitive process.
 ;; This code is not as easy to follow, and only works for macros
 ;; which are quasiquoted.  This needs to be rewritten.
 
 
 {define-macro libbug-internal#define-macro
   [|name lambda-value #!rest tests|
-   {let* ((extra-includes `(##let ()
-			     {##include "~~lib/gambit#.scm"}
-			     {##include ,(string-append bug-configuration#prefix
-							"/include/bug/libbug#.scm")}))
-	  (macro-args (cadr lambda-value))
-	  (macro-body (cdaddr lambda-value))
-	  ;; the macro that libbug-internal#define-macro creates should
-	  ;; have the same parameter list, augmented with some namespacing,
-	  ;; with otherwise the same macro body
-	  ;; Note: I can't figure out how add a quasiquote without calling list,
-	  ;; because that results in nested quasiquotes
-	  (augmented-lambda-value 
-	   `(lambda ,macro-args
-	      ,(list 'quasiquote
-		     (append extra-includes
-			     macro-body)))))
-;; write the augmented lambda form out to the macro file for use by external projects
-;; Note: the compile-time tests are not included
-     (newline libbug-macros-file)
-     (write `{at-both-times
-	      {define-macro
-		,name
-		,augmented-lambda-value}}
-	    libbug-macros-file)
+   ;; the macro that libbug-internal#define-macro creates should
+   ;; have the same parameter list, augmented with some namespacing,
+   ;; with otherwise the same macro body
+   ;; write the augmented lambda form out to the macro file for use by external projects
+   ;; Note: the compile-time tests are not included
+   (newline libbug-macros-file)
+   (write `{at-both-times
+	    {define-macro
+	      ,name
+	      (lambda ,(cadr lambda-value) ;; arguments to the macro
+		(,'quasiquote (##let ()
+				{##include "~~lib/gambit#.scm"}
+				{##include ,bug-configuration#libbugsharp}
+				,@(if (equal? 'quasiquote
+					      (caaddr lambda-value))
+				      [(cdaddr lambda-value)]
+				      [(cddr lambda-value)]))))}}
+	  libbug-macros-file)
 ;; define the macro, with the unit tests, for this file
-     `{begin
-	{with-tests
-	 {define-macro
-	   ,name
-	   ,lambda-value}
-	 ,@tests}}}]}
+   `{begin
+      {with-tests
+       {define-macro
+	 ,name
+	 ,lambda-value}
+       ,@tests}}]}
 
 
 ;;
@@ -531,7 +543,7 @@
 ;;  Isn't that nicer to say than:
 ;;    does f(0) = 1? and
 ;;    does f(1) = 2? and
-;;    does f(2) = 3 for the function f(x) = x + 1? 
+;;    does f(2) = 3 for the function f(x) = x + 1?
 ;;
 ;;  More generally than asking is a number pair is plotted
 ;;  by a function f, we say that pairs of data satisfy
