@@ -4,6 +4,10 @@ Licensed under either LGPL v2.1 (LGPL.txt), or Apache 2.0 (LICENSE-2.0.txt).
 
 BUG - Bill's Utilities for Gambit-C
 
-Features
-  - Compile time unit testing framework
+
+BUG provides a concise syntax for lambdas, utilities for general-purpose
+computation at compile-time, a compile-time unit test framework, and a
+collection of utility functions that Bill finds useful.  Taken together,
+these can be used in a "literate programming" style.
+
 
