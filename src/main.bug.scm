@@ -97,7 +97,7 @@
 ;;
 ;; Fourth, I create custom functions to define functions and macros, which allow
 ;; definitions within the library and which exports them to the aforementioned files.
-;; These are called "libbug-internal#define-macro" and "libbug-internal#define",
+;; These are called "libbug#define-macro" and "libbug#define",
 ;; to convey that these macros are not exported to external programs.
 ;;
 ;; Fifth, I create a macro "lang#if", which takes lambdas.  So (if 5 [1] [2]) instead of
@@ -108,7 +108,7 @@
 ;; failure occurs, no executable is produced.
 ;;
 ;; The reader may skip over reading the implemenation, and skip straight to the
-;; "PROCEDURES" section.
+;; "MAIN" section.
 ;;
 ;;
 ;; BUG INFRASTRUCTURE  -------------------------------------------------------------
@@ -386,7 +386,7 @@
 ;; at compile-time, run-time, and in the namespace file at compile-
 ;; time was tedious.  This is easily extractable into a macro,
 ;; as is used heavily throughout BUG.
-{define-macro libbug-internal#namespace
+{define-macro libbug#namespace
   [|namespace-name-pair|
    {begin
      (eval `{##namespace ,namespace-name-pair})
@@ -398,13 +398,9 @@
 
 ;; Likewise, defining the macros and exporting them has also
 ;; been a repetitive process.
-;; This code is not as easy to follow, and only works for macros
-;; which are quasiquoted.  This needs to be rewritten.
-
-
-{define-macro libbug-internal#define-macro
-  [|name lambda-value #!rest tests|
-   ;; the macro that libbug-internal#define-macro creates should
+{define-macro libbug#define-macro
+  [|namespace name lambda-value #!rest tests|
+   ;; the macro that libbug#define-macro creates should
    ;; have the same parameter list, augmented with some namespacing,
    ;; with otherwise the same macro body
    ;; write the augmented lambda form out to the macro file for use by external projects
@@ -424,55 +420,28 @@
 	  libbug-macros-file)
 ;; define the macro, with the unit tests, for this file
    `{begin
+      {libbug#namespace (,namespace ,name)}
       {with-tests
        {define-macro
 	 ,name
 	 ,lambda-value}
        ,@tests}}]}
 
-
-
-;;  Now we can define macros, which are useable in this file, and
-;;  in external projects, and test them at compile time, using a reasonable
-;;  syntax.  As a demostration, here is my implementation of aif.
-
-;; aif
-;;   anaphoric-if evaluates bool, binds it to the variable "it",
-;;   which is accessible in body.
-(libbug-internal#namespace ("lang#" aif))
-;;(libbug-internal#namespace ("lang#" it))
-{libbug-internal#define-macro
- aif
- [|bool body|
-  `{let ((it ,bool))
-     (if it
-	 [,body]
-	 [#f])}]
- (equal? {aif (+ 5 10) (* 2 it)}
-	 30)
- (equal? {aif #f (* 2 it)}
-	 #f)}
-
-;;  Notice that defining this macro seemed just like defining any other macro
-;;  albeit with tests.  Macros which are intended to be exported to other
-;;  projects from BUG should be defined using libbug-internal#define-macro.
-
-
-{libbug-internal#define-macro
- libbug-internal#define
+;; Function definitions will all have a namespace, name, body,
+;; and an optional suite of tests
+{define-macro
+ libbug#define
  [|namespace name body #!rest tests|
   `{begin
-     {libbug-internal#namespace (,namespace ,name)}
+     {libbug#namespace (,namespace ,name)}
      {with-tests
       {define ,name ,body}
       ,@tests}}]}
 
-
-
-
-;;   PROCEDURES  -------------------------------------------------------------
+;;  MAIN  --------------------------------------------------------------
 ;;
 ;;  Enough with the boring infrastructer, onto the meat!
+;;
 ;;  Sometimes, you need to pass a procedure to another procedure, but you
 ;;  don't want to change the input.  Although at first this may sound odd,
 ;;  but remember that in calculus, the fact that d/dx f(x) is 1 when
@@ -480,7 +449,7 @@
 ;;  And f(x) = x is just the identity function.
 
 
-{libbug-internal#define
+{libbug#define
  "lang#"
  identity
  [|x| x]
@@ -489,7 +458,7 @@
 ;;  Sometimes you just need a procedure to be passed to another procedure,
 ;;  but you just don't need it to do a damn thing.
 
-{libbug-internal#define
+{libbug#define
  "lang#"
  noop
  ['noop]
@@ -497,7 +466,7 @@
 
 
 ;; Kind of list and?, but takes a list
-{libbug-internal#define
+{libbug#define
  "list#"
  all?
  [|lst|
@@ -517,7 +486,7 @@
 ;; We shouldn't have to keep typing the function name in tests,
 ;; should just be able to specify inputs and outputs
 
-{libbug-internal#define
+{libbug#define
  "lang#"
  satisfies-relation
  [|fn list-of-pairs|
@@ -533,7 +502,7 @@
 
 
 ;; Sometimes you need an imperative loop
-{libbug-internal#define
+{libbug#define
  "lang#"
  while
  [|pred body|
@@ -548,7 +517,7 @@
 
 
 ;;   An if expression for numbers, based on their sign.
-{libbug-internal#define
+{libbug#define
  "lang#"
  numeric-if
  [|expr #!key (ifPositive noop) (ifZero noop)(ifNegative noop)|
@@ -566,7 +535,7 @@
     (-5 neg)))}
 
 
-{libbug-internal#define
+{libbug#define
 "lang#"
  complement
  [|f|
@@ -581,7 +550,7 @@
 
 
 ;;   Creates a copy of the list data structure
-{libbug-internal#define
+{libbug#define
  "list#"
  copy
  [|l| (map identity l)]
@@ -593,12 +562,12 @@
 
 ;;   Tests that the argument is a list that is properly
 ;;   termitated.
-{libbug-internal#namespace ("list#" proper?)}
-{with-tests
- {define proper?
-   [|l| {cond ((null? l) #t)
-	      ((pair? l) (proper? (cdr l)))
-	      (else #f)}]}
+{libbug#define
+ "list#"
+ proper?
+ [|l| {cond ((null? l) #t)
+	    ((pair? l) (proper? (cdr l)))
+	    (else #f)}]
  (satisfies-relation
   proper?
   `((4 #f)
@@ -608,19 +577,19 @@
 
 
 ;;   reverses the list quickly by reusing cons cells
-{libbug-internal#namespace ("list#" reverse!)}
-{with-tests
- {define reverse!
-   [|lst|
-    (if (null? lst)
-	['()]
-	[{let reverse! ((lst lst) (prev '()))
-	   (if (null? (cdr lst))
-	       [(set-cdr! lst prev)
-		lst]
-	       [{let ((rest (cdr lst)))
-		  (set-cdr! lst prev)
-		  (reverse! rest lst)}])}])]}
+{libbug#define
+ "list#"
+ reverse!
+ [|lst|
+  (if (null? lst)
+      ['()]
+      [{let reverse! ((lst lst) (prev '()))
+	 (if (null? (cdr lst))
+	     [(set-cdr! lst prev)
+	      lst]
+	     [{let ((rest (cdr lst)))
+		(set-cdr! lst prev)
+		(reverse! rest lst)}])}])]
  (satisfies-relation
   reverse!
   `(
@@ -629,13 +598,13 @@
 
 ;;   first returns the first element of the list, 'noop if the list
 ;;   is empty and no thunk is passed
-{libbug-internal#namespace ("list#" first)}
-{with-tests
- {define first
-   [|lst #!key (onNull noop)|
-    (if (null? lst)
-	[(onNull)]
-	[(car lst)])]}
+{libbug#define
+ "list#"
+ first
+ [|lst #!key (onNull noop)|
+  (if (null? lst)
+      [(onNull)]
+      [(car lst)])]
  ;; test without the onNull handler
  (satisfies-relation
   first
@@ -651,13 +620,13 @@
     ((1 2 3) 1)))}
 
 ;;   but-first returns all of the elements of the list, except for the first
-{libbug-internal#namespace ("list#" but-first)}
-{with-tests
- {define but-first
-   [|lst #!key (onNull noop)|
-    (if (null? lst)
-	[(onNull)]
-	[(cdr lst)])]}
+{libbug#define
+ "list#"
+ but-first
+ [|lst #!key (onNull noop)|
+  (if (null? lst)
+      [(onNull)]
+      [(cdr lst)])]
  (satisfies-relation
   but-first
   `(
@@ -669,16 +638,16 @@
     (() 5)))}
 
 ;;    last returns the last element of the list
-{libbug-internal#namespace ("list#" last)}
-{with-tests
- {define last
-   [|lst #!key (onNull noop)|
-    (if (null? lst)
-	[(onNull)]
-	[{let last ((lst lst))
-	   (if (null? (cdr lst))
-	       [(car lst)]
-	       [(last (cdr lst))])}])]}
+{libbug#define
+ "list#"
+ last
+ [|lst #!key (onNull noop)|
+  (if (null? lst)
+      [(onNull)]
+      [{let last ((lst lst))
+	 (if (null? (cdr lst))
+	     [(car lst)]
+	     [(last (cdr lst))])}])]
  (satisfies-relation
   last
   `(
@@ -692,15 +661,15 @@
     ((1) 1)))}
 
 ;;    but-last returns all but the last element of the list
-{libbug-internal#namespace ("list#" but-last)}
-{with-tests
- {define but-last
-   [|lst #!key (onNull noop)|
-    (if (null? lst)
-	[(onNull)]
-	[(reverse!
-	  (but-first
-	   (reverse! lst)))])]}
+{libbug#define
+ "list#"
+ but-last
+ [|lst #!key (onNull noop)|
+  (if (null? lst)
+      [(onNull)]
+      [(reverse!
+	(but-first
+	 (reverse! lst)))])]
  (satisfies-relation
   but-last
   `(
@@ -716,19 +685,19 @@
 
 ;;   return a new list, consisting only the elements where the predicate p?
 ;;   returns true
-{libbug-internal#namespace ("list#" filter)}
-{with-tests
- {define filter
-   [|p? lst|
-    (reverse!
-     {let filter ((lst lst) (acc '()))
-       (if (null? lst)
-	   [acc]
-	   [{let ((head (car lst)))
-	      (filter (cdr lst)
-		      (if (p? head)
-			  [(cons head acc)]
-			  [acc]))}])})]}
+{libbug#define
+ "list#"
+ filter
+ [|p? lst|
+  (reverse!
+   {let filter ((lst lst) (acc '()))
+     (if (null? lst)
+	 [acc]
+	 [{let ((head (car lst)))
+	    (filter (cdr lst)
+		    (if (p? head)
+			[(cons head acc)]
+			[acc]))}])})]
  (satisfies-relation
   [|l| (filter [|x| (not (= 4 (expt x 2)))]
 	       l)]
@@ -736,12 +705,12 @@
     ((1 2 3 4 5 -2) (1 3 4 5))))}
 
 ;;   returns a new list with all occurances of x removed
-{libbug-internal#namespace ("list#" remove)}
-{with-tests
- {define remove
-   [|x lst|
-    (filter [|y| (not (equal? x y))]
-	    lst)]}
+{libbug#define
+ "list#"
+ remove
+ [|x lst|
+  (filter [|y| (not (equal? x y))]
+	  lst)]
  (satisfies-relation
   [|l| (remove 5 l)]
   `(
@@ -750,16 +719,16 @@
 
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the "left" side of the list
-{libbug-internal#namespace ("list#" fold-left)}
-{with-tests
- {define fold-left
-   [|fn initial lst|
-    {let fold-left ((acc initial) (lst lst))
-      (if (null? lst)
-	  [acc]
-	  [(fold-left (fn acc
-			  (car lst))
-		      (cdr lst))])}]}
+{libbug#define
+ "list#"
+ fold-left
+ [|fn initial lst|
+  {let fold-left ((acc initial) (lst lst))
+    (if (null? lst)
+	[acc]
+	[(fold-left (fn acc
+			(car lst))
+		    (cdr lst))])}]
  (satisfies-relation
   [|l| (fold-left + 0 l)]
   `(
@@ -771,17 +740,17 @@
 ;;   scan-left is like fold-left, but every intermediate value
 ;;   of fold-left's acculumalotr is put onto a list, which
 ;;   is the value of scan-left
-{libbug-internal#namespace ("list#" scan-left)}
-{with-tests
- {define scan-left
-   [|fn initial lst|
-    {let scan-left ((acc-list (list initial)) (lst lst))
-      (if (null? lst)
-	  [(reverse! acc-list)]
-	  [{let ((newacc (fn (first acc-list)
-			     (car lst))))
-	     (scan-left (cons newacc acc-list)
-			(cdr lst))}])}]}
+{libbug#define
+ "list#"
+ scan-left
+ [|fn initial lst|
+  {let scan-left ((acc-list (list initial)) (lst lst))
+    (if (null? lst)
+	[(reverse! acc-list)]
+	[{let ((newacc (fn (first acc-list)
+			   (car lst))))
+	   (scan-left (cons newacc acc-list)
+		      (cdr lst))}])}]
  (satisfies-relation
   [|l| (scan-left + 0 l)]
   `(
@@ -792,15 +761,15 @@
 
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the "right" side of the list
-{libbug-internal#namespace ("list#" fold-right)}
-{with-tests
- {define fold-right
-   [|fn initial lst|
-    {let fold-right ((acc initial) (lst lst))
-      (if (null? lst)
-	  [acc]
-	  [(fn (car lst)
-	       (fold-right acc (cdr lst)))])}]}
+{libbug#define
+ "list#"
+ fold-right
+ [|fn initial lst|
+  {let fold-right ((acc initial) (lst lst))
+    (if (null? lst)
+	[acc]
+	[(fn (car lst)
+	     (fold-right acc (cdr lst)))])}]
  (satisfies-relation
   [|l| (fold-right - 0 l)]
   `(
@@ -811,11 +780,11 @@
 ;;  map a prodecure to a list, but the result of the
 ;;  prodecure will be a list itself.  Aggregate all
 ;;  of those lists together
-{libbug-internal#namespace ("list#" flatmap)}
-{with-tests
- {define flatmap
-   [|fn lst|
-    (fold-left append '() (map fn lst))]}
+{libbug#define
+ "list#"
+ flatmap
+ [|fn lst|
+  (fold-left append '() (map fn lst))]
  (satisfies-relation
   [|l| (flatmap [|x| (list x x x)]
 		l)]
@@ -832,24 +801,24 @@
     ((10 20) (10 11 12 20 21 22))))}
 
 ;;  I think the tests explain it
-{libbug-internal#namespace ("list#" enumerate-interval)}
-{with-tests
- {define enumerate-interval
-   [|low high #!key (step 1)|
-    (if (> low high)
-	['()]
-	[(cons low (enumerate-interval (+ low step) high step: step))])]}
+{libbug#define
+ "list#"
+ enumerate-interval
+ [|low high #!key (step 1)|
+  (if (> low high)
+      ['()]
+      [(cons low (enumerate-interval (+ low step) high step: step))])]
  (equal? (enumerate-interval 1 10)
 	 '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2)
 	 '(1 3 5 7 9))}
 
 ;; iota - from common lisp
-{libbug-internal#namespace ("list#" iota)}
-{with-tests
- {define iota
-   [|n #!key (start 0) (step 1)|
-    (enumerate-interval start n step: step)]}
+{libbug#define
+ "list#"
+ iota
+ [|n #!key (start 0) (step 1)|
+  (enumerate-interval start n step: step)]
  (equal? (iota 5 start: 0)
 	 '(0 1 2 3 4 5))
  (equal? (iota 5 start: 2 step: (/ 3 2))
@@ -858,19 +827,19 @@
 
 
 ;;   returns all permutations of the list
-{libbug-internal#namespace ("list#" permutations)}
-{with-tests
- {define permutations
-   [|lst|
-    (if (null? lst)
-	['()]
-	[{let permutations ((lst lst))
-	   (if (null? lst)
-	       [(list '())]
-	       [(flatmap [|x|
-			  (map [|y| (cons x y)]
-			       (permutations (remove x lst)))]
-			 lst)])}])]}
+{libbug#define
+ "list#"
+ permutations
+ [|lst|
+  (if (null? lst)
+      ['()]
+      [{let permutations ((lst lst))
+	 (if (null? lst)
+	     [(list '())]
+	     [(flatmap [|x|
+			(map [|y| (cons x y)]
+			     (permutations (remove x lst)))]
+		       lst)])}])]
  (satisfies-relation
   permutations
   `(
@@ -886,13 +855,13 @@
 	      (3 2 1)))))}
 
 ;;   Returns a list of every sub-list
-{libbug-internal#namespace ("list#" sublists)}
-{with-tests
- {define sublists
-   [|lst|
-    (if (null? lst)
-	['()]
-	[(cons lst (sublists (cdr lst)))])]}
+{libbug#define
+ "list#"
+ sublists
+ [|lst|
+  (if (null? lst)
+      ['()]
+      [(cons lst (sublists (cdr lst)))])]
  (satisfies-relation
   sublists
   `(
@@ -904,16 +873,16 @@
 
 ;;  Apply a series of functions to an input.  Much
 ;;  like the . operator in math
-{libbug-internal#namespace ("lang#" compose)}
-{with-tests
- {define compose
-   [|#!rest fns|
-    [|#!rest args|
-     (if (null? fns)
-	 [(apply identity args)]
-	 [(fold-right [|fn acc| (fn acc)]
-		      (apply (last fns) args)
-		      (but-last fns))])]]}
+{libbug#define
+ "lang#"
+ compose
+ [|#!rest fns|
+  [|#!rest args|
+   (if (null? fns)
+       [(apply identity args)]
+       [(fold-right [|fn acc| (fn acc)]
+		    (apply (last fns) args)
+		    (but-last fns))])]]
  (equal? ((compose) 5)
 	 5)
  (equal? ((compose [|x| (* x 2)])
@@ -929,9 +898,8 @@
 	  5)
 	 11/13)}
 
-
-{libbug-internal#namespace ("stream#" stream-cons)}
-{libbug-internal#define-macro
+{libbug#define-macro
+ "stream#"
  stream-cons
  [|a b|
   `(cons ,a {delay ,b})]
@@ -944,37 +912,38 @@
 	      2)}}}}
 
 
-{libbug-internal#namespace ("stream#" stream-car)}
-{with-tests
- {define stream-car car}
+{libbug#define
+ "stream#"
+ stream-car
+ car
  {let ((s {stream-cons 1 2}))
    (equal? (stream-car s)
 	   1)}}
 
-{libbug-internal#namespace ("stream#" stream-cdr)}
-{with-tests
- {define stream-cdr
-   [|s| {force (cdr s)}]}
+{libbug#define
+ "stream#"
+ stream-cdr
+ [|s| {force (cdr s)}]
  {let ((s {stream-cons 1 2}))
    (equal? (stream-cdr s)
 	   2)}}
 
 
 
-{libbug-internal#namespace ("stream#" stream-ref)}
-{with-tests
- {define stream-ref
-   [|s n #!key (onOutOfBounds noop)|
-    {define refPrime
-      [|s n|
-       (if (equal? n 0)
-	   [(stream-car s)]
-	   [(if (not (null? (stream-cdr s)))
-		[(refPrime (stream-cdr s) (- n 1))]
-		[(onOutOfBounds)])])]}
-    (if (< n 0)
-	[(onOutOfBounds)]
-	[(refPrime s n)])]}
+{libbug#define
+ "stream#"
+ stream-ref
+ [|s n #!key (onOutOfBounds noop)|
+  {define refPrime
+    [|s n|
+     (if (equal? n 0)
+	 [(stream-car s)]
+	 [(if (not (null? (stream-cdr s)))
+	      [(refPrime (stream-cdr s) (- n 1))]
+	      [(onOutOfBounds)])])]}
+  (if (< n 0)
+      [(onOutOfBounds)]
+      [(refPrime s n)])]
  {let ((s {stream-cons 5
 		       {stream-cons 4
 				    {stream-cons 3
@@ -1000,13 +969,11 @@
 ;;   Implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
 
 ;; this dummy structure is used in a test
-{libbug-internal#namespace ("lang#" setf!)}
-(write-and-eval
- libbug-macros-file
- {at-compile-time
-  {define-structure foo bar baz}})
+{at-compile-time
+ {define-structure foo bar baz}}
 
-{libbug-internal#define-macro
+{libbug#define-macro
+ "lang#"
  setf!
  [|get-expression val|
   (if (not (pair? get-expression))
@@ -1052,6 +1019,22 @@
 ;;  extracted from syntactic patterns from within BUG.  Consult
 ;;  the prerequisites to understand why they are important.
 
+;; aif
+;;   anaphoric-if evaluates bool, binds it to the variable "it",
+;;   which is accessible in body.
+{libbug#define-macro
+ "lang#"
+ aif
+ [|bool body|
+  `{let ((it ,bool))
+     (if it
+	 [,body]
+	 [#f])}]
+ (equal? {aif (+ 5 10) (* 2 it)}
+	 30)
+ (equal? {aif #f (* 2 it)}
+	 #f)}
+
 
 ;; with-gensyms
 ;;   Utility for macros to minimize explicit use of gensym.
@@ -1061,8 +1044,8 @@
 ;;   Usually, variables local to a macro should not clash
 ;;   with variables local to the macro caller.
 ;;
-{libbug-internal#namespace ("lang#" with-gensyms)}
-{libbug-internal#define-macro
+{libbug#define-macro
+ "lang#"
  with-gensyms
  [|symbols #!rest body|
   `{let ,(map [|symbol| `(,symbol {gensym})]
