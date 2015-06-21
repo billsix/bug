@@ -42,13 +42,16 @@ libbug.so: main.c
 install:
 	install -d $(DESTDIR)$(libdir)
 	install -m 0755 libbug.so.$(version) $(DESTDIR)$(libdir)
+	ln -f -s $(DESTDIR)$(libdir)/libbug.so.$(version) $(DESTDIR)$(libdir)/libbug.so
 	install -m 0755 libbug.$(version).o1 $(DESTDIR)$(libdir)
 	install -d $(DESTDIR)$(includedir)/$(package)/
+	install -m 0755 libbug.c $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug#.scm $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug-macros.scm $(DESTDIR)$(includedir)/$(package)/
 
 
 uninstall:
+	-rm $(DESTDIR)$(libdir)/libbug.so
 	-rm $(DESTDIR)$(libdir)/libbug.so.$(version)
 	-rm $(DESTDIR)$(libdir)/libbug.$(version).o1
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug#.scm
