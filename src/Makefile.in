@@ -54,6 +54,7 @@ uninstall:
 	-rm $(DESTDIR)$(libdir)/libbug.so
 	-rm $(DESTDIR)$(libdir)/libbug.so.$(version)
 	-rm $(DESTDIR)$(libdir)/libbug.$(version).o1
+	-rm $(DESTDIR)$(includedir)/$(package)/libbug.c
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug#.scm
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug-macros.scm
 
