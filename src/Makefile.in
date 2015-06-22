@@ -22,7 +22,7 @@ all: libbug.so
 %.o : %.c
 	gsc -obj $<
 
-libbug.so: main.c
+libbug.so: bug-language.scm bug-language-end.scm main.c
 	#build the shared library
 	gsc -link -o libbug.c main
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
