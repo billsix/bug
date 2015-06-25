@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([bug],[0.0.3], [billsix@gmail.com])
+AC_INIT([bug],[0.0.4], [billsix@gmail.com])
 
 # Checks for programs.
 AC_PROG_CC
