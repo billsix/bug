@@ -42,9 +42,9 @@ libbug.so: bug-language.scm bug-language-end.scm main.c
 install:
 	install -d $(DESTDIR)$(libdir)
 	install -m 0755 libbug.so.$(version) $(DESTDIR)$(libdir)
-	ln -f -s $(DESTDIR)$(libdir)/libbug.so.$(version) $(DESTDIR)$(libdir)/libbug.so
+	ln -f -s $(DESTDIR)$(libdir)/libbug.so.$(version) $(libdir)/libbug.so
 	install -m 0755 libbug.$(version).o1 $(DESTDIR)$(libdir)
-	ln -f -s $(DESTDIR)$(libdir)/libbug.$(version).o1 $(DESTDIR)$(libdir)/libbug.o1
+	ln -f -s $(DESTDIR)$(libdir)/libbug.$(version).o1 $(libdir)/libbug.o1
 	install -d $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug.c $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug#.scm $(DESTDIR)$(includedir)/$(package)/
