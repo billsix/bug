@@ -9,6 +9,7 @@ exec_prefix = @exec_prefix@
 bindir = @bindir@
 libdir = @libdir@
 mandir = @mandir@
+datarootdir = @datarootdir@
 
 PREPROCESSOR_PATH=$(shell pwd)/bug-gsc/
 

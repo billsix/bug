@@ -29,9 +29,9 @@ AC_PROG_INSTALL
 AC_CONFIG_FILES([Makefile
                  bug-gsc/Makefile
                  src/Makefile
-		 src/config.bscm
+		 src/config.scm
 		 ])
 AC_SUBST(ac_unique_file)
-AC_CONFIG_SRCDIR(src/config.bscm.in)
+AC_CONFIG_SRCDIR(src/config.scm.in)
 AC_OUTPUT
 

@@ -2,26 +2,31 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
+(##namespace ("libbug#"))
+(##include "~~lib/gambit#.scm")
 
 ;; at-compile-time
 ;;  Evaluate the form in the compiler's address space.  When the program is
 ;;  executed, form will not be evaluated.
 
-(namespace ("lang#" at-compile-time))
+(##namespace ("lang#" at-compile-time))
 {define-macro at-compile-time
   [|form|
    (eval form)
    `(quote noop)]}
 
+
 ;; at-both-times
 ;;  Evaluate the form in the compiler's address space, and also when the
 ;;  resulting program is executed.
 
-(namespace ("lang#" at-both-times))
+(##namespace ("lang#" at-both-times))
 {define-macro at-both-times
   [|form|
    (eval form)
    form]}
+
+
 
 ;; create header file for external projects,
 ;; and a macro file for external projects
@@ -46,42 +51,30 @@
    (display
     ";; Copyright 2014,2015 - William Emerison Six
 ;;  All rights reserved
-;;  Distributed under LGPL 2.1 or Apache 2.0"
+;;  Distributed under LGPL 2.1 or Apache 2.0
+(##namespace (\"lang#\" at-compile-time))
+(##namespace (\"lang#\" at-both-times))"
     libbug-headers-file)
    (display
     ";; Copyright 2014,2015 - William Emerison Six
 ;;  All rights reserved
-;;  Distributed under LGPL 2.1 or Apache 2.0"
-    libbug-macros-file)))
+;;  Distributed under LGPL 2.1 or Apache 2.0
+(##namespace (\"libbug#\"))
+(##include \"~~lib/gambit#.scm\")
+(##include \"libbug#.scm\")
 
 
 
 
-(at-compile-time
- (begin
-   (display "
-(namespace (\"lang#\" at-compile-time))"
-	    libbug-headers-file)
-   (display
-    "
 {define-macro at-compile-time
   [|form|
    (eval form)
-   `(quote noop)]}"
-    libbug-macros-file)))
-
-(at-compile-time
- (begin
-   (display "
-(namespace (\"lang#\" at-both-times))"
-	    libbug-headers-file)
-   (display
-    "
+   `(quote noop)]}
 {define-macro at-both-times
   [|form|
    (eval form)
    form]}"
-   libbug-macros-file)))
+    libbug-macros-file)))
 
 
 (define-macro write-and-eval
@@ -91,12 +84,21 @@
    form])
 
 
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" if)))
+
+;;Sets the namespace for during macro-expansion, for
+;;run-time, and writes to out to libbug#.scm
 
 
+(define-macro libbug-internal#namespace
+  [|namespace-name-pair|
+   (begin
+     (eval `(##namespace ,namespace-name-pair))
+     `(write-and-eval
+       libbug-headers-file
+       (##namespace ,namespace-name-pair)))])
 
+
+(libbug-internal#namespace ("lang#" if))
 (write-and-eval
  libbug-macros-file
  {at-both-times
@@ -117,9 +119,7 @@
 
 
 
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" with-test)))
+(libbug-internal#namespace ("lang#" with-test))
 
 ;; with-test
 ;;   Collocates a definiton with a test.  The test is run at compile-time
@@ -140,10 +140,7 @@
     ;;the actual macro expansion is just the definition
     definition]})
 
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" with-tests)))
-
+(libbug-internal#namespace ("lang#" with-tests))
 ;; with-tests
 ;;   Collocates a definition with a collection of tests.  Tests are
 ;;   run sequentially, and are expected to return true or false
@@ -154,44 +151,87 @@
     `{with-test ,definition (and ,@test)}]})
 
 
+
+;; At compile time, we need to know where where certain files
+;; will be located after they are installed.  For instace,
+;; the subsequent function needs to know how to reference
+;; the namespace scheme file.  This data currently is only
+;; needed at compile-time
+{at-compile-time
+ (##include "config.scm")}
+
+
+
+;;Define a macro, both at macro-expansion time, and run-time.
+;;Also write it out to libbug-macros.scm for use in other projects.
+
+;;This code is not as easy to follow, and only works for macros
+;;which are quasiquoted.  This needs to be rewritten.
+
+
+(write-and-eval
+ libbug-macros-file
+ {define-macro libbug-internal#define-macro
+   [|name lambda-value #!rest tests|
+    (let ((augmented-lambda-value
+	   (append (list 'lambda
+			 (cadr lambda-value))
+		   (list (cons 'quasiquote
+			       (list
+				(append
+				 (cons '##let (cons (list)
+						    (append
+						     (list
+						      `(##include "~~lib/gambit#.scm")
+						      `(##include ,(string-append bug-configuration#prefix
+										 "/include/bug/libbug#.scm")))
+						     (cdaddr lambda-value))))))))))
+	  (newval lambda-value))
+      (newline libbug-macros-file)
+      (write `{define-macro
+		,name
+		,augmented-lambda-value}
+	     libbug-macros-file)
+      `{begin
+	 {with-tests
+	  {define-macro
+	    ,name
+	    ,lambda-value}
+	  ,@tests}})]})
+
+
+
 ;; when
 ;;   when the bool value is non-false, return the value of statement.
 ;;   when the bool value is false, return false
 ;; TODO - statement needs to be wrapped in a begin
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" when)))
+(libbug-internal#namespace ("lang#" when))
+{libbug-internal#define-macro
+ when
+ [|bool statement|
+  `(if ,bool
+       [,statement]
+       [#f])]
+ (equal? (when 5 3) 3)
+ (equal? (when #f 3) #f)}
 
-(write-and-eval
- libbug-macros-file
- {with-tests
-  {define-macro when
-    [|bool statement|
-     `(if ,bool
-	  [,statement]
-	  [#f])]}
-  (equal? (when 5 3) 3)
-  (equal? (when #f 3) #f)})
+
 
 ;; aif
 ;;   anaphoric-if evaluates bool, binds it to the variable "it",
 ;;   which is accessible in body.
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" aif)))
-
-(write-and-eval
- libbug-macros-file
- {with-tests
-  {define-macro aif
-    [|bool body|
-     `(let ((it ,bool))
-	(when it
-	      ,body))]}
-  (equal? (aif (+ 5 10) (* 2 it))
-	  30)
-  (equal? (aif #f (* 2 it))
-	  #f)})
+(libbug-internal#namespace ("lang#" aif))
+;;(libbug-internal#namespace ("lang#" it))
+{libbug-internal#define-macro
+ aif
+ [|bool body|
+  `(let ((it ,bool))
+     (when it
+	   ,body))]
+ (equal? (aif (+ 5 10) (* 2 it))
+	 30)
+ (equal? (aif #f (* 2 it))
+	 #f)}
 
 ;; with-gensyms
 ;;   Utility for macros to minimize explicit use of gensym.
@@ -201,24 +241,16 @@
 ;;   Usually, variables local to a macro should not clash
 ;;   with variables local to the macro caller.
 ;;
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" with-gensyms)))
-
-(write-and-eval
- libbug-macros-file
- {at-both-times
-  {define-macro with-gensyms
-    [|symbols #!rest body|
-     `{let ,(map [|symbol| `(,symbol {gensym})]
-		 symbols)
-	,@body}]}})
+(libbug-internal#namespace ("lang#" with-gensyms))
+{libbug-internal#define-macro
+ with-gensyms
+ [|symbols #!rest body|
+  `{let ,(map [|symbol| `(,symbol {gensym})]
+	      symbols)
+     ,@body}]}
 
 
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" setf!)))
-
+(libbug-internal#namespace ("lang#" setf!))
 ;; setf!
 ;;   Sets a value using its getter, as done in Common Lisp.
 ;;
@@ -230,55 +262,46 @@
  {at-compile-time
   {define-structure foo bar baz}})
 
-(write-and-eval
- libbug-macros-file
- {with-tests
-  {define-macro setf!
-    [|get-expression val|
-     (if (not (pair? get-expression))
-	 [`{set! ,get-expression ,val}]
-	 [{case (car get-expression)
-	    ((car) `{set-car! ,@(cdr get-expression) ,val})
-	    ((cdr) `{set-cdr! ,@(cdr get-expression) ,val})
-	    ((cadr) `{setf! (car (cdr ,@(cdr get-expression))) ,val})
-	    ((cddr) `{setf! (cdr (cdr ,@(cdr get-expression))) ,val})
-	    ;; TODO - handle other atypical cases
-	    (else `(,(string->symbol (string-append (symbol->string (car get-expression))
-						    "-set!"))
-		    ,@(cdr get-expression)
-		    ,val))}])]}
-  ;; test variable
-  {let ((a 5))
-    {setf! a 10}
-    (equal? a 10)}
-  {begin
-    {let ((a (make-foo 1 2)))
-      {setf! (foo-bar a) 10}
-      (equal? (make-foo 10 2)
-	      a)}}
-  ;; test car
-  {let ((a (list 1 2)))
-    {setf! (car a) 10}
-    (equal? a '(10 2))}
-  ;; test cdr
-  {let ((a (list 1 2)))
-    {setf! (cdr a) (list 10)}
-    (equal? a '(1 10))}
-  ;; test cadr
-  {let ((a (list (list 1 2) (list 3 4))))
-    {setf! (cadr a) 10}
-    (equal? a '((1 2) 10))}
-  ;; test cddr
-  {let ((a (list (list 1 2) (list 3 4))))
-    {setf! (cddr a) (list 10)}
-    (equal? a '((1 2) (3 4) 10))}
-
-  })
-
-
-
-
-
+{libbug-internal#define-macro
+ setf!
+ [|get-expression val|
+  (if (not (pair? get-expression))
+      [`{set! ,get-expression ,val}]
+      [{case (car get-expression)
+	 ((car) `{set-car! ,@(cdr get-expression) ,val})
+	 ((cdr) `{set-cdr! ,@(cdr get-expression) ,val})
+	 ((cadr) `{setf! (car (cdr ,@(cdr get-expression))) ,val})
+	 ((cddr) `{setf! (cdr (cdr ,@(cdr get-expression))) ,val})
+	 ;; TODO - handle other atypical cases
+	 (else `(,(string->symbol (string-append (symbol->string (car get-expression))
+						 "-set!"))
+		 ,@(cdr get-expression)
+		 ,val))}])]
+ ;; test variable
+ {let ((a 5))
+   {setf! a 10}
+   (equal? a 10)}
+ {begin
+   {let ((a (make-foo 1 2)))
+     {setf! (foo-bar a) 10}
+     (equal? (make-foo 10 2)
+	     a)}}
+ ;; test car
+ {let ((a (list 1 2)))
+   {setf! (car a) 10}
+   (equal? a '(10 2))}
+ ;; test cdr
+ {let ((a (list 1 2)))
+   {setf! (cdr a) (list 10)}
+   (equal? a '(1 10))}
+ ;; test cadr
+ {let ((a (list (list 1 2) (list 3 4))))
+   {setf! (cadr a) 10}
+   (equal? a '((1 2) 10))}
+ ;; test cddr
+ {let ((a (list (list 1 2) (list 3 4))))
+   {setf! (cddr a) (list 10)}
+   (equal? a '((1 2) (3 4) 10))}}
 
 
 
@@ -286,10 +309,7 @@
 ;;   identity :: a -> a
 ;;
 ;;   Return the input
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" identity)))
-
+(libbug-internal#namespace ("lang#" identity))
 {with-test
  {define identity [|x| x]}
  (equal? "foo" (identity "foo"))}
@@ -303,10 +323,7 @@
 ;;   for worthwhile procedure to actually be
 ;;   called
 
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" noop)))
-
+(libbug-internal#namespace ("lang#" noop))
 {with-test
  {define noop  ['noop]}
  (equal? (noop) 'noop)}
@@ -314,10 +331,7 @@
 
 ;; all?
 
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" all?)))
-
+(libbug-internal#namespace ("lang#" all?))
 (at-both-times
  {define all?
    [|lst|
@@ -335,10 +349,7 @@
 ;;   evaluates to the second element of the list
 ;;
 ;;   Reference: http://en.wikipedia.org/wiki/Binary_relation
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" satisfies-relation)))
-
+(libbug-internal#namespace ("lang#" satisfies-relation))
 {with-tests
  {define satisfies-relation
    [|fn list-of-pairs|
@@ -361,10 +372,7 @@
 ;;   numeric-if :: (Num a) =>  a -> Thunk -> Thunk -> Thunk
 ;;
 ;;   An if expression for numbers, based on their sign.
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" numeric-if)))
-
+(libbug-internal#namespace ("lang#" numeric-if))
 {with-test
  {define numeric-if
    [|expr #!key (ifPositive noop) (ifZero noop)(ifNegative noop)|
@@ -386,10 +394,7 @@
 ;;   complement :: (a -> Bool) -> (a -> Bool)
 ;;
 ;;   Negates a predicate
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" complement)))
-
+(libbug-internal#namespace ("lang#" complement))
 {with-test
  {define complement
    [|f|
@@ -405,10 +410,7 @@
 ;;   while :: Thunk -> Thunk -> Symbol
 ;;
 ;;   Imperative while loop.
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" while)))
-
+(libbug-internal#namespace ("lang#" while))
 {with-tests
  {define while
    [|pred body|
@@ -426,10 +428,7 @@
 ;; copy
 ;;   copy :: [a] -> [a]
 ;;   Creates a copy of the list data structure, but does
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" copy)))
-
+(libbug-internal#namespace ("list#" copy))
 {with-tests
  {define copy
    [|l| (map identity l)]}
@@ -443,10 +442,7 @@
 ;;   proper? :: [a] -> Bool
 ;;   Tests that the argument is a list that is properly
 ;;   termitated.
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" proper?)))
-
+(libbug-internal#namespace ("list#" proper?))
 {with-tests
  {define proper?
    [|l| {cond ((null? l) #t)
@@ -463,10 +459,7 @@
 ;; reverse!
 ;;   reverse! :: [a] -> [a]
 ;;   reverses the list, possibly destructively.
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" reverse!)))
-
+(libbug-internal#namespace ("list#" reverse!))
 {with-tests
  {define reverse!
    [|lst|
@@ -492,10 +485,7 @@
 ;; first :: [a] -> Optional (() -> b) -> Either a b
 ;;   first returns the first element of the list, 'noop if the list is empty and no
 ;;   thunk is passed
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" first)))
-
+(libbug-internal#namespace ("list#" first))
 {with-tests
  {define first
    [|lst #!key (onNull noop)|
@@ -518,10 +508,7 @@
 
 ;; but-first :: [a] -> Optional (() -> b) -> Either [a] b
 ;;   but-first returns all of the elements of the list, except for the first
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" but-first)))
-
+(libbug-internal#namespace ("list#" but-first))
 {with-tests
  {define but-first
    [|lst #!key (onNull noop)|
@@ -540,10 +527,7 @@
 
 ;;  last :: [a] -> Optional (() -> b) -> Either a b
 ;;    last returns the last element of the list
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" last)))
-
+(libbug-internal#namespace ("list#" last))
 {with-tests
  {define last
    [|lst #!key (onNull noop)|
@@ -569,10 +553,7 @@
 
 ;;  but-last :: [a] -> Optional (() -> b) -> Either [a] b
 ;;    but-last returns all but the last element of the list
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" but-last)))
-
+(libbug-internal#namespace ("list#" but-last))
 {with-tests
  {define but-last
    [|lst #!key (onNull noop)|
@@ -601,10 +582,7 @@
 ;;   filter :: (a -> Bool) -> [a] -> [a]
 ;;   return a new list, consisting only the elements where the predicate p?
 ;;   returns true
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" filter)))
-
+(libbug-internal#namespace ("list#" filter))
 {with-tests
  {define filter
    [|p? lst|
@@ -627,10 +605,7 @@
 ;; remove
 ;;   remove :: a -> [a] -> [a]
 ;;   returns a new list with all occurances of x removed
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" remove)))
-
+(libbug-internal#namespace ("list#" remove))
 {with-tests
  {define remove
    [|x lst|
@@ -646,10 +621,7 @@
 ;;    fold-left :: (a -> b -> a) -> a -> [b] -> a
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the "left" side of the list
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" fold-left)))
-
+(libbug-internal#namespace ("list#" fold-left))
 {with-tests
  {define fold-left
    [|fn initial lst|
@@ -673,10 +645,7 @@
 ;;   scan-left is like fold-left, but every intermediate value
 ;;   of fold-left's acculumalotr is put onto a list, which
 ;;   is the value of scan-left
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" scan-left)))
-
+(libbug-internal#namespace ("list#" scan-left))
 {with-tests
  {define scan-left
    [|fn initial lst|
@@ -701,10 +670,7 @@
 ;;    fold-right :: (b -> a -> a) -> a -> [b] -> a
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the "right" side of the list
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" fold-right)))
-
+(libbug-internal#namespace ("list#" fold-right))
 {with-tests
  {define fold-right
    [|fn initial lst|
@@ -724,10 +690,7 @@
 
 ;; flatmap
 ;;   flatmap :: (a -> [b]) -> [a] -> [b]
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" flatmap)))
-
+(libbug-internal#namespace ("list#" flatmap))
 {with-tests
  {define flatmap
    [|fn lst|
@@ -749,10 +712,7 @@
 
 ;; enumerate-interval
 ;;   enumerate-interval :: (Num a) => a -> a -> Optional a -> a
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" enumerate-interval)))
-
+(libbug-internal#namespace ("list#" enumerate-interval))
 {with-tests
  {define enumerate-interval
    [|low high #!key (step 1)|
@@ -766,10 +726,7 @@
 
 ;; iota - from common lisp
 ;;   iota :: (Num a) => a -> Optional a -> Optional a -> a
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" iota)))
-
+(libbug-internal#namespace ("list#" iota))
 {with-tests
  {define iota
    [|n #!key (start 0) (step 1)|
@@ -783,10 +740,7 @@
 ;; permutations
 ;;   permutations :: [a] -> [[a]]
 ;;   returns all permutations of the list
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" permutations)))
-
+(libbug-internal#namespace ("list#" permutations))
 {with-tests
  {define permutations
    [|lst|
@@ -818,10 +772,7 @@
 ;; sublists
 ;;   sublists :: [a] -> [[a]]
 ;;   Returns a list of every sub-list
-(write-and-eval
- libbug-headers-file
- (namespace ("list#" sublists)))
-
+(libbug-internal#namespace ("list#" sublists))
 {with-tests
  {define sublists
    [|lst|
@@ -837,10 +788,7 @@
     ((1 2 3) ((1 2 3) (2 3) (3)))))}
 
 
-(write-and-eval
- libbug-headers-file
- (namespace ("lang#" compose)))
-
+(libbug-internal#namespace ("lang#" compose))
 {with-tests
  {define compose
    [|#!rest fns|
@@ -868,40 +816,28 @@
 	 11/13)}
 
 
-(write-and-eval
- libbug-headers-file
- (namespace ("stream#" stream-cons)))
-
-(write-and-eval
- libbug-macros-file
- {with-tests
-  {define-macro stream-cons
-    [|a b|
-     `(cons ,a {delay ,b})]}
-  {begin
-    {let ((s (stream-cons 1 2)))
-      (all?
-       (list
-	(equal? (car s)
-		1)
-	(equal? {force (cdr s)}
-		2)))}}})
+(libbug-internal#namespace ("stream#" stream-cons))
+{libbug-internal#define-macro
+ stream-cons
+ [|a b|
+  `(cons ,a {delay ,b})]
+ {begin
+   {let ((s (stream-cons 1 2)))
+     (and
+      (equal? (car s)
+	      1)
+      (equal? {force (cdr s)}
+	      2))}}}
 
 
-(write-and-eval
- libbug-headers-file
- (namespace ("stream#" stream-car)))
-
+(libbug-internal#namespace ("stream#" stream-car))
 {with-tests
  {define stream-car car}
  {let ((s (stream-cons 1 2)))
    (equal? (stream-car s)
 	   1)}}
 
-(write-and-eval
- libbug-headers-file
- (namespace ("stream#" stream-cdr)))
-
+(libbug-internal#namespace ("stream#" stream-cdr))
 {with-tests
  {define stream-cdr
    [|s| (force (cdr s))]}
@@ -911,9 +847,7 @@
 
 
 
-(write-and-eval
- libbug-headers-file
- (namespace ("stream#" stream-ref)))
+(libbug-internal#namespace ("stream#" stream-ref))
 {with-tests
  {define stream-ref
    [|s n #!key (onOutOfBounds noop)|
@@ -945,6 +879,15 @@
      (equal? (stream-ref s 5 onOutOfBounds: ['out])
 	     'out)))}}
 
+
+
+;;  clear the namespace of the macro file
+(at-compile-time
+ (begin
+   (display
+    "
+(##namespace (\"\"))"
+    libbug-macros-file)))
 
 
 (at-compile-time

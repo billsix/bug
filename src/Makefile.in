@@ -9,11 +9,11 @@ exec_prefix = @exec_prefix@
 bindir=@bindir@
 libdir=@libdir@
 includedir=@includedir@
-
+datarootdir = @datarootdir@
 
 all: libbug.so
 
-%.scm : %.bscm
+%.scm : %.bug.scm
 	bug-gscpp $< $@
 
 %.c : %.scm
