@@ -11,11 +11,9 @@ libdir = @libdir@
 mandir = @mandir@
 datarootdir = @datarootdir@
 
-PREPROCESSOR_PATH=$(shell pwd)/bug-gsc/
-
 all: 
 	cd bug-gsc/ && $(MAKE) $@
-	export PATH=$(PREPROCESSOR_PATH)/:$(PATH) && cd src && $(MAKE) $@
+	cd src && $(MAKE) $@
 	bzip2 -f -k man/bug-gscpp.1
 	bzip2 -f -k man/bug-gsi.1
 
@@ -49,7 +47,7 @@ $(distdir): FORCE
 distcheck: $(distdir).tar.gz
 	gzip -cd $(distdir).tar.gz | tar xvf -
 	cd $(distdir) && ./configure
-	cd $(distdir) && export PATH=$(shell pwd)/bug-gsc/:$(PATH) && $(MAKE)
+	cd $(distdir) && $(MAKE)
 	cd $(distdir) && $(MAKE) DESTDIR=$${PWD}/_inst install
 	cd $(distdir) && $(MAKE) DESTDIR=$${PWD}/_inst uninstall
 	@remaining="`find $${PWD}/$(distdir)/_inst -type f | wc -l`"; \

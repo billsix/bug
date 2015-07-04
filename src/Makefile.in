@@ -14,7 +14,7 @@ datarootdir = @datarootdir@
 all: libbug.so
 
 %.scm : %.bug.scm
-	bug-gscpp $< $@
+	../bug-gsc/bug-gscpp $< $@
 
 %.c : %.scm
 	gsc -c $<
