@@ -2,6 +2,10 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
+|#
+Here is a block comment
+#|
+
 {##namespace ("libbug#")}
 (##include "~~lib/gambit#.scm")
 

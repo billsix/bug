@@ -72,6 +72,7 @@ int main(int argc, char** argv)
     char buf[MAX_LINE]; // buffer, into which to store data from input
     while(xfgets(buf, MAX_LINE, input) != NULL)
       {
+	int in_opening_pipe = 0;
 	for(int i = 0; buf[i] != 0; i++)
 	  {
 	    switch(buf[i]){
@@ -90,6 +91,7 @@ int main(int argc, char** argv)
 	      if(buf[i] == '|')
 		{
 		  fputc('(', output);
+		  in_opening_pipe = 1;
 		}
 	      else
 		{
@@ -98,7 +100,16 @@ int main(int argc, char** argv)
 		}
 	      break;
 	    }
-	    case '|':
+	    case '|': {
+	      if(in_opening_pipe){
+		fputc(')', output);
+		in_opening_pipe = !in_opening_pipe;
+	      }
+	      else {
+		fputc('|', output);
+	      }
+	      break;
+	    }
 	    case ']':
 	      fputc(')', output);
 	      break;
