@@ -337,14 +337,10 @@
 {with-tests
  {define satisfies-relation
    [|fn list-of-pairs|
-    ;;   satisfies-relation-prime :: (a -> b) -> (a,b) -> Bool
-    {define satisfies-relation-prime
-      [|fn pair|
-       {let ((independent-variable (car pair))
-	     (dependent-variable (cadr pair)))
-	 (equal? (fn independent-variable)
-		 dependent-variable)}]}
-    (all? (map [|pair| (satisfies-relation-prime fn pair)]
+    (all? (map [|pair| {let ((independent-variable (car pair))
+			     (dependent-variable (cadr pair)))
+			 (equal? (fn independent-variable)
+				 dependent-variable)}]
 	       list-of-pairs))]}
  (satisfies-relation [|x| (+ x 1)]
 		     `((0 1)
@@ -447,18 +443,15 @@
 {with-tests
  {define reverse!
    [|lst|
-    {define reversePrime! ;; reversePrime assumes that lst is not null
-      [|lst prev|
-       (if (null? (cdr lst))
-	   [(set-cdr! lst prev)
-	    lst]
-	   [{let ((rest (cdr lst)))
-	      (set-cdr! lst prev)
-	      (reversePrime! rest lst)}])]}
-    ;; ensure that reversePrime's constraints are preserved
     (if (null? lst)
 	['()]
-	[(reversePrime! lst '())])]}
+	[{let reverse! ((lst lst) (prev '()))
+	   (if (null? (cdr lst))
+	       [(set-cdr! lst prev)
+		lst]
+	       [{let ((rest (cdr lst)))
+		  (set-cdr! lst prev)
+		  (reverse! rest lst)}])}])]}
  (satisfies-relation
   reverse!
   `(
@@ -514,14 +507,12 @@
 {with-tests
  {define last
    [|lst #!key (onNull noop)|
-    {define last-Prime
-      [|lst|
-       (if (null? (cdr lst))
-	   [(car lst)]
-	   [(last (cdr lst))])]}
     (if (null? lst)
 	[(onNull)]
-	[(last-Prime lst)])]}
+	[{let last ((lst lst))
+	   (if (null? (cdr lst))
+	       [(car lst)]
+	       [(last (cdr lst))])}])]}
  (satisfies-relation
   last
   `(
@@ -540,14 +531,11 @@
 {with-tests
  {define but-last
    [|lst #!key (onNull noop)|
-    {define but-last-prime
-      [|lst|
-       (reverse!
-	(but-first
-	 (reverse! lst)))]}
     (if (null? lst)
 	[(onNull)]
-	[(but-last-prime lst)])]}
+	[(reverse!
+	  (but-first
+	   (reverse! lst)))])]}
  (satisfies-relation
   but-last
   `(
@@ -569,16 +557,15 @@
 {with-tests
  {define filter
    [|p? lst|
-    {define filterPrime
-      [|lst acc|
+    (reverse!
+     {let filter ((lst lst) (acc '()))
        (if (null? lst)
 	   [acc]
 	   [{let ((head (car lst)))
-	      (filterPrime (cdr lst)
-			   (if (p? head)
-			       [(cons head acc)]
-			       [acc]))}])]}
-    (reverse! (filterPrime lst '()))]}
+	      (filter (cdr lst)
+		      (if (p? head)
+			  [(cons head acc)]
+			  [acc]))}])})]}
  (satisfies-relation
   [|l| (filter [|x| (not (= 4 (expt x 2)))]
 	       l)]
@@ -608,14 +595,12 @@
 {with-tests
  {define fold-left
    [|fn initial lst|
-    {define fold-leftPrime
-      [|acc lst|
-       (if (null? lst)
-	   [acc]
-	   [(fold-leftPrime (fn acc
-				(car lst))
-			    (cdr lst))])]}
-    (fold-leftPrime initial lst]]}
+    {let fold-left ((acc initial) (lst lst))
+      (if (null? lst)
+	  [acc]
+	  [(fold-left (fn acc
+			  (car lst))
+		      (cdr lst))])}]}
  (satisfies-relation
   [|l| (fold-left + 0 l)]
   `(
@@ -632,15 +617,13 @@
 {with-tests
  {define scan-left
    [|fn initial lst|
-    {define scan-leftPrime
-      [|acc-list lst|
-       (if (null? lst)
-	   [(reverse! acc-list)]
-	   [{let ((newacc (fn (first acc-list)
-			      (car lst))))
-	      (scan-leftPrime (cons newacc acc-list)
-			      (cdr lst))}])]}
-    (scan-leftPrime (list initial) lst)]}
+    {let scan-left ((acc-list (list initial)) (lst lst))
+      (if (null? lst)
+	  [(reverse! acc-list)]
+	  [{let ((newacc (fn (first acc-list)
+			     (car lst))))
+	     (scan-left (cons newacc acc-list)
+			(cdr lst))}])}]}
  (satisfies-relation
   [|l| (scan-left + 0 l)]
   `(
@@ -657,13 +640,11 @@
 {with-tests
  {define fold-right
    [|fn initial lst|
-    {define fold-rightPrime
-      [|acc lst|
-       (if (null? lst)
-	   [acc]
-	   [(fn (car lst)
-		(fold-rightPrime acc (cdr lst)))])]}
-    (fold-rightPrime initial lst)]}
+    {let fold-right ((acc initial) (lst lst))
+      (if (null? lst)
+	  [acc]
+	  [(fn (car lst)
+	       (fold-right acc (cdr lst)))])}]}
  (satisfies-relation
   [|l| (fold-right - 0 l)]
   `(
@@ -727,17 +708,15 @@
 {with-tests
  {define permutations
    [|lst|
-    {define permutationsPrime
-      [|lst|
-       (if (null? lst)
-	   [(list '())]
-	   [(flatmap [|x|
-		      (map [|y| (cons x y)]
-			   (permutationsPrime (remove x lst)))]
-		     lst)])]}
     (if (null? lst)
 	['()]
-	[(permutationsPrime lst)])]}
+	[{let permutations ((lst lst))
+	   (if (null? lst)
+	       [(list '())]
+	       [(flatmap [|x|
+			  (map [|y| (cons x y)]
+			       (permutations (remove x lst)))]
+			 lst)])}])]}
  (satisfies-relation
   permutations
   `(
@@ -776,13 +755,11 @@
  {define compose
    [|#!rest fns|
     [|#!rest args|
-     {define compose-prime
-       [|list-of-fns accum|
-	(fold-left [|acc fn| (fn acc)] accum list-of-fns)]}
-     {let ((reversed-fns (reverse! fns)))
-       (if (null? fns)
-	   [(apply identity args)]
-	   [(compose-prime (cdr reversed-fns) (apply (car reversed-fns) args))])}]]}
+     (if (null? fns)
+	 [(apply identity args)]
+	 [(fold-right [|fn acc| (fn acc)]
+		      (apply (last fns) args)
+		      (but-last fns))])]]}
  (equal? ((compose) 5)
 	 5)
  (equal? ((compose [|x| (* x 2)])
