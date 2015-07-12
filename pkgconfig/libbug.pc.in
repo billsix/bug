@@ -1,0 +1,17 @@
+version = @PACKAGE_VERSION@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+mandir = @mandir@
+datarootdir = @datarootdir@
+includedir=@includedir@
+
+Name: libbug
+Description:  Bill's Utilities for Gambit-C
+Version: ${version}
+# libs is currently done as a hack, programs which use BUG
+# will need to append the version number and a '.o1' or '.so'
+# to get the actual filename
+Libs: ${libdir}/libbug
+Cflags: ${includedir}/bug/

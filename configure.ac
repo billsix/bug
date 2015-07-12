@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([bug],[0.0.7], [billsix@gmail.com])
+AC_INIT([bug],[0.0.8], [billsix@gmail.com])
 
 # Checks for programs.
 AC_PROG_CC
@@ -30,6 +30,7 @@ AC_CONFIG_FILES([Makefile
                  bug-gsc/Makefile
                  src/Makefile
 		 src/config.scm
+		 pkgconfig/libbug.pc
 		 ])
 AC_SUBST(ac_unique_file)
 AC_CONFIG_SRCDIR(src/config.scm.in)

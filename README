@@ -10,4 +10,4 @@ computation at compile-time, a compile-time unit test framework, and a
 collection of utility functions that Bill finds useful.  Taken together,
 these can be used in a "literate programming" style.
 
-
+Installation instructions are in the INSTALL file

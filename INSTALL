@@ -1,0 +1,27 @@
+Prerequisites
+ - Gambit-C, versions 4.7.6 or greater
+ - a C compiler like GCC
+ - autoconf, automake, make
+ - pkg-config
+
+Building
+ Run the following:
+   ./autogen.sh
+   ./configure --prefix=$myprefix
+   make
+   make install
+
+
+If installed in a non-standard (/usr) location,
+pkg-config may be used as follows
+
+  "export PKG_CONFIG_PATH=$myprefix/lib/pkgconfig/"
+
+  run "pkg-config --cflags libbug" to get the location
+  of libbug#.scm, libbug-macros.scm, and libbug.c
+
+  run "pkg-config --libs libbug" to get the base name
+  for the shared-library/loadable library.  A ".so"
+  needs to be suffixed to the command to get the shared
+  library, and a ".o1" needs to be suffixed to get the
+  loadable library.

@@ -86,7 +86,8 @@
  (all? '(#t))
  (all? '(#t #t))
  (not (all? '(#f)))
- (not (all? '(#t #t #t #f)))}
+ (not (all? '(#t #t #t #f)))
+ }
 ;; (1) if, which is currently namespaced to lang#if, takes lambda expressions
 ;; for the two parameters. I like to think of #t, #f, and if as the following:
 ;;     (define #t [|t f| (t)])
@@ -113,9 +114,11 @@
 			       dependent-variable)}]
 	     list-of-pairs))]
  (satisfies-relation [|x| (+ x 1)]
-		     `((0 1)
+		     `(
+		       (0 1)
 		       (1 2)
-		       (2 3)))}
+		       (2 3)
+		       ))}
 
 
 ;; BUG also provides a new procedure for creating macros.  Just as libbug#define
@@ -161,9 +164,11 @@
 	       ifPositive: ['pos]
 	       ifZero: ['zero]
 	       ifNegative: ['neg])]
-  `((5 pos)
+  `(
+    (5 pos)
     (0 zero)
-    (-5 neg)))}
+    (-5 neg)
+    ))}
 
 
 {libbug#define
@@ -172,10 +177,11 @@
  [|f|
   [|#!rest args| (not (apply f args))]]
  (satisfies-relation
-  [|x| ((complement pair?) x)]
+  (complement pair?)
   `(
     (1 #t)
-    ((1 2) #f)))}
+    ((1 2) #f)
+    ))}
 
 
 
@@ -188,7 +194,8 @@
  (satisfies-relation
   copy
   `(
-    ((1 2 3 4 5) (1 2 3 4 5))))}
+    ((1 2 3 4 5) (1 2 3 4 5))
+    ))}
 
 
 ;;   Tests that the argument is a list that is properly
@@ -201,9 +208,11 @@
 	    (else #f)}]
  (satisfies-relation
   proper?
-  `((4 #f)
+  `(
+    (4 #f)
     ((1 2) #t)
-    ((1 2 . 5) #f)))}
+    ((1 2 . 5) #f)
+    ))}
 
 
 
@@ -225,7 +234,8 @@
   reverse!
   `(
     (() ())
-    ((1 2 3 4 5 6) (6 5 4 3 2 1))))}
+    ((1 2 3 4 5 6) (6 5 4 3 2 1))
+    ))}
 
 ;;   first returns the first element of the list, 'noop if the list
 ;;   is empty and no thunk is passed
@@ -242,13 +252,15 @@
   `(
     (() noop)
     ((1 2 3) 1)
-    ((2 3 1 1 1) 2)))
+    ((2 3 1 1 1) 2)
+    ))
  ;; test the onNull handler
  (satisfies-relation
   [|l| (first l onNull: [5])]
   `(
     (() 5)
-    ((1 2 3) 1)))}
+    ((1 2 3) 1)
+    ))}
 
 ;;   but-first returns all of the elements of the list, except for the first
 {libbug#define
@@ -262,11 +274,13 @@
   but-first
   `(
     (() noop)
-    ((1 2 3) (2 3))))
+    ((1 2 3) (2 3))
+    ))
  (satisfies-relation
   [|l| (but-first l onNull: [5])]
   `(
-    (() 5)))}
+    (() 5)
+    ))}
 
 ;;    last returns the last element of the list
 {libbug#define
@@ -284,12 +298,14 @@
   `(
     (() noop)
     ((1) 1)
-    ((1 2) 2)))
+    ((1 2) 2)
+    ))
  (satisfies-relation
   [|l| (last l onNull: [5])]
   `(
     (() 5)
-    ((1) 1)))}
+    ((1) 1)
+    ))}
 
 ;;    but-last returns all but the last element of the list
 {libbug#define
@@ -307,12 +323,14 @@
     (() noop)
     ((1) ())
     ((1 2) (1))
-    ((1 2 3) (1 2))))
+    ((1 2 3) (1 2))
+    ))
  (satisfies-relation
   [|l| (but-last l onNull: [5])]
   `(
     (() 5)
-    ((1) ())))}
+    ((1) ())
+    ))}
 
 ;;   return a new list, consisting only the elements where the predicate p?
 ;;   returns true
@@ -333,7 +351,8 @@
   [|l| (filter [|x| (not (= 4 (expt x 2)))]
 	       l)]
   `(
-    ((1 2 3 4 5 -2) (1 3 4 5))))}
+    ((1 2 3 4 5 -2) (1 3 4 5))
+    ))}
 
 ;;   returns a new list with all occurances of x removed
 {libbug#define
@@ -345,7 +364,8 @@
  (satisfies-relation
   [|l| (remove 5 l)]
   `(
-    ((1 5 2 5 3 5 4 5 5) (1 2 3 4))))}
+    ((1 5 2 5 3 5 4 5 5) (1 2 3 4))
+    ))}
 
 
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
@@ -366,7 +386,8 @@
     (() 0)
     ((1) 1)
     ((1 2) 3)
-    ((1 2 3 4 5 6) 21)))}
+    ((1 2 3 4 5 6) 21)
+    ))}
 
 ;;   scan-left is like fold-left, but every intermediate value
 ;;   of fold-left's acculumalotr is put onto a list, which
@@ -386,7 +407,8 @@
   [|l| (scan-left + 0 l)]
   `(
     (() (0))
-    ((1 1 1 2 20 30) (0 1 2 3 5 25 55))))}
+    ((1 1 1 2 20 30) (0 1 2 3 5 25 55))
+    ))}
 
 
 
@@ -406,7 +428,8 @@
   `(
     (() 0)
     ((1 2 3 4) -2)
-    ((2 2 5 4) 1)))}
+    ((2 2 5 4) 1)
+    ))}
 
 ;;  map a prodecure to a list, but the result of the
 ;;  prodecure will be a list itself.  Aggregate all
@@ -422,14 +445,16 @@
   `(
     ((1) (1 1 1))
     ((1 2) (1 1 1 2 2 2))
-    ((1 2 3) (1 1 1 2 2 2 3 3 3))))
+    ((1 2 3) (1 1 1 2 2 2 3 3 3))
+    ))
  (satisfies-relation
   [|l| (flatmap [|x| (list x
 			   (+ x 1)
 			   (+ x 2))]
 		l)]
   `(
-    ((10 20) (10 11 12 20 21 22))))}
+    ((10 20) (10 11 12 20 21 22))
+    ))}
 
 ;;  I think the tests explain it
 {libbug#define
@@ -483,7 +508,8 @@
 	      (2 1 3)
 	      (2 3 1)
 	      (3 1 2)
-	      (3 2 1)))))}
+	      (3 2 1)))
+    ))}
 
 ;;   Returns a list of every sub-list
 {libbug#define
@@ -499,7 +525,118 @@
     (() ())
     ((1) ((1)))
     ((1 2) ((1 2) (2)))
-    ((1 2 3) ((1 2 3) (2 3) (3)))))}
+    ((1 2 3) ((1 2 3) (2 3) (3)))
+    ))}
+
+
+;; Inverse of list-ref
+{with-tests
+ {define list#ref-of
+   [|lst x #!key (onMissing noop)|
+    (if (null? lst)
+	[(onMissing)]
+	[{let ref-of ((lst lst) (acc 0))
+	   (if (equal? (car lst) x)
+	       [acc]
+	       [(if (null? (cdr lst))
+		    [(onMissing)]
+		    [(ref-of (cdr lst) (+ acc 1))])])}])]}
+ (satisfies-relation
+  [|x| (list#ref-of '(a b c d e f g) x)]
+  `(
+    (z noop)
+    (a 0)
+    (b 1)
+    (g 6)
+    ))
+ (satisfies-relation
+  [|x| (list#ref-of '(a b c d e f g)
+		    x
+		    onMissing: ['missing])]
+  `(
+    (z missing)
+    (a 0)
+    ))}
+
+
+{with-tests
+ {define list#partition
+   [|lst pred?|
+    {let partition ((lst lst)
+		    (falseList '())
+		    (trueList '()))
+      (if (null? lst)
+	  [(values trueList falseList)]
+	  [(if (pred? (car lst))
+	       [(partition (cdr lst)
+			   falseList
+			   (cons (car lst) trueList))]
+	       [(partition (cdr lst)
+			   (cons (car lst) falseList)
+			   trueList)])])}]}
+ (satisfies-relation
+  [|lst| (call-with-values
+	     [(list#partition lst [|x| (<= x 3)])]
+	   [|lesser greater| (list lesser greater)])]
+
+
+  `(
+    (() (()
+	 ()))
+    ((3 2 5 4 1) ((1 2 3)
+		  (4 5)))
+    ))}
+
+
+{with-tests
+ {define list#append!
+   [|lst x|
+    (if (null? lst)
+	[x]
+	[(let ((head lst))
+	   (let append! ((lst lst))
+	     (if (null? (cdr lst))
+		 [(set-cdr! lst x)]
+		 [(append! (cdr lst))]))
+	   head)])]}
+ (equal? (list#append! '() (list 5)) (list 5))
+ (equal? (list#append! '(1 2 3) (list 5)) (list 1 2 3 5))
+ {let ((a '(1 2 3)))
+   (list#append! a (list 5))
+   (not (equal? (list 1 2 3) a))}
+ }
+
+
+{with-tests
+ {define list#sort
+   [|lst comparison|
+    (if (null? lst)
+	['()]
+	[{let* ((current-node (car lst)))
+	   (call-with-values
+	       [(list#partition (cdr lst)
+				[|x| (comparison x
+						 current-node)])]
+	     [|less-than greater-than|
+	      (list#append! (list#sort less-than
+				       comparison)
+			    (cons current-node
+				  (list#sort greater-than
+					     comparison)))])}])]}
+ (satisfies-relation
+  [|lst| (list#sort lst <)]
+  `(
+    (() ())
+    ((1 3 2 5 4 0) (0 1 2 3 4 5))
+    ))}
+
+
+
+
+
+
+
+
 
 
 ;;  Apply a series of functions to an input.  Much
@@ -644,6 +781,8 @@
  {let ((a (list (list 1 2) (list 3 4))))
    {setf! (cddr a) (list 10)}
    (equal? a '((1 2) (3 4) 10))}}
+
+
 
 
 ;;  The following are macros defined in other books, and are not

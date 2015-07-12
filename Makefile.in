@@ -23,12 +23,15 @@ install:
 	install -d $(DESTDIR)$(mandir)/man1
 	install -m 0755 man/bug-gscpp.1.bz2  $(DESTDIR)$(mandir)/man1/
 	install -m 0755 man/bug-gsi.1.bz2  $(DESTDIR)$(mandir)/man1/
+	mkdir -p $(DESTDIR)$(libdir)/pkgconfig/
+	install -m 0755 pkgconfig/libbug.pc $(DESTDIR)$(libdir)/pkgconfig/
 
 uninstall:
 	-cd bug-gsc/ && $(MAKE) $@
 	-cd src && $(MAKE) $@
 	-rm $(DESTDIR)$(mandir)/man1/bug-gscpp.1.bz2
 	-rm $(DESTDIR)$(mandir)/man1/bug-gsi.1.bz2
+	-rm $(DESTDIR)$(libdir)/pkgconfig/libbug.pc
 
 dist: $(distdir).tar.gz
 
