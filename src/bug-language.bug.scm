@@ -3,67 +3,14 @@
 ;; Distributed under LGPL 2.1 or Apache 2.0
 
 
-;; LAMBDA SYNTAX ---------------------------------------------------------------------
+;; BUG INFRASTRUCTURE INTRODUCTION ---------------------------------------------
 ;;
-;; BUG provides a literal syntax for lambdas.  BUG converts
+;; Since BUG is a library, I need to create and export macros, namespaces,
+;; data, types, and functions.  The following section of code provides the
+;; infrastructure necessary to export these.
 ;;
-;;      [x] into (lambda () x)
-;;             and
-;;      [|x y ...| (z x y ...)] into (lambda (x y ...) (z x y ...))
-;;
-;; This syntax serves two purposes; to minimize the need for creating macros
-;; when creating a function would suffice, and as such, make clear whether
-;; expressions passed as parameters are evaluated once only, or whether it may
-;; be evaluated zero or more times.
-;;
-;; For instance, in "ANSI Common Lisp" on page 154, a macro for "while" is
-;; defined.
-;;
-;; (defmacro while (test &body body)
-;;   `(do ()
-;;        ((not ,test))
-;;      ,@body))
-;;
-;; An example of usage of the while
-;;  (let ((a 0))
-;;     (while (< a 5)
-;;            (incf a))
-;;      a)
-;;   => 5
-;;
-;; In BUG, it would look like this:
-;;
-;; {define while
-;;   [|pred body|
-;;    (if (pred)
-;;        [(body)
-;; 	   (while pred body)]
-;;        [(noop)])]}
-;;
-;; {let ((a 0))
-;;     (while [(< a 5)]
-;;	      [(set! a (+ a 1))])
-;;     a}}
-;;   => 5
-;;
-;; "bug-gscpp" is the program which does the expansion of the lambda literals,
-;; "bug-gsi" is an interpreter for BUG code, the equivalent of "gsi".  "bug-gsi"
-;; provides no interactive help for inputting commands, but such functionality
-;; can be had via using Emacs, or running "rlwrap bug-gsi".
-;;
-;; Also, note that in Gambit-C, "{}" may be used anywhere where a programmer may
-;; use "()".  In BUG, I use "{foo bar baz}" anywhere where "foo" is a macro and the
-;; evaluation does not follow typical Scheme evaluation rulse.  (In this case, evaluate
-;; "foo" "bar" and "baz" in any order, and apply "foo" to "bar baz").
-;;
-;; BUG INFRASTRUCTURE INTRODUCTION -----------------------------------------------------
-;;
-;; Since BUG is a library, I need to create and export macros, namespaces, data, types,
-;; and functions.  The following section of code provides the infrastructure necessary
-;; to export these.
-;;
-;; First, I define "at-compile-time", a macro which ensures that the code evaluates
-;; at compile-time only;
+;; First, I define "at-compile-time", a macro which ensures that the code
+;; evaluates at compile-time only;
 ;;
 ;; For instance, if uncommented, the following code
 ;;
@@ -71,21 +18,22 @@
 ;;
 ;;   would print 5 at compile time, but would not execute at runtime.
 ;;
-;; Second, I create "at-both-times", which like "at-compile-time", executes at compile
-;; time, but also at run-time.
+;; Second, I create "at-both-times", which like "at-compile-time", executes
+;; at compile time, but also at run-time.
 ;;
-;; Third, at compile time, I create two files, "libbug#.scm" and "libbug-macros.scm".
-;; These files are to be used by external programs which wish to use code from BUG.
-;; "libbug#.scm" will contain all of the namespace definitions, and "libbug-macros.scm"
-;; will contain all of the macros exported from this file.
+;; Third, at compile time, I create two files, "libbug#.scm" and
+;; "libbug-macros.scm".  These files are to be used by external programs which
+;; wish to use code from BUG. "libbug#.scm" will contain all of the namespace
+;; definitions, and "libbug-macros.scm" will contain all of the macros exported
+;; from this file.
 ;;
 ;; Fourth, I create custom functions to define functions and macros, which allow
-;; definitions within the library and which exports them to the aforementioned files.
-;; These are called "libbug#define-macro" and "libbug#define",
-;; to convey that these macros are not exported to external programs.
+;; definitions within the library and which exports them to the aforementioned
+;; files.  These are called "libbug#define-macro" and "libbug#define", to convey
+;; that these macros are not exported to external programs.
 ;;
-;; Fifth, I create a macro "lang#if", which takes lambdas.  So (if 5 [1] [2]) instead of
-;; (if 5 1 2).
+;; Fifth, I create a macro "lang#if", which takes lambdas.  So (if 5 [1] [2])
+;; instead of (if 5 1 2).
 ;;
 ;; Six, a "with-tests" macro, which allows definitions to be collocated with the
 ;; tests which test the definition, which executes only at compile-time, and if
@@ -95,25 +43,25 @@
 ;; "MAIN" section.
 ;;
 ;;
-;; BUG INFRASTRUCTURE  -------------------------------------------------------------
+;; BUG INFRASTRUCTURE  ---------------------------------------------------------
 ;;
-;; I use Gambit's namespaces for all of BUG's code.  From what I understand of them,
-;; namespaces instruct Gambit's reader on how it should associate a given string
-;; which it has read in into an internal symbol.  The following line indicates
-;; that all further symbols read in should have "libbug#" prefixed to them, unless
-;; the symbol itself has a "##" prefix.  I put it in here with the intention
-;; of avoiding the pollution of the global namespace.  All subsequent functions
-;; and macros should be explicitly namespaced, but if not, they will be namespaced
-;; as the following.
+;; I use Gambit's namespaces for all of BUG's code.  From what I understand of
+;; them, namespaces instruct Gambit's reader on how it should associate a given
+;; string which it has read in into an internal symbol.  The following line
+;; indicates that all further symbols read in should have "libbug#" prefixed to
+;; them, unless the symbol itself has a "##" prefix.  I put it in here with
+;; the intention of avoiding the pollution of the global namespace.  All
+;; subsequent functions and macros should be explicitly namespaced, but if not,
+;; they will be namespaced as the following.
 
 
 {namespace ("libbug#")}
 
 
 
-;; That's great as a mechanism to minimize namespace collisions with other Gambit
-;; projects, but I still want to be able to reference Scheme procedures.  If
-;; I were to uncomment the following line
+;; That's great as a mechanism to minimize namespace collisions with other
+;; Gambit projects, but I still want to be able to reference Scheme procedures.
+;; If I were to uncomment the following line
 ;;
 ;; (define baz (+))
 ;;
@@ -387,7 +335,8 @@
    ;; the macro that libbug#define-macro creates should
    ;; have the same parameter list, augmented with some namespacing,
    ;; with otherwise the same macro body
-   ;; write the augmented lambda form out to the macro file for use by external projects
+   ;; write the augmented lambda form out to the macro file for use by external
+   ;; projects
    ;; Note: the compile-time tests are not included
    (newline libbug-macros-file)
    (write `{at-both-times
@@ -400,7 +349,8 @@
 				,@(if (equal? 'quasiquote
 					      (caaddr lambda-value))
 				      [(cdaddr lambda-value)]
-				      [`((,'unquote ,@(cddr lambda-value)))]))))}}
+				      [`((,'unquote ,@(cddr
+						       lambda-value)))]))))}}
 	  libbug-macros-file)
 ;; define the macro, with the unit tests, for this file
    `{begin
