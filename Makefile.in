@@ -75,6 +75,7 @@ FORCE:
 
 clean:
 	git clean -f
+	rm -rf autom4te.cache/
 
 
 .PHONY: FORCE all clean install uninstall
