@@ -566,7 +566,7 @@
 		    (falseList '())
 		    (trueList '()))
       (if (null? lst)
-	  [(values trueList falseList)]
+	  [(list trueList falseList)]
 	  [(if (pred? (car lst))
 	       [(partition (cdr lst)
 			   falseList
@@ -575,9 +575,10 @@
 			   (cons (car lst) falseList)
 			   trueList)])])}]}
  (satisfies-relation
-  [|lst| (call-with-values
-	     [(list#partition lst [|x| (<= x 3)])]
-	   [|lesser greater| (list lesser greater)])]
+  [|lst| (let* ((p (list#partition lst [|x| (<= x 3)]))
+		(lesser (car p))
+		(greater (cadr p)))
+	   (list lesser greater))]
 
 
   `(
@@ -613,16 +614,16 @@
     (if (null? lst)
 	['()]
 	[{let* ((current-node (car lst)))
-	   (call-with-values
-	       [(list#partition (cdr lst)
-				[|x| (comparison x
-						 current-node)])]
-	     [|less-than greater-than|
-	      (list#append! (list#sort less-than
-				       comparison)
-			    (cons current-node
-				  (list#sort greater-than
-					     comparison)))])}])]}
+	   (let* ((p (list#partition (cdr lst)
+				     [|x| (comparison x
+						      current-node)]))
+		  (less-than (car p))
+		  (greater-than (cadr p)))
+	     (list#append! (list#sort less-than
+				      comparison)
+			   (cons current-node
+				 (list#sort greater-than
+					    comparison))))}])]}
  (satisfies-relation
   [|lst| (list#sort lst <)]
   `(
