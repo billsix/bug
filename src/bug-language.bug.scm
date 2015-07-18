@@ -156,14 +156,14 @@
 ;; the previous two macros.
 ;;
 ;; So, create a new line on the file, write the unevaluated form to the
-;; file (I'm not quite sure why I need to eval the port, but it works),
-;; and the return the form so that the compiler actually processes it.
+;; file, and the return the form so that the compiler actually processes it.
 
 
 {define-macro write-and-eval
   [|port form|
-   (newline (eval port))
-   (write form (eval port))
+   (eval `(begin
+	    (newline ,port)
+	    (write ',form ,port)))
    form]}
 
 
