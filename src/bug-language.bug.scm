@@ -45,43 +45,6 @@
 ;;
 ;; BUG INFRASTRUCTURE  ---------------------------------------------------------
 ;;
-;; I use Gambit's namespaces for all of BUG's code.  From what I understand of
-;; them, namespaces instruct Gambit's reader on how it should associate a given
-;; string which it has read in into an internal symbol.  The following line
-;; indicates that all further symbols read in should have "libbug#" prefixed to
-;; them, unless the symbol itself has a "##" prefix.  I put it in here with
-;; the intention of avoiding the pollution of the global namespace.  All
-;; subsequent functions and macros should be explicitly namespaced, but if not,
-;; they will be namespaced as the following.
-
-
-{namespace ("libbug#")}
-
-
-
-;; That's great as a mechanism to minimize namespace collisions with other
-;; Gambit projects, but I still want to be able to reference Scheme procedures.
-;; If I were to uncomment the following line
-;;
-;; (define baz (+))
-;;
-;; I would get the following warnings
-;;
-;;  *** WARNING -- "libbug#+" is not defined,
-;;  ***            referenced in: ("/home/wsix/opt/bug/src/main.c")
-;;  *** WARNING -- "libbug#baz" is not defined,
-;;  ***            referenced in: ("/home/wsix/opt/bug/src/main.c")
-;;  *** WARNING -- "libbug#define" is not defined,
-;;  ***            referenced in: ("/home/wsix/opt/bug/src/main.c")
-
-;;
-;; These warnings appear at compile time, because we specified that the current
-;; namespace is "libbug#".  So after Gambit reads it in, it prefixes "libbug#"
-;; to each symbol before Gambit evaluates it.
-;;
-;; By including the following, all of the definitions which Gambit provides
-;; will be used, without a "libbug#" prefix.
-
 
 (##include "~~lib/gambit#.scm")
 
@@ -168,7 +131,6 @@
       ";; Copyright 2014,2015 - William Emerison Six
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
-{##namespace (\"libbug#\")}
 (##include \"~~lib/gambit#.scm\")
 (##include \"libbug#.scm\")
 
