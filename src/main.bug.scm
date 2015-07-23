@@ -530,19 +530,20 @@
 
 
 ;; Inverse of list-ref
-{with-tests
- {define list#ref-of
-   [|lst x #!key (onMissing noop)|
-    (if (null? lst)
-	[(onMissing)]
-	[{let ref-of ((lst lst) (acc 0))
-	   (if (equal? (car lst) x)
-	       [acc]
-	       [(if (null? (cdr lst))
-		    [(onMissing)]
-		    [(ref-of (cdr lst) (+ acc 1))])])}])]}
+{libbug#define 
+ "list#"
+ ref-of
+ [|lst x #!key (onMissing noop)|
+  (if (null? lst)
+      [(onMissing)]
+      [{let ref-of ((lst lst) (acc 0))
+	 (if (equal? (car lst) x)
+	     [acc]
+	     [(if (null? (cdr lst))
+		  [(onMissing)]
+		  [(ref-of (cdr lst) (+ acc 1))])])}])]
  (satisfies-relation
-  [|x| (list#ref-of '(a b c d e f g) x)]
+  [|x| (ref-of '(a b c d e f g) x)]
   `(
     (z noop)
     (a 0)
@@ -550,7 +551,7 @@
     (g 6)
     ))
  (satisfies-relation
-  [|x| (list#ref-of '(a b c d e f g)
+  [|x| (ref-of '(a b c d e f g)
 		    x
 		    onMissing: ['missing])]
   `(
@@ -559,28 +560,27 @@
     ))}
 
 
-{with-tests
- {define list#partition
-   [|lst pred?|
-    {let partition ((lst lst)
-		    (falseList '())
-		    (trueList '()))
-      (if (null? lst)
-	  [(list trueList falseList)]
-	  [(if (pred? (car lst))
-	       [(partition (cdr lst)
-			   falseList
-			   (cons (car lst) trueList))]
-	       [(partition (cdr lst)
-			   (cons (car lst) falseList)
-			   trueList)])])}]}
+{libbug#define 
+ "list#"
+ partition
+ [|lst pred?|
+  {let partition ((lst lst)
+		  (falseList '())
+		  (trueList '()))
+    (if (null? lst)
+	[(list trueList falseList)]
+	[(if (pred? (car lst))
+	     [(partition (cdr lst)
+			 falseList
+			 (cons (car lst) trueList))]
+	     [(partition (cdr lst)
+			 (cons (car lst) falseList)
+			 trueList)])])}]
  (satisfies-relation
-  [|lst| (let* ((p (list#partition lst [|x| (<= x 3)]))
+  [|lst| (let* ((p (partition lst [|x| (<= x 3)]))
 		(lesser (car p))
 		(greater (cadr p)))
 	   (list lesser greater))]
-
-
   `(
     (() (()
 	 ()))
@@ -589,56 +589,49 @@
     ))}
 
 
-{with-tests
- {define list#append!
-   [|lst x|
-    (if (null? lst)
-	[x]
-	[(let ((head lst))
-	   (let append! ((lst lst))
-	     (if (null? (cdr lst))
-		 [(set-cdr! lst x)]
-		 [(append! (cdr lst))]))
-	   head)])]}
- (equal? (list#append! '() (list 5)) (list 5))
- (equal? (list#append! '(1 2 3) (list 5)) (list 1 2 3 5))
+{libbug#define 
+ "list#"
+ append!
+ [|lst x|
+  (if (null? lst)
+      [x]
+      [(let ((head lst))
+	 (let append! ((lst lst))
+	   (if (null? (cdr lst))
+	       [(set-cdr! lst x)]
+	       [(append! (cdr lst))]))
+	 head)])]
+ (equal? (append! '() (list 5)) (list 5))
+ (equal? (append! '(1 2 3) (list 5)) (list 1 2 3 5))
  {let ((a '(1 2 3)))
-   (list#append! a (list 5))
+   (append! a (list 5))
    (not (equal? (list 1 2 3) a))}
  }
 
 
-{with-tests
- {define list#sort
-   [|lst comparison|
-    (if (null? lst)
-	['()]
-	[{let* ((current-node (car lst)))
-	   (let* ((p (list#partition (cdr lst)
-				     [|x| (comparison x
-						      current-node)]))
-		  (less-than (car p))
-		  (greater-than (cadr p)))
-	     (list#append! (list#sort less-than
-				      comparison)
-			   (cons current-node
-				 (list#sort greater-than
-					    comparison))))}])]}
+{libbug#define
+ "list#"
+ sort
+ [|lst comparison|
+  (if (null? lst)
+      ['()]
+      [{let* ((current-node (car lst)))
+	 (let* ((p (partition (cdr lst)
+			      [|x| (comparison x
+					       current-node)]))
+		(less-than (car p))
+		(greater-than (cadr p)))
+	   (append! (sort less-than
+			  comparison)
+		    (cons current-node
+			  (sort greater-than
+				comparison))))}])]
  (satisfies-relation
-  [|lst| (list#sort lst <)]
+  [|lst| (sort lst <)]
   `(
     (() ())
     ((1 3 2 5 4 0) (0 1 2 3 4 5))
     ))}
-
-
-
-
-
-
-
-
-
 
 ;;  Apply a series of functions to an input.  Much
 ;;  like the . operator in math
