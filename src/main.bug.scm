@@ -8,7 +8,7 @@
 ;; lambdas,  utilities for general-purpose evaluation at compile-time, a
 ;; compile-time unit test framework, and a collection of utility functions that
 ;; I find useful.  Taken together, these can be used in a "literate programming"
-;; style, as most of BUG is contained within this file.
+;; style.
 ;;
 ;; PREREQUISITES ---------------------------------------------------------------
 ;;
@@ -71,7 +71,7 @@
 ;; works with multiple arguments, as long as they are between the '|'s.
 
 
-;; Kind of list and?, but takes a list
+;; Kind of like and?, but takes a list instead of a var-args
 {libbug#define
  "list#"
  all?
@@ -99,7 +99,7 @@
 
 
 
-;; Since libbug#define can take multiple tests, I'd rather not invoked
+;; Since libbug#define can take multiple tests, I'd rather not invoke
 ;; the prodcedure under test by name repeatedly.  Instead, I'd like to define
 ;; the procedure, and input the list of pairs of inputs with expected outputs.
 ;; Writing tests in this style also informs the reader that the function under
@@ -150,25 +150,6 @@
 ;; an adequate job of demonstrating the purpose of the code.
 
 
-;;   An if expression for numbers, based on their sign.
-{libbug#define
- "lang#"
- numeric-if
- [|expr #!key (ifPositive noop) (ifZero noop)(ifNegative noop)|
-  {cond ((> expr 0) (ifPositive))
-	((= expr 0) (ifZero))
-	(else (ifNegative))}]
- (satisfies-relation
-  [|n|
-   (numeric-if n
-	       ifPositive: ['pos]
-	       ifZero: ['zero]
-	       ifNegative: ['neg])]
-  `(
-    (5 pos)
-    (0 zero)
-    (-5 neg)
-    ))}
 
 
 {libbug#define
@@ -779,10 +760,6 @@
 
 
 
-;;  The following are macros defined in other books, and are not
-;;  extracted from syntactic patterns from within BUG.  Consult
-;;  the prerequisites to understand why they are important.
-
 
 ;; with-gensyms
 ;;   Utility for macros to minimize explicit use of gensym.
@@ -814,5 +791,26 @@
    (while [(< a 5)]
 	  [(set! a (+ a 1))])
    (equal? a 5)}}
+
+;;   An if expression for numbers, based on their sign.
+{libbug#define
+ "lang#"
+ numeric-if
+ [|expr #!key (ifPositive noop) (ifZero noop)(ifNegative noop)|
+  {cond ((> expr 0) (ifPositive))
+	((= expr 0) (ifZero))
+	(else (ifNegative))}]
+ (satisfies-relation
+  [|n|
+   (numeric-if n
+	       ifPositive: ['pos]
+	       ifZero: ['zero]
+	       ifNegative: ['neg])]
+  `(
+    (5 pos)
+    (0 zero)
+    (-5 neg)
+    ))}
+
 
 (include "bug-language-end.scm")
