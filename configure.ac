@@ -32,6 +32,16 @@ AC_CONFIG_FILES([Makefile
 		 src/config.scm
 		 pkgconfig/libbug.pc
 		 ])
+GAMBITS_C_COMPILER=$(gambc-cc | grep '^C_COMPILER' | cut -d '"' -f 2)
+AC_SUBST(GAMBITS_C_COMPILER)
+LIB_EXTENSION=$(gambc-cc | grep '^LIB_EXTENSION' | cut -d '"' -f 2)
+AC_SUBST(LIB_EXTENSION)
+if gambc-cc | grep '^FLAGS_LIB'| grep '\-dynamiclib'
+  then SHARED_LIB_FLAG=-dynamiclib;
+  else SHARED_LIB_FLAG=-shared;
+fi
+AC_SUBST(SHARED_LIB_FLAG)
+
 AC_SUBST(ac_unique_file)
 AC_CONFIG_SRCDIR(src/config.scm.in)
 AC_OUTPUT

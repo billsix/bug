@@ -11,6 +11,10 @@ Building
    make
    make install
 
+Verified builds on
+ - Various Linux distributions
+ - OS X
+
 
 If installed in a non-standard (/usr) location,
 pkg-config may be used as follows

@@ -10,7 +10,9 @@ bindir=@bindir@
 libdir=@libdir@
 includedir=@includedir@
 datarootdir = @datarootdir@
-
+CC = @GAMBITS_C_COMPILER@
+LIB_EXTENSION = @LIB_EXTENSION@
+SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
 all: libbug.so
 
 %.scm : %.bug.scm
@@ -26,14 +28,14 @@ libbug.so: bug-language.scm bug-language-end.scm main.c
 	#build the shared library
 	gsc -link -o libbug.c main
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
-	$(CC) -shared  libbug.o main.o -o libbug.so
+	$(CC) $(SHARED_LIB_FLAG) -lgambc  libbug.o main.o -o libbug$(LIB_EXTENSION)
 	# for reasons I don't yet understand, leaving main.[co] around causes
 	# problems in subsequent makes
 	rm main.c main.o
 	#build the loadable library
 	gsc -link -flat -o libbug.o1.c main  > /dev/null
 	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c main.c
-	$(CC) -shared  libbug.o1.o main.o -o libbug.o1
+	$(CC) $(SHARED_LIB_FLAG)  -lgambc libbug.o1.o main.o -o libbug.o1
 	# for reasons I don't yet understand, leaving main.[co] around causes
 	# problems in subsequent makes
 	rm main.c main.o
@@ -41,7 +43,7 @@ libbug.so: bug-language.scm bug-language-end.scm main.c
 
 install:
 	install -d $(DESTDIR)$(libdir)
-	install -m 0755 libbug.so $(DESTDIR)$(libdir)
+	install -m 0755 libbug$(LIB_EXTENSION) $(DESTDIR)$(libdir)
 	install -m 0755 libbug.o1 $(DESTDIR)$(libdir)
 	install -d $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug.c $(DESTDIR)$(includedir)/$(package)/
@@ -49,7 +51,7 @@ install:
 	install -m 0755 libbug-macros.scm $(DESTDIR)$(includedir)/$(package)/
 
 uninstall:
-	-rm $(DESTDIR)$(libdir)/libbug.so
+	-rm $(DESTDIR)$(libdir)/libbug$(LIB_EXTENSION)
 	-rm $(DESTDIR)$(libdir)/libbug.o1
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug.c
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug#.scm
