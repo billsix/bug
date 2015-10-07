@@ -24,10 +24,12 @@ install:
 	install -d $(DESTDIR)$(bindir)
 	install -m 0755 bug-gscpp $(DESTDIR)$(bindir)
 	install -m 0755 bug-gsi $(DESTDIR)$(bindir)
+	install -m 0755 bug2tex $(DESTDIR)$(bindir)
 
 uninstall:
 	rm $(DESTDIR)$(bindir)/bug-gscpp
 	rm $(DESTDIR)$(bindir)/bug-gsi
+	rm $(DESTDIR)$(bindir)/bug2tex
 
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@

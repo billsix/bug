@@ -18,13 +18,18 @@ all: libbug.so
 %.scm : %.bug.scm
 	../bug-gsc/bug-gscpp $< $@
 
+
 %.c : %.scm
 	gsc -c $<
 
 %.o : %.c
 	gsc -obj $<
 
-libbug.so: bug-language.scm bug-language-end.scm main.c
+%.pdf: %.bug.scm
+	../bug-gsc/bug2tex $< $@.tex
+	pdflatex $@
+
+libbug.so: bug-language.scm bug-language-end.scm main.pdf main.c
 	#build the shared library
 	gsc -link -o libbug.c main
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
