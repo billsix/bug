@@ -162,7 +162,11 @@
   `(
     (1 #t)
     ((1 2) #f)
-    ))}
+    ))
+ ((complement all?) '(#f))
+ ((complement all?) '(#f #t #f))
+ (not ((complement all?) '(#t #t #t)))
+ }
 
 
 
@@ -172,11 +176,11 @@
  "list#"
  copy
  [|l| (map identity l)]
- (satisfies-relation
-  copy
-  `(
-    ((1 2 3 4 5) (1 2 3 4 5))
-    ))}
+ {let ((a '(1 2 3 4 5)))
+   (equal? a (copy a))}
+ {let ((a '(1 2 3 4 5)))
+   (not (eq? a (copy a)))}
+ }
 
 
 ;;   Tests that the argument is a list that is properly
@@ -184,9 +188,11 @@
 {libbug#define
  "list#"
  proper?
- [|l| {cond ((null? l) #t)
-	    ((pair? l) (proper? (cdr l)))
-	    (else #f)}]
+ [|l| (if (null? l) 
+	  [#t]
+	  [(if (pair? l) 
+	       [(proper? (cdr l))]
+	       [#f])])]
  (satisfies-relation
   proper?
   `(
@@ -297,7 +303,7 @@
       [(onNull)]
       [(reverse!
 	(but-first
-	 (reverse! lst)))])]
+	 (reverse lst)))])]
  (satisfies-relation
   but-last
   `(
@@ -311,7 +317,8 @@
   `(
     (() 5)
     ((1) ())
-    ))}
+    ))
+ }
 
 ;;   return a new list, consisting only the elements where the predicate p?
 ;;   returns true
@@ -450,19 +457,6 @@
  (equal? (enumerate-interval 1 10 step: 2)
 	 '(1 3 5 7 9))}
 
-;; iota - from common lisp
-{libbug#define
- "list#"
- iota
- [|n #!key (start 0) (step 1)|
-  (enumerate-interval start n step: step)]
- (equal? (iota 5 start: 0)
-	 '(0 1 2 3 4 5))
- (equal? (iota 5 start: 2 step: (/ 3 2))
-	 '(2 7/2 5))}
-
-
-
 ;;   returns all permutations of the list
 {libbug#define
  "list#"
@@ -538,7 +532,16 @@
   `(
     (z missing)
     (a 0)
-    ))}
+    ))
+ {let ((lst '(a b c d e f g)))
+   (satisfies-relation
+    [|x| (list-ref lst (ref-of lst x))]
+    `(
+      (a a)
+      (b b)
+      (g g)
+      ))}
+ }
 
 
 {libbug#define 
