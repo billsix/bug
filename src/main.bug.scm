@@ -6,6 +6,7 @@
 ;; \usepackage{times}
 ;; \usepackage{listings}
 ;; \usepackage[margin=0.5in]{geometry}
+;; \usepackage{courier}
 ;; \begin{document}
 ;; % Article top matter
 ;; \title{BUG (Bill's Utilities for Gambit)} 
@@ -21,7 +22,7 @@
 ;; I find useful.  Taken together, these can be used in a "literate programming"
 ;; style.
 
-;; \section{Prerequisites} 
+;; \subsection{Prerequisites} 
 ;;
 ;; The reader is assumed to be familiar with Scheme, and with Common  Lisp-style
 ;; macros (which Gambit-C provides).  Suggested reading is "The Structure and
@@ -29,14 +30,14 @@
 ;; Lisp" by Paul Graham, and "On Lisp" by Paul Graham.  Many ideas in BUG are
 ;; inspired by those books.
 ;;
-;; \section{Language Definition} 
+;; \subsection{Language Definition} 
 ;;
 ;; BUG defines quite a few extensions to the Scheme language, implemented via
 ;; macros.  Rather than overwhelming the reader with the details of the
 ;; implementanion, the reader is encouraged to defer reading
 ;; "bug-language.bug.scm" until the rest of this file is read, as I will
 ;; explain the language incrementally.
-;; \lstset{language=Lisp, ,numbers=left, frame=single, basicstyle=\small}
+;; \lstset{language=Lisp, ,numbers=left, frame=single, basicstyle=\ttfamily}
 ;; \begin{lstlisting}
 (include "bug-language.scm")
 ;;\end{lstlisting}
