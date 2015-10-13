@@ -33,14 +33,14 @@ libbug.so: bug-language.scm bug-language-end.scm main.pdf main.c
 	#build the shared library
 	gsc -link -o libbug.c main
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
-	$(CC) $(SHARED_LIB_FLAG) -lgambc  libbug.o main.o -o libbug$(LIB_EXTENSION)
+	$(CC) $(SHARED_LIB_FLAG) -lgambit  libbug.o main.o -o libbug$(LIB_EXTENSION)
 	# for reasons I don't yet understand, leaving main.[co] around causes
 	# problems in subsequent makes
 	rm main.c main.o
 	#build the loadable library
 	gsc -link -flat -o libbug.o1.c main  > /dev/null
 	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c main.c
-	$(CC) $(SHARED_LIB_FLAG)  -lgambc libbug.o1.o main.o -o libbug.o1
+	$(CC) $(SHARED_LIB_FLAG)  -lgambit libbug.o1.o main.o -o libbug.o1
 	# for reasons I don't yet understand, leaving main.[co] around causes
 	# problems in subsequent makes
 	rm main.c main.o
