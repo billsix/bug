@@ -13,7 +13,8 @@ datarootdir = @datarootdir@
 CC = @GAMBITS_C_COMPILER@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
-all: libbug.so
+
+all: libbug.so libbug.o1
 
 %.scm : %.bug.scm
 	../bug-gsc/bug-gscpp $< $@
@@ -30,20 +31,14 @@ all: libbug.so
 	pdflatex $@
 
 libbug.so: bug-language.scm bug-language-end.scm main.pdf main.c
-	#build the shared library
 	gsc -link -o libbug.c main
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
 	$(CC) $(SHARED_LIB_FLAG) -lgambit  libbug.o main.o -o libbug$(LIB_EXTENSION)
-	# for reasons I don't yet understand, leaving main.[co] around causes
-	# problems in subsequent makes
-	rm main.c main.o
-	#build the loadable library
+
+libbug.o1: bug-language.scm bug-language-end.scm main.pdf main.c
 	gsc -link -flat -o libbug.o1.c main  > /dev/null
 	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c main.c
 	$(CC) $(SHARED_LIB_FLAG)  -lgambit libbug.o1.o main.o -o libbug.o1
-	# for reasons I don't yet understand, leaving main.[co] around causes
-	# problems in subsequent makes
-	rm main.c main.o
 
 
 install:
