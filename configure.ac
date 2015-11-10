@@ -3,7 +3,6 @@
 
 AC_PREREQ([2.68])
 AC_INIT([bug],[0.0.8], [billsix@gmail.com])
-AM_INIT_AUTOMAKE([foreign])
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -24,6 +23,17 @@ if gambcomp-C | grep '^FLAGS_LIB'| grep '\-dynamiclib'
   else SHARED_LIB_FLAG=-shared;
 fi
 AC_SUBST(SHARED_LIB_FLAG)
+
+
+AC_ARG_ENABLE(pdf,
+              AC_HELP_STRING([--enable-pdf],
+                             [build the PDF version of the code (default is NO)]),
+              ENABLE_DOC=$enableval,
+              ENABLE_DOC=no)
+dnl if test "$ENABLE_DOC" = yes; then
+dnl   need to test for pdflatex
+dnl fi
+AC_SUBST(ENABLE_DOC)
 
 AC_SUBST(ac_unique_file)
 AC_CONFIG_SRCDIR(src/config.scm.in)

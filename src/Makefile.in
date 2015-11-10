@@ -13,8 +13,16 @@ datarootdir = @datarootdir@
 CC = @GAMBITS_C_COMPILER@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
+ENABLE_DOC = @ENABLE_DOC@
 
-all: libbug.so libbug.o1
+OBJECTS_TO_BUILD =  libbug.so libbug.o1
+
+ifeq ($(ENABLE_DOC),yes)
+  OBJECTS_TO_BUILD += main.pdf
+endif
+
+all: $(OBJECTS_TO_BUILD)
+
 
 %.scm : %.bug.scm
 	../bug-gsc/bug-gscpp $< $@
@@ -26,16 +34,20 @@ all: libbug.so libbug.o1
 %.o : %.c
 	gsc -obj $<
 
-%.pdf: %.bug.scm
+
+
+main.pdf: main.bug.scm
 	../bug-gsc/bug2tex $< $@.tex
 	pdflatex $@
 
-libbug.so: bug-language.scm bug-language-end.scm main.pdf main.c
+
+
+libbug.so: bug-language.scm bug-language-end.scm main.c
 	gsc -link -o libbug.c main
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
 	$(CC) $(SHARED_LIB_FLAG) -lgambit  libbug.o main.o -o libbug$(LIB_EXTENSION)
 
-libbug.o1: bug-language.scm bug-language-end.scm main.pdf main.c
+libbug.o1: bug-language.scm bug-language-end.scm main.c
 	gsc -link -flat -o libbug.o1.c main  > /dev/null
 	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c main.c
 	$(CC) $(SHARED_LIB_FLAG)  -lgambit libbug.o1.o main.o -o libbug.o1
