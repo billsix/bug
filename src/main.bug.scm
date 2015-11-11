@@ -25,9 +25,9 @@
 ;; \subsection{Prerequisites} 
 ;;
 ;; The reader is assumed to be familiar with Scheme, and with Common  Lisp-style
-;; macros (which Gambit-C provides).  Suggested reading is "The Structure and
-;; Interpretation of Computer Programs" by Sussman and Abelson, "ANSI Common
-;; Lisp" by Paul Graham, and "On Lisp" by Paul Graham.  Many ideas in BUG are
+;; macros (which Gambit-C provides).  Suggested reading is ``The Structure and
+;; Interpretation of Computer Programs'' by Sussman and Abelson, ``ANSI Common
+;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  Many ideas in BUG are
 ;; inspired by those books.
 ;;
 ;; \subsection{Language Definition} 
@@ -44,7 +44,7 @@
 ;; \section{Main}
 ;;
 ;; The first definition is "noop", a procedure which takes no arguments, and
-;; only returns the symbol 'noop.  noop is defined using ``libbug\#define''
+;; evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
 ;; instead of Scheme's regular define.
 ;; \begin{lstlisting}
 {libbug#define         
@@ -70,7 +70,7 @@
 ;; includes a Scheme preprocessor "bug-gscpp", which expands lambda literals
 ;; into lambdas.  In this case "['noop]" is expanded into "(lambda () 'noop)"
 ;;
-;; (5), an expression which returns a boolean is defined.  This is a
+;; (5), an expression which evaluates to a boolean is defined.  This is a
 ;; test which will be evaluated at compile-time, and should the test fail,
 ;; the build process will fail and no shared library will be created.  The
 ;; test runs at compile time, but is not present in the resulting shared
@@ -193,7 +193,8 @@
 
 
 
-;;   Creates a copy of the list data structure
+;;   Creates a copy of the list data structure.  Does not copy the contents
+;;   of the list.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -208,7 +209,7 @@
 
 
 ;;   Tests that the argument is a list that is properly
-;;   termitated.
+;;   termitated.  Will not terminate on a circular list.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -229,7 +230,7 @@
 
 
 
-;;   reverses the list quickly by reusing cons cells
+;;   Reverses the list quickly by reusing cons cells
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -252,8 +253,9 @@
     ))}
 ;; \end{lstlisting}
 
-;;   first returns the first element of the list, 'noop if the list
-;;   is empty and no thunk is passed
+;;   first evaluates to the first element of the list, 'noop if the list
+;;   is empty and no thunk is passed.  Some languages would use Exceptions
+;;   for this kind of behavior, but I prefer to just pass a lambda.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -280,7 +282,8 @@
 ;; \end{lstlisting}
 
 
-;;   but-first returns all of the elements of the list, except for the first
+;;   but-first evaluates to a list of all of the elements of the list, except for the first.
+;;   Takes an optional lambda for the case that the list is empty.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -302,8 +305,8 @@
     ))}
 ;; \end{lstlisting}
 
-;;    last returns the last element of the list
-
+;;    last evaluates to the last element of the list.
+;;    Takes an optional lambda for the case that the list is empty.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -329,7 +332,8 @@
     ((1) 1)
     ))}
 ;; \end{lstlisting}
-;;    but-last returns all but the last element of the list
+;;    but-last evaluates to a list containing all but the last element of the list.
+;;    Takes an optional lambda for the case that the list is empty.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -356,8 +360,8 @@
     ))
  }
 ;; \end{lstlisting}
-;;   return a new list, consisting only the elements where the predicate p?
-;;   returns true
+;;   Evaluates to a new list, consisting only the elements where the predicate p?,
+;;   when applied to the element, evaluates to true.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -379,7 +383,7 @@
     ((1 2 3 4 5 -2) (1 3 4 5))
     ))}
 ;; \end{lstlisting}
-;;   returns a new list with all occurances of x removed
+;;   Evaluates to a new list with all occurances of the first parameter removed
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -440,7 +444,8 @@
 ;; \end{lstlisting}
 
 
-;;    reduce the list to a scalar by applying the reducing function repeatedly,
+;;    fold-right reduces the list to a scalar by applying the reducing
+;;    function repeatedly,
 ;;    starting from the "right" side of the list
 ;; \begin{lstlisting}
 {libbug#define
@@ -460,9 +465,9 @@
     ((2 2 5 4) 1)
     ))}
 ;; \end{lstlisting}
-;;  map a prodecure to a list, but the result of the
+;;  flatmap maps a prodecure to a list, but the result of the
 ;;  prodecure will be a list itself.  Aggregate all
-;;  of those lists together
+;;  of those lists together.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -486,7 +491,7 @@
     ((10 20) (10 11 12 20 21 22))
     ))}
 ;; \end{lstlisting}
-;;  I think the tests explain it
+;;  enumerate-interval evaluates to a list of ordered integers.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -500,7 +505,7 @@
  (equal? (enumerate-interval 1 10 step: 2)
 	 '(1 3 5 7 9))}
 ;; \end{lstlisting}
-;;   Zips multiple lists together
+;;   zip zips multiple lists together.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -521,7 +526,8 @@
  }
  
 ;; \end{lstlisting}
-;;   returns all permutations of the list
+;;   permutations evaluates to a list containing all of permutations of the
+;;   input list.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -551,7 +557,7 @@
 	      (3 2 1)))
     ))}
 ;; \end{lstlisting}
-;;   Returns a list of every sub-list
+;;   sublist evaluates to a list of every sub-list of the input list.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -570,7 +576,8 @@
     ))}
 ;; \end{lstlisting}
 
-;; Inverse of list-ref
+;; ref-of is the inverse of list-ref, with an optional ``onMissing'' lambda,
+;; for the case where the element does not exist in the list.
 ;; \begin{lstlisting}
 {libbug#define 
  "list#"
@@ -610,6 +617,10 @@
       ))}
  }
 ;; \end{lstlisting}
+;;  partition partitions the input list into two lists, one list where
+;;  the predicate matched the element of the list, the second list
+;;  where the predicate did not match the element of the list.
+;; 
 
 ;; \begin{lstlisting}
 {libbug#define 
@@ -640,7 +651,8 @@
 		  (4 5)))
     ))}
 ;; \end{lstlisting}
-
+;;   append! is like append, but recycles the last cons cell, so it's
+;;   faster, but mutates the input.
 ;; \begin{lstlisting}
 {libbug#define 
  "list#"
@@ -661,7 +673,7 @@
    (not (equal? (list 1 2 3) a))}
  }
 ;; \end{lstlisting}
-
+;;  sort sorts the list given a comparator function.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -716,6 +728,10 @@
 	 11/13)}
 ;; \end{lstlisting}
 
+;; Streams are lists whose evaluation is deferred until the value is
+;; requested.  For more information, consult ``The Structure and
+;; Interpretation of Computer Programs''.
+;;
 ;; \begin{lstlisting}
 {libbug#define-macro
  "stream#"
@@ -730,7 +746,8 @@
       (equal? {force (cdr s)}
 	      2)}}}}
 ;; \end{lstlisting}
-
+;; stream-car evaluates to the first element of the stream.
+;;
 ;; \begin{lstlisting}
 {libbug#define
  "stream#"
@@ -739,7 +756,10 @@
  {let ((s {stream-cons 1 2}))
    (equal? (stream-car s)
 	   1)}}
-
+;; \end{lstlisting}
+;; stream-cdr forces the evaluation of the next element of the stream.
+;;
+;; \begin{lstlisting}
 {libbug#define
  "stream#"
  stream-cdr
@@ -748,8 +768,34 @@
    (equal? (stream-cdr s)
 	   2)}}
 ;; \end{lstlisting}
-
-
+;; list-\textgreater stream converts a list into a stream
+;;
+;; \begin{lstlisting}
+{libbug#define
+ "list#"
+ list->stream
+ [|l|
+  (if (or (null? l)
+	  (null? (cdr l)))
+      [l]
+      [(stream-cons (car l)
+		    (let list->stream ((l (cdr l)))
+		      (if (null? l)
+			  ['()]
+			  [(stream-cons (car l)
+					(list->stream (cdr l)))])))])]
+ {let ((foo (list#list->stream '(1 2 3))))
+   {and (equal? 1 (stream#stream-car foo))
+	(equal? 2 (stream#stream-car
+		   (stream#stream-cdr foo)))
+	(equal? 3 (stream#stream-car
+		   (stream#stream-cdr
+		    (stream#stream-cdr foo))))
+	(null? (stream#stream-cdr
+		(stream#stream-cdr
+		 (stream#stream-cdr foo))))}}}
+;; \end{lstlisting}
+;; stream-ref is the analogous procedure of list-ref
 ;; \begin{lstlisting}
 {libbug#define
  "stream#"
@@ -765,11 +811,7 @@
   (if (< n 0)
       [(onOutOfBounds)]
       [(refPrime s n)])]
- {let ((s {stream-cons 5
-		       {stream-cons 4
-				    {stream-cons 3
-						 {stream-cons 2
-							      {stream-cons 1 '()}}}}}))
+ {let ((s (list->stream '(5 4 3 2 1))))
    (all?
     (list
      (equal? (stream-ref s -1)
@@ -784,12 +826,10 @@
 	     'out)))}}
 ;; \end{lstlisting}
 
-;; setf!
-;;   Sets a value using its getter, as done in Common Lisp.
+;; setf! sets a value using its getter, as done in Common Lisp.
+;; The implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
 ;;
-;;   Implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
-
-;; this dummy structure is used in a test
+;; This dummy structure is only available at compile-time, for use in a test
 ;; \begin{lstlisting}
 {at-compile-time
  {define-structure foo bar baz}}
