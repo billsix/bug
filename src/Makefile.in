@@ -14,13 +14,19 @@ CC = @GAMBITS_C_COMPILER@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
 ENABLE_PDF = @ENABLE_PDF@
+ENABLE_HTML = @ENABLE_HTML@
 docdir = @docdir@
 pdfdir = @pdfdir@
+htmldir = @htmldir@
 
 OBJECTS_TO_BUILD =  libbug.so libbug.o1
 
 ifeq ($(ENABLE_PDF),yes)
   OBJECTS_TO_BUILD += bug.pdf
+endif
+
+ifeq ($(ENABLE_HTML),yes)
+  OBJECTS_TO_BUILD += bug/bug.html
 endif
 
 all: $(OBJECTS_TO_BUILD)
@@ -44,6 +50,9 @@ bug.pdf: main.bug.scm
 	pdflatex bug.tex
 
 
+bug/bug.html: main.bug.scm
+	../bug-gsc/bug2tex main.bug.scm bug.tex
+	latex2html -split 0 bug.tex
 
 libbug.so: bug-language.scm bug-language-end.scm main.c
 	gsc -link -o libbug.c main
@@ -64,16 +73,18 @@ install:
 	install -m 0755 libbug.c $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug#.scm $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug-macros.scm $(DESTDIR)$(includedir)/$(package)/
-	install -d $(DESTDIR)$(pdfdir)
-	install -m 0755 bug.pdf $(DESTDIR)$(pdfdir)
-
+	install -d $(DESTDIR)$(pdfdir)/$(package)
+	install -m 0755 bug.pdf $(DESTDIR)$(pdfdir)/$(package)/
+	install -d $(DESTDIR)$(htmldir)/$(package)/
+	cp -r bug/* $(DESTDIR)$(htmldir)/$(package)/
 uninstall:
 	-rm $(DESTDIR)$(libdir)/libbug$(LIB_EXTENSION)
 	-rm $(DESTDIR)$(libdir)/libbug.o1
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug.c
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug#.scm
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug-macros.scm
-	-rm $(DESTDIR)$(pdfdir)/bug.pdf
+	-rm $(DESTDIR)$(pdfdir)/$(package)/bug.pdf
+	-rm -rf $(DESTDIR)$(htmldir)/$(package)/
 
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@
