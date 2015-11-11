@@ -9,10 +9,10 @@
 ;; \usepackage{courier}
 ;; \begin{document}
 ;; % Article top matter
-;; \title{BUG (Bill's Utilities for Gambit)} 
+;; \title{BUG (Bill's Utilities for Gambit)}
 ;; \author{William Emerison Six\\
-;; 	\texttt{billsix@gmail.com}}  
-;; \date{\today} 
+;; 	\texttt{billsix@gmail.com}}
+;; \date{\today}
 ;; \maketitle
 ;;
 ;; \section{Introduction}
@@ -22,7 +22,7 @@
 ;; I find useful.  Taken together, these can be used in a "literate programming"
 ;; style.
 
-;; \subsection{Prerequisites} 
+;; \subsection{Prerequisites}
 ;;
 ;; The reader is assumed to be familiar with Scheme, and with Common  Lisp-style
 ;; macros (which Gambit-C provides).  Suggested reading is ``The Structure and
@@ -30,7 +30,7 @@
 ;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  Many ideas in BUG are
 ;; inspired by those books.
 ;;
-;; \subsection{Language Definition} 
+;; \subsection{Language Definition}
 ;;
 ;; BUG defines quite a few extensions to the Scheme language, implemented via
 ;; macros.  Rather than overwhelming the reader with the details of the
@@ -43,14 +43,15 @@
 ;;\end{lstlisting}
 ;; \section{Main}
 ;;
+;; \subsection{lang\#noop}
 ;; The first definition is "noop", a procedure which takes no arguments, and
 ;; evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
 ;; instead of Scheme's regular define.
 ;; \begin{lstlisting}
-{libbug#define         
- "lang#"               
- noop                  
- ['noop]               
+{libbug#define
+ "lang#"
+ noop
+ ['noop]
  (equal? (noop) 'noop)}
 ;; \end{lstlisting}
 ;; (1) the libbug\#define macro form bug-language.bug.scm is invoked.
@@ -75,6 +76,7 @@
 ;; the build process will fail and no shared library will be created.  The
 ;; test runs at compile time, but is not present in the resulting shared
 ;; library.
+;; \subsection{lang\#identity}
 ;; \begin{lstlisting}
 {libbug#define
  "lang#"
@@ -85,6 +87,7 @@
 ;; works with multiple arguments, as long as they are between the '|'s.
 ;; \end{lstlisting}
 
+;; \subsection{list\#and}
 ;; Kind of like and?, but takes a list instead of a var-args
 
 ;; \begin{lstlisting}
@@ -117,6 +120,7 @@
 ;; (2)  libbug\#define can take more than one test as parameters
 
 
+;; \subsection{lang\#satisfies-relation}
 
 ;; Since libbug\#define can take multiple tests, I'd rather not invoke
 ;; the prodcedure under test by name repeatedly.  Instead, I'd like to define
@@ -141,6 +145,7 @@
 		       ))}
 ;; \end{lstlisting}
 
+;; \subsection{lang\#aif}
 ;; BUG also provides a new procedure for creating macros.  Just as libbug\#define
 ;; exports the namespace to a file during compilation time, libbug\#define-macro
 ;; exports the namespace to ``libbug\#.scm'', and also exports the definition of
@@ -171,7 +176,7 @@
 ;; I will not document the purpose of the procedures below if the test does
 ;; an adequate job of demonstrating the purpose of the code.
 
-
+;; \subsection{lang\#complement}
 ;; \begin{lstlisting}
 {libbug#define
 "lang#"
@@ -192,7 +197,7 @@
 
 
 
-
+;; \subsection{list\#copy}
 ;;   Creates a copy of the list data structure.  Does not copy the contents
 ;;   of the list.
 ;; \begin{lstlisting}
@@ -208,15 +213,16 @@
 ;; \end{lstlisting}
 
 
+;; \subsection{list\#proper?}
 ;;   Tests that the argument is a list that is properly
 ;;   termitated.  Will not terminate on a circular list.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
  proper?
- [|l| (if (null? l) 
+ [|l| (if (null? l)
 	  [#t]
-	  [(if (pair? l) 
+	  [(if (pair? l)
 	       [(proper? (cdr l))]
 	       [#f])])]
  (satisfies-relation
@@ -230,6 +236,7 @@
 
 
 
+;; \subsection{list\#reverse!}
 ;;   Reverses the list quickly by reusing cons cells
 ;; \begin{lstlisting}
 {libbug#define
@@ -253,6 +260,7 @@
     ))}
 ;; \end{lstlisting}
 
+;; \subsection{list\#first}
 ;;   first evaluates to the first element of the list, 'noop if the list
 ;;   is empty and no thunk is passed.  Some languages would use Exceptions
 ;;   for this kind of behavior, but I prefer to just pass a lambda.
@@ -282,6 +290,7 @@
 ;; \end{lstlisting}
 
 
+;; \subsection{list\#but-first}
 ;;   but-first evaluates to a list of all of the elements of the list, except for the first.
 ;;   Takes an optional lambda for the case that the list is empty.
 ;; \begin{lstlisting}
@@ -305,6 +314,7 @@
     ))}
 ;; \end{lstlisting}
 
+;; \subsection{list\#last}
 ;;    last evaluates to the last element of the list.
 ;;    Takes an optional lambda for the case that the list is empty.
 ;; \begin{lstlisting}
@@ -332,6 +342,7 @@
     ((1) 1)
     ))}
 ;; \end{lstlisting}
+;; \subsection{list\#but-last}
 ;;    but-last evaluates to a list containing all but the last element of the list.
 ;;    Takes an optional lambda for the case that the list is empty.
 ;; \begin{lstlisting}
@@ -360,6 +371,7 @@
     ))
  }
 ;; \end{lstlisting}
+;; \subsection{list\#filter}
 ;;   Evaluates to a new list, consisting only the elements where the predicate p?,
 ;;   when applied to the element, evaluates to true.
 ;; \begin{lstlisting}
@@ -383,6 +395,7 @@
     ((1 2 3 4 5 -2) (1 3 4 5))
     ))}
 ;; \end{lstlisting}
+;; \subsection{list\#remove}
 ;;   Evaluates to a new list with all occurances of the first parameter removed
 ;; \begin{lstlisting}
 {libbug#define
@@ -398,6 +411,7 @@
     ))}
 ;; \end{lstlisting}
 
+;; \subsection{list\#fold-left}
 ;;    reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the "left" side of the list
 ;; \begin{lstlisting}
@@ -420,6 +434,7 @@
     ((1 2 3 4 5 6) 21)
     ))}
 ;; \end{lstlisting}
+;; \subsection{list\#scan-left}
 ;;   scan-left is like fold-left, but every intermediate value
 ;;   of fold-left's acculumalotr is put onto a list, which
 ;;   is the value of scan-left
@@ -444,6 +459,7 @@
 ;; \end{lstlisting}
 
 
+;; \subsection{list\#fold-right}
 ;;    fold-right reduces the list to a scalar by applying the reducing
 ;;    function repeatedly,
 ;;    starting from the "right" side of the list
@@ -465,6 +481,7 @@
     ((2 2 5 4) 1)
     ))}
 ;; \end{lstlisting}
+;; \subsection{list\#flatmap}
 ;;  flatmap maps a prodecure to a list, but the result of the
 ;;  prodecure will be a list itself.  Aggregate all
 ;;  of those lists together.
@@ -491,6 +508,7 @@
     ((10 20) (10 11 12 20 21 22))
     ))}
 ;; \end{lstlisting}
+;; \subsection{list\#enumerate-interval}
 ;;  enumerate-interval evaluates to a list of ordered integers.
 ;; \begin{lstlisting}
 {libbug#define
@@ -505,6 +523,7 @@
  (equal? (enumerate-interval 1 10 step: 2)
 	 '(1 3 5 7 9))}
 ;; \end{lstlisting}
+;; \subsection{list\#zip}
 ;;   zip zips multiple lists together.
 ;; \begin{lstlisting}
 {libbug#define
@@ -524,8 +543,9 @@
  (equal? (zip '(1 2 3) '(4 5 6))
 	 '((1 4) (2 5) (3 6)))
  }
- 
+
 ;; \end{lstlisting}
+;; \subsection{list\#permutations}
 ;;   permutations evaluates to a list containing all of permutations of the
 ;;   input list.
 ;; \begin{lstlisting}
@@ -557,7 +577,8 @@
 	      (3 2 1)))
     ))}
 ;; \end{lstlisting}
-;;   sublist evaluates to a list of every sub-list of the input list.
+;; \subsection{list\#sublists}
+;;   sublists evaluates to a list of every sub-list of the input list.
 ;; \begin{lstlisting}
 {libbug#define
  "list#"
@@ -576,10 +597,11 @@
     ))}
 ;; \end{lstlisting}
 
+;; \subsection{list\#ref-of}
 ;; ref-of is the inverse of list-ref, with an optional ``onMissing'' lambda,
 ;; for the case where the element does not exist in the list.
 ;; \begin{lstlisting}
-{libbug#define 
+{libbug#define
  "list#"
  ref-of
  [|lst x #!key (onMissing noop)|
@@ -617,13 +639,14 @@
       ))}
  }
 ;; \end{lstlisting}
+;; \subsection{list\#partition}
 ;;  partition partitions the input list into two lists, one list where
 ;;  the predicate matched the element of the list, the second list
 ;;  where the predicate did not match the element of the list.
-;; 
+;;
 
 ;; \begin{lstlisting}
-{libbug#define 
+{libbug#define
  "list#"
  partition
  [|lst pred?|
@@ -651,10 +674,11 @@
 		  (4 5)))
     ))}
 ;; \end{lstlisting}
+;; \subsection{list\#append!}
 ;;   append! is like append, but recycles the last cons cell, so it's
 ;;   faster, but mutates the input.
 ;; \begin{lstlisting}
-{libbug#define 
+{libbug#define
  "list#"
  append!
  [|lst x|
@@ -673,6 +697,7 @@
    (not (equal? (list 1 2 3) a))}
  }
 ;; \end{lstlisting}
+;; \subsection{list\#sort}
 ;;  sort sorts the list given a comparator function.
 ;; \begin{lstlisting}
 {libbug#define
@@ -699,6 +724,7 @@
     ((1 3 2 5 4 0) (0 1 2 3 4 5))
     ))}
 ;; \end{lstlisting}
+;; \subsection{lang\#compose}
 ;;  Apply a series of functions to an input.  Much
 ;;  like the . operator in math
 ;; \begin{lstlisting}
@@ -728,6 +754,7 @@
 	 11/13)}
 ;; \end{lstlisting}
 
+;; \subsection{stream\#stream-cons}
 ;; Streams are lists whose evaluation is deferred until the value is
 ;; requested.  For more information, consult ``The Structure and
 ;; Interpretation of Computer Programs''.
@@ -746,6 +773,7 @@
       (equal? {force (cdr s)}
 	      2)}}}}
 ;; \end{lstlisting}
+;; \subsection{stream\#stream-car}
 ;; stream-car evaluates to the first element of the stream.
 ;;
 ;; \begin{lstlisting}
@@ -757,6 +785,7 @@
    (equal? (stream-car s)
 	   1)}}
 ;; \end{lstlisting}
+;; \subsection{stream\#stream-cdr}
 ;; stream-cdr forces the evaluation of the next element of the stream.
 ;;
 ;; \begin{lstlisting}
@@ -768,6 +797,7 @@
    (equal? (stream-cdr s)
 	   2)}}
 ;; \end{lstlisting}
+;; \subsection{list\#list-\textgreater stream}
 ;; list-\textgreater stream converts a list into a stream
 ;;
 ;; \begin{lstlisting}
@@ -795,6 +825,7 @@
 		(stream#stream-cdr
 		 (stream#stream-cdr foo))))}}}
 ;; \end{lstlisting}
+;; \subsection{stream\#stream-ref}
 ;; stream-ref is the analogous procedure of list-ref
 ;; \begin{lstlisting}
 {libbug#define
@@ -826,6 +857,7 @@
 	     'out)))}}
 ;; \end{lstlisting}
 
+;; \subsection{lang\#setf}
 ;; setf! sets a value using its getter, as done in Common Lisp.
 ;; The implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
 ;;
@@ -879,7 +911,7 @@
 
 
 
-
+;; \subsection{lang\#with-gensyms}
 ;; with-gensyms
 ;;   Utility for macros to minimize explicit use of gensym.
 ;;   Gensym creates a symbol at compile time which is guaranteed
@@ -898,6 +930,7 @@
      ,@body}]}
 ;; \end{lstlisting}
 
+;; \subsection{lang\#while}
 ;; Sometimes you need an imperative loop
 ;; \begin{lstlisting}
 {libbug#define
@@ -913,6 +946,7 @@
 	  [(set! a (+ a 1))])
    (equal? a 5)}}
 ;; \end{lstlisting}
+;; \subsection{lang\#numeric-if}
 ;;   An if expression for numbers, based on their sign.
 ;; \begin{lstlisting}
 {libbug#define
