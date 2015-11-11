@@ -8,3 +8,4 @@ demo/Makefile
 install-sh
 src/Makefile
 src/config.scm
+pkgconfig/libbug.pc
