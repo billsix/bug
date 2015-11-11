@@ -41,6 +41,7 @@ all: $(OBJECTS_TO_BUILD)
 bug.pdf: main.bug.scm
 	../bug-gsc/bug2tex main.bug.scm bug.tex
 	pdflatex bug.tex
+	pdflatex bug.tex
 
 
 

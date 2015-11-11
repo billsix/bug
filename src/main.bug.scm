@@ -8,13 +8,27 @@
 ;; \usepackage[margin=0.5in]{geometry}
 ;; \usepackage{courier}
 ;; \begin{document}
+
 ;; % Article top matter
 ;; \title{BUG (Bill's Utilities for Gambit)}
 ;; \author{William Emerison Six\\
-;; 	\texttt{billsix@gmail.com}}
+;;     \texttt{billsix@gmail.com}}
 ;; \date{\today}
-;; \maketitle
 ;;
+
+;; \null  % Empty line
+;; \nointerlineskip  % No skip for prev line
+;; \vfill
+;; \let\snewpage \newpage
+;; \let\newpage \relax
+;; \maketitle
+;; \thispagestyle{empty}
+;; \let \newpage \snewpage
+;; \vfill
+;; \break
+
+;; \tableofcontents
+;; \break
 ;; \section{Introduction}
 ;; BUG is Bill's Utilities for Gambit-C.  BUG provides a concise syntax for
 ;; lambdas,  utilities for general-purpose evaluation at compile-time, a
@@ -83,9 +97,9 @@
  identity
  [|x| x]                   ; (1)
  (equal? "foo" (identity "foo"))}
-;; (1) "bug-gscpp" expands "[|x| x]" to "(lambda (x) x)".  This expansion
-;; works with multiple arguments, as long as they are between the '|'s.
 ;; \end{lstlisting}
+;; (1) "bug-gscpp" expands ``[\textbar x\textbar x]'' to ``(lambda (x) x)''.  This expansion
+;; works with multiple arguments, as long as they are between the ``\textbar''s.
 
 ;; \subsection{list\#and}
 ;; Kind of like and?, but takes a list instead of a var-args
