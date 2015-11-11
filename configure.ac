@@ -28,12 +28,15 @@ AC_SUBST(SHARED_LIB_FLAG)
 AC_ARG_ENABLE(pdf,
               AC_HELP_STRING([--enable-pdf],
                              [build the PDF version of the code (default is NO)]),
-              ENABLE_DOC=$enableval,
-              ENABLE_DOC=no)
-dnl if test "$ENABLE_DOC" = yes; then
-dnl   need to test for pdflatex
-dnl fi
-AC_SUBST(ENABLE_DOC)
+              ENABLE_PDF=$enableval,
+              ENABLE_PDF=no)
+if test "$ENABLE_PDF" = yes; then
+   AC_CHECK_PROG(PDFLATEX_CHECK,pdflatex,yes)
+   if test x"$PDFLATEX_CHECK" != x"yes" ; then
+      AC_MSG_ERROR([Please install "pdflatex" if you want to enable creation of the PDF])
+   fi
+fi
+AC_SUBST(ENABLE_PDF)
 
 AC_SUBST(ac_unique_file)
 AC_CONFIG_SRCDIR(src/config.scm.in)

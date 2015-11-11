@@ -13,11 +13,11 @@ datarootdir = @datarootdir@
 CC = @GAMBITS_C_COMPILER@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
-ENABLE_DOC = @ENABLE_DOC@
+ENABLE_PDF = @ENABLE_PDF@
 
 OBJECTS_TO_BUILD =  libbug.so libbug.o1
 
-ifeq ($(ENABLE_DOC),yes)
+ifeq ($(ENABLE_PDF),yes)
   OBJECTS_TO_BUILD += main.pdf
 endif
 
