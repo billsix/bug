@@ -500,6 +500,27 @@
  (equal? (enumerate-interval 1 10 step: 2)
 	 '(1 3 5 7 9))}
 ;; \end{lstlisting}
+;;   Zips multiple lists together
+;; \begin{lstlisting}
+{libbug#define
+ "list#"
+ zip
+ [|lst1 lst2|
+  (if (or (null? lst1) (null? lst2))
+      ['()]
+      [(cons (list (car lst1) (car lst2))
+	     (zip (cdr lst1) (cdr lst2)))])]
+ (equal? (zip '() '())
+	 '())
+ (equal? (zip '(1) '())
+	 '())
+ (equal? (zip '() '(1))
+	 '())
+ (equal? (zip '(1 2 3) '(4 5 6))
+	 '((1 4) (2 5) (3 6)))
+ }
+ 
+;; \end{lstlisting}
 ;;   returns all permutations of the list
 ;; \begin{lstlisting}
 {libbug#define
