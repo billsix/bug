@@ -8,7 +8,7 @@
 ;; \usepackage[margin=0.5in]{geometry}
 ;; \usepackage{courier}
 ;; \lstset{language=Lisp, frame=single, numbers=left,basicstyle=\ttfamily,
-;;         identifierstyle=\ttfamily,keywordstyle=\ttfamily}
+;;         identifierstyle=\ttfamily,keywordstyle=\ttfamily, showstringspaces=false}
 ;; \begin{document}
 ;; % Article top matter
 ;; \title{BUG (Bill's Utilities for Gambit)}

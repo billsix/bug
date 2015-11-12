@@ -2,6 +2,7 @@
 ;; %All rights reserved
 ;; %Distributed under LGPL 2.1 or Apache 2.0
 
+;; \break
 ;; \section{bug-language.bug.scm}
 
 ;; \subsection{Bug Infrastructure Introduction}
