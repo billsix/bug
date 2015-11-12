@@ -7,8 +7,9 @@
 ;; \usepackage{listings}
 ;; \usepackage[margin=0.5in]{geometry}
 ;; \usepackage{courier}
+;; \lstset{language=Lisp, frame=single, numbers=left,basicstyle=\ttfamily,
+;;         identifierstyle=\ttfamily,keywordstyle=\ttfamily}
 ;; \begin{document}
-
 ;; % Article top matter
 ;; \title{BUG (Bill's Utilities for Gambit)}
 ;; \author{William Emerison Six\\
@@ -51,7 +52,6 @@
 ;; implementanion, the reader is encouraged to defer reading
 ;; "bug-language.bug.scm" until the rest of this file is read, as I will
 ;; explain the language incrementally.
-;; \lstset{language=Lisp, ,numbers=left, frame=single, basicstyle=\ttfamily}
 ;; \begin{lstlisting}
 (include "bug-language.scm")
 ;;\end{lstlisting}
@@ -68,38 +68,43 @@
  ['noop]
  (equal? (noop) 'noop)}
 ;; \end{lstlisting}
-;; (1) the libbug\#define macro form bug-language.bug.scm is invoked.
 ;;
-;; (2) a namespace is declared
-;;
-;; (3), the variable name is declared, which will be declared in the
-;; namespace defined on (2).  Because BUG is a library, and these procedures
+;; \begin{itemize}
+;;   \item On line 1, the libbug\#define macro form bug-language.bug.scm is invoked.
+;;   \item On line 2, a namespace is declared
+;;   \item On line 3, the variable name is declared, which will be declared in the
+;; namespace defined on line 2.  Because BUG is a library, and these procedures
 ;; will be exported, libbug\#define not only creates the variable in the
-;; namespace defined by (2), but it also writes the namespace definition to
+;; namespace defined by line 2, but it also writes the namespace definition to
 ;; ``libbug\#.scm'' during compiliation, so that external programs may use these
 ;; namespaces.  The alert reader may ask, "what? BUG writes a string to a file
 ;; during compile time ????"  Yes, BUG defines general purpose computation,
 ;; including IO, at compile time.
-;;
-;; (4), the value to be stored into the variable is declared.  BUG
+;;  \item On line 4, the value to be stored into the variable is declared.  BUG
 ;; includes a Scheme preprocessor "bug-gscpp", which expands lambda literals
 ;; into lambdas.  In this case "['noop]" is expanded into "(lambda () 'noop)"
-;;
-;; (5), an expression which evaluates to a boolean is defined.  This is a
+;;  \item  On line 5, an expression which evaluates to a boolean is defined.
+;;  This is a
 ;; test which will be evaluated at compile-time, and should the test fail,
 ;; the build process will fail and no shared library will be created.  The
 ;; test runs at compile time, but is not present in the resulting shared
 ;; library.
+;; \end{itemize}
+;;
 ;; \subsection{lang\#identity}
 ;; \begin{lstlisting}
 {libbug#define
  "lang#"
  identity
- [|x| x]                   ; (1)
+ [|x| x]
  (equal? "foo" (identity "foo"))}
 ;; \end{lstlisting}
-;; (1) "bug-gscpp" expands ``[\textbar x\textbar x]'' to ``(lambda (x) x)''.  This expansion
-;; works with multiple arguments, as long as they are between the ``\textbar''s.
+;; \begin{itemize}
+;;   \item On line 4, "bug-gscpp" expands ``[\textbar x\textbar x]'' to ``(lambda (x) x)''.  This expansion
+;;         works with multiple arguments, as long as they are between the ``\textbar''s.
+;; \end{itemize}
+;;
+;;
 
 ;; \subsection{list\#and}
 ;; Kind of like and?, but takes a list instead of a var-args
@@ -109,30 +114,35 @@
  "list#"
  all?
  [|lst|
-  (if (null? lst)                ; (1)
+  (if (null? lst)
       [#t]
       [(if (not (car lst))
 	  [#f]
 	  [(all? (cdr lst))])])]
  (all? '())
- (all? '(1))                     ; (2)
+ (all? '(1))
  (all? '(#t))
  (all? '(#t #t))
  (not (all? '(#f)))
  (not (all? '(#t #t #t #f)))
  }
 ;; \end{lstlisting}
-;; (1) if, which is currently namespaced to lang\#if, takes lambda expressions
-;; for the two parameters. I like to think of \#t, \#f, and if as the following:
+;; \begin{itemize}
+;;   \item On line 5, if, which is currently namespaced to lang\#if, takes
+;;         lambda expressions for the two parameters. I like to think of
+;;         \#t, \#f, and if as the following:
+;;
 ;;     (define \#t {[}\textbar t f\textbar (t){]}
+;;
 ;;     (define \#t {[}\textbar t f\textbar (f){]}
+;;
 ;;     (define lang\#if {[}\textbar b t f\textbar (b t f) {]}
-
-
+;;
 ;; As such, if would not be a special form, and is more consistent with the
 ;; rest of BUG.
-;; (2)  libbug\#define can take more than one test as parameters
-
+;;
+;;   \item On line 11, libbug\#define can take more than one test as parameters
+;; \end{itemize}
 
 ;; \subsection{lang\#satisfies-relation}
 
