@@ -55,7 +55,7 @@
 ;; \begin{lstlisting}
 (include "bug-language.scm")
 ;;\end{lstlisting}
-;; \section{Main}
+;; \section{main.bug.scm}
 ;;
 ;; \subsection{lang\#noop}
 ;; The first definition is "noop", a procedure which takes no arguments, and
@@ -996,4 +996,4 @@
 ;; \begin{lstlisting}
 (include "bug-language-end.scm")
 ;; \end{lstlisting}
-;;\end{document}  %End of document.
+
