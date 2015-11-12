@@ -76,19 +76,26 @@ install:
 	install -m 0755 libbug.c $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug#.scm $(DESTDIR)$(includedir)/$(package)/
 	install -m 0755 libbug-macros.scm $(DESTDIR)$(includedir)/$(package)/
+ifeq ($(ENABLE_PDF),yes)
 	install -d $(DESTDIR)$(pdfdir)/$(package)
 	install -m 0755 bug.pdf $(DESTDIR)$(pdfdir)/$(package)/
+endif
+ifeq ($(ENABLE_HTML),yes)
 	install -d $(DESTDIR)$(htmldir)/$(package)/
 	cp -r bug/* $(DESTDIR)$(htmldir)/$(package)/
+endif
 uninstall:
 	-rm $(DESTDIR)$(libdir)/libbug$(LIB_EXTENSION)
 	-rm $(DESTDIR)$(libdir)/libbug.o1
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug.c
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug#.scm
 	-rm $(DESTDIR)$(includedir)/$(package)/libbug-macros.scm
+ifeq ($(ENABLE_PDF),yes)
 	-rm $(DESTDIR)$(pdfdir)/$(package)/bug.pdf
+endif
+ifeq ($(ENABLE_HTML),yes)
 	-rm -rf $(DESTDIR)$(htmldir)/$(package)/
-
+endif
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@
 
