@@ -3,99 +3,86 @@
 ;; %Distributed under LGPL 2.1 or Apache 2.0
 
 ;; \break
-;; \section{bug-language.bug.scm}
-
+;; \section{Bug Language}
+;;  \label{sec:buglang}
 ;; \subsection{Bug Infrastructure Introduction}
 ;;
 ;; Since BUG is a library, I need to create and export macros, namespaces,
 ;; data, types, and functions.  The following section of code provides the
-;; infrastructure necessary to export these.
-;;
-;; First, I define "at-compile-time", a macro which ensures that the code
-;; evaluates at compile-time only;
-;;
-;; For instance, if uncommented, the following code
-;;
-;;   {at-compile-time (pp 5)}
-;;
-;;   would print 5 at compile time, but would not execute at runtime.
-;;
-;; Second, I create "at-both-times", which like "at-compile-time", executes
-;; at compile time, but also at run-time.
-;;
+;; infrastructure necessary to export these.  First, I define
+;; ``at-compile-time'', a macro which ensures that the code
+;; evaluates at compile-time only.  For instance, if uncommented, the
+;; ``{at-compile-time (pp 5)}'' would print 5 at compile time, but would
+;; not execute at runtime. Second, I create ``at-both-times'', which is
+;; like ``at-compile-time'', executes at compile time, but also at run-time.
 ;; Third, at compile time, I create two files, ``libbug\#.scm'' and
 ;; "libbug-macros.scm".  These files are to be used by external programs which
 ;; wish to use code from BUG. "libbug\#.scm" will contain all of the namespace
 ;; definitions, and "libbug-macros.scm" will contain all of the macros exported
-;; from this file.
-;;
-;; Fourth, I create custom functions to define functions and macros, which allow
+;; from this file. Fourth, I create custom functions to define functions and macros, which allow
 ;; definitions within the library and which exports them to the aforementioned
 ;; files.  These are called "libbug\#define-macro" and "libbug\#define", to convey
-;; that these macros are not exported to external programs.
-;;
-;; Fifth, I create a macro "lang\#if", which takes lambdas.  So (if 5 [1] [2])
-;; instead of (if 5 1 2).
-;;
-;; Six, a "with-tests" macro, which allows definitions to be collocated with the
+;; that these macros are not exported to external programs. Fifth, I create a
+;; macro "lang\#if", which takes lambdas.  So (if 5 [1] [2])
+;; instead of (if 5 1 2).  Six, a "with-tests" macro, which allows
+;; definitions to be collocated with the
 ;; tests which test the definition, which executes only at compile-time, and if
 ;; failure occurs, no executable is produced.
-;;
-;; The reader may skip over reading the implemenation, and skip straight to the
-;; "MAIN" section.
 ;;
 ;;
 ;; \subsection{Bug Infrastructure}
 ;;
-;; \begin{lstlisting}
+;; \begin{code}
 (##include "~~lib/gambit#.scm")
-;;\end{lstlisting}
+;;\end{code}
 
 
 ;; Within BUG, all of the functions and macros should have a namespace
 ;; associated with them.  I use "lang\#" for basic language procedures, "list\#"
-;; for lists, etc.
-;;
-;; The aforementioned "at-compile-time" macro is implemented by "eval"ing code
-;; during macro-expansion.
-;;
-;; https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html
+;; for lists, etc.  ``at-compile-time'' macro is implemented by ``eval''ing code
+;; during macro-expansion
+;; \footnote{https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html}
 ;;
 
-;; \begin{lstlisting}
+;; \begin{code}
 {namespace ("lang#" at-compile-time)}
 {define-macro at-compile-time
   [|form|
    (eval form)
-   `{quote noop}]} ;; noop is just a symbol, the compiler shouldn't do anything
-                   ;; of value with it
+   `{quote noop}]}
 
 {##namespace ("lang#" at-both-times)}
 {define-macro at-both-times
   [|form|
-   (eval form)       ;; evaluation (1) in the expansion-time environment
+   (eval form)
    `(begin
-      (eval ',form)  ;; evaluation (2) in the expansion-time environment
-                     ;;   of the run-time environment
-      ,form)]}       ;; evaluation (3) in the run-time environment
-;; \end{lstlisting}
+      (eval ',form)
+      ,form)]}
+;; \end{code}
 
-
+;; \begin{itemize}
+;;   \item On line 4, the unevaluated code which was passed to
+;;  ``at-compile-time is evaluated during macroexpansion, so it is evaluated
+;;  at compile-time.  The macroexpansion expands into ``(quote noop)'', so the
+;;  code will not evaluate at runtime.
+;; \item On line 10, evaluation in the expansion-time environment
+;; \item On line 12, evaluation in the expansion-time environment of
+;; the run-time environment
+;; \item On line 13, evaluation in the run-time environment
+;; \end{itemize}
 
 ;; BUG is a collection of procedures and macros.  Building bug results
 ;; in a shared library and a "loadable" library (as in (load "foo.o1").
-;;
 ;; Macro definitions and namespace declarations, however do not reside
 ;; in such libraries.  I intend to keep the vast majority of BUG code
 ;; in this one file (minus the C preprocessor, gsi interpreter glue,
 ;; and build files).  As such, I don't want to define the namespaces
 ;; or macros definitions in a different file.
 ;;
-;; "at-compile-time" allows us to execute arbitrary code at compile time,
+;; ``at-compile-time'' allows us to execute arbitrary code at compile time,
 ;; so why not open files and write to them during compile time?
-;;
-;; Open one file for the namespaces, "libbug\#.scm", and one for the macros,
-;; "libbug-macros.scm"  These files will be pure Gambit scheme code, no
+;; Open one file for the namespaces, ``libbug\#.scm'', and one for the macros,
+;; ``libbug-macros.scm''.  These files will be pure Gambit scheme code, no
 ;; BUG-syntax enhancements, and they are not intended to be read by
 ;; a person.  Their documentation is in this file.
 ;;
@@ -105,7 +92,7 @@
 ;;
 ;; At the end of this document, the files are closed during compile time.
 
-;; \begin{lstlisting}
+;; \begin{code}
 {at-compile-time
  {begin
    ;; file for namespaces
@@ -147,7 +134,7 @@
       (eval ',form)
       ,form)]}"
     libbug-macros-file)}}
-;; \end{lstlisting}
+;; \end{code}
 
 
 
@@ -161,14 +148,14 @@
 ;; file, and the return the form so that the compiler actually processes it.
 
 
-;; \begin{lstlisting}
+;; \begin{code}
 {define-macro write-and-eval
   [|port form|
    (eval `(begin
 	    (newline ,port)
 	    (write ',form ,port)))
    form]}
-;; \end{lstlisting}
+;; \end{code}
 
 ;; Although I'm not quite sure if namespaces work correctly at compile
 ;; time, I'm going to namespace every function/macro at compile-time,
@@ -183,15 +170,15 @@
 ;;
 ;;
 
-;; \begin{lstlisting}
+;; \begin{code}
 {at-compile-time
  {##namespace ("lang#" if)}}
 {write-and-eval
  libbug-headers-file
  {##namespace ("lang#" if)}}
-;; \end{lstlisting}
+;; \end{code}
 
-;; \begin{lstlisting}
+;; \begin{code}
 (write-and-eval
  libbug-macros-file
  {at-both-times
@@ -208,7 +195,7 @@
 	      ,{##if (single-expression? ifFalse)
 		     (caddr ifFalse)
 		     `{begin ,@(cddr ifFalse)}}}}]}})
-;; \end{lstlisting}
+;; \end{code}
 
 
 
@@ -238,7 +225,7 @@
 ;; style.
 
 
-;; \begin{lstlisting}
+;; \begin{code}
 {at-compile-time
  {##namespace ("lang#" with-tests)}}
 {write-and-eval
@@ -259,7 +246,7 @@
 	     (error "Tests Failed")])})
     ;;the actual macro expansion is just the definition
     definition]})
-;; \end{lstlisting}
+;; \end{code}
 
 
 
@@ -277,13 +264,13 @@
 ;; This information is then used at compile time when both defining
 ;; and exporting macros to an external file.
 
-;; \begin{lstlisting}
+;; \begin{code}
 {at-compile-time
  {begin
    {##include "config.scm"}
    {define bug-configuration#libbugsharp
      (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}}}
-;; \end{lstlisting}
+;; \end{code}
 
 
 
@@ -292,7 +279,7 @@
 ;; time was tedious.  This is easily extractable into a macro,
 ;; as is used heavily throughout BUG.
 
-;; \begin{lstlisting}
+;; \begin{code}
 {define-macro libbug#namespace
   [|namespace-name-pair|
    {begin
@@ -301,12 +288,13 @@
 	(write-and-eval
 	 libbug-headers-file
 	 {##namespace ,namespace-name-pair})}}]}
-;; \end{lstlisting}
+;; \end{code}
 
 
 ;; Likewise, defining the macros and exporting them has also
 ;; been a repetitive process.
-;; \begin{lstlisting}
+;;
+;; \begin{code}
 {define-macro libbug#define-macro
   [|namespace name lambda-value #!rest tests|
    ;; the macro that libbug#define-macro creates should
@@ -337,12 +325,13 @@
 	 ,name
 	 ,lambda-value}
        ,@tests}}]}
-;; \end{lstlisting}
+;; \end{code}
 
 
 ;; Function definitions will all have a namespace, name, body,
 ;; and an optional suite of tests
-;; \begin{lstlisting}
+;;
+;; \begin{code}
 {define-macro
  libbug#define
  [|namespace name body #!rest tests|
@@ -351,7 +340,7 @@
      {with-tests
       {define ,name ,body}
       ,@tests}}]}
-;; \end{lstlisting}
+;; \end{code}
 
 
 ;;\end{document}  %End of document.
