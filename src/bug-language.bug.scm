@@ -250,7 +250,7 @@
 
 
 
-;; BUG is compiled using the Autotools, and when running "make
+;; BUG is compiled using the Autoconf, and when running "make
 ;; install", will be installed to the prefix specified to
 ;; "configure".  The headers file defined above at compile-time
 ;; will be installed relative to prefix, and as such, external

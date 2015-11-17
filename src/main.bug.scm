@@ -59,10 +59,22 @@
 ;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  Many ideas in BUG are
 ;; inspired by those books.
 ;;
-;; \subsection{Language Definition}
+;; \subsection{Conventions}
+;; In BUG, the notation ``(fun arg1 arg2)'' means evaluate ``fun'', ``arg1''
+;; and ``arg2'', and then apply ``fun'' to ``arg1'' and ``arg2''.  Standard Scheme
+;; uses the same syntax for function application, but also for macro application.
+;; Within BUG however ``\{fun1 arg1 arg2\}'' is used as a convention to denote to
+;; the reader that the standard evaluation rules do not necessarily apply to
+;; all arguments.  For instance, in ``\{define x 5\}'', \{\} are used because ``x''
+;; may not currently be in scope.
+;;
+;;
 ;;
 
-
+;; \subsection{Language Definition}
+;;
+;;
+;;
 ;; BUG defines quite a few extensions to the Scheme language, implemented via
 ;; macros.  They are implemented in ``bug-language.bug.scm''\footnote{Although
 ;; the filename is ``bug-language.bug.scm'', we import ``bug-language.scm''.  This
@@ -75,7 +87,9 @@
 ;; \begin{code}
 (include "bug-language.scm")
 ;;\end{code}
-;; \section{main.bug.scm}
+;; \section{Main Procedures}
+;;
+;; The code within the section is all found in ``src/main.bug.scm''.
 ;;
 ;; \subsection{lang\#noop}
 ;; The first definition is ``noop'', a procedure which takes no arguments, and
@@ -156,7 +170,7 @@
 ;;
 ;;     (define \#t {[}\textbar t f\textbar (t){]}
 ;;
-;;     (define \#t {[}\textbar t f\textbar (f){]}
+;;     (define \#f {[}\textbar t f\textbar (f){]}
 ;;
 ;;     (define lang\#if {[}\textbar b t f\textbar (b t f) {]}
 ;;
@@ -308,15 +322,13 @@
   reverse!
   `(
     (() ())
-    ((1 2 3 4 5 6) (6 5 4 3 2 1))
+    ((1) (1))
+    ((1 2) (2 1))
+    ((1 2 3) (3 2 1))
     ))}
 ;; \end{code}
 
 ;; \subsection{list\#first}
-;;   first evaluates to the first element of the list, 'noop if the list
-;;   is empty and no thunk is passed.  Some languages would use Exceptions
-;;   for this kind of behavior, but I prefer to just pass a lambda.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -325,15 +337,12 @@
   (if (null? lst)
       [(onNull)]
       [(car lst)])]
- ;; test without the onNull handler
  (satisfies-relation
   first
   `(
     (() noop)
     ((1 2 3) 1)
-    ((2 3 1 1 1) 2)
     ))
- ;; test the onNull handler
  (satisfies-relation
   [|l| (first l onNull: [5])]
   `(
@@ -344,9 +353,6 @@
 
 
 ;; \subsection{list\#but-first}
-;;   but-first evaluates to a list of all of the elements of the list, except for the first.
-;;   Takes an optional lambda for the case that the list is empty.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -365,13 +371,11 @@
   [|l| (but-first l onNull: [5])]
   `(
     (() 5)
+    ((1 2 3) (2 3))
     ))}
 ;; \end{code}
 
 ;; \subsection{list\#last}
-;;    last evaluates to the last element of the list.
-;;    Takes an optional lambda for the case that the list is empty.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -388,19 +392,16 @@
   `(
     (() noop)
     ((1) 1)
-    ((1 2) 2)
+    ((2 1) 1)
     ))
  (satisfies-relation
   [|l| (last l onNull: [5])]
   `(
     (() 5)
-    ((1) 1)
+    ((2 1) 1)
     ))}
 ;; \end{code}
 ;; \subsection{list\#but-last}
-;;    but-last evaluates to a list containing all but the last element of the list.
-;;    Takes an optional lambda for the case that the list is empty.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -416,14 +417,16 @@
   `(
     (() noop)
     ((1) ())
-    ((1 2) (1))
-    ((1 2 3) (1 2))
+    ((2 1) (2))
+    ((3 2 1) (3 2))
     ))
  (satisfies-relation
   [|l| (but-last l onNull: [5])]
   `(
     (() 5)
     ((1) ())
+    ((2 1) (2))
+    ((3 2 1) (3 2))
     ))
  }
 ;; \end{code}
@@ -446,15 +449,17 @@
 			[(cons head acc)]
 			[acc]))}])})]
  (satisfies-relation
-  [|l| (filter [|x| (not (= 4 (expt x 2)))]
+  [|l| (filter [|x| (not (= 4 x))]
 	       l)]
   `(
-    ((1 2 3 4 5 -2) (1 3 4 5))
+    (() ())
+    ((4) ())
+    ((1 4) (1))
+    ((4 1 4) (1))
+    ((2 4 1 4) (2 1))
     ))}
 ;; \end{code}
 ;; \subsection{list\#remove}
-;;   Evaluates to a new list with all occurances of the first parameter removed
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -557,9 +562,9 @@
   [|l| (flatmap [|x| (list x x x)]
 		l)]
   `(
+    (() ())
     ((1) (1 1 1))
     ((1 2) (1 1 1 2 2 2))
-    ((1 2 3) (1 1 1 2 2 2 3 3 3))
     ))
  (satisfies-relation
   [|l| (flatmap [|x| (list x
@@ -571,8 +576,6 @@
     ))}
 ;; \end{code}
 ;; \subsection{list\#enumerate-interval}
-;;  enumerate-interval evaluates to a list of ordered integers.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -587,8 +590,6 @@
 	 '(1 3 5 7 9))}
 ;; \end{code}
 ;; \subsection{list\#zip}
-;;   zip zips multiple lists together.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -600,19 +601,24 @@
 	     (zip (cdr lst1) (cdr lst2)))])]
  (equal? (zip '() '())
 	 '())
+ (equal? (zip '(1) '(4))
+	 '((1 4)))
+ (equal? (zip '(1 2) '(4 5))
+	 '((1 4)
+	   (2 5)))
+ (equal? (zip '(1 2 3) '(4 5 6))
+	 '((1 4)
+	   (2 5)
+	   (3 6)))
  (equal? (zip '(1) '())
 	 '())
  (equal? (zip '() '(1))
 	 '())
- (equal? (zip '(1 2 3) '(4 5 6))
-	 '((1 4) (2 5) (3 6)))
- }
+
+}
 
 ;; \end{code}
 ;; \subsection{list\#permutations}
-;;   permutations evaluates to a list containing all of permutations of the
-;;   input list.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -643,8 +649,6 @@
     ))}
 ;; \end{code}
 ;; \subsection{list\#sublists}
-;;   sublists evaluates to a list of every sub-list of the input list.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -730,10 +734,7 @@
 			 (cons (car lst) falseList)
 			 trueList)])])}]
  (satisfies-relation
-  [|lst| (let* ((p (partition lst [|x| (<= x 3)]))
-		(lesser (car p))
-		(greater (cadr p)))
-	   (list lesser greater))]
+  [|lst| (partition lst [|x| (<= x 3)])]
   `(
     (() (()
 	 ()))
@@ -766,8 +767,6 @@
  }
 ;; \end{code}
 ;; \subsection{list\#sort}
-;;  sort sorts the list given a comparator function.
-;;
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -794,9 +793,6 @@
     ))}
 ;; \end{code}
 ;; \subsection{lang\#compose}
-;;  Apply a series of functions to an input.  Much
-;;  like the . operator in math
-;;
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -875,8 +871,7 @@
  "list#"
  list->stream
  [|l|
-  (if (or (null? l)
-	  (null? (cdr l)))
+  (if (or (null? l))
       [l]
       [(stream-cons (car l)
 		    (let list->stream ((l (cdr l)))
@@ -885,15 +880,15 @@
 			  [(stream-cons (car l)
 					(list->stream (cdr l)))])))])]
  {let ((foo (list#list->stream '(1 2 3))))
-   {and (equal? 1 (stream#stream-car foo))
-	(equal? 2 (stream#stream-car
-		   (stream#stream-cdr foo)))
-	(equal? 3 (stream#stream-car
-		   (stream#stream-cdr
-		    (stream#stream-cdr foo))))
-	(null? (stream#stream-cdr
-		(stream#stream-cdr
-		 (stream#stream-cdr foo))))}}}
+   {and (equal? 1 (stream-car foo))
+	(equal? 2 (stream-car
+		   (stream-cdr foo)))
+	(equal? 3 (stream-car
+		   (stream-cdr
+		    (stream-cdr foo))))
+	(null? (stream-cdr
+		(stream-cdr
+		 (stream-cdr foo))))}}}
 ;; \end{code}
 ;; \subsection{stream\#stream-ref}
 ;; stream-ref is the analogous procedure of list-ref
@@ -945,13 +940,18 @@
   (if (not (pair? get-expression))
       [`{set! ,get-expression ,val}]
       [{case (car get-expression)
-	 ((car) `{set-car! ,@(cdr get-expression) ,val})
-	 ((cdr) `{set-cdr! ,@(cdr get-expression) ,val})
-	 ((cadr) `{setf! (car (cdr ,@(cdr get-expression))) ,val})
-	 ((cddr) `{setf! (cdr (cdr ,@(cdr get-expression))) ,val})
+	 ((car) `{set-car! ,@(cdr get-expression)
+			   ,val})
+	 ((cdr) `{set-cdr! ,@(cdr get-expression)
+			   ,val})
+	 ((cadr) `{setf! (car (cdr ,@(cdr get-expression)))
+			 ,val})
+	 ((cddr) `{setf! (cdr (cdr ,@(cdr get-expression)))
+			 ,val})
 	 ;; TODO - handle other atypical cases
-	 (else `(,(string->symbol (string-append (symbol->string (car get-expression))
-						 "-set!"))
+	 (else `(,(string->symbol (string-append
+				   (symbol->string (car get-expression))
+				   "-set!"))
 		 ,@(cdr get-expression)
 		 ,val))}])]
  ;; test variable
