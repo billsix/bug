@@ -55,7 +55,7 @@ bug.pdf: bug.tex
 
 
 bug/bug.html: bug.tex
-	latex2html -split 0 bug.tex
+	htlatex bug.tex
 
 libbug.so: bug-language.scm bug-language-end.scm main.c
 	gsc -link -o libbug.c main

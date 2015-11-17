@@ -8,16 +8,22 @@
 ;; \usepackage[margin=0.5in]{geometry}
 ;; \usepackage{courier}
 ;; \usepackage[hypcap]{caption}
-;;
+;; \usepackage{color}
+;; \definecolor{mygray}{rgb}{0.95,0.95,0.95}
 ;; \lstnewenvironment{code}[1][]%
 ;;  {  \noindent
 ;;     \minipage{\linewidth}
 ;;     \vspace{0.5\baselineskip}
-;;     \lstset{language=Lisp, frame=single, numbers=left,basicstyle=\ttfamily,
-;;            identifierstyle=\ttfamily,keywordstyle=\ttfamily, showstringspaces=false,#1}}
+;;     \lstset{language=Lisp, frame=single,framerule=.8pt, numbers=left,
+;;             basicstyle=\ttfamily,backgroundcolor=\color{mygray},
+;;             identifierstyle=\ttfamily,keywordstyle=\ttfamily,
+;;             showstringspaces=false,#1}}
 ;;  {\endminipage}
 ;;
+;;
+;; \renewcommand*\thelstnumber{\makebox[3em][r]{\ifnum\value{lstnumber}<10 0\fi\the\value{lstnumber}}}
 ;; \begin{document}
+;;
 ;; % Article top matter
 ;; \title{BUG (Bill's Utilities for Gambit)}
 ;; \author{William Emerison Six\\
