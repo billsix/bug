@@ -38,19 +38,6 @@ if test "$ENABLE_PDF" = yes; then
 fi
 AC_SUBST(ENABLE_PDF)
 
-AC_ARG_ENABLE(html,
-              AC_HELP_STRING([--enable-html],
-                             [build the html version of the code (default is NO)]),
-              ENABLE_HTML=$enableval,
-              ENABLE_HTML=no)
-if test "$ENABLE_HTML" = yes; then
-   AC_CHECK_PROG(LATEX2HTML_CHECK,latex2html,yes)
-   if test x"$LATEX2HTML_CHECK" != x"yes" ; then
-      AC_MSG_ERROR([Please install "latex2html" if you want to enable creation of the html])
-   fi
-fi
-AC_SUBST(ENABLE_HTML)
-
 
 AC_SUBST(ac_unique_file)
 AC_CONFIG_SRCDIR(src/config.scm.in)

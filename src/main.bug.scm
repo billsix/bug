@@ -21,7 +21,6 @@
 ;;  {\endminipage}
 ;;
 ;;
-;; \renewcommand*\thelstnumber{\makebox[3em][r]{\ifnum\value{lstnumber}<10 0\fi\the\value{lstnumber}}}
 ;; \begin{document}
 ;;
 ;; % Article top matter
