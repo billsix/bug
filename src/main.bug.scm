@@ -24,7 +24,7 @@
 ;; \begin{document}
 ;;
 ;; % Article top matter
-;; \title{BUG (Bill's Utilities for Gambit)}
+;; \title{BUG: Computation At Compile-Time}
 ;; \author{William Emerison Six\\
 ;;     \texttt{billsix@gmail.com}}
 ;; \date{\today}
@@ -322,8 +322,8 @@
   `(
     (() ())
     ((1) (1))
-    ((1 2) (2 1))
-    ((1 2 3) (3 2 1))
+    ((2 1) (1 2))
+    ((3 2 1) (1 2 3))
     ))}
 ;; \end{code}
 
@@ -408,9 +408,11 @@
  [|lst #!key (onNull noop)|
   (if (null? lst)
       [(onNull)]
-      [(reverse!
-	(but-first
-	 (reverse lst)))])]
+      [{let but-last ((lst lst))
+	 (if (null? (cdr lst))
+	     ['()]
+	     [(cons (car lst)
+		    (but-last (cdr lst)))])}])]
  (satisfies-relation
   but-last
   `(
@@ -438,15 +440,13 @@
  "list#"
  filter
  [|p? lst|
-  (reverse!
-   {let filter ((lst lst) (acc '()))
-     (if (null? lst)
-	 [acc]
-	 [{let ((head (car lst)))
-	    (filter (cdr lst)
-		    (if (p? head)
-			[(cons head acc)]
-			[acc]))}])})]
+  {let filter ((lst lst))
+    (if (null? lst)
+	[lst]
+	[{let ((first (car lst)))
+	   (if (p? first)
+	       [(cons first (filter (cdr lst)))]
+	       [(filter (cdr lst))])}])}]
  (satisfies-relation
   [|l| (filter [|x| (not (= 4 x))]
 	       l)]
@@ -514,11 +514,15 @@
 			   (car lst))))
 	   (scan-left (cons newacc acc-list)
 		      (cdr lst))}])}]
+ ;; (calulating factorials via scan-left
  (satisfies-relation
-  [|l| (scan-left + 0 l)]
+  [|l| (scan-left * 1 l)]
   `(
-    (() (0))
-    ((1 1 1 2 20 30) (0 1 2 3 5 25 55))
+    (() (1))
+    ((2) (1 2))
+    ((2 3) (1 2 6))
+    ((2 3 4) (1 2 6 24))
+    ((2 3 4 5 ) (1 2 6 24 120))
     ))}
 ;; \end{code}
 
@@ -542,8 +546,9 @@
   [|l| (fold-right - 0 l)]
   `(
     (() 0)
-    ((1 2 3 4) -2)
-    ((2 2 5 4) 1)
+    ((1) 1)
+    ((2 1) 1)
+    ((3 2 1) 2)
     ))}
 ;; \end{code}
 ;; \subsection{list\#flatmap}
@@ -557,14 +562,6 @@
  flatmap
  [|fn lst|
   (fold-left append '() (map fn lst))]
- (satisfies-relation
-  [|l| (flatmap [|x| (list x x x)]
-		l)]
-  `(
-    (() ())
-    ((1) (1 1 1))
-    ((1 2) (1 1 1 2 2 2))
-    ))
  (satisfies-relation
   [|l| (flatmap [|x| (list x
 			   (+ x 1)
@@ -582,7 +579,8 @@
  [|low high #!key (step 1)|
   (if (> low high)
       ['()]
-      [(cons low (enumerate-interval (+ low step) high step: step))])]
+      [(cons low
+	     (enumerate-interval (+ low step) high step: step))])]
  (equal? (enumerate-interval 1 10)
 	 '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2)
@@ -758,11 +756,14 @@
 	       [(set-cdr! lst x)]
 	       [(append! (cdr lst))]))
 	 head)])]
- (equal? (append! '() (list 5)) (list 5))
- (equal? (append! '(1 2 3) (list 5)) (list 1 2 3 5))
+ (equal? (append! '()
+		  '(5))
+	 '(5))
+ (equal? (append! '(1 2 3)
+		  '(5)) '(1 2 3 5))
  {let ((a '(1 2 3)))
-   (append! a (list 5))
-   (not (equal? (list 1 2 3) a))}
+   (append! a '(5))
+   (not (equal? '(1 2 3) a))}
  }
 ;; \end{code}
 ;; \subsection{list\#sort}
@@ -931,27 +932,29 @@
 ;; \begin{code}
 {at-compile-time
  {define-structure foo bar baz}}
+;; \end{code}
 
+
+;; \begin{code}
 {libbug#define-macro
  "lang#"
  setf!
- [|get-expression val|
-  (if (not (pair? get-expression))
-      [`{set! ,get-expression ,val}]
-      [{case (car get-expression)
-	 ((car) `{set-car! ,@(cdr get-expression)
+ [|exp val|
+  (if (not (pair? exp))
+      [`{set! ,exp ,val}]
+      [{case (car exp)
+	 ((car) `{set-car! ,@(cdr exp)
 			   ,val})
-	 ((cdr) `{set-cdr! ,@(cdr get-expression)
+	 ((cdr) `{set-cdr! ,@(cdr exp)
 			   ,val})
-	 ((cadr) `{setf! (car (cdr ,@(cdr get-expression)))
+	 ((cadr) `{setf! (car (cdr ,@(cdr exp)))
 			 ,val})
-	 ((cddr) `{setf! (cdr (cdr ,@(cdr get-expression)))
+	 ((cddr) `{setf! (cdr (cdr ,@(cdr exp)))
 			 ,val})
 	 ;; TODO - handle other atypical cases
-	 (else `(,(string->symbol (string-append
-				   (symbol->string (car get-expression))
-				   "-set!"))
-		 ,@(cdr get-expression)
+	 (else `(,(string->symbol (string-append (symbol->string (car exp))
+						 "-set!"))
+		 ,@(cdr exp)
 		 ,val))}])]
  ;; test variable
  {let ((a 5))
