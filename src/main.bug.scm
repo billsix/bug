@@ -2,12 +2,10 @@
 ;; %All rights reserved
 ;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;
-;; \documentclass{article}
+;; \documentclass[twoside]{book}
 ;; \usepackage{times}
 ;; \usepackage{listings}
-;; \usepackage[margin=0.5in]{geometry}
 ;; \usepackage{courier}
-;; \usepackage[hypcap]{caption}
 ;; \usepackage{color}
 ;; \definecolor{mygray}{rgb}{0.95,0.95,0.95}
 ;; \lstnewenvironment{code}[1][]%
@@ -20,7 +18,7 @@
 ;;             showstringspaces=false,#1}}
 ;;  {\endminipage}
 ;;
-;;
+;; \raggedbottom
 ;; \begin{document}
 ;;
 ;; % Article top matter
@@ -43,40 +41,41 @@
 
 ;; \tableofcontents
 ;; \break
-;; \section{Introduction}
+;; \chapter{Introduction}
 ;; BUG is Bill's Utilities for Gambit-C.  BUG provides a concise syntax for
 ;; lambdas,  utilities for general-purpose evaluation at compile-time, a
 ;; compile-time unit test framework, and a collection of utility functions that
 ;; I find useful.  Taken together, these can be used in a ``literate programming''
 ;; style.
 
-;; \subsection{Prerequisites}
+;; \section{Prerequisites}
 ;;
-;; The reader is assumed to be familiar with Scheme, and with Common  Lisp-style
-;; macros (which Gambit-C provides).  Suggested reading is ``The Structure and
+;; The reader is assumed to be familiar both with Scheme, and with Common Lisp-style
+;; macros, which Gambit-C provides.  Suggested reading is ``The Structure and
 ;; Interpretation of Computer Programs'' by Sussman and Abelson, ``ANSI Common
-;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  Many ideas in BUG are
-;; inspired by those books.
+;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  These books inspired many
+;; ideas within BUG. 
 ;;
-;; \subsection{Conventions}
+;; \section{Conventions}
 ;; In BUG, the notation ``(fun arg1 arg2)'' means evaluate ``fun'', ``arg1''
-;; and ``arg2'', and then apply ``fun'' to ``arg1'' and ``arg2''.  Standard Scheme
-;; uses the same syntax for function application, but also for macro application.
-;; Within BUG however ``\{fun1 arg1 arg2\}'' is used as a convention to denote to
+;; and ``arg2'', and then apply ``fun'' to ``arg1'' and ``arg2''.  This notation
+;; is standard Scheme, but Scheme uses the same notation for macro application.
+;; This can cause some confusion to a reader.  To attempt to minimize the confusion,
+;; within BUG the notation ``\{fun1 arg1 arg2\}'' is used to denote to
 ;; the reader that the standard evaluation rules do not necessarily apply to
 ;; all arguments.  For instance, in ``\{define x 5\}'', \{\} are used because ``x''
-;; may not currently be in scope.
+;; is a new variable, and as such, cannot currently evaluate to anything.
 ;;
 ;;
 ;;
 
-;; \subsection{Language Definition}
+;; \section{Language Definition}
 ;;
 ;;
 ;;
-;; BUG defines quite a few extensions to the Scheme language, implemented via
+;; BUG defines extensions to the Scheme language, implemented via
 ;; macros.  They are implemented in ``bug-language.bug.scm''\footnote{Although
-;; the filename is ``bug-language.bug.scm'', we import ``bug-language.scm''.  This
+;; the filename is ``bug-language.bug.scm'', ``bug-language.scm'' is imported.  This
 ;; is because ``bug-gscpp'' preprocesses the bug file, and outputs a standard Gambit
 ;; Scheme file, with a different filename}, which will now
 ;; import.  How to use these procedure-defining procedures will be explained
@@ -86,13 +85,13 @@
 ;; \begin{code}
 (include "bug-language.scm")
 ;;\end{code}
-;; \section{Main Procedures}
+;; \chapter{Main Procedures}
 ;;
-;; The code within the section is all found in ``src/main.bug.scm''.
+;; The code within this section is all found in ``src/main.bug.scm''.
 ;;
-;; \subsection{lang\#noop}
-;; The first definition is ``noop'', a procedure which takes no arguments, and
-;; evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
+;; \section{lang\#noop}
+;; The first definition is ``noop'', a procedure which takes no arguments and
+;; which evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
 ;; instead of Scheme's regular define.
 ;;
 ;; \begin{code}
@@ -100,49 +99,53 @@
  "lang#"
  noop
  ['noop]
- (equal? (noop) 'noop)}
 ;; \end{code}
-;;
+
 ;; \begin{itemize}
 ;;   \item On line 1, the libbug\#define macro form bug-language.bug.scm is invoked.
 ;;   \item On line 2, a namespace is declared
 ;;   \item On line 3, the variable name is declared, which will be declared in the
-;; namespace defined on line 2.  Because BUG is a library, and these procedures
-;; will be exported, libbug\#define not only creates the variable in the
-;; namespace defined by line 2, but it also writes the namespace definition to
-;; ``libbug\#.scm'' during compiliation, so that external programs may use these
-;; namespaces.  The alert reader may ask, ``what? BUG writes a string to a file
-;; during compile time ????''  Yes, BUG defines general purpose computation,
-;; including IO, at compile time.
+;; namespace defined on line 2.
 ;;  \item On line 4, the value to be stored into the variable is declared.  BUG
 ;; includes a Scheme preprocessor ``bug-gscpp'', which expands lambda literals
 ;; into lambdas.  In this case ``['noop]'' is expanded into ``(lambda () 'noop)''
-;;  \item  On line 5, an expression which evaluates to a boolean is defined.
+;; \end{itemize}
+;; \subsection*{Test}
+;; \begin{code}
+ (equal? (noop) 'noop)}
+;; \end{code}
+;;
+;; \begin{itemize}
+;;  \item  On line 1, an expression which evaluates to a boolean is defined.
 ;;  This is a
 ;; test which will be evaluated at compile-time, and should the test fail,
 ;; the build process will fail and no shared library will be created.  The
-;; test runs at compile time, but is not present in the resulting shared
+;; test runs at compile time, but is not present in the resulting
 ;; library.
 ;; \end{itemize}
 ;;
-;; \subsection{lang\#identity}
+;; \section{lang\#identity}
 ;;
 ;; \begin{code}
 {libbug#define
  "lang#"
  identity
  [|x| x]
- (equal? "foo" (identity "foo"))}
 ;; \end{code}
 ;; \begin{itemize}
 ;;   \item On line 4, ``bug-gscpp'' expands ``[\textbar x\textbar x]'' to ``(lambda (x) x)''.  This expansion
 ;;         works with multiple arguments, as long as they are between the ``\textbar''s.
 ;; \end{itemize}
+
+;; \subsection*{Test}
+;; \begin{code}
+ (equal? "foo" (identity "foo"))}
+;; \end{code}
 ;;
 ;;
 
-;; \subsection{list\#and}
-;; Kind of like and?, but takes a list instead of a var-args
+;; \section{list\#and}
+;; Kind of like and?, but takes a list instead of a variable number of arguments.
 ;;
 ;; \begin{code}
 {libbug#define
@@ -154,13 +157,6 @@
       [(if (not (car lst))
 	  [#f]
 	  [(all? (cdr lst))])])]
- (all? '())
- (all? '(1))
- (all? '(#t))
- (all? '(#t #t))
- (not (all? '(#f)))
- (not (all? '(#t #t #t #f)))
- }
 ;; \end{code}
 ;; \begin{itemize}
 ;;   \item On line 5, if, which is currently namespaced to lang\#if, takes
@@ -176,27 +172,37 @@
 ;; As such, if would not be a special form, and is more consistent with the
 ;; rest of BUG.
 ;;
-;;   \item On line 11, libbug\#define can take more than one test as parameters
 ;; \end{itemize}
+;; \subsection*{Tests}
+;; \begin{code}
+ (all? '())
+ (all? '(1))
+ (all? '(#t))
+ (all? '(#t #t))
+ (not (all? '(#f)))
+ (not (all? '(#t #t #t #f)))
+ }
+;; \end{code}
+;;
+;; libbug\#define can take more than one test as parameters.
 
-;; \subsection{lang\#satisfies-relation}
+;; \section{lang\#satisfies-relation}
 
-;; Since libbug\#define can take multiple tests, I'd rather not invoke
-;; the prodcedure under test by name repeatedly.  Instead, I'd like to define
-;; the procedure, and input the list of pairs of inputs with expected outputs.
-;; Writing tests in this style also informs the reader that the function under
-;; test is likely side-effect free.
+;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
+;; with varying inputs and outputs?  Instead, provide the procedure, and a list
+;; of input/output pairs.
 ;;
 ;; \begin{code}
 {libbug#define
  "lang#"
  satisfies-relation
  [|fn list-of-pairs|
-  (all? (map [|pair| {let ((independent-variable (car pair))
-			   (dependent-variable (cadr pair)))
-		       (equal? (fn independent-variable)
-			       dependent-variable)}]
+  (all? (map [|pair| (equal? (fn (car pair))
+			     (cadr pair))]
 	     list-of-pairs))]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation [|x| (+ x 1)]
 		     `(
 		       (0 1)
@@ -205,61 +211,33 @@
 		       ))}
 ;; \end{code}
 
-;; \subsection{lang\#aif}
-;; BUG also provides a new procedure for creating macros.  Just as libbug\#define
-;; exports the namespace to a file during compilation time, libbug\#define-macro
-;; exports the namespace to ``libbug\#.scm'', and also exports the definition of
-;; the macro to ``libbug-macros.scm'' during compile time.  Since external
-;; projects will actually load those macros as input files, much care was needed
-;; in defining libbug\#define-macro to ensure that the macros work externally in
-;; the same manner as they work in this file.  The details of how this works
-;; outside the current scope; it is defined in ``bug-language.bug.scm'
 
-;; aif evaluates bool, binds it to the variable ``it'', which is accessible in
-;; body.
-;;
-;; \begin{code}
-{libbug#define-macro
- "lang#"
- aif
- [|bool body|
-  `{let ((it ,bool))
-     (if it
-	 [,body]
-	 [#f])}]
- (equal? {aif (+ 5 10) (* 2 it)}
-	 30)
- (equal? {aif #f (* 2 it)}
-	 #f)}
-;; \end{code}
+;; For the remaining procedures, if the tests do an adequate job of explaining
+;; the code, there will be no written documentation.
 
-;; I've now explained everything about the BUG extensions to the language!
-;; I will not document the purpose of the procedures below if the test does
-;; an adequate job of demonstrating the purpose of the code.
-
-;; \subsection{lang\#complement}
+;; \section{lang\#complement}
 ;;
 ;; \begin{code}
 {libbug#define
-"lang#"
+ "lang#"
  complement
  [|f|
   [|#!rest args| (not (apply f args))]]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   (complement pair?)
   `(
     (1 #t)
     ((1 2) #f)
     ))
- ((complement all?) '(#f))
- ((complement all?) '(#f #t #f))
- (not ((complement all?) '(#t #t #t)))
  }
 ;; \end{code}
 
 
 
-;; \subsection{list\#copy}
+;; \section{list\#copy}
 ;;   Creates a copy of the list data structure.  Does not copy the contents
 ;;   of the list.
 ;;
@@ -268,6 +246,9 @@
  "list#"
  copy
  [|l| (map identity l)]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  {let ((a '(1 2 3 4 5)))
    (equal? a (copy a))}
  {let ((a '(1 2 3 4 5)))
@@ -276,7 +257,7 @@
 ;; \end{code}
 
 
-;; \subsection{list\#proper?}
+;; \section{list\#proper?}
 ;;   Tests that the argument is a list that is properly
 ;;   termitated.  Will not terminate on a circular list.
 ;;
@@ -289,6 +270,9 @@
 	  [(if (pair? l)
 	       [(proper? (cdr l))]
 	       [#f])])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   proper?
   `(
@@ -300,7 +284,7 @@
 
 
 
-;; \subsection{list\#reverse!}
+;; \section{list\#reverse!}
 ;;   Reverses the list quickly by reusing cons cells
 ;;
 ;; \begin{code}
@@ -310,13 +294,17 @@
  [|lst|
   (if (null? lst)
       ['()]
-      [{let reverse! ((lst lst) (prev '()))
+      [{let reverse! ((lst lst)
+		      (prev '()))
 	 (if (null? (cdr lst))
 	     [(set-cdr! lst prev)
 	      lst]
 	     [{let ((rest (cdr lst)))
 		(set-cdr! lst prev)
 		(reverse! rest lst)}])}])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   reverse!
   `(
@@ -327,7 +315,7 @@
     ))}
 ;; \end{code}
 
-;; \subsection{list\#first}
+;; \section{list\#first}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -336,6 +324,9 @@
   (if (null? lst)
       [(onNull)]
       [(car lst)])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   first
   `(
@@ -351,7 +342,7 @@
 ;; \end{code}
 
 
-;; \subsection{list\#but-first}
+;; \section{list\#but-first}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -360,6 +351,9 @@
   (if (null? lst)
       [(onNull)]
       [(cdr lst)])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   but-first
   `(
@@ -374,7 +368,7 @@
     ))}
 ;; \end{code}
 
-;; \subsection{list\#last}
+;; \section{list\#last}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -386,6 +380,9 @@
 	 (if (null? (cdr lst))
 	     [(car lst)]
 	     [(last (cdr lst))])}])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   last
   `(
@@ -400,7 +397,7 @@
     ((2 1) 1)
     ))}
 ;; \end{code}
-;; \subsection{list\#but-last}
+;; \section{list\#but-last}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -413,6 +410,9 @@
 	     ['()]
 	     [(cons (car lst)
 		    (but-last (cdr lst)))])}])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   but-last
   `(
@@ -425,16 +425,11 @@
   [|l| (but-last l onNull: [5])]
   `(
     (() 5)
-    ((1) ())
-    ((2 1) (2))
     ((3 2 1) (3 2))
     ))
  }
 ;; \end{code}
-;; \subsection{list\#filter}
-;;   Evaluates to a new list, consisting only the elements where the predicate p?,
-;;   when applied to the element, evaluates to true.
-;;
+;; \section{list\#filter}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -447,6 +442,9 @@
 	   (if (p? first)
 	       [(cons first (filter (cdr lst)))]
 	       [(filter (cdr lst))])}])}]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|l| (filter [|x| (not (= 4 x))]
 	       l)]
@@ -458,7 +456,7 @@
     ((2 4 1 4) (2 1))
     ))}
 ;; \end{code}
-;; \subsection{list\#remove}
+;; \section{list\#remove}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -466,6 +464,9 @@
  [|x lst|
   (filter [|y| (not (equal? x y))]
 	  lst)]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|l| (remove 5 l)]
   `(
@@ -473,8 +474,8 @@
     ))}
 ;; \end{code}
 
-;; \subsection{list\#fold-left}
-;;    reduce the list to a scalar by applying the reducing function repeatedly,
+;; \section{list\#fold-left}
+;;    Reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the ``left'' side of the list
 ;;
 ;; \begin{code}
@@ -482,25 +483,35 @@
  "list#"
  fold-left
  [|fn initial lst|
-  {let fold-left ((acc initial) (lst lst))
+  {let fold-left ((acc initial)
+		  (lst lst))
     (if (null? lst)
 	[acc]
 	[(fold-left (fn acc
 			(car lst))
 		    (cdr lst))])}]
- (satisfies-relation
-  [|l| (fold-left + 0 l)]
-  `(
-    (() 0)
-    ((1) 1)
-    ((1 2) 3)
-    ((1 2 3 4 5 6) 21)
-    ))}
 ;; \end{code}
-;; \subsection{list\#scan-left}
-;;   scan-left is like fold-left, but every intermediate value
-;;   of fold-left's acculumalotr is put onto a list, which
-;;   is the value of scan-left
+;; \subsection*{Tests}
+;; \begin{code}  
+ (satisfies-relation
+  [|l| (fold-left + 5 l)]
+  `(
+    (() 5)
+    ((1) 6)
+    ((1 2) 8)
+    ((1 2 3 4 5 6) 26)
+    ))
+ (satisfies-relation
+  [|l| (fold-left - 5 l)]
+  `(
+    (() 5)
+    ((1) 4)
+    ((1 2) 2)
+    ((1 2 3 4 5 6) -16)))}
+;; \end{code}
+;; \section{list\#scan-left}
+;;   Like fold-left, but every intermediate value
+;;   of fold-left's accumulator is put onto the resulting list
 ;;
 ;; \begin{code}
 {libbug#define
@@ -514,7 +525,10 @@
 			   (car lst))))
 	   (scan-left (cons newacc acc-list)
 		      (cdr lst))}])}]
- ;; (calulating factorials via scan-left
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
+  ;; (calulating factorials via scan-left
  (satisfies-relation
   [|l| (scan-left * 1 l)]
   `(
@@ -527,8 +541,8 @@
 ;; \end{code}
 
 
-;; \subsection{list\#fold-right}
-;;    fold-right reduces the list to a scalar by applying the reducing
+;; \section{list\#fold-right}
+;;    Reduces the list to a scalar by applying the reducing
 ;;    function repeatedly,
 ;;    starting from the ``right'' side of the list
 ;;
@@ -542,6 +556,9 @@
 	[acc]
 	[(fn (car lst)
 	     (fold-right acc (cdr lst)))])}]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|l| (fold-right - 0 l)]
   `(
@@ -551,8 +568,8 @@
     ((3 2 1) 2)
     ))}
 ;; \end{code}
-;; \subsection{list\#flatmap}
-;;  flatmap maps a prodecure to a list, but the result of the
+;; \section{list\#flatmap}
+;;  Maps a prodecure to a list, but the result of the
 ;;  prodecure will be a list itself.  Aggregate all
 ;;  of those lists together.
 ;;
@@ -562,6 +579,9 @@
  flatmap
  [|fn lst|
   (fold-left append '() (map fn lst))]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|l| (flatmap [|x| (list x
 			   (+ x 1)
@@ -571,7 +591,7 @@
     ((10 20) (10 11 12 20 21 22))
     ))}
 ;; \end{code}
-;; \subsection{list\#enumerate-interval}
+;; \section{list\#enumerate-interval}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -580,13 +600,18 @@
   (if (> low high)
       ['()]
       [(cons low
-	     (enumerate-interval (+ low step) high step: step))])]
+	     (enumerate-interval (+ low step)
+				 high
+				 step: step))])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (equal? (enumerate-interval 1 10)
 	 '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2)
 	 '(1 3 5 7 9))}
 ;; \end{code}
-;; \subsection{list\#zip}
+;; \section{list\#zip}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -596,6 +621,9 @@
       ['()]
       [(cons (list (car lst1) (car lst2))
 	     (zip (cdr lst1) (cdr lst2)))])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (equal? (zip '() '())
 	 '())
  (equal? (zip '(1) '(4))
@@ -611,11 +639,10 @@
 	 '())
  (equal? (zip '() '(1))
 	 '())
-
 }
 
 ;; \end{code}
-;; \subsection{list\#permutations}
+;; \section{list\#permutations}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -626,10 +653,14 @@
       [{let permutations ((lst lst))
 	 (if (null? lst)
 	     [(list '())]
-	     [(flatmap [|x|
-			(map [|y| (cons x y)]
-			     (permutations (remove x lst)))]
-		       lst)])}])]
+	     [(flatmap
+	       [|x|
+		(map [|y| (cons x y)]
+		     (permutations (remove x lst)))]
+	       lst)])}])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   permutations
   `(
@@ -645,7 +676,7 @@
 	      (3 2 1)))
     ))}
 ;; \end{code}
-;; \subsection{list\#sublists}
+;; \section{list\#sublists}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -654,6 +685,9 @@
   (if (null? lst)
       ['()]
       [(cons lst (sublists (cdr lst)))])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   sublists
   `(
@@ -664,9 +698,8 @@
     ))}
 ;; \end{code}
 
-;; \subsection{list\#ref-of}
-;; ref-of is the inverse of list-ref, with an optional ``onMissing'' lambda,
-;; for the case where the element does not exist in the list.
+;; \section{list\#ref-of}
+;; The inverse of list-ref.
 ;;
 ;; \begin{code}
 {libbug#define
@@ -681,6 +714,9 @@
 	     [(if (null? (cdr lst))
 		  [(onMissing)]
 		  [(ref-of (cdr lst) (+ acc 1))])])}])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|x| (ref-of '(a b c d e f g) x)]
   `(
@@ -707,8 +743,8 @@
       ))}
  }
 ;; \end{code}
-;; \subsection{list\#partition}
-;;  partition partitions the input list into two lists, one list where
+;; \section{list\#partition}
+;;  Partitions the input list into two lists, one list where
 ;;  the predicate matched the element of the list, the second list
 ;;  where the predicate did not match the element of the list.
 ;;
@@ -730,6 +766,9 @@
 	     [(partition (cdr lst)
 			 (cons (car lst) falseList)
 			 trueList)])])}]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|lst| (partition lst [|x| (<= x 3)])]
   `(
@@ -739,8 +778,8 @@
 		  (4 5)))
     ))}
 ;; \end{code}
-;; \subsection{list\#append!}
-;;   append! is like append, but recycles the last cons cell, so it's
+;; \section{list\#append!}
+;;   Like append, but recycles the last cons cell, so it's
 ;;   faster, but mutates the input.
 ;;
 ;; \begin{code}
@@ -756,6 +795,9 @@
 	       [(set-cdr! lst x)]
 	       [(append! (cdr lst))]))
 	 head)])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (equal? (append! '()
 		  '(5))
 	 '(5))
@@ -766,7 +808,7 @@
    (not (equal? '(1 2 3) a))}
  }
 ;; \end{code}
-;; \subsection{list\#sort}
+;; \section{list\#sort}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -774,17 +816,21 @@
  [|lst comparison|
   (if (null? lst)
       ['()]
-      [{let* ((current-node (car lst)))
-	 (let* ((p (partition (cdr lst)
-			      [|x| (comparison x
-					       current-node)]))
-		(less-than (car p))
-		(greater-than (cadr p)))
-	   (append! (sort less-than
-			  comparison)
-		    (cons current-node
-			  (sort greater-than
-				comparison))))}])]
+      [{let* ((current-node (car lst))
+	      (p (partition (cdr lst)
+			    [|x| (comparison
+				  x
+				  current-node)]))
+	      (less-than (car p))
+	      (greater-than (cadr p)))
+	 (append! (sort less-than
+			comparison)
+		  (cons current-node
+			(sort greater-than
+			      comparison)))}])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|lst| (sort lst <)]
   `(
@@ -792,7 +838,7 @@
     ((1 3 2 5 4 0) (0 1 2 3 4 5))
     ))}
 ;; \end{code}
-;; \subsection{lang\#compose}
+;; \section{lang\#compose}
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -804,6 +850,9 @@
        [(fold-right [|fn acc| (fn acc)]
 		    (apply (last fns) args)
 		    (but-last fns))])]]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (equal? ((compose) 5)
 	 5)
  (equal? ((compose [|x| (* x 2)])
@@ -820,7 +869,7 @@
 	 11/13)}
 ;; \end{code}
 
-;; \subsection{stream\#stream-cons}
+;; \section{stream\#stream-cons}
 ;; Streams are lists whose evaluation is deferred until the value is
 ;; requested.  For more information, consult ``The Structure and
 ;; Interpretation of Computer Programs''.
@@ -831,6 +880,9 @@
  stream-cons
  [|a b|
   `(cons ,a {delay ,b})]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  {begin
    {let ((s {stream-cons 1 2}))
      {and
@@ -839,46 +891,57 @@
       (equal? {force (cdr s)}
 	      2)}}}}
 ;; \end{code}
-;; \subsection{stream\#stream-car}
-;; stream-car evaluates to the first element of the stream.
+;; \section{stream\#stream-car}
+;; Get the first element of the stream.
 ;;
 ;; \begin{code}
 {libbug#define
  "stream#"
  stream-car
  car
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  {let ((s {stream-cons 1 2}))
    (equal? (stream-car s)
 	   1)}}
 ;; \end{code}
-;; \subsection{stream\#stream-cdr}
-;; stream-cdr forces the evaluation of the next element of the stream.
+;; \section{stream\#stream-cdr}
+;; Forces the evaluation of the next element of the stream.
 ;;
 ;; \begin{code}
 {libbug#define
  "stream#"
  stream-cdr
  [|s| {force (cdr s)}]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  {let ((s {stream-cons 1 2}))
    (equal? (stream-cdr s)
 	   2)}}
 ;; \end{code}
-;; \subsection{list\#list-\textgreater stream}
-;; list-\textgreater stream converts a list into a stream
+;; \section{list\#list-\textgreater stream}
+;; Converts a list into a stream
 ;;
 ;; \begin{code}
 {libbug#define
  "list#"
  list->stream
  [|l|
-  (if (or (null? l))
+  (if (null? l)
       [l]
-      [(stream-cons (car l)
-		    (let list->stream ((l (cdr l)))
-		      (if (null? l)
-			  ['()]
-			  [(stream-cons (car l)
-					(list->stream (cdr l)))])))])]
+      [(stream-cons
+	(car l)
+	(let list->stream ((l (cdr l)))
+	  (if (null? l)
+	      ['()]
+	      [(stream-cons
+		(car l)
+		(list->stream (cdr l)))])))])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  {let ((foo (list#list->stream '(1 2 3))))
    {and (equal? 1 (stream-car foo))
 	(equal? 2 (stream-car
@@ -890,8 +953,8 @@
 		(stream-cdr
 		 (stream-cdr foo))))}}}
 ;; \end{code}
-;; \subsection{stream\#stream-ref}
-;; stream-ref is the analogous procedure of list-ref
+;; \section{stream\#stream-ref}
+;; The analogous procedure of list-ref
 ;;
 ;; \begin{code}
 {libbug#define
@@ -908,6 +971,9 @@
   (if (< n 0)
       [(onOutOfBounds)]
       [(refPrime s n)])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  {let ((s (list->stream '(5 4 3 2 1))))
    (all?
     (list
@@ -923,8 +989,40 @@
 	     'out)))}}
 ;; \end{code}
 
-;; \subsection{lang\#setf}
-;; setf! sets a value using its getter, as done in Common Lisp.
+;; \section{lang\#aif}
+;; BUG also provides a new procedure for creating macros.  Just as libbug\#define
+;; exports the namespace to a file during compilation time, libbug\#define-macro
+;; exports the namespace to ``libbug\#.scm'', and also exports the definition of
+;; the macro to ``libbug-macros.scm'' during compile time.  Since external
+;; projects will actually load those macros as input files, much care was needed
+;; in defining libbug\#define-macro to ensure that the macros work externally in
+;; the same manner as they work in this file.  The details of how this works
+;; outside the current scope; it is defined in ``bug-language.bug.scm'
+
+;; aif evaluates bool, binds it to the variable ``it'', which is accessible in
+;; body.
+;;
+;; \begin{code}
+{libbug#define-macro
+ "lang#"
+ aif
+ [|bool body|
+  `{let ((it ,bool))
+     (if it
+	 [,body]
+	 [#f])}]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
+ (equal? {aif (+ 5 10) (* 2 it)}
+	 30)
+ (equal? {aif #f (* 2 it)}
+	 #f)}
+;; \end{code}
+
+
+;; \section{lang\#setf}
+;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;; The implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
 ;;
 ;; This dummy structure is only available at compile-time, for use in a test
@@ -952,10 +1050,15 @@
 	 ((cddr) `{setf! (cdr (cdr ,@(cdr exp)))
 			 ,val})
 	 ;; TODO - handle other atypical cases
-	 (else `(,(string->symbol (string-append (symbol->string (car exp))
-						 "-set!"))
+	 (else `(,(string->symbol
+		   (string-append
+		    (symbol->string (car exp))
+		    "-set!"))
 		 ,@(cdr exp)
 		 ,val))}])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  ;; test variable
  {let ((a 5))
    {setf! a 10}
@@ -985,8 +1088,7 @@
 
 
 
-;; \subsection{lang\#with-gensyms}
-;; with-gensyms
+;; \section{lang\#with-gensyms}
 ;;   Utility for macros to minimize explicit use of gensym.
 ;;   Gensym creates a symbol at compile time which is guaranteed
 ;;   to be unique.  Macros which intentionally capture variables,
@@ -1004,8 +1106,8 @@
      ,@body}]}
 ;; \end{code}
 
-;; \subsection{lang\#while}
-;; Sometimes you need an imperative loop
+;; \section{lang\#while}
+;; Sometimes a person needs an imperative loop
 ;;
 ;; \begin{code}
 {libbug#define
@@ -1016,22 +1118,28 @@
       [(body)
        (while pred body)]
       [(noop)])]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  {let ((a 0))
    (while [(< a 5)]
 	  [(set! a (+ a 1))])
    (equal? a 5)}}
 ;; \end{code}
-;; \subsection{lang\#numeric-if}
+;; \section{lang\#numeric-if}
 ;;   An if expression for numbers, based on their sign.
 ;;
 ;; \begin{code}
 {libbug#define
  "lang#"
  numeric-if
- [|expr #!key (ifPositive noop) (ifZero noop)(ifNegative noop)|
+ [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
   {cond ((> expr 0) (ifPositive))
 	((= expr 0) (ifZero))
 	(else (ifNegative))}]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}  
  (satisfies-relation
   [|n|
    (numeric-if n

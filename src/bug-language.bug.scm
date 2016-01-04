@@ -3,9 +3,9 @@
 ;; %Distributed under LGPL 2.1 or Apache 2.0
 
 ;; \break
-;; \section{Bug Language}
+;; \chapter{Bug Language}
 ;;  \label{sec:buglang}
-;; \subsection{Bug Infrastructure Introduction}
+;; \section{Bug Infrastructure Introduction}
 ;;
 ;; Since BUG is a library, I need to create and export macros, namespaces,
 ;; data, types, and functions.  The following section of code provides the
@@ -30,7 +30,7 @@
 ;; failure occurs, no executable is produced.
 ;;
 ;;
-;; \subsection{Bug Infrastructure}
+;; \section{Bug Infrastructure}
 ;;
 ;; \begin{code}
 (##include "~~lib/gambit#.scm")
@@ -233,13 +233,11 @@
      `{begin
 	,definition
 	(if (and ,@tests)
-	    ['no-op]
+	    [',definition]
 	    [(pp "Test Failed")
 	     (pp {quote ,tests})
 	     (pp (quote ,definition))
-	     (error "Tests Failed")])})
-    ;;the actual macro expansion is just the definition
-    definition]})
+	     (error "Tests Failed")])})]})
 ;; \end{code}
 
 
@@ -263,7 +261,9 @@
  {begin
    {##include "config.scm"}
    {define bug-configuration#libbugsharp
-     (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}}}
+     (string-append
+      bug-configuration#prefix
+      "/include/bug/libbug#.scm")}}}
 ;; \end{code}
 
 
@@ -288,30 +288,33 @@
 ;; Likewise, defining the macros and exporting them has also
 ;; been a repetitive process.
 ;;
+;; The macro that libbug\#define-macro creates should
+;; have the same parameter list, augmented with some namespacing,
+;; with otherwise the same macro body. Write the augmented lambda
+;; form out to the macro file for use by external
+;; projects
+;; Note: the compile-time tests are not included
+
 ;; \begin{code}
 {define-macro libbug#define-macro
   [|namespace name lambda-value #!rest tests|
-   ;; the macro that libbug#define-macro creates should
-   ;; have the same parameter list, augmented with some namespacing,
-   ;; with otherwise the same macro body
-   ;; write the augmented lambda form out to the macro file for use by external
-   ;; projects
-   ;; Note: the compile-time tests are not included
    (newline libbug-macros-file)
-   (write `{at-both-times
-	    {define-macro
-	      ,name
-	      (lambda ,(cadr lambda-value) ;; arguments to the macro
-		(,'quasiquote (##let ()
-				{##include "~~lib/gambit#.scm"}
-				{##include ,bug-configuration#libbugsharp}
-				,@(if (equal? 'quasiquote
-					      (caaddr lambda-value))
-				      [(cdaddr lambda-value)]
-				      [`((,'unquote ,@(cddr
-						       lambda-value)))]))))}}
-	  libbug-macros-file)
-;; define the macro, with the unit tests, for this file
+   (write
+    `{at-both-times
+      {define-macro
+	,name
+	(lambda ,(cadr lambda-value) 
+	  (,'quasiquote
+	   (##let ()
+	     {##include "~~lib/gambit#.scm"}
+	     {##include ,bug-configuration#libbugsharp}
+	     ,@(if (equal? 'quasiquote
+			   (caaddr lambda-value))
+		   [(cdaddr lambda-value)]
+		   [`((,'unquote ,@(cddr
+				    lambda-value)))]))))}}
+    libbug-macros-file)
+   ;; define the macro, with the unit tests, for this file
    `{begin
       {libbug#namespace (,namespace ,name)}
       {with-tests
