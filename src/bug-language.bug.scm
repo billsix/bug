@@ -55,9 +55,7 @@
 {define-macro at-both-times
   [|form|
    (eval form)
-   `(begin
-      (eval ',form)
-      ,form)]}
+   form]}
 ;; \end{code}
 
 ;; \begin{itemize}
@@ -66,9 +64,7 @@
 ;;  at compile-time.  The macroexpansion expands into ``(quote noop)'', so the
 ;;  code will not evaluate at runtime.
 ;; \item On line 10, evaluation in the expansion-time environment
-;; \item On line 12, evaluation in the expansion-time environment of
-;; the run-time environment
-;; \item On line 13, evaluation in the run-time environment
+;; \item On line 11, evaluation in the run-time environment
 ;; \end{itemize}
 
 ;; BUG is a collection of procedures and macros.  Building bug results
@@ -130,9 +126,7 @@
 {define-macro at-both-times
   [|form|
    (eval form)
-   `(begin
-      (eval ',form)
-      ,form)]}"
+   form]}"
     libbug-macros-file)}}
 ;; \end{code}
 
