@@ -3,6 +3,8 @@
 ;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;
 ;; \documentclass[twoside]{book}
+;; \pagenumbering{gobble}
+;; \usepackage[paperwidth=6.0in, paperheight=9.0in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
 ;; \usepackage{times}
 ;; \usepackage{listings}
 ;; \usepackage{courier}
@@ -22,26 +24,17 @@
 ;; \begin{document}
 ;;
 ;; % Article top matter
-;; \title{BUG: Computation At Compile-Time}
+;; \title{Testing At Compile-Time}
 ;; \author{William Emerison Six\\
 ;;     \texttt{billsix@gmail.com}}
-;; \date{\today}
-;;
 
-;; \null  % Empty line
-;; \nointerlineskip  % No skip for prev line
-;; \vfill
-;; \let\snewpage \newpage
-;; \let\newpage \relax
 ;; \maketitle
-;; \thispagestyle{empty}
-;; \let \newpage \snewpage
-;; \vfill
 ;; \break
 
 ;; \tableofcontents
 ;; \break
 ;; \chapter{Introduction}
+;; \pagenumbering{arabic}
 ;; BUG is Bill's Utilities for Gambit-C.  BUG provides a concise syntax for
 ;; lambdas,  utilities for general-purpose evaluation at compile-time, a
 ;; compile-time unit test framework, and a collection of utility functions that
@@ -54,7 +47,7 @@
 ;; macros, which Gambit-C provides.  Suggested reading is ``The Structure and
 ;; Interpretation of Computer Programs'' by Sussman and Abelson, ``ANSI Common
 ;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  These books inspired many
-;; ideas within BUG. 
+;; ideas within BUG.
 ;;
 ;; \section{Conventions}
 ;; In BUG, the notation ``(fun arg1 arg2)'' means evaluate ``fun'', ``arg1''
@@ -85,7 +78,7 @@
 ;; \begin{code}
 (include "bug-language.scm")
 ;;\end{code}
-;; \chapter{Main Procedures}
+;; \chapter{libbug}
 ;;
 ;; The code within this section is all found in ``src/main.bug.scm''.
 ;;
@@ -202,7 +195,7 @@
 	     list-of-pairs))]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation [|x| (+ x 1)]
 		     `(
 		       (0 1)
@@ -225,7 +218,7 @@
   [|#!rest args| (not (apply f args))]]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   (complement pair?)
   `(
@@ -248,7 +241,7 @@
  [|l| (map identity l)]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  {let ((a '(1 2 3 4 5)))
    (equal? a (copy a))}
  {let ((a '(1 2 3 4 5)))
@@ -272,7 +265,7 @@
 	       [#f])])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   proper?
   `(
@@ -304,7 +297,7 @@
 		(reverse! rest lst)}])}])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   reverse!
   `(
@@ -326,7 +319,7 @@
       [(car lst)])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   first
   `(
@@ -353,7 +346,7 @@
       [(cdr lst)])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   but-first
   `(
@@ -382,7 +375,7 @@
 	     [(last (cdr lst))])}])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   last
   `(
@@ -412,7 +405,7 @@
 		    (but-last (cdr lst)))])}])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   but-last
   `(
@@ -444,7 +437,7 @@
 	       [(filter (cdr lst))])}])}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|l| (filter [|x| (not (= 4 x))]
 	       l)]
@@ -466,7 +459,7 @@
 	  lst)]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|l| (remove 5 l)]
   `(
@@ -492,7 +485,7 @@
 		    (cdr lst))])}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|l| (fold-left + 5 l)]
   `(
@@ -527,7 +520,7 @@
 		      (cdr lst))}])}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
   ;; (calulating factorials via scan-left
  (satisfies-relation
   [|l| (scan-left * 1 l)]
@@ -558,7 +551,7 @@
 	     (fold-right acc (cdr lst)))])}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|l| (fold-right - 0 l)]
   `(
@@ -581,7 +574,7 @@
   (fold-left append '() (map fn lst))]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|l| (flatmap [|x| (list x
 			   (+ x 1)
@@ -605,7 +598,7 @@
 				 step: step))])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (equal? (enumerate-interval 1 10)
 	 '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2)
@@ -623,7 +616,7 @@
 	     (zip (cdr lst1) (cdr lst2)))])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (equal? (zip '() '())
 	 '())
  (equal? (zip '(1) '(4))
@@ -660,7 +653,7 @@
 	       lst)])}])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   permutations
   `(
@@ -687,7 +680,7 @@
       [(cons lst (sublists (cdr lst)))])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   sublists
   `(
@@ -708,7 +701,8 @@
  [|lst x #!key (onMissing noop)|
   (if (null? lst)
       [(onMissing)]
-      [{let ref-of ((lst lst) (acc 0))
+      [{let ref-of ((lst lst)
+		    (acc 0))
 	 (if (equal? (car lst) x)
 	     [acc]
 	     [(if (null? (cdr lst))
@@ -716,7 +710,7 @@
 		  [(ref-of (cdr lst) (+ acc 1))])])}])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|x| (ref-of '(a b c d e f g) x)]
   `(
@@ -725,6 +719,8 @@
     (b 1)
     (g 6)
     ))
+;; \end{code}
+;; \begin{code}
  (satisfies-relation
   [|x| (ref-of '(a b c d e f g)
 		    x
@@ -733,6 +729,8 @@
     (z missing)
     (a 0)
     ))
+;; \end{code}
+;; \begin{code}
  {let ((lst '(a b c d e f g)))
    (satisfies-relation
     [|x| (list-ref lst (ref-of lst x))]
@@ -768,7 +766,7 @@
 			 trueList)])])}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|lst| (partition lst [|x| (<= x 3)])]
   `(
@@ -797,7 +795,7 @@
 	 head)])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (equal? (append! '()
 		  '(5))
 	 '(5))
@@ -830,7 +828,7 @@
 			      comparison)))}])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|lst| (sort lst <)]
   `(
@@ -852,7 +850,7 @@
 		    (but-last fns))])]]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (equal? ((compose) 5)
 	 5)
  (equal? ((compose [|x| (* x 2)])
@@ -882,7 +880,7 @@
   `(cons ,a {delay ,b})]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  {begin
    {let ((s {stream-cons 1 2}))
      {and
@@ -901,7 +899,7 @@
  car
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  {let ((s {stream-cons 1 2}))
    (equal? (stream-car s)
 	   1)}}
@@ -916,7 +914,7 @@
  [|s| {force (cdr s)}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  {let ((s {stream-cons 1 2}))
    (equal? (stream-cdr s)
 	   2)}}
@@ -941,7 +939,7 @@
 		(list->stream (cdr l)))])))])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  {let ((foo (list#list->stream '(1 2 3))))
    {and (equal? 1 (stream-car foo))
 	(equal? 2 (stream-car
@@ -973,7 +971,7 @@
       [(refPrime s n)])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  {let ((s (list->stream '(5 4 3 2 1))))
    (all?
     (list
@@ -1013,7 +1011,7 @@
 	 [#f])}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (equal? {aif (+ 5 10) (* 2 it)}
 	 30)
  (equal? {aif #f (* 2 it)}
@@ -1058,7 +1056,7 @@
 		 ,val))}])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  ;; test variable
  {let ((a 5))
    {setf! a 10}
@@ -1068,18 +1066,26 @@
      {setf! (foo-bar a) 10}
      (equal? (make-foo 10 2)
 	     a)}}
+;; \end{code}
+;; \begin{code}
  ;; test car
  {let ((a (list 1 2)))
    {setf! (car a) 10}
    (equal? a '(10 2))}
+;; \end{code}
+;; \begin{code}
  ;; test cdr
  {let ((a (list 1 2)))
    {setf! (cdr a) (list 10)}
    (equal? a '(1 10))}
+;; \end{code}
+;; \begin{code}
  ;; test cadr
  {let ((a (list (list 1 2) (list 3 4))))
    {setf! (cadr a) 10}
    (equal? a '((1 2) 10))}
+;; \end{code}
+;; \begin{code}
  ;; test cddr
  {let ((a (list (list 1 2) (list 3 4))))
    {setf! (cddr a) (list 10)}
@@ -1120,7 +1126,7 @@
       [(noop)])]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  {let ((a 0))
    (while [(< a 5)]
 	  [(set! a (+ a 1))])
@@ -1139,7 +1145,7 @@
 	(else (ifNegative))}]
 ;; \end{code}
 ;; \subsection*{Tests}
-;; \begin{code}  
+;; \begin{code}
  (satisfies-relation
   [|n|
    (numeric-if n

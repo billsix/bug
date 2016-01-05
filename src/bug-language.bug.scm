@@ -3,43 +3,46 @@
 ;; %Distributed under LGPL 2.1 or Apache 2.0
 
 ;; \break
-;; \chapter{Bug Language}
+;; \chapter{Computation At Compile-Time}
 ;;  \label{sec:buglang}
-;; \section{Bug Infrastructure Introduction}
+;; \section{Motivation}
 ;;
-;; Since BUG is a library, I need to create and export macros, namespaces,
-;; data, types, and functions.  The following section of code provides the
-;; infrastructure necessary to export these.  First, I define
-;; ``at-compile-time'', a macro which ensures that the code
-;; evaluates at compile-time only.  For instance, if uncommented, the
-;; ``{at-compile-time (pp 5)}'' would print 5 at compile time, but would
-;; not execute at runtime. Second, I create ``at-both-times'', which is
-;; like ``at-compile-time'', executes at compile time, but also at run-time.
-;; Third, at compile time, I create two files, ``libbug\#.scm'' and
-;; "libbug-macros.scm".  These files are to be used by external programs which
-;; wish to use code from BUG. "libbug\#.scm" will contain all of the namespace
-;; definitions, and "libbug-macros.scm" will contain all of the macros exported
-;; from this file. Fourth, I create custom functions to define functions and macros, which allow
-;; definitions within the library and which exports them to the aforementioned
-;; files.  These are called "libbug\#define-macro" and "libbug\#define", to convey
-;; that these macros are not exported to external programs. Fifth, I create a
-;; macro "lang\#if", which takes lambdas.  So (if 5 [1] [2])
-;; instead of (if 5 1 2).  Six, a "with-tests" macro, which allows
-;; definitions to be collocated with the
-;; tests which test the definition, which executes only at compile-time, and if
-;; failure occurs, no executable is produced.
+;; BUG is a library which contains procedure definitions, but is not
+;; an application on its own.  External
+;; projects will link to BUG and use BUG's procedures; however,
+;; those projects will need additional information such as namespace mappings
+;; and BUG's macro definitions (since those are not present in the library.)
 ;;
+;; Many languages, namely C and C++, also must deal with a similar issue with libraries
+;; when dealing with function prototypes.  Whenever a C programmer
+;; creates a new function, he must then copy the parameter list into an ``.h'' file,
+;; so that other files may type check against it at compile-time.
 ;;
-;; \section{Bug Infrastructure}
+;; BUG takes a novel approach; BUG generates this type of information at
+;; compile-time.  At first glance, that sound simple enough.  But what types of computation
+;; can be performed at compile-time, and how can a programmer program I/O to be evaluated at compile-time?
+;; C's macros only allow textual substitution and conditional compilation, is not Turing Complete,
+;; and definitely doesn't do I/O.  C++'s template metaprogramming is Turing Complete, yet is
+;; a drastically different language from ``run-time'' C++; and also lacks I/O capabilities.
+;;
+;; So, what does BUG do that is novel?  BUG provides procedures to do arbitrary computation
+;; at compile-time, where the compile-time ``language'' is the same exact language which
+;; the compiler compiles.  Less verbosely, a programmer can write programs to run at compile time
+;; in the same manner as he'd normally write them.
+
+
+;;
+;; \section{Eval'ing during Macroexpansion}
+;;
+;; Reset all namespace mappings for procedures defined by Gambit.
 ;;
 ;; \begin{code}
 (##include "~~lib/gambit#.scm")
 ;;\end{code}
 
 
-;; Within BUG, all of the functions and macros should have a namespace
-;; associated with them.  I use "lang\#" for basic language procedures, "list\#"
-;; for lists, etc.  ``at-compile-time'' macro is implemented by ``eval''ing code
+;; \subsection{lang\#at-compile-time}
+;; ``at-compile-time'' macro is implemented by ``eval''ing code
 ;; during macro-expansion
 ;; \footnote{https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html}
 ;;
@@ -50,7 +53,17 @@
   [|form|
    (eval form)
    `{quote noop}]}
+;; \end{code}
 
+;; \begin{itemize}
+;;   \item On line 4, the unevaluated code which was passed to
+;;  ``at-compile-time is evaluated during macroexpansion, so it is evaluated
+;;  at compile-time.  The macroexpansion expands into ``(quote noop)'', so the
+;;  code will not evaluate at runtime.
+;; \end{itemize}
+
+;; \subsection{lang\#at-both-times}
+;; \begin{code}
 {##namespace ("lang#" at-both-times)}
 {define-macro at-both-times
   [|form|
@@ -59,12 +72,8 @@
 ;; \end{code}
 
 ;; \begin{itemize}
-;;   \item On line 4, the unevaluated code which was passed to
-;;  ``at-compile-time is evaluated during macroexpansion, so it is evaluated
-;;  at compile-time.  The macroexpansion expands into ``(quote noop)'', so the
-;;  code will not evaluate at runtime.
-;; \item On line 10, evaluation in the expansion-time environment
-;; \item On line 11, evaluation in the run-time environment
+;; \item On line 4, evaluation in the expansion-time environment
+;; \item On line 5, evaluation in the run-time environment
 ;; \end{itemize}
 
 ;; BUG is a collection of procedures and macros.  Building bug results
@@ -132,6 +141,7 @@
 
 
 
+;; \subsection{write-and-eval}
 
 ;; Now that those files are open, I want to write to them.  Namespaces
 ;; to libbug\#.scm, and macros to libbug-macros.scm.  However, I don't want
@@ -155,6 +165,7 @@
 ;; time, I'm going to namespace every function/macro at compile-time,
 ;; at run time, and in the libbug-headers file.
 
+;; \subsection{lang\#if}
 ;; In the following, I define a new version of "if".  I prefer how
 ;; Smalltalk 80 defines an if expression as compared to how Scheme
 ;; and common Lisp do.  Scheme and Common Lisp have special evaluation
@@ -197,6 +208,7 @@
 ;; "with-tests" will be namespaced at compile-time, run-time, and
 ;; in libbug-macros-file
 ;;
+;; \section{Testing at Compile-Time}
 ;; Statically-typed programming languages are compiled/interpreted
 ;; by programming language implementations which themselves are
 ;; programs.  To add new types of compile-time type checks, the compiler
@@ -217,6 +229,9 @@
 ;; with-tests, combined with the more general purpose at-compile-time,
 ;; provide the basis to create BUG programs in a "Literate Programming"
 ;; style.
+
+
+;; \subsection{lang\#with-tests}
 
 
 ;; \begin{code}
@@ -241,6 +256,7 @@
 ;; \end{code}
 
 
+;; \subsection{Build configuration}
 
 ;; BUG is compiled using the Autoconf, and when running "make
 ;; install", will be installed to the prefix specified to
@@ -267,6 +283,7 @@
 ;; \end{code}
 
 
+;; \subsection{libbug\#namespace}
 
 ;; For both lang\#if and lang\#with-tests, defining the namespace
 ;; at compile-time, run-time, and in the namespace file at compile-
@@ -285,6 +302,7 @@
 ;; \end{code}
 
 
+;; \subsection{libbug\#define-macro}
 ;; Likewise, defining the macros and exporting them has also
 ;; been a repetitive process.
 ;;
@@ -303,7 +321,7 @@
     `{at-both-times
       {define-macro
 	,name
-	(lambda ,(cadr lambda-value) 
+	(lambda ,(cadr lambda-value)
 	  (,'quasiquote
 	   (##let ()
 	     {##include "~~lib/gambit#.scm"}
@@ -325,6 +343,7 @@
 ;; \end{code}
 
 
+;; \subsection{libbug\#define}
 ;; Function definitions will all have a namespace, name, body,
 ;; and an optional suite of tests
 ;;
