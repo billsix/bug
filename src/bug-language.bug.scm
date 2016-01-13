@@ -318,28 +318,45 @@
   [|namespace name lambda-value #!rest tests|
    (newline libbug-macros-file)
    (write
-    `{at-both-times
-      {define-macro
-	,name
-	(lambda ,(cadr lambda-value)
-	  (,'quasiquote
-	   (##let ()
-	     {##include "~~lib/gambit#.scm"}
-	     {##include ,bug-configuration#libbugsharp}
-	     ,@(if (equal? 'quasiquote
-			   (caaddr lambda-value))
-		   [(cdaddr lambda-value)]
-		   [`((,'unquote ,@(cddr
-				    lambda-value)))]))))}}
+    `{begin
+       {at-both-times
+	{##define-macro
+	  ,name
+	  (lambda ,(cadr lambda-value)
+	    ,(list 'quasiquote
+		   `(##let ()
+		      {##include "~~lib/gambit#.scm"}
+		      {##include ,bug-configuration#libbugsharp}
+		      ,(if (equal? 'quasiquote
+				   (caaddr lambda-value))
+			   [(car (cdaddr lambda-value))]
+			   [(append (list 'unquote)
+				    (cddr lambda-value))]))))}}
+       {at-both-times
+	;; TODO - namespace this procedure
+	{##define-macro
+	  ,(string->symbol (string-append (symbol->string name)
+					  "-expand"))
+	  (lambda ,(cadr lambda-value)
+	    (list 'quote ,@(cddr lambda-value)))}}}
     libbug-macros-file)
    ;; define the macro, with the unit tests, for this file
    `{begin
       {libbug#namespace (,namespace ,name)}
+      {at-both-times
+       ;; TODO - namespace this procedure
+       {##define-macro
+	 ,(string->symbol (string-append (symbol->string name)
+					 "-expand"))
+	 (lambda ,(cadr lambda-value)
+	   (list 'quote ,@(cddr lambda-value)))}
+       }
       {with-tests
-       {define-macro
+       {##define-macro
 	 ,name
 	 ,lambda-value}
        ,@tests}}]}
+
 ;; \end{code}
 
 

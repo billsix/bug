@@ -1012,6 +1012,15 @@
 ;; \end{code}
 ;; \subsection*{Tests}
 ;; \begin{code}
+ (equal? (aif-expand (+ 5 10)
+ 		     (* 2 it))
+ 	 '(let ((it (+ 5 10)))
+ 	    (if it
+ 		(lambda () (* 2 it))
+ 		(lambda () #f))))
+ (equal? (eval
+ 	  (aif-expand (+ 5 10) (* 2 it)))
+ 	 30)
  (equal? {aif (+ 5 10) (* 2 it)}
 	 30)
  (equal? {aif #f (* 2 it)}
