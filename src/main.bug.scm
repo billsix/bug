@@ -4,7 +4,7 @@
 ;;
 ;; \documentclass[twoside]{book}
 ;; \pagenumbering{gobble}
-;; \usepackage[paperwidth=6.0in, paperheight=9.0in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
+;; \usepackage[paperwidth=7.44in, paperheight=9.68in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
 ;; \usepackage{times}
 ;; \usepackage{listings}
 ;; \usepackage{courier}
@@ -1148,7 +1148,9 @@
 {libbug#define
  "lang#"
  numeric-if
- [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
+ [|expr #!key (ifPositive noop)
+              (ifZero noop)
+              (ifNegative noop)|
   {cond ((> expr 0) (ifPositive))
 	((= expr 0) (ifZero))
 	(else (ifNegative))}]

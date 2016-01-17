@@ -76,9 +76,9 @@ int main(int argc, char** argv)
 
     const int MAX_LINE = 10000;
     char buf[MAX_LINE]; // buffer, into which to store data from input
+    int in_opening_pipe = 0;
     while(xfgets(buf, MAX_LINE, input) != NULL)
       {
-	int in_opening_pipe = 0;
 	for(int i = 0; buf[i] != 0; i++)
 	  {
 	    switch(buf[i]){
