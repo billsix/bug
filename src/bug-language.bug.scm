@@ -332,25 +332,40 @@
 			   [(car (cdaddr lambda-value))]
 			   [(append (list 'unquote)
 				    (cddr lambda-value))]))))}}
+       {at-compile-time
+	{##define lang#gensym-count 0}}
        {at-both-times
 	;; TODO - namespace this procedure
 	{##define-macro
 	  ,(string->symbol (string-append (symbol->string name)
 					  "-expand"))
 	  (lambda ,(cadr lambda-value)
-	    (list 'quote ,@(cddr lambda-value)))}}}
+	    {let ((gensym [{begin
+			     {set! lang#gensym-count
+				   (+ 1 lang#gensym-count)}
+			     (string->symbol
+			      (string-append "gensymed-var"
+					     (number->string lang#gensym-count)))}]))
+	      (list 'quote ,@(cddr lambda-value))})}}}
     libbug-macros-file)
    ;; define the macro, with the unit tests, for this file
    `{begin
       {libbug#namespace (,namespace ,name)}
+      {at-compile-time
+       {##define lang#gensym-count 0}}
       {at-both-times
        ;; TODO - namespace this procedure
        {##define-macro
-	 ,(string->symbol (string-append (symbol->string name)
-					 "-expand"))
-	 (lambda ,(cadr lambda-value)
-	   (list 'quote ,@(cddr lambda-value)))}
-       }
+	   ,(string->symbol (string-append (symbol->string name)
+					   "-expand"))
+	   (lambda ,(cadr lambda-value)
+	     {let ((gensym [{begin
+			      {set! lang#gensym-count
+				    (+ 1 lang#gensym-count)}
+			      (string->symbol
+			       (string-append "gensymed-var"
+					      (number->string lang#gensym-count)))}]))
+		   (list 'quote ,@(cddr lambda-value))})}}
       {with-tests
        {##define-macro
 	 ,name

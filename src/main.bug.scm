@@ -24,7 +24,7 @@
 ;; \begin{document}
 ;;
 ;; % Article top matter
-;; \title{Testing At Compile-Time}
+;; \title{Computation At Compile-Time}
 ;; \author{William Emerison Six\\
 ;;     \texttt{billsix@gmail.com}}
 
@@ -202,6 +202,63 @@
 		       (1 2)
 		       (2 3)
 		       ))}
+;; \end{code}
+
+;; \section{lang\#compose}
+;; \begin{code}
+{libbug#define-macro
+ "lang#"
+ compose
+ [|#!rest fns|
+  {let ((args (gensym)))
+  `[|#!rest ,args|
+    ,(if (null? fns)
+	[`(car ,args)]
+	[{let compose ((fns fns))
+	   (if (null? (cdr fns))
+	       [`(apply ,(car fns)
+			,args)]
+	       [`(,(car fns)
+		  ,(compose (cdr fns)))])}])]}]
+;; \end{code}
+;; \subsection*{Tests}
+;; \begin{code}
+ (equal? ((compose) 5)
+ 	 5)
+ (equal? ((compose [|x| (* x 2)])
+ 	  5)
+ 	 10)
+ (equal? ((compose [|x| (+ x 1)]
+ 		   [|x| (* x 2)])
+ 	  5)
+ 	 11)
+ (equal? ((compose [|x| (/ x 13)]
+ 		   [|x| (+ x 1)]
+ 		   [|x| (* x 2)])
+ 	  5)
+ 	 11/13)
+ (equal? (compose-expand)
+	 '[|#!rest gensymed-var1|
+	   (car gensymed-var1)])
+ (equal? (compose-expand [|x| (* x 2)])
+	 '[|#!rest gensymed-var2|
+	   (apply [|x| (* x 2)]
+		  gensymed-var2)])
+ (equal? (compose-expand [|x| (+ x 1)]
+			 [|x| (* x 2)])
+	 '[|#!rest gensymed-var3|
+	   ([|x| (+ x 1)]
+	    (apply [|x| (* x 2)]
+		   gensymed-var3))])
+ (equal? (compose-expand [|x| (/ x 13)]
+			 [|x| (+ x 1)]
+			 [|x| (* x 2)])
+	 '[|#!rest gensymed-var4|
+	   ([|x| (/ x 13)]
+	    ([|x| (+ x 1)]
+	     (apply [|x| (* x 2)]
+		    gensymed-var4)))])
+ }
 ;; \end{code}
 
 
@@ -835,36 +892,6 @@
     (() ())
     ((1 3 2 5 4 0) (0 1 2 3 4 5))
     ))}
-;; \end{code}
-;; \section{lang\#compose}
-;; \begin{code}
-{libbug#define
- "lang#"
- compose
- [|#!rest fns|
-  [|#!rest args|
-   (if (null? fns)
-       [(apply identity args)]
-       [(fold-right [|fn acc| (fn acc)]
-		    (apply (last fns) args)
-		    (but-last fns))])]]
-;; \end{code}
-;; \subsection*{Tests}
-;; \begin{code}
- (equal? ((compose) 5)
-	 5)
- (equal? ((compose [|x| (* x 2)])
-	  5)
-	 10)
- (equal? ((compose [|x| (+ x 1)]
-		   [|x| (* x 2)])
-	  5)
-	 11)
- (equal? ((compose [|x| (/ x 13)]
-		   [|x| (+ x 1)]
-		   [|x| (* x 2)])
-	  5)
-	 11/13)}
 ;; \end{code}
 
 ;; \section{stream\#stream-cons}
