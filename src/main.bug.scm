@@ -82,7 +82,7 @@
 ;;
 ;; The code within this section is all found in ``src/main.bug.scm''.
 ;;
-;; \section{lang\#noop}
+;; \section*{lang\#noop}
 ;; The first definition is ``noop'', a procedure which takes no arguments and
 ;; which evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
 ;; instead of Scheme's regular define.
@@ -117,7 +117,7 @@
 ;; library.
 ;; \end{itemize}
 ;;
-;; \section{lang\#identity}
+;; \section*{lang\#identity}
 ;;
 ;; \begin{code}
 {libbug#define
@@ -137,7 +137,7 @@
 ;;
 ;;
 
-;; \section{list\#and}
+;; \section*{list\#and}
 ;; Kind of like and?, but takes a list instead of a variable number of arguments.
 ;;
 ;; \begin{code}
@@ -179,7 +179,7 @@
 ;;
 ;; libbug\#define can take more than one test as parameters.
 
-;; \section{lang\#satisfies-relation}
+;; \section*{lang\#satisfies-relation}
 
 ;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
 ;; with varying inputs and outputs?  Instead, provide the procedure, and a list
@@ -204,7 +204,7 @@
 		       ))}
 ;; \end{code}
 
-;; \section{lang\#compose}
+;; \section*{lang\#compose}
 ;; \begin{code}
 {libbug#define-macro
  "lang#"
@@ -265,7 +265,7 @@
 ;; For the remaining procedures, if the tests do an adequate job of explaining
 ;; the code, there will be no written documentation.
 
-;; \section{lang\#complement}
+;; \section*{lang\#complement}
 ;;
 ;; \begin{code}
 {libbug#define
@@ -287,7 +287,7 @@
 
 
 
-;; \section{list\#copy}
+;; \section*{list\#copy}
 ;;   Creates a copy of the list data structure.  Does not copy the contents
 ;;   of the list.
 ;;
@@ -307,7 +307,7 @@
 ;; \end{code}
 
 
-;; \section{list\#proper?}
+;; \section*{list\#proper?}
 ;;   Tests that the argument is a list that is properly
 ;;   termitated.  Will not terminate on a circular list.
 ;;
@@ -334,7 +334,7 @@
 
 
 
-;; \section{list\#reverse!}
+;; \section*{list\#reverse!}
 ;;   Reverses the list quickly by reusing cons cells
 ;;
 ;; \begin{code}
@@ -365,7 +365,7 @@
     ))}
 ;; \end{code}
 
-;; \section{list\#first}
+;; \section*{list\#first}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -392,7 +392,7 @@
 ;; \end{code}
 
 
-;; \section{list\#but-first}
+;; \section*{list\#but-first}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -418,7 +418,7 @@
     ))}
 ;; \end{code}
 
-;; \section{list\#last}
+;; \section*{list\#last}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -447,7 +447,7 @@
     ((2 1) 1)
     ))}
 ;; \end{code}
-;; \section{list\#but-last}
+;; \section*{list\#but-last}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -479,7 +479,7 @@
     ))
  }
 ;; \end{code}
-;; \section{list\#filter}
+;; \section*{list\#filter}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -506,7 +506,7 @@
     ((2 4 1 4) (2 1))
     ))}
 ;; \end{code}
-;; \section{list\#remove}
+;; \section*{list\#remove}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -524,7 +524,7 @@
     ))}
 ;; \end{code}
 
-;; \section{list\#fold-left}
+;; \section*{list\#fold-left}
 ;;    Reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the ``left'' side of the list
 ;;
@@ -559,7 +559,7 @@
     ((1 2) 2)
     ((1 2 3 4 5 6) -16)))}
 ;; \end{code}
-;; \section{list\#scan-left}
+;; \section*{list\#scan-left}
 ;;   Like fold-left, but every intermediate value
 ;;   of fold-left's accumulator is put onto the resulting list
 ;;
@@ -591,7 +591,7 @@
 ;; \end{code}
 
 
-;; \section{list\#fold-right}
+;; \section*{list\#fold-right}
 ;;    Reduces the list to a scalar by applying the reducing
 ;;    function repeatedly,
 ;;    starting from the ``right'' side of the list
@@ -618,7 +618,7 @@
     ((3 2 1) 2)
     ))}
 ;; \end{code}
-;; \section{list\#flatmap}
+;; \section*{list\#flatmap}
 ;;  Maps a prodecure to a list, but the result of the
 ;;  prodecure will be a list itself.  Aggregate all
 ;;  of those lists together.
@@ -641,7 +641,7 @@
     ((10 20) (10 11 12 20 21 22))
     ))}
 ;; \end{code}
-;; \section{list\#enumerate-interval}
+;; \section*{list\#enumerate-interval}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -661,7 +661,7 @@
  (equal? (enumerate-interval 1 10 step: 2)
 	 '(1 3 5 7 9))}
 ;; \end{code}
-;; \section{list\#zip}
+;; \section*{list\#zip}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -692,7 +692,7 @@
 }
 
 ;; \end{code}
-;; \section{list\#permutations}
+;; \section*{list\#permutations}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -726,7 +726,7 @@
 	      (3 2 1)))
     ))}
 ;; \end{code}
-;; \section{list\#sublists}
+;; \section*{list\#sublists}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -748,7 +748,7 @@
     ))}
 ;; \end{code}
 
-;; \section{list\#ref-of}
+;; \section*{list\#ref-of}
 ;; The inverse of list-ref.
 ;;
 ;; \begin{code}
@@ -798,7 +798,7 @@
       ))}
  }
 ;; \end{code}
-;; \section{list\#partition}
+;; \section*{list\#partition}
 ;;  Partitions the input list into two lists, one list where
 ;;  the predicate matched the element of the list, the second list
 ;;  where the predicate did not match the element of the list.
@@ -833,7 +833,7 @@
 		  (4 5)))
     ))}
 ;; \end{code}
-;; \section{list\#append!}
+;; \section*{list\#append!}
 ;;   Like append, but recycles the last cons cell, so it's
 ;;   faster, but mutates the input.
 ;;
@@ -863,7 +863,7 @@
    (not (equal? '(1 2 3) a))}
  }
 ;; \end{code}
-;; \section{list\#sort}
+;; \section*{list\#sort}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -894,7 +894,7 @@
     ))}
 ;; \end{code}
 
-;; \section{stream\#stream-cons}
+;; \section*{stream\#stream-cons}
 ;; Streams are lists whose evaluation is deferred until the value is
 ;; requested.  For more information, consult ``The Structure and
 ;; Interpretation of Computer Programs''.
@@ -916,7 +916,7 @@
       (equal? {force (cdr s)}
 	      2)}}}}
 ;; \end{code}
-;; \section{stream\#stream-car}
+;; \section*{stream\#stream-car}
 ;; Get the first element of the stream.
 ;;
 ;; \begin{code}
@@ -931,7 +931,7 @@
    (equal? (stream-car s)
 	   1)}}
 ;; \end{code}
-;; \section{stream\#stream-cdr}
+;; \section*{stream\#stream-cdr}
 ;; Forces the evaluation of the next element of the stream.
 ;;
 ;; \begin{code}
@@ -946,7 +946,7 @@
    (equal? (stream-cdr s)
 	   2)}}
 ;; \end{code}
-;; \section{list\#list-\textgreater stream}
+;; \section*{list\#list-\textgreater stream}
 ;; Converts a list into a stream
 ;;
 ;; \begin{code}
@@ -978,7 +978,7 @@
 		(stream-cdr
 		 (stream-cdr foo))))}}}
 ;; \end{code}
-;; \section{stream\#stream-ref}
+;; \section*{stream\#stream-ref}
 ;; The analogous procedure of list-ref
 ;;
 ;; \begin{code}
@@ -1014,7 +1014,7 @@
 	     'out)))}}
 ;; \end{code}
 
-;; \section{lang\#aif}
+;; \section*{lang\#aif}
 ;; BUG also provides a new procedure for creating macros.  Just as libbug\#define
 ;; exports the namespace to a file during compilation time, libbug\#define-macro
 ;; exports the namespace to ``libbug\#.scm'', and also exports the definition of
@@ -1039,23 +1039,22 @@
 ;; \end{code}
 ;; \subsection*{Tests}
 ;; \begin{code}
+ (equal? {aif (+ 5 10) (* 2 it)}
+	 30)
+ (equal? {aif #f (* 2 it)}
+	 #f)
  (equal? (aif-expand (+ 5 10)
  		     (* 2 it))
  	 '(let ((it (+ 5 10)))
  	    (if it
- 		(lambda () (* 2 it))
- 		(lambda () #f))))
- (equal? (eval
- 	  (aif-expand (+ 5 10) (* 2 it)))
- 	 30)
- (equal? {aif (+ 5 10) (* 2 it)}
-	 30)
- (equal? {aif #f (* 2 it)}
-	 #f)}
+ 		[(* 2 it)]
+ 		[#f])))
+
+ }
 ;; \end{code}
 
 
-;; \section{lang\#setf}
+;; \section*{lang\#setf}
 ;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;; The implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
 ;;
@@ -1130,7 +1129,7 @@
 
 
 
-;; \section{lang\#with-gensyms}
+;; \section*{lang\#with-gensyms}
 ;;   Utility for macros to minimize explicit use of gensym.
 ;;   Gensym creates a symbol at compile time which is guaranteed
 ;;   to be unique.  Macros which intentionally capture variables,
@@ -1145,10 +1144,24 @@
  [|symbols #!rest body|
   `{let ,(map [|symbol| `(,symbol {gensym})]
 	      symbols)
-     ,@body}]}
+     ,@body}]
+ (equal? (with-gensyms-expand (foo bar baz)
+			      `{begin
+				 (pp ,foo)
+				 (pp ,bar)
+				 (pp ,baz)})
+	 '(let ((foo (gensym))
+		(bar (gensym))
+		(baz (gensym)))
+	    `{begin
+	       (pp ,foo)
+	       (pp ,bar)
+	       (pp ,baz)
+	    }))
+ }
 ;; \end{code}
 
-;; \section{lang\#while}
+;; \section*{lang\#while}
 ;; Sometimes a person needs an imperative loop
 ;;
 ;; \begin{code}
@@ -1168,7 +1181,7 @@
 	  [(set! a (+ a 1))])
    (equal? a 5)}}
 ;; \end{code}
-;; \section{lang\#numeric-if}
+;; \section*{lang\#numeric-if}
 ;;   An if expression for numbers, based on their sign.
 ;;
 ;; \begin{code}
