@@ -45,6 +45,7 @@ bug.tex: main.bug.scm bug-language.bug.scm
 
 bug.pdf: bug.tex
 	pdflatex bug.tex
+	makeindex bug.idx
 	pdflatex bug.tex
 
 

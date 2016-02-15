@@ -10,6 +10,7 @@
 ;; \usepackage{courier}
 ;; \usepackage{color}
 ;; \definecolor{mygray}{rgb}{0.95,0.95,0.95}
+;; \usepackage{makeidx}
 ;; \lstnewenvironment{code}[1][]%
 ;;  {  \noindent
 ;;     \minipage{\linewidth}
@@ -21,6 +22,7 @@
 ;;  {\endminipage}
 ;;
 ;; \raggedbottom
+;; \makeindex
 ;; \begin{document}
 ;;
 ;; % Article top matter
@@ -86,7 +88,7 @@
 ;; The first definition is ``noop'', a procedure which takes no arguments and
 ;; which evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
 ;; instead of Scheme's regular define.
-;;
+;; \index{lang\#noop}
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -119,6 +121,7 @@
 ;;
 ;; \section*{lang\#identity}
 ;;
+;; \index{lang\#identity}
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -140,6 +143,7 @@
 ;; \section*{list\#and}
 ;; Kind of like and?, but takes a list instead of a variable number of arguments.
 ;;
+;; \index{list\#all?}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -185,6 +189,7 @@
 ;; with varying inputs and outputs?  Instead, provide the procedure, and a list
 ;; of input/output pairs.
 ;;
+;; \index{lang\#satisfies-relation} 
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -205,6 +210,7 @@
 ;; \end{code}
 
 ;; \section*{lang\#compose}
+;; \index{lang\#compose}
 ;; \begin{code}
 {libbug#define-macro
  "lang#"
@@ -267,6 +273,7 @@
 
 ;; \section*{lang\#complement}
 ;;
+;; \index{lang\#complement}
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -291,6 +298,7 @@
 ;;   Creates a copy of the list data structure.  Does not copy the contents
 ;;   of the list.
 ;;
+;; \index{list\#copy}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -311,6 +319,7 @@
 ;;   Tests that the argument is a list that is properly
 ;;   termitated.  Will not terminate on a circular list.
 ;;
+;; \index{list\#proper?}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -337,6 +346,7 @@
 ;; \section*{list\#reverse!}
 ;;   Reverses the list quickly by reusing cons cells
 ;;
+;; \index{list\#reverse"!}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -366,6 +376,7 @@
 ;; \end{code}
 
 ;; \section*{list\#first}
+;; \index{list\#first}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -393,6 +404,7 @@
 
 
 ;; \section*{list\#but-first}
+;; \index{list\#but-first}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -419,6 +431,7 @@
 ;; \end{code}
 
 ;; \section*{list\#last}
+;; \index{list\#last}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -448,6 +461,7 @@
     ))}
 ;; \end{code}
 ;; \section*{list\#but-last}
+;; \index{list\#but-last}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -480,6 +494,7 @@
  }
 ;; \end{code}
 ;; \section*{list\#filter}
+;; \index{list\#filter}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -507,6 +522,7 @@
     ))}
 ;; \end{code}
 ;; \section*{list\#remove}
+;; \index{list\#remove}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -528,6 +544,7 @@
 ;;    Reduce the list to a scalar by applying the reducing function repeatedly,
 ;;    starting from the ``left'' side of the list
 ;;
+;; \index{list\#fold-left}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -563,6 +580,7 @@
 ;;   Like fold-left, but every intermediate value
 ;;   of fold-left's accumulator is put onto the resulting list
 ;;
+;; \index{list\#scan-left}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -596,6 +614,7 @@
 ;;    function repeatedly,
 ;;    starting from the ``right'' side of the list
 ;;
+;; \index{list\#fold-right}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -623,6 +642,7 @@
 ;;  prodecure will be a list itself.  Aggregate all
 ;;  of those lists together.
 ;;
+;; \index{list\#flatmap}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -642,6 +662,7 @@
     ))}
 ;; \end{code}
 ;; \section*{list\#enumerate-interval}
+;; \index{list\#enumerate-interval}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -662,6 +683,7 @@
 	 '(1 3 5 7 9))}
 ;; \end{code}
 ;; \section*{list\#zip}
+;; \index{list\#zip}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -693,6 +715,7 @@
 
 ;; \end{code}
 ;; \section*{list\#permutations}
+;; \index{list\#permutations}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -727,6 +750,7 @@
     ))}
 ;; \end{code}
 ;; \section*{list\#sublists}
+;; \index{list\#sublists}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -751,6 +775,7 @@
 ;; \section*{list\#ref-of}
 ;; The inverse of list-ref.
 ;;
+;; \index{list\#ref-of}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -804,6 +829,7 @@
 ;;  where the predicate did not match the element of the list.
 ;;
 ;;
+;; \index{list\#partition}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -837,6 +863,7 @@
 ;;   Like append, but recycles the last cons cell, so it's
 ;;   faster, but mutates the input.
 ;;
+;; \index{list\#append"!}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -864,6 +891,7 @@
  }
 ;; \end{code}
 ;; \section*{list\#sort}
+;; \index{list\#sort}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -899,6 +927,7 @@
 ;; requested.  For more information, consult ``The Structure and
 ;; Interpretation of Computer Programs''.
 ;;
+;; \index{stream\#stream-cons}
 ;; \begin{code}
 {libbug#define-macro
  "stream#"
@@ -919,6 +948,7 @@
 ;; \section*{stream\#stream-car}
 ;; Get the first element of the stream.
 ;;
+;; \index{stream\#stream-car}
 ;; \begin{code}
 {libbug#define
  "stream#"
@@ -934,6 +964,7 @@
 ;; \section*{stream\#stream-cdr}
 ;; Forces the evaluation of the next element of the stream.
 ;;
+;; \index{stream\#stream-cdr}
 ;; \begin{code}
 {libbug#define
  "stream#"
@@ -949,6 +980,7 @@
 ;; \section*{list\#list-\textgreater stream}
 ;; Converts a list into a stream
 ;;
+;; \index{list\#list-\textgreater stream}
 ;; \begin{code}
 {libbug#define
  "list#"
@@ -981,6 +1013,7 @@
 ;; \section*{stream\#stream-ref}
 ;; The analogous procedure of list-ref
 ;;
+;; \index{stream\#stream-ref}
 ;; \begin{code}
 {libbug#define
  "stream#"
@@ -1027,6 +1060,7 @@
 ;; aif evaluates bool, binds it to the variable ``it'', which is accessible in
 ;; body.
 ;;
+;; \index{lang\#aif}
 ;; \begin{code}
 {libbug#define-macro
  "lang#"
@@ -1054,7 +1088,7 @@
 ;; \end{code}
 
 
-;; \section*{lang\#setf}
+;; \section*{lang\#setf!}
 ;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;; The implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
 ;;
@@ -1066,6 +1100,7 @@
 ;; \end{code}
 
 
+;; \index{lang\#setf"!}
 ;; \begin{code}
 {libbug#define-macro
  "lang#"
@@ -1164,6 +1199,7 @@
 ;; \section*{lang\#while}
 ;; Sometimes a person needs an imperative loop
 ;;
+;; \index{lang\#while}
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -1184,6 +1220,7 @@
 ;; \section*{lang\#numeric-if}
 ;;   An if expression for numbers, based on their sign.
 ;;
+;; \index{lang\#numeric-if}
 ;; \begin{code}
 {libbug#define
  "lang#"

@@ -47,6 +47,7 @@
 ;; \footnote{https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html}
 ;;
 
+;; \index{lang\#at-compile-time}
 ;; \begin{code}
 {namespace ("lang#" at-compile-time)}
 {define-macro at-compile-time
@@ -63,6 +64,7 @@
 ;; \end{itemize}
 
 ;; \subsection*{lang\#at-both-times}
+;; \index{lang\#at-both-times}
 ;; \begin{code}
 {##namespace ("lang#" at-both-times)}
 {define-macro at-both-times
@@ -151,7 +153,7 @@
 ;; So, create a new line on the file, write the unevaluated form to the
 ;; file, and the return the form so that the compiler actually processes it.
 
-
+;; \index{write-and-eval}
 ;; \begin{code}
 {define-macro write-and-eval
   [|port form|
@@ -182,7 +184,7 @@
  libbug-headers-file
  {##namespace ("lang#" if)}}
 ;; \end{code}
-
+;; \index{lang\#if}
 ;; \begin{code}
 (write-and-eval
  libbug-macros-file
@@ -233,7 +235,7 @@
 
 ;; \subsection*{lang\#with-tests}
 
-
+;; \index{lang\#with-tests}
 ;; \begin{code}
 {at-compile-time
  {##namespace ("lang#" with-tests)}}
@@ -290,6 +292,7 @@
 ;; time was tedious.  This is easily extractable into a macro,
 ;; as is used heavily throughout BUG.
 
+;; \index{libbug\#namespace}
 ;; \begin{code}
 {define-macro libbug#namespace
   [|namespace-name-pair|
@@ -313,6 +316,7 @@
 ;; projects
 ;; Note: the compile-time tests are not included
 
+;; \index{libbug\#define-macro}
 ;; \begin{code}
 {define-macro libbug#define-macro
   [|namespace name lambda-value #!rest tests|
@@ -379,6 +383,7 @@
 ;; Function definitions will all have a namespace, name, body,
 ;; and an optional suite of tests
 ;;
+;; \index{libbug\#define}
 ;; \begin{code}
 {define-macro
  libbug#define
@@ -389,6 +394,6 @@
       {define ,name ,body}
       ,@tests}}]}
 ;; \end{code}
-
+;; \printindex
 
 ;;\end{document}  %End of document.
