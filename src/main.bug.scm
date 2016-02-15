@@ -81,7 +81,11 @@
 ;;\end{code}
 ;; \chapter{libbug}
 ;;
-;; The code within this section is all found in ``src/main.bug.scm''.
+;; This chapter defines a standard library of Scheme procedures and macros
+;; \footnote{The code within this section is all found in
+;; ``src/main.bug.scm''.}, along with tests which are run as part of the
+;; compilation process.
+;;
 ;;
 ;; \section*{lang\#noop}
 ;; The first definition is ``noop'', a procedure which takes no arguments and
@@ -97,13 +101,15 @@
 ;; \end{code}
 
 ;; \begin{itemize}
-;;   \item On line 1, the libbug\#define macro form bug-language.bug.scm is invoked.
-;;   \item On line 2, a namespace is declared
-;;   \item On line 3, the variable name is declared, which will be declared in the
-;; namespace defined on line 2.
-;;  \item On line 4, the value to be stored into the variable is declared.  BUG
-;; includes a Scheme preprocessor ``bug-gscpp'', which expands lambda literals
-;; into lambdas.  In this case ``['noop]'' is expanded into ``(lambda () 'noop)''
+;;   \item On line 1, the libbug\#define macro\footnote{defined in section ~\ref{sec:libbugdefine} } is invoked.
+;;   \item On line 2, a namespace
+;;   \item On line 3, the variable name, which will be declared in the
+;;         namespace defined on line 2.
+;;   \item On line 4, the lambda literal to be stored into the variable.
+;;         BUG includes a Scheme preprocessor ``bug-gscpp'',
+;;         which expands lambda literals
+;;         into lambdas.  In this case ``['noop]'' is expanded into
+;;         ``(lambda () 'noop)''
 ;; \end{itemize}
 ;; \subsection*{Test}
 ;; \begin{code}
@@ -114,7 +120,8 @@
 ;;  \item  On line 1, an expression which evaluates to a boolean is defined.
 ;;  This is a
 ;; test which will be evaluated at compile-time, and should the test fail,
-;; the build process will fail and no shared library will be created.  The
+;; the build process will fail and no shared library, nor the document which
+;; you are currently reading, will be created.  The
 ;; test runs at compile time, but is not present in the resulting
 ;; library.
 ;; \end{itemize}
@@ -141,7 +148,7 @@
 ;;
 
 ;; \section*{list\#and}
-;; Kind of like and?, but takes a list instead of a variable number of arguments.
+;; Like and?, but takes a list instead of a variable number of arguments.
 ;;
 ;; \index{list\#all?}
 ;; \begin{code}
@@ -170,6 +177,9 @@
 ;; rest of BUG.
 ;;
 ;; \end{itemize}
+;;
+;; libbug\#define can take more than one test as parameters.
+;;
 ;; \subsection*{Tests}
 ;; \begin{code}
  (all? '())
@@ -181,15 +191,21 @@
  }
 ;; \end{code}
 ;;
-;; libbug\#define can take more than one test as parameters.
-
+;; Tests in libbug are defined for two purposes.  First, to ensure
+;; that expected behavior of a procedure does not change when that procedure's internal
+;; definition has changed.  Second, as a form of documentation of the procedure.
+;; Libbug is unique\footnote{as far as the author knows} in that the tests are collocated with
+;; the procedure definitions.  As such, the reader is encouraged to read the tests for a
+;; procedure before reading the implementation; since in many cases, the tests are designed
+;; specifically to walk the reader through the implementation.
+;;
 ;; \section*{lang\#satisfies-relation}
 
 ;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
 ;; with varying inputs and outputs?  Instead, provide the procedure, and a list
 ;; of input/output pairs.
 ;;
-;; \index{lang\#satisfies-relation} 
+;; \index{lang\#satisfies-relation}
 ;; \begin{code}
 {libbug#define
  "lang#"
@@ -202,7 +218,7 @@
 ;; \subsection*{Tests}
 ;; \begin{code}
  (satisfies-relation [|x| (+ x 1)]
-		     `(
+		     '(
 		       (0 1)
 		       (1 2)
 		       (2 3)
@@ -228,6 +244,22 @@
 	       [`(,(car fns)
 		  ,(compose (cdr fns)))])}])]}]
 ;; \end{code}
+;;
+;; libbug\#define-macro \footnote{defined in section ~\ref{sec:libbugdefinemacro}}
+;; is a wrapper around Gambit's \#\#define-macro\footnote{which is very similar to Common
+;; Lisp's macro system}, but libbug\#define-macro only allows the lambda literal
+;; syntax.
+;;
+;; Libbug is a library, meant to be used by other projects.  From libbug, these
+;; projects will require namespace definitions, as well as macro definitions.
+;; As such, besides defining the macro, libbug\#define-macro also exports the
+;; namespace definition and the macro definitions to external files.
+;;
+;; If the reader does not understand the macro definition above, don't worry,
+;; understanding the macro definitions is not required to understand the rest
+;; of the content of this book.  The reader should at least though understand
+;; how to use the macros, which can be learned by reading the associated tests.
+;;
 ;; \subsection*{Tests}
 ;; \begin{code}
  (equal? ((compose) 5)
@@ -289,7 +321,7 @@
 ;; \begin{code}
  (satisfies-relation
   (complement pair?)
-  `(
+  '(
     (1 #t)
     ((1 2) #f)
     ))
@@ -338,7 +370,7 @@
 ;; \begin{code}
  (satisfies-relation
   proper?
-  `(
+  '(
     (4 #f)
     ((1 2) #t)
     ((1 2 . 5) #f)
@@ -358,20 +390,19 @@
  [|lst|
   (if (null? lst)
       ['()]
-      [{let reverse! ((lst lst)
-		      (prev '()))
-	 (if (null? (cdr lst))
-	     [(set-cdr! lst prev)
-	      lst]
-	     [{let ((rest (cdr lst)))
-		(set-cdr! lst prev)
-		(reverse! rest lst)}])}])]
+      [{let reverse! ((cons-cell lst) (reversed-list '()))
+	 (if (null? (cdr cons-cell))
+	     [(set-cdr! cons-cell reversed-list)
+	      cons-cell]
+	     [{let ((rest (cdr cons-cell)))
+		(set-cdr! cons-cell reversed-list)
+		(reverse! rest cons-cell)}])}])]
 ;; \end{code}
 ;; \subsection*{Tests}
 ;; \begin{code}
  (satisfies-relation
   reverse!
-  `(
+  '(
     (() ())
     ((1) (1))
     ((2 1) (1 2))
@@ -394,13 +425,13 @@
 ;; \begin{code}
  (satisfies-relation
   first
-  `(
+  '(
     (() noop)
     ((1 2 3) 1)
     ))
  (satisfies-relation
   [|l| (first l onNull: [5])]
-  `(
+  '(
     (() 5)
     ((1 2 3) 1)
     ))}
@@ -422,13 +453,13 @@
 ;; \begin{code}
  (satisfies-relation
   but-first
-  `(
+  '(
     (() noop)
     ((1 2 3) (2 3))
     ))
  (satisfies-relation
   [|l| (but-first l onNull: [5])]
-  `(
+  '(
     (() 5)
     ((1 2 3) (2 3))
     ))}
@@ -452,14 +483,14 @@
 ;; \begin{code}
  (satisfies-relation
   last
-  `(
+  '(
     (() noop)
     ((1) 1)
     ((2 1) 1)
     ))
  (satisfies-relation
   [|l| (last l onNull: [5])]
-  `(
+  '(
     (() 5)
     ((2 1) 1)
     ))}
@@ -483,7 +514,7 @@
 ;; \begin{code}
  (satisfies-relation
   but-last
-  `(
+  '(
     (() noop)
     ((1) ())
     ((2 1) (2))
@@ -491,7 +522,7 @@
     ))
  (satisfies-relation
   [|l| (but-last l onNull: [5])]
-  `(
+  '(
     (() 5)
     ((3 2 1) (3 2))
     ))
@@ -517,7 +548,7 @@
  (satisfies-relation
   [|l| (filter [|x| (not (= 4 x))]
 	       l)]
-  `(
+  '(
     (() ())
     ((4) ())
     ((1 4) (1))
@@ -539,7 +570,7 @@
 ;; \begin{code}
  (satisfies-relation
   [|l| (remove 5 l)]
-  `(
+  '(
     ((1 5 2 5 3 5 4 5 5) (1 2 3 4))
     ))}
 ;; \end{code}
@@ -566,7 +597,7 @@
 ;; \begin{code}
  (satisfies-relation
   [|l| (fold-left + 5 l)]
-  `(
+  '(
     (() 5)
     ((1) 6)
     ((1 2) 8)
@@ -574,7 +605,7 @@
     ))
  (satisfies-relation
   [|l| (fold-left - 5 l)]
-  `(
+  '(
     (() 5)
     ((1) 4)
     ((1 2) 2)
@@ -603,7 +634,7 @@
   ;; (calulating factorials via scan-left
  (satisfies-relation
   [|l| (scan-left * 1 l)]
-  `(
+  '(
     (() (1))
     ((2) (1 2))
     ((2 3) (1 2 6))
@@ -634,7 +665,7 @@
 ;; \begin{code}
  (satisfies-relation
   [|l| (fold-right - 0 l)]
-  `(
+  '(
     (() 0)
     ((1) 1)
     ((2 1) 1)
@@ -661,7 +692,7 @@
 			   (+ x 1)
 			   (+ x 2))]
 		l)]
-  `(
+  '(
     ((10 20) (10 11 12 20 21 22))
     ))}
 ;; \end{code}
@@ -740,7 +771,7 @@
 ;; \begin{code}
  (satisfies-relation
   permutations
-  `(
+  '(
     (() ())
     ((1) ((1)))
     ((1 2) ((1 2)
@@ -768,7 +799,7 @@
 ;; \begin{code}
  (satisfies-relation
   sublists
-  `(
+  '(
     (() ())
     ((1) ((1)))
     ((1 2) ((1 2) (2)))
@@ -799,7 +830,7 @@
 ;; \begin{code}
  (satisfies-relation
   [|x| (ref-of '(a b c d e f g) x)]
-  `(
+  '(
     (z noop)
     (a 0)
     (b 1)
@@ -809,9 +840,9 @@
 ;; \begin{code}
  (satisfies-relation
   [|x| (ref-of '(a b c d e f g)
-		    x
-		    onMissing: ['missing])]
-  `(
+	       x
+	       onMissing: ['missing])]
+  '(
     (z missing)
     (a 0)
     ))
@@ -820,7 +851,7 @@
  {let ((lst '(a b c d e f g)))
    (satisfies-relation
     [|x| (list-ref lst (ref-of lst x))]
-    `(
+    '(
       (a a)
       (b b)
       (g g)
@@ -856,7 +887,7 @@
 ;; \begin{code}
  (satisfies-relation
   [|lst| (partition lst [|x| (<= x 3)])]
-  `(
+  '(
     (() (()
 	 ()))
     ((3 2 5 4 1) ((1 2 3)
@@ -920,7 +951,7 @@
 ;; \begin{code}
  (satisfies-relation
   [|lst| (sort lst <)]
-  `(
+  '(
     (() ())
     ((1 3 2 5 4 0) (0 1 2 3 4 5))
     ))}
@@ -1244,7 +1275,7 @@
 	       ifPositive: ['pos]
 	       ifZero: ['zero]
 	       ifNegative: ['neg])]
-  `(
+  '(
     (5 pos)
     (0 zero)
     (-5 neg)

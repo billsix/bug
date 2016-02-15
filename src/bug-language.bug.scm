@@ -255,9 +255,7 @@
 	,definition
 	(if (and ,@tests)
 	    [',definition]
-	    [(pp "Test Failed")
-	     (pp {quote ,tests})
-	     (pp (quote ,definition))
+	    [(for-each pp (list "Test Failed" ',tests ',definition))
 	     (error "Tests Failed")])})]})
 ;; \end{code}
 
@@ -320,6 +318,8 @@
 ;; projects
 ;; Note: the compile-time tests are not included
 
+;; \label{sec:libbugdefinemacro}
+;;
 ;; \index{libbug\#define-macro}
 ;; \begin{code}
 {define-macro libbug#define-macro
@@ -394,6 +394,7 @@
 ;; Function definitions will all have a namespace, name, body,
 ;; and an optional suite of tests
 ;;
+;; \label{sec:libbugdefine}
 ;; \index{libbug\#define}
 ;; \begin{code}
 {define-macro
