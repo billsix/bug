@@ -102,7 +102,9 @@
 ;; \begin{code}
 {at-compile-time
  {begin
-   ;; file for namespaces
+;; \end{code}
+;; \subsubsection*{Create File for Namespaces}
+;; \begin{code}
    {define libbug-headers-file
      (open-output-file '(path:
 			 "libbug#.scm"
@@ -116,7 +118,9 @@
 {##namespace (\"lang#\" at-both-times)}"
     libbug-headers-file)
 
-   ;; file for macros
+;; \end{code}
+;; \subsubsection*{Create File for Macro Definitions}
+;; \begin{code}
    {define libbug-macros-file
      (open-output-file '(path:
 			 "libbug-macros.scm"
@@ -141,7 +145,7 @@
     libbug-macros-file)}}
 ;; \end{code}
 
-
+;; The files are closed section~\ref{sec:closefiles}
 
 ;; \subsection*{write-and-eval}
 
@@ -320,6 +324,9 @@
 ;; \begin{code}
 {define-macro libbug#define-macro
   [|namespace name lambda-value #!rest tests|
+;; \end{code}
+;; \subsubsection*{Write Macro to File}
+;; \begin{code}
    (newline libbug-macros-file)
    (write
     `{begin
@@ -348,11 +355,14 @@
 			     {set! lang#gensym-count
 				   (+ 1 lang#gensym-count)}
 			     (string->symbol
-			      (string-append "gensymed-var"
-					     (number->string lang#gensym-count)))}]))
+			      (string-append
+			       "gensymed-var"
+			       (number->string lang#gensym-count)))}]))
 	      (list 'quote ,@(cddr lambda-value))})}}}
     libbug-macros-file)
-   ;; define the macro, with the unit tests, for this file
+;; \end{code}
+;; \subsubsection*{Define Macro and Run Tests}
+;; \begin{code}
    `{begin
       {libbug#namespace (,namespace ,name)}
       {at-compile-time
@@ -367,8 +377,9 @@
 			      {set! lang#gensym-count
 				    (+ 1 lang#gensym-count)}
 			      (string->symbol
-			       (string-append "gensymed-var"
-					      (number->string lang#gensym-count)))}]))
+			       (string-append
+				"gensymed-var"
+				(number->string lang#gensym-count)))}]))
 		   (list 'quote ,@(cddr lambda-value))})}}
       {with-tests
        {##define-macro
@@ -394,6 +405,3 @@
       {define ,name ,body}
       ,@tests}}]}
 ;; \end{code}
-;; \printindex
-
-;;\end{document}  %End of document.

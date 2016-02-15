@@ -37,11 +37,14 @@ all: $(OBJECTS_TO_BUILD)
 	gsc -obj $<
 
 
-bug.tex: main.bug.scm bug-language.bug.scm
+bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm
 	../bug-gsc/bug2tex main.bug.scm bug.tex
 	../bug-gsc/bug2tex bug-language.bug.scm bug-language.tex
+	../bug-gsc/bug2tex bug-language-end.bug.scm bug-language-end.tex
 	cat bug-language.tex >> bug.tex
 	rm bug-language.tex
+	cat bug-language-end.tex >> bug.tex
+	rm bug-language-end.tex
 
 bug.pdf: bug.tex
 	pdflatex bug.tex

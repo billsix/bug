@@ -9,14 +9,13 @@
 ;; \usepackage{listings}
 ;; \usepackage{courier}
 ;; \usepackage{color}
-;; \definecolor{mygray}{rgb}{0.95,0.95,0.95}
 ;; \usepackage{makeidx}
 ;; \lstnewenvironment{code}[1][]%
 ;;  {  \noindent
 ;;     \minipage{\linewidth}
 ;;     \vspace{0.5\baselineskip}
 ;;     \lstset{language=Lisp, frame=single,framerule=.8pt, numbers=left,
-;;             basicstyle=\ttfamily,backgroundcolor=\color{mygray},
+;;             basicstyle=\ttfamily,
 ;;             identifierstyle=\ttfamily,keywordstyle=\ttfamily,
 ;;             showstringspaces=false,#1}}
 ;;  {\endminipage}
@@ -88,6 +87,7 @@
 ;; The first definition is ``noop'', a procedure which takes no arguments and
 ;; which evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
 ;; instead of Scheme's regular define.
+
 ;; \index{lang\#noop}
 ;; \begin{code}
 {libbug#define
@@ -210,6 +210,7 @@
 ;; \end{code}
 
 ;; \section*{lang\#compose}
+
 ;; \index{lang\#compose}
 ;; \begin{code}
 {libbug#define-macro
@@ -243,6 +244,9 @@
  		   [|x| (* x 2)])
  	  5)
  	 11/13)
+;; \end{code}
+;; \subsection*{Code Expansion Tests}
+;; \begin{code}
  (equal? (compose-expand)
 	 '[|#!rest gensymed-var1|
 	   (car gensymed-var1)])
@@ -1090,7 +1094,7 @@
 
 ;; \section*{lang\#setf!}
 ;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
-;; The implementation inspired by http://okmij.org/ftp/Scheme/setf.txt
+;; The implementation inspired by \footnote{http://okmij.org/ftp/Scheme/setf.txt}
 ;;
 ;; This dummy structure is only available at compile-time, for use in a test
 ;;
