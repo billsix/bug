@@ -10,6 +10,7 @@
 ;; \usepackage{courier}
 ;; \usepackage{color}
 ;; \usepackage{makeidx}
+;;\usepackage{titlesec}
 ;; \lstnewenvironment{code}[1][]%
 ;;  {  \noindent
 ;;     \minipage{\linewidth}
@@ -20,8 +21,26 @@
 ;;             showstringspaces=false,#1}}
 ;;  {\endminipage}
 ;;
+;; \lstnewenvironment{examplecode}[1][]%
+;;  {  \noindent
+;;     \minipage{\linewidth}
+;;     \vspace{0.5\baselineskip}
+;;     \lstset{language=Lisp, frame=single,framerule=.8pt,
+;;             basicstyle=\ttfamily,
+;;             identifierstyle=\ttfamily,keywordstyle=\ttfamily,
+;;             showstringspaces=false,#1}}
+;;  {\endminipage}
+;;
 ;; \raggedbottom
 ;; \makeindex
+;; \titleformat{\chapter}[display]
+;;  {\normalsize \huge  \color{black}}%
+;;  {\flushright\normalsize \color{black}%
+;;   \MakeUppercase{\chaptertitlename}\hspace{1ex}%
+;;   {\fontfamily{mdugm}\fontsize{60}{60}\selectfont\thechapter}}%
+;;  {10 pt}%
+;;  {\bfseries\huge}%
+
 ;; \begin{document}
 ;;
 ;; % Article top matter
@@ -31,6 +50,9 @@
 
 ;; \maketitle
 ;; \break
+
+;; \chapter*{Preface}
+;;  This will be the preface.
 
 ;; \tableofcontents
 ;; \break
@@ -42,6 +64,10 @@
 ;; I find useful.  Taken together, these can be used in a ``literate programming''
 ;; style.
 
+;; \begin{examplecode}
+;; class Foo{
+;; }
+;; \end{examplecode}
 ;; \section{Prerequisites}
 ;;
 ;; The reader is assumed to be familiar both with Scheme, and with Common Lisp-style
@@ -234,15 +260,15 @@
  compose
  [|#!rest fns|
   {let ((args (gensym)))
-  `[|#!rest ,args|
-    ,(if (null? fns)
-	[`(car ,args)]
-	[{let compose ((fns fns))
-	   (if (null? (cdr fns))
-	       [`(apply ,(car fns)
-			,args)]
-	       [`(,(car fns)
-		  ,(compose (cdr fns)))])}])]}]
+    `[|#!rest ,args|
+      ,(if (null? fns)
+	   [`(car ,args)]
+	   [{let compose ((fns fns))
+	      (if (null? (cdr fns))
+		  [`(apply ,(car fns)
+			   ,args)]
+		  [`(,(car fns)
+		     ,(compose (cdr fns)))])}])]}]
 ;; \end{code}
 ;;
 ;; libbug\#define-macro \footnote{defined in section ~\ref{sec:libbugdefinemacro}}
@@ -1226,8 +1252,7 @@
 	    `{begin
 	       (pp ,foo)
 	       (pp ,bar)
-	       (pp ,baz)
-	    }))
+	       (pp ,baz)}))
  }
 ;; \end{code}
 
