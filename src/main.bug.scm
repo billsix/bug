@@ -40,13 +40,14 @@
 ;;   {\fontfamily{mdugm}\fontsize{60}{60}\selectfont\thechapter}}%
 ;;  {10 pt}%
 ;;  {\bfseries\huge}%
-
+;; \date{}
 ;; \begin{document}
 ;;
 ;; % Article top matter
-;; \title{Computation At Compile-Time}
-;; \author{William Emerison Six\\
-;;     \texttt{billsix@gmail.com}}
+;; \title{Computation At Compile-Time \\
+;;    \normalsize{and the implementation of libbug}}
+;;
+;; \author{Bill Six}
 
 ;; \maketitle
 ;; \break
