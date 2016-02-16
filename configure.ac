@@ -14,6 +14,24 @@ AC_CONFIG_FILES([Makefile
 		 src/config.scm
 		 pkgconfig/libbug.pc
 		 ])
+
+
+AC_CHECK_PROG(GSC_CHECK,gsc,yes)
+if test x"$GSC_CHECK" != x"yes" ; then
+    AC_MSG_ERROR([Please install Gambit before installing.])
+fi
+
+AC_CHECK_PROG(PDFLATEX_CHECK,pdflatex,yes)
+if test x"$PDFLATEX_CHECK" != x"yes" ; then
+    AC_MSG_ERROR([Please install pdflatex/texlive before installing.])
+fi
+
+AC_CHECK_PROG(MAKEINDEX_CHECK,makeindex,yes)
+if test x"$MAKEINDEX_CHECK" != x"yes" ; then
+    AC_MSG_ERROR([Please install texlive before installing.])
+fi
+
+# this whole shared/static library system needs to be rewritten
 GAMBITS_C_COMPILER=$(gambcomp-C | grep '^C_COMPILER' | cut -d '"' -f 2)
 AC_SUBST(GAMBITS_C_COMPILER)
 LIB_EXTENSION=$(gambcomp-C | grep '^LIB_EXTENSION' | cut -d '"' -f 2)
