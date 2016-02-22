@@ -319,21 +319,21 @@
 ;;; \end{code}
 ;;; \subsection*{Code Expansion Tests}
 ;;; \begin{code}
- (equal? (compose-expand)
+ (equal? (macroexpand (compose))
 	 'identity)
- (equal? (compose-expand [|x| (* x 2)])
+ (equal? (macroexpand (compose [|x| (* x 2)]))
  	 '[|#!rest gensymed-var1|
  	   (apply [|x| (* x 2)]
  		  gensymed-var1)])
- (equal? (compose-expand [|x| (+ x 1)]
- 			 [|x| (* x 2)])
+ (equal? (macroexpand (compose [|x| (+ x 1)]
+			       [|x| (* x 2)]))
  	 '[|#!rest gensymed-var1|
  	   ([|x| (+ x 1)]
  	    (apply [|x| (* x 2)]
  		   gensymed-var1))])
- (equal? (compose-expand [|x| (/ x 13)]
- 			 [|x| (+ x 1)]
- 			 [|x| (* x 2)])
+ (equal? (macroexpand (compose [|x| (/ x 13)]
+			       [|x| (+ x 1)]
+			       [|x| (* x 2)]))
  	 '[|#!rest gensymed-var1|
  	   ([|x| (/ x 13)]
  	    ([|x| (+ x 1)]
@@ -1151,8 +1151,8 @@
 	 30)
  (equal? {aif #f (* 2 it)}
 	 #f)
- (equal? (aif-expand (+ 5 10)
- 		     (* 2 it))
+ (equal? (macroexpand (aif (+ 5 10)
+			   (* 2 it)))
  	 '(let ((it (+ 5 10)))
  	    (if it
  		[(* 2 it)]
@@ -1254,11 +1254,11 @@
   `{let ,(map [|symbol| `(,symbol {gensym})]
 	      symbols)
      ,@body}]
- (equal? (with-gensyms-expand (foo bar baz)
-			      `{begin
-				 (pp ,foo)
-				 (pp ,bar)
-				 (pp ,baz)})
+ (equal? (macroexpand (with-gensyms (foo bar baz)
+				    `{begin
+				       (pp ,foo)
+				       (pp ,bar)
+				       (pp ,baz)}))
 	 '(let ((foo (gensym))
 		(bar (gensym))
 		(baz (gensym)))

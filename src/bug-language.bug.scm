@@ -389,6 +389,20 @@
 ;;; \end{code}
 
 
+{libbug#define-macro
+ "lang#"
+ macroexpand
+ [|form|
+  ;; TODO -error check the list
+  {let* ((m (car form))
+	 (new-name (string->symbol
+		    (string-append (symbol->string m)
+				   "-expand"))))
+    `(,new-name ,@(cdr form))}]}
+
+
+
+
 ;;; \subsection*{libbug\#define}
 ;;; Function definitions will all have a namespace, name, body,
 ;;; and an optional suite of tests
