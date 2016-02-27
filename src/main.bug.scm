@@ -759,34 +759,101 @@
 ;;; \section*{list\#zip}
 ;;; \index{list\#zip}
 ;;; \begin{code}
-{libbug#define
+{libbug#define-macro
  "list#"
  zip
- [|lst1 lst2|
-  (if (or (null? lst1) (null? lst2))
-      ['()]
-      [(cons (list (car lst1) (car lst2))
-	     (zip (cdr lst1) (cdr lst2)))])]
+ [|#!rest lsts|
+  (letrec ((zip2 [|lst1 lst2|
+		  (if (or (null? lst1)
+			  (null? lst2))
+		      ['()]
+		      [(cons (list (car lst1)
+				   (car lst2))
+			     (zip2 (cdr lst1)
+				   (cdr lst2)))])]))
+    (let ((gensyms (map [|l| (gensym)] lsts)))
+      `(let zip ,(zip2 gensyms lsts)
+	 (if (or ,@(map [|l| `(null? ,l)] gensyms))
+	     ['()]
+	     [(cons (list ,@(map [|l| `(car ,l)]
+				 gensyms))
+	 	    (zip ,@(map [|l| `(cdr ,l)]
+				gensyms)))]))))]
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;; \subsection*{Tests with 2 Lists}
 ;;; \begin{code}
  (equal? (zip '() '())
-	 '())
+ 	 '())
  (equal? (zip '(1) '(4))
-	 '((1 4)))
+ 	 '((1 4)))
  (equal? (zip '(1 2) '(4 5))
-	 '((1 4)
-	   (2 5)))
+ 	 '((1 4)
+ 	   (2 5)))
  (equal? (zip '(1 2 3) '(4 5 6))
-	 '((1 4)
-	   (2 5)
-	   (3 6)))
+ 	 '((1 4)
+ 	   (2 5)
+ 	   (3 6)))
  (equal? (zip '(1) '())
-	 '())
+ 	 '())
  (equal? (zip '() '(1))
-	 '())
- }
+ 	 '())
+;;; \end{code}
+;;; \subsection*{Tests for Macroexpanson with 2 Lists}
 
+;;; These expansions are the equivalant of the zip2 procedure which
+;;; was available during the macroexpansion.
+;;; \begin{code}
+ (equal? (macroexpand (zip '(1 2 3)
+			   '(4 5 6)))
+	 '(let zip ((gensymed-var1 '(1 2 3))
+		    (gensymed-var2 '(4 5 6)))
+	    (if (or (null? gensymed-var1)
+		    (null? gensymed-var2))
+		['()]
+		[(cons (list (car gensymed-var1)
+			     (car gensymed-var2))
+		       (zip (cdr gensymed-var1)
+			    (cdr gensymed-var2)))])))
+;;; \end{code}
+;;; \subsection*{Tests with 3 Lists}
+;;; \begin{code}
+ (equal? (zip '() '() '())
+	 '())
+ (equal? (zip '(1 2 3)
+ 	      '(4 5 6)
+ 	      '(7 8 9))
+ 	 '((1 4 7)
+ 	   (2 5 8)
+ 	   (3 6 9)))
+;;; \subsection*{Tests for Macroexpanson with 3 Lists}
+;;; \begin{code}
+ (equal? (macroexpand (zip '() '() '()))
+	 '(let zip ((gensymed-var1 '())
+		    (gensymed-var2 '())
+		    (gensymed-var3 '()))
+	    (if (or (null? gensymed-var1)
+		    (null? gensymed-var2)
+		    (null? gensymed-var3))
+		['()]
+		[(cons (list (car gensymed-var1)
+			     (car gensymed-var2)
+			     (car gensymed-var3))
+		       (zip (cdr gensymed-var1)
+			    (cdr gensymed-var2)
+			    (cdr gensymed-var3)))))))
+;;; \end{code}
+;;; \subsection*{Tests with 4 Lists}
+;;; \begin{code}
+ (equal? (zip '() '() '() '())
+ 	 '())
+ (equal? (zip '(1 2 3)
+ 	      '(4 5 6)
+ 	      '(7 8 9)
+ 	      '(10 11 12))
+ 	 '((1 4 7 10)
+ 	   (2 5 8 11)
+ 	   (3 6 9 12)))
+ }
 ;;; \end{code}
 ;;; \section*{list\#permutations}
 ;;; \index{list\#permutations}
