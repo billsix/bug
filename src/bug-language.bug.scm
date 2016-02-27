@@ -388,7 +388,11 @@
 
 ;;; \end{code}
 
+;;; \subsubsection*{Macroexpansion}
 
+;;; A convenience wrapper to expand macros.
+;;; \index{lang\#macroexpand}
+;;; \begin{code}
 {libbug#define-macro
  "lang#"
  macroexpand
@@ -399,7 +403,7 @@
 		    (string-append (symbol->string m)
 				   "-expand"))))
     `(,new-name ,@(cdr form))}]}
-
+;;; \end{code}
 
 
 
