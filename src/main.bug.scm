@@ -318,22 +318,35 @@
  	 11/13)
 ;;; \end{code}
 ;;; \subsection*{Code Expansion Tests}
+;;; ``macroexpand-1'' expands the unevaluated code passed to the
+;;; macro into the new form, which the compiler would have then compiled
+;;; if ``macroexpand-1'' had not been there.  But, how should ``gensyms'' be
+;;; handled, since by definition it creates symbols which cannot be entered
+;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
+;;; is overridden into a procedure
+;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
+;;; call during a macroexpansion generates a new, unique symbol.  Although this symbol
+;;; may clash with symbols in the expanded code, this is not a problem, as these
+;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
+;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
+;;; 
+;;;
 ;;; \begin{code}
- (equal? (macroexpand (compose))
+ (equal? (macroexpand-1 (compose))
 	 'identity)
- (equal? (macroexpand (compose [|x| (* x 2)]))
+ (equal? (macroexpand-1 (compose [|x| (* x 2)]))
  	 '[|#!rest gensymed-var1|
  	   (apply [|x| (* x 2)]
  		  gensymed-var1)])
- (equal? (macroexpand (compose [|x| (+ x 1)]
-			       [|x| (* x 2)]))
+ (equal? (macroexpand-1 (compose [|x| (+ x 1)]
+				 [|x| (* x 2)]))
  	 '[|#!rest gensymed-var1|
  	   ([|x| (+ x 1)]
  	    (apply [|x| (* x 2)]
  		   gensymed-var1))])
- (equal? (macroexpand (compose [|x| (/ x 13)]
-			       [|x| (+ x 1)]
-			       [|x| (* x 2)]))
+ (equal? (macroexpand-1 (compose [|x| (/ x 13)]
+				 [|x| (+ x 1)]
+				 [|x| (* x 2)]))
  	 '[|#!rest gensymed-var1|
  	   ([|x| (/ x 13)]
  	    ([|x| (+ x 1)]
@@ -341,13 +354,10 @@
  		    gensymed-var1)))])
  }
 ;;; \end{code}
-
-
-;;; For the remaining procedures, if the tests do an adequate job of explaining
-;;; the code, there will be no written documentation.
-
 ;;; \section*{list\#any?}
 ;;;
+;;; For the remaining procedures, if the tests do an adequate job of explaining
+;;; the code, there will be no written documentation.  
 ;;; \index{list\#any?}
 ;;; \begin{code}
 {libbug#define
@@ -418,9 +428,8 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
  {let ((a '(1 2 3 4 5)))
-   (equal? a (copy a))}
- {let ((a '(1 2 3 4 5)))
-   (not (eq? a (copy a)))}
+   (and (equal? a (copy a))
+	(not (eq? a (copy a))))}
  }
 ;;; \end{code}
 
@@ -485,6 +494,12 @@
 ;;; \end{code}
 
 ;;; \section*{list\#first}
+;;;
+;;; list\#first uses Gambit's keyword syntax.  In the code, ``onNull'' is
+;;; an optional argument, with a default value of the value in the ``noop''
+;;; variable.  The first test does not provide a value for ``onNull'',
+;;; the second test does, which demonstrates the syntax.
+;;;
 ;;; \index{list\#first}
 ;;; \begin{code}
 {libbug#define
@@ -611,7 +626,7 @@
  [|p? lst|
   {let filter ((lst lst))
     (if (null? lst)
-	[lst]
+	['()]
 	[{let ((first (car lst)))
 	   (if (p? first)
 	       [(cons first (filter (cdr lst)))]
@@ -685,6 +700,36 @@
     ((1 2) 2)
     ((1 2 3 4 5 6) -16)))}
 ;;; \end{code}
+
+;;; \section*{list\#fold-right}
+;;;    Reduces the list to a scalar by applying the reducing
+;;;    function repeatedly,
+;;;    starting from the ``right'' side of the list
+;;;
+;;; \index{list\#fold-right}
+;;; \begin{code}
+{libbug#define
+ "list#"
+ fold-right
+ [|fn initial lst|
+  {let fold-right ((acc initial) (lst lst))
+    (if (null? lst)
+	[acc]
+	[(fn (car lst)
+	     (fold-right acc (cdr lst)))])}]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ (satisfies-relation
+  [|l| (fold-right - 0 l)]
+  '(
+    (() 0)
+    ((1) 1)
+    ((2 1) 1)
+    ((3 2 1) 2)
+    ))}
+;;; \end{code}
+
 ;;; \section*{list\#scan-left}
 ;;;   Like fold-left, but every intermediate value
 ;;;   of fold-left's accumulator is put onto the resulting list
@@ -718,37 +763,10 @@
 ;;; \end{code}
 
 
-;;; \section*{list\#fold-right}
-;;;    Reduces the list to a scalar by applying the reducing
-;;;    function repeatedly,
-;;;    starting from the ``right'' side of the list
-;;;
-;;; \index{list\#fold-right}
-;;; \begin{code}
-{libbug#define
- "list#"
- fold-right
- [|fn initial lst|
-  {let fold-right ((acc initial) (lst lst))
-    (if (null? lst)
-	[acc]
-	[(fn (car lst)
-	     (fold-right acc (cdr lst)))])}]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- (satisfies-relation
-  [|l| (fold-right - 0 l)]
-  '(
-    (() 0)
-    ((1) 1)
-    ((2 1) 1)
-    ((3 2 1) 2)
-    ))}
-;;; \end{code}
+
 ;;; \section*{list\#flatmap}
 ;;;  Maps a prodecure to a list, but the result of the
-;;;  prodecure will be a list itself.  Aggregate all
+;;;  procedure application will be a list.  Aggregate all
 ;;;  of those lists together.
 ;;;
 ;;; \index{list\#flatmap}
@@ -914,12 +932,12 @@
   (if (null? lst)
       [(onMissing)]
       [{let ref-of ((lst lst)
-		    (acc 0))
+		    (index 0))
 	 (if (equal? (car lst) x)
-	     [acc]
+	     [index]
 	     [(if (null? (cdr lst))
 		  [(onMissing)]
-		  [(ref-of (cdr lst) (+ acc 1))])])}])]
+		  [(ref-of (cdr lst) (+ index 1))])])}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1014,7 +1032,8 @@
 		  '(5))
 	 '(5))
  (equal? (append! '(1 2 3)
-		  '(5)) '(1 2 3 5))
+		  '(5))
+	 '(1 2 3 5))
  {let ((a '(1 2 3)))
    (append! a '(5))
    (not (equal? '(1 2 3) a))}
@@ -1052,130 +1071,6 @@
     ))}
 ;;; \end{code}
 
-;;; \section*{stream\#stream-cons}
-;;; Streams are lists whose evaluation is deferred until the value is
-;;; requested.  For more information, consult ``The Structure and
-;;; Interpretation of Computer Programs''.
-;;;
-;;; \index{stream\#stream-cons}
-;;; \begin{code}
-{libbug#define-macro
- "stream#"
- stream-cons
- [|a b|
-  `(cons ,a {delay ,b})]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- {begin
-   {let ((s {stream-cons 1 2}))
-     {and
-      (equal? (car s)
-	      1)
-      (equal? {force (cdr s)}
-	      2)}}}}
-;;; \end{code}
-;;; \section*{stream\#stream-car}
-;;; Get the first element of the stream.
-;;;
-;;; \index{stream\#stream-car}
-;;; \begin{code}
-{libbug#define
- "stream#"
- stream-car
- car
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- {let ((s {stream-cons 1 2}))
-   (equal? (stream-car s)
-	   1)}}
-;;; \end{code}
-;;; \section*{stream\#stream-cdr}
-;;; Forces the evaluation of the next element of the stream.
-;;;
-;;; \index{stream\#stream-cdr}
-;;; \begin{code}
-{libbug#define
- "stream#"
- stream-cdr
- [|s| {force (cdr s)}]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- {let ((s {stream-cons 1 2}))
-   (equal? (stream-cdr s)
-	   2)}}
-;;; \end{code}
-;;; \section*{list\#list-\textgreater stream}
-;;; Converts a list into a stream
-;;;
-;;; \index{list\#list-\textgreater stream}
-;;; \begin{code}
-{libbug#define
- "list#"
- list->stream
- [|l|
-  (if (null? l)
-      [l]
-      [(stream-cons
-	(car l)
-	{let list->stream ((l (cdr l)))
-	  (if (null? l)
-	      ['()]
-	      [(stream-cons
-		(car l)
-		(list->stream (cdr l)))])})])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- {let ((foo (list#list->stream '(1 2 3))))
-   {and (equal? 1 (stream-car foo))
-	(equal? 2 (stream-car
-		   (stream-cdr foo)))
-	(equal? 3 (stream-car
-		   (stream-cdr
-		    (stream-cdr foo))))
-	(null? (stream-cdr
-		(stream-cdr
-		 (stream-cdr foo))))}}}
-;;; \end{code}
-;;; \section*{stream\#stream-ref}
-;;; The analogous procedure of list-ref
-;;;
-;;; \index{stream\#stream-ref}
-;;; \begin{code}
-{libbug#define
- "stream#"
- stream-ref
- [|s n #!key (onOutOfBounds noop)|
-  {define refPrime
-    [|s n|
-     (if (equal? n 0)
-	 [(stream-car s)]
-	 [(if (not (null? (stream-cdr s)))
-	      [(refPrime (stream-cdr s) (- n 1))]
-	      [(onOutOfBounds)])])]}
-  (if (< n 0)
-      [(onOutOfBounds)]
-      [(refPrime s n)])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- {let ((s (list->stream '(5 4 3 2 1))))
-   (all?
-    (list
-     (equal? (stream-ref s -1)
-	     'noop)
-     (equal? (stream-ref s 0)
-	     5)
-     (equal? (stream-ref s 4)
-	     1)
-     (equal? (stream-ref s 5)
-	     'noop)
-     (equal? (stream-ref s 5 onOutOfBounds: ['out])
-	     'out)))}}
-;;; \end{code}
 
 ;;; \section*{lang\#aif}
 ;;; BUG also provides a new procedure for creating macros.  Just as libbug\#define
@@ -1207,8 +1102,8 @@
 	 30)
  (equal? {aif #f (* 2 it)}
 	 #f)
- (equal? (macroexpand (aif (+ 5 10)
-			   (* 2 it)))
+ (equal? (macroexpand-1 (aif (+ 5 10)
+			     (* 2 it)))
  	 '{let ((it (+ 5 10)))
  	    (if it
  		[(* 2 it)]
@@ -1310,11 +1205,11 @@
   `{let ,(map [|symbol| `(,symbol {gensym})]
 	      symbols)
      ,@body}]
- (equal? (macroexpand (with-gensyms (foo bar baz)
-				    `{begin
-				       (pp ,foo)
-				       (pp ,bar)
-				       (pp ,baz)}))
+ (equal? (macroexpand-1 (with-gensyms (foo bar baz)
+				      `{begin
+					 (pp ,foo)
+					 (pp ,bar)
+					 (pp ,baz)}))
 	 '{let ((foo (gensym))
 		(bar (gensym))
 		(baz (gensym)))
@@ -1375,6 +1270,129 @@
     (-5 neg)
     ))}
 ;;; \end{code}
+
+;;; \section*{stream\#stream-cons}
+;;; Streams are lists whose evaluation is deferred until the value is
+;;; requested.  For more information, consult ``The Structure and
+;;; Interpretation of Computer Programs''.
+;;;
+;;; \index{stream\#stream-cons}
+;;; \begin{code}
+{libbug#define-macro
+ "stream#"
+ stream-cons
+ [|a b|
+  `(cons ,a {delay ,b})]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ {begin
+   {let ((s {stream-cons 1 2}))
+     {and
+      (equal? (car s)
+	      1)
+      (equal? {force (cdr s)}
+	      2)}}}}
+;;; \end{code}
+;;; \section*{stream\#stream-car}
+;;; Get the first element of the stream.
+;;;
+;;; \index{stream\#stream-car}
+;;; \begin{code}
+{libbug#define
+ "stream#"
+ stream-car
+ car
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ {let ((s {stream-cons 1 2}))
+   (equal? (stream-car s)
+	   1)}}
+;;; \end{code}
+;;; \section*{stream\#stream-cdr}
+;;; Forces the evaluation of the next element of the stream.
+;;;
+;;; \index{stream\#stream-cdr}
+;;; \begin{code}
+{libbug#define
+ "stream#"
+ stream-cdr
+ [|s| {force (cdr s)}]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ {let ((s {stream-cons 1 2}))
+   (equal? (stream-cdr s)
+	   2)}}
+;;; \end{code}
+;;; \section*{list\#list-\textgreater stream}
+;;; Converts a list into a stream
+;;;
+;;; \index{list\#list-\textgreater stream}
+;;; \begin{code}
+{libbug#define
+ "list#"
+ list->stream
+ [|l|
+  (if (null? l)
+      [l]
+      [(stream-cons (car l)
+		    {let list->stream ((l (cdr l)))
+		      (if (null? l)
+			  ['()]
+			  [(stream-cons (car l)
+					(list->stream (cdr l)))])})])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ {let ((foo (list#list->stream '(1 2 3))))
+   {and (equal? 1 (stream-car foo))
+	(equal? 2 (stream-car
+		   (stream-cdr foo)))
+	(equal? 3 (stream-car
+		   (stream-cdr
+		    (stream-cdr foo))))
+	(null? (stream-cdr
+		(stream-cdr
+		 (stream-cdr foo))))}}}
+;;; \end{code}
+;;; \section*{stream\#stream-ref}
+;;; The analogous procedure of list-ref
+;;;
+;;; \index{stream\#stream-ref}
+;;; \begin{code}
+{libbug#define
+ "stream#"
+ stream-ref
+ [|s n #!key (onOutOfBounds noop)|
+  {define refPrime
+    [|s n|
+     (if (equal? n 0)
+	 [(stream-car s)]
+	 [(if (not (null? (stream-cdr s)))
+	      [(refPrime (stream-cdr s) (- n 1))]
+	      [(onOutOfBounds)])])]}
+  (if (< n 0)
+      [(onOutOfBounds)]
+      [(refPrime s n)])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ {let ((s (list->stream '(5 4 3 2 1))))
+   (and
+    (equal? (stream-ref s -1)
+	    'noop)
+    (equal? (stream-ref s 0)
+	    5)
+    (equal? (stream-ref s 4)
+	    1)
+    (equal? (stream-ref s 5)
+	    'noop)
+    (equal? (stream-ref s 5 onOutOfBounds: ['out])
+	    'out))}}
+;;; \end{code}
+
 
 ;;; \begin{code}
 (include "bug-language-end.scm")

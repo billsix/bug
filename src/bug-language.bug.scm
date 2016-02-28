@@ -392,11 +392,11 @@
 
 ;;; A convenience wrapper to expand macros.
 
-;;; \index{lang\#macroexpand}
+;;; \index{lang\#macroexpand-1}
 ;;; \begin{code}
 {libbug#define-macro
  "lang#"
- macroexpand
+ macroexpand-1
  [|form|
   ;; TODO -error check the list
   {let* ((m (car form))
