@@ -391,6 +391,7 @@
 ;;; \subsubsection*{Macroexpansion}
 
 ;;; A convenience wrapper to expand macros.
+
 ;;; \index{lang\#macroexpand}
 ;;; \begin{code}
 {libbug#define-macro

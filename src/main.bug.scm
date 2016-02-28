@@ -174,8 +174,8 @@
 ;;;
 ;;;
 
-;;; \section*{list\#and}
-;;; Like and?, but takes a list instead of a variable number of arguments.
+;;; \section*{list\#all?}
+;;; Like and, but takes a list instead of a variable number of arguments.
 ;;;
 ;;; \index{list\#all?}
 ;;; \begin{code}
@@ -346,6 +346,35 @@
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
 
+;;; \section*{list\#any?}
+;;;
+;;; \index{list\#any?}
+;;; \begin{code}
+{libbug#define
+ "list#"
+ any?
+ [|lst|
+  (if (null? lst)
+      [#f]
+      [(if (car lst)
+	   [#t]
+	   [(any? (cdr lst))])])]
+;;; \end{code}
+;;; \subsection*{Test}
+;;; \begin{code}
+ (satisfies-relation
+  any?
+  '(
+    (() #f)
+    ((1) #t)
+    ((#t) #t)
+    ((#t #t) #t)
+    ((#f) #f)
+    ((#t #t #t #f) #t)))
+ }
+;;; \end{code}
+
+
 ;;; \section*{lang\#complement}
 ;;;
 ;;; \index{lang\#complement}
@@ -358,6 +387,12 @@
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
+ (satisfies-relation
+  pair?
+  '(
+    (1 #f)
+    ((1 2) #t)
+    ))
  (satisfies-relation
   (complement pair?)
   '(
@@ -759,33 +794,21 @@
 ;;; \section*{list\#zip}
 ;;; \index{list\#zip}
 ;;; \begin{code}
-{libbug#define-macro
+{libbug#define
  "list#"
  zip
  [|#!rest lsts|
-  (letrec ((zip2 [|lst1 lst2|
-		  (if (or (null? lst1)
-			  (null? lst2))
-		      ['()]
-		      [(cons (list (car lst1)
-				   (car lst2))
-			     (zip2 (cdr lst1)
-				   (cdr lst2)))])]))
-    (let ((gensyms (map [|l| (gensym)] lsts)))
-      `(let zip ,(zip2 gensyms lsts)
-	 (if (or ,@(map [|l| `(null? ,l)] gensyms))
-	     ['()]
-	     [(cons (list ,@(map [|l| `(car ,l)]
-				 gensyms))
-	 	    (zip ,@(map [|l| `(cdr ,l)]
-				gensyms)))]))))]
+  (if (any? (map null? lsts))
+      ['()]
+      [(cons (apply list (map car lsts))
+	     (apply zip (map cdr lsts)))])]
 ;;; \end{code}
 ;;; \subsection*{Tests with 2 Lists}
 ;;; \begin{code}
  (equal? (zip '() '())
  	 '())
  (equal? (zip '(1) '(4))
- 	 '((1 4)))
+	 '((1 4)))
  (equal? (zip '(1 2) '(4 5))
  	 '((1 4)
  	   (2 5)))
@@ -798,50 +821,16 @@
  (equal? (zip '() '(1))
  	 '())
 ;;; \end{code}
-;;; \subsection*{Tests for Macroexpanson with 2 Lists}
-
-;;; These expansions are the equivalant of the zip2 procedure which
-;;; was available during the macroexpansion.
-;;; \begin{code}
- (equal? (macroexpand (zip '(1 2 3)
-			   '(4 5 6)))
-	 '(let zip ((gensymed-var1 '(1 2 3))
-		    (gensymed-var2 '(4 5 6)))
-	    (if (or (null? gensymed-var1)
-		    (null? gensymed-var2))
-		['()]
-		[(cons (list (car gensymed-var1)
-			     (car gensymed-var2))
-		       (zip (cdr gensymed-var1)
-			    (cdr gensymed-var2)))])))
-;;; \end{code}
 ;;; \subsection*{Tests with 3 Lists}
 ;;; \begin{code}
  (equal? (zip '() '() '())
-	 '())
+ 	 '())
  (equal? (zip '(1 2 3)
  	      '(4 5 6)
  	      '(7 8 9))
  	 '((1 4 7)
  	   (2 5 8)
  	   (3 6 9)))
-;;; \subsection*{Tests for Macroexpanson with 3 Lists}
-;;; \begin{code}
- (equal? (macroexpand (zip '() '() '()))
-	 '(let zip ((gensymed-var1 '())
-		    (gensymed-var2 '())
-		    (gensymed-var3 '()))
-	    (if (or (null? gensymed-var1)
-		    (null? gensymed-var2)
-		    (null? gensymed-var3))
-		['()]
-		[(cons (list (car gensymed-var1)
-			     (car gensymed-var2)
-			     (car gensymed-var3))
-		       (zip (cdr gensymed-var1)
-			    (cdr gensymed-var2)
-			    (cdr gensymed-var3)))))))
-;;; \end{code}
 ;;; \subsection*{Tests with 4 Lists}
 ;;; \begin{code}
  (equal? (zip '() '() '() '())
@@ -1012,12 +1001,12 @@
  [|lst x|
   (if (null? lst)
       [x]
-      [(let ((head lst))
-	 (let append! ((lst lst))
+      [{let ((head lst))
+	 {let append! ((lst lst))
 	   (if (null? (cdr lst))
 	       [(set-cdr! lst x)]
-	       [(append! (cdr lst))]))
-	 head)])]
+	       [(append! (cdr lst))])}
+	 head}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1131,12 +1120,12 @@
       [l]
       [(stream-cons
 	(car l)
-	(let list->stream ((l (cdr l)))
+	{let list->stream ((l (cdr l)))
 	  (if (null? l)
 	      ['()]
 	      [(stream-cons
 		(car l)
-		(list->stream (cdr l)))])))])]
+		(list->stream (cdr l)))])})])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1220,10 +1209,10 @@
 	 #f)
  (equal? (macroexpand (aif (+ 5 10)
 			   (* 2 it)))
- 	 '(let ((it (+ 5 10)))
+ 	 '{let ((it (+ 5 10)))
  	    (if it
  		[(* 2 it)]
- 		[#f])))
+ 		[#f])})
 
  }
 ;;; \end{code}
@@ -1326,13 +1315,13 @@
 				       (pp ,foo)
 				       (pp ,bar)
 				       (pp ,baz)}))
-	 '(let ((foo (gensym))
+	 '{let ((foo (gensym))
 		(bar (gensym))
 		(baz (gensym)))
 	    `{begin
 	       (pp ,foo)
 	       (pp ,bar)
-	       (pp ,baz)}))
+	       (pp ,baz)}})
  }
 ;;; \end{code}
 
