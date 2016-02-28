@@ -1011,7 +1011,7 @@
 ;;;   Like append, but recycles the last cons cell, so it's
 ;;;   faster, but mutates the input.
 ;;;
-;;; \index{list\#append"!}
+;;; \index{list\#append!"}
 ;;; \begin{code}
 {libbug#define
  "list#"
@@ -1113,11 +1113,37 @@
 ;;; \end{code}
 
 
+;;; \section*{symbol\#symbol-append}
+;;;   Like append, but recycles the last cons cell, so it's
+;;;   faster, but mutates the input.
+;;;
+;;; \index{symbol\#symbol-append"}
+;;; \begin{code}
+{libbug#define
+ "symbol#"
+ symbol-append
+ [|#!rest symlst|
+  (string->symbol (apply string-append
+			 (map symbol->string symlst)))]
+  
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ (equal? (symbol-append 'foo 'bar) 'foobar)
+ (equal? (symbol-append 'foo 'bar 'baz) 'foobarbaz)
+ }
+;;; \end{code}
+
+
 ;;; \section*{lang\#setf!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \footnote{http://okmij.org/ftp/Scheme/setf.txt}
 ;;;
-;;; This dummy structure is only available at compile-time, for use in a test
+;;; Libbug includes a macro called ``at-compile-time''\footnote{define
+;;; in chapter ~\ref{sec:buglang}}, which executes its' argument exclusively
+;;; at compile-time.  For the purpose of testing the ``setf!'' macro, a dummy
+;;; structure is created, for use in the test.  The structure is not present
+;;; in the produced library.
 ;;;
 ;;; \begin{code}
 {at-compile-time
@@ -1134,19 +1160,38 @@
   (if (not (pair? exp))
       [`{set! ,exp ,val}]
       [{case (car exp)
-	 ((car) `{set-car! ,@(cdr exp)
-			   ,val})
-	 ((cdr) `{set-cdr! ,@(cdr exp)
-			   ,val})
-	 ((cadr) `{setf! (car (cdr ,@(cdr exp)))
-			 ,val})
-	 ((cddr) `{setf! (cdr (cdr ,@(cdr exp)))
-			 ,val})
+	 ((car) `{set-car! ,@(cdr exp) ,val})
+	 ((cdr) `{set-cdr! ,@(cdr exp) ,val})
+	 ((caar) `{setf! (car (car ,@(cdr exp))) ,val})
+	 ((cadr) `{setf! (car (cdr ,@(cdr exp))) ,val})
+	 ((cdar) `{setf! (cdr (car ,@(cdr exp))) ,val})
+	 ((cddr) `{setf! (cdr (cdr ,@(cdr exp))) ,val})
+	 ((caaar) `{setf! (car (caar ,@(cdr exp))) ,val})
+	 ((caadr) `{setf! (car (cadr ,@(cdr exp))) ,val})
+	 ((cadar) `{setf! (car (cdar ,@(cdr exp))) ,val})
+	 ((caddr) `{setf! (car (cddr ,@(cdr exp))) ,val})
+	 ((cdaar) `{setf! (cdr (caar ,@(cdr exp))) ,val})
+	 ((cdadr) `{setf! (cdr (cadr ,@(cdr exp))) ,val})
+	 ((cddar) `{setf! (cdr (cdar ,@(cdr exp))) ,val})
+	 ((cdddr) `{setf! (cdr (cddr ,@(cdr exp))) ,val})
+	 ((caaaar) `{setf! (car (caaar ,@(cdr exp))) ,val})
+	 ((caaadr) `{setf! (car (caadr ,@(cdr exp))) ,val})
+	 ((caadar) `{setf! (car (cadar ,@(cdr exp))) ,val})
+	 ((caaddr) `{setf! (car (caddr ,@(cdr exp))) ,val})
+	 ((cadaar) `{setf! (car (cdaar ,@(cdr exp))) ,val})
+	 ((cadadr) `{setf! (car (cdadr ,@(cdr exp))) ,val})
+	 ((caddar) `{setf! (car (cddar ,@(cdr exp))) ,val})
+	 ((cadddr) `{setf! (car (cdddr ,@(cdr exp))) ,val})
+	 ((cdaaar) `{setf! (cdr (caaar ,@(cdr exp))) ,val})
+	 ((cdaadr) `{setf! (cdr (caadr ,@(cdr exp))) ,val})
+	 ((cdadar) `{setf! (cdr (cadar ,@(cdr exp))) ,val})
+	 ((cdaddr) `{setf! (cdr (caddr ,@(cdr exp))) ,val})
+	 ((cddaar) `{setf! (cdr (cdaar ,@(cdr exp))) ,val})
+	 ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
+	 ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
+	 ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
 	 ;; TODO - handle other atypical cases
-	 (else `(,(string->symbol
-		   (string-append
-		    (symbol->string (car exp))
-		    "-set!"))
+	 (else `(,(symbol-append (car exp) '-set!)
 		 ,@(cdr exp)
 		 ,val))}])]
 ;;; \end{code}
@@ -1163,28 +1208,150 @@
 	     a)}}
 ;;; \end{code}
 ;;; \begin{code}
- ;; test car
- {let ((a (list 1 2)))
+ {let ((a '(1 2)))
    {setf! (car a) 10}
-   (equal? a '(10 2))}
+   (equal? (car a) 10)}
 ;;; \end{code}
 ;;; \begin{code}
- ;; test cdr
- {let ((a (list 1 2)))
-   {setf! (cdr a) (list 10)}
-   (equal? a '(1 10))}
+ {let ((a '(1 2)))
+   {setf! (cdr a) 10}
+   (equal? (cdr a) 10)}
 ;;; \end{code}
 ;;; \begin{code}
- ;; test cadr
- {let ((a (list (list 1 2) (list 3 4))))
+ {let ((a '((1 2) (3 4))))
+   {setf! (caar a) 10}
+   (equal? (caar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '((1 2) (3 4))))
    {setf! (cadr a) 10}
-   (equal? a '((1 2) 10))}
+   (equal? (cadr a) 10)}
 ;;; \end{code}
 ;;; \begin{code}
- ;; test cddr
- {let ((a (list (list 1 2) (list 3 4))))
-   {setf! (cddr a) (list 10)}
-   (equal? a '((1 2) (3 4) 10))}}
+ {let ((a '((1 2) (3 4))))
+   {setf! (cdar a) 10}
+   (equal? (cdar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '((1 2) (3 4))))
+   {setf! (cddr a) 10}
+   (equal? (cddr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)))))
+   {setf! (caaar a) 10}
+   (equal? (caaar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)))))
+   {setf! (caadr a) 10}
+   (equal? (caadr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2) 5) ((3 4)))))
+   {setf! (cadar a) 10}
+   (equal? (cadar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)) (5))))
+   {setf! (caddr a) 10}
+   (equal? (caddr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)))))
+   {setf! (cdaar a) 10}
+   (equal? (cdaar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)))))
+   {setf! (cdadr a) 10}
+   (equal? (cdadr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)) (5 6))))
+   {setf! (cdddr a) 10}
+   (equal? (cdddr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '((((1 2))) ((3 4)) (5 6))))
+   {setf! (caaaar a) 10}
+   (equal? (caaaar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)) (5 6))))
+   {setf! (caaadr a) 10}
+   (equal? (caaadr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2) (7 8)) ((3 4)) (5 6))))
+   {setf! (caadar a) 10}
+   (equal? (caadar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)) (5 6))))
+   {setf! (caaddr a) 10}
+   (equal? (caaddr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)) (5 6))))
+   {setf! (cadaar a) 10}
+   (equal? (cadaar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4) (7 8)) (5 6))))
+   {setf! (cadadr a) 10}
+   (equal? (cadadr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2) () (7 8)) ((3 4)) (5 6))))
+   {setf! (caddar a) 10}
+   (equal? (caddar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(1 2 3 (x 5))))
+   {setf! (cadddr a) 10}
+   (equal? (cadddr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '((((1 x))))))
+   {setf! (cdaaar a) 10}
+   (equal? (cdaaar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) ((3 4)) (5 6))))
+   {setf! (cdaadr a) 10}
+   (equal? (cdaadr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '((1 ((2 x))))))
+   {setf! (cdadar a) 10}
+   (equal? (cdadar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(1 2 (3 x))))
+   {setf! (cdaddr a) 10}
+   (equal? (cdaddr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 (2 x))))))
+   {setf! (cddaar a) 10}
+   (equal? (cddaar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(((1 2)) (3 (4 x)))))
+   {setf! (cddadr a) 10}
+   (equal? (cddadr a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '((1 2 3 x))))
+   {setf! (cdddar a) 10}
+   (equal? (cdddar a) 10)}
+;;; \end{code}
+;;; \begin{code}
+ {let ((a '(1 2 3 4 x)))
+   {setf! (cddddr a) 10}
+   (equal? (cddddr a) 10)}
+ }
 ;;; \end{code}
 
 
