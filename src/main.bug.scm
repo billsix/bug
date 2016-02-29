@@ -358,6 +358,7 @@
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
+;;;
 ;;; \index{list\#any?}
 ;;; \begin{code}
 {libbug#define
@@ -462,36 +463,6 @@
 
 
 
-;;; \section*{list\#reverse!}
-;;;   Reverses the list quickly by reusing cons cells
-;;;
-;;; \index{list\#reverse"!}
-;;; \begin{code}
-{libbug#define
- "list#"
- reverse!
- [|lst|
-  (if (null? lst)
-      ['()]
-      [{let reverse! ((cons-cell lst) (reversed-list '()))
-	 (if (null? (cdr cons-cell))
-	     [(set-cdr! cons-cell reversed-list)
-	      cons-cell]
-	     [{let ((rest (cdr cons-cell)))
-		(set-cdr! cons-cell reversed-list)
-		(reverse! rest cons-cell)}])}])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- (satisfies-relation
-  reverse!
-  '(
-    (() ())
-    ((1) (1))
-    ((2 1) (1 2))
-    ((3 2 1) (1 2 3))
-    ))}
-;;; \end{code}
 
 ;;; \section*{list\#first}
 ;;;
@@ -730,6 +701,39 @@
     ))}
 ;;; \end{code}
 
+;;; \section*{list\#append!}
+;;;   Like append, but recycles the last cons cell, so it's
+;;;   faster, but mutates the input.
+;;;
+;;; \index{list\#append!}
+;;; \begin{code}
+{libbug#define
+ "list#"
+ append!
+ [|lst x|
+  (if (null? lst)
+      [x]
+      [{let ((head lst))
+	 {let append! ((lst lst))
+	   (if (null? (cdr lst))
+	       [(set-cdr! lst x)]
+	       [(append! (cdr lst))])}
+	 head}])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ (equal? (append! '()
+		  '(5))
+	 '(5))
+ (equal? (append! '(1 2 3)
+		  '(5))
+	 '(1 2 3 5))
+ {let ((a '(1 2 3)))
+   (append! a '(5))
+   (not (equal? '(1 2 3) a))}
+ }
+;;; \end{code}
+
 ;;; \section*{list\#scan-left}
 ;;;   Like fold-left, but every intermediate value
 ;;;   of fold-left's accumulator is put onto the resulting list
@@ -740,12 +744,13 @@
  "list#"
  scan-left
  [|fn initial lst|
-  {let scan-left ((acc-list (list initial)) (lst lst))
+  {let scan-left ((acc initial) (acc-list (list initial)) (lst lst))
     (if (null? lst)
-	[(reverse! acc-list)]
-	[{let ((newacc (fn (first acc-list)
+	[acc-list]
+	[{let ((newacc (fn acc
 			   (car lst))))
-	   (scan-left (cons newacc acc-list)
+	   (scan-left newacc
+		      (append! acc-list (list newacc))
 		      (cdr lst))}])}]
 ;;; \end{code}
 ;;; \subsection*{Tests}
@@ -1007,38 +1012,6 @@
 		  (4 5)))
     ))}
 ;;; \end{code}
-;;; \section*{list\#append!}
-;;;   Like append, but recycles the last cons cell, so it's
-;;;   faster, but mutates the input.
-;;;
-;;; \index{list\#append!"}
-;;; \begin{code}
-{libbug#define
- "list#"
- append!
- [|lst x|
-  (if (null? lst)
-      [x]
-      [{let ((head lst))
-	 {let append! ((lst lst))
-	   (if (null? (cdr lst))
-	       [(set-cdr! lst x)]
-	       [(append! (cdr lst))])}
-	 head}])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
- (equal? (append! '()
-		  '(5))
-	 '(5))
- (equal? (append! '(1 2 3)
-		  '(5))
-	 '(1 2 3 5))
- {let ((a '(1 2 3)))
-   (append! a '(5))
-   (not (equal? '(1 2 3) a))}
- }
-;;; \end{code}
 ;;; \section*{list\#sort}
 ;;; \index{list\#sort}
 ;;; \begin{code}
@@ -1068,6 +1041,38 @@
   '(
     (() ())
     ((1 3 2 5 4 0) (0 1 2 3 4 5))
+    ))}
+;;; \end{code}
+
+
+;;; \section*{list\#reverse!}
+;;;   Reverses the list quickly by reusing cons cells
+;;;
+;;; \index{list\#reverse"!}
+;;; \begin{code}
+{libbug#define
+ "list#"
+ reverse!
+ [|lst|
+  (if (null? lst)
+      ['()]
+      [{let reverse! ((cons-cell lst) (reversed-list '()))
+	 (if (null? (cdr cons-cell))
+	     [(set-cdr! cons-cell reversed-list)
+	      cons-cell]
+	     [{let ((rest (cdr cons-cell)))
+		(set-cdr! cons-cell reversed-list)
+		(reverse! rest cons-cell)}])}])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+ (satisfies-relation
+  reverse!
+  '(
+    (() ())
+    ((1) (1))
+    ((2 1) (1 2))
+    ((3 2 1) (1 2 3))
     ))}
 ;;; \end{code}
 
