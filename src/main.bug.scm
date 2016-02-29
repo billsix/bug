@@ -329,7 +329,7 @@
 ;;; may clash with symbols in the expanded code, this is not a problem, as these
 ;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
 ;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
-;;; 
+;;;
 ;;;
 ;;; \begin{code}
  (equal? (macroexpand-1 (compose))
@@ -357,7 +357,7 @@
 ;;; \section*{list\#any?}
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
-;;; the code, there will be no written documentation.  
+;;; the code, there will be no written documentation.
 ;;; \index{list\#any?}
 ;;; \begin{code}
 {libbug#define
@@ -1125,7 +1125,7 @@
  [|#!rest symlst|
   (string->symbol (apply string-append
 			 (map symbol->string symlst)))]
-  
+
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1416,9 +1416,7 @@
 {libbug#define
  "lang#"
  numeric-if
- [|expr #!key (ifPositive noop)
-              (ifZero noop)
-              (ifNegative noop)|
+ [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
   {cond ((> expr 0) (ifPositive))
 	((= expr 0) (ifZero))
 	(else (ifNegative))}]
@@ -1427,10 +1425,7 @@
 ;;; \begin{code}
  (satisfies-relation
   [|n|
-   (numeric-if n
-	       ifPositive: ['pos]
-	       ifZero: ['zero]
-	       ifNegative: ['neg])]
+   (numeric-if n ifPositive: ['pos] ifZero: ['zero] ifNegative: ['neg])]
   '(
     (5 pos)
     (0 zero)

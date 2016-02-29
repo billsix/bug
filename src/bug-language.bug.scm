@@ -49,8 +49,8 @@
 
 ;;; \index{lang\#at-compile-time}
 ;;; \begin{code}
-{namespace ("lang#" at-compile-time)}
-{define-macro at-compile-time
+{##namespace ("lang#" at-compile-time)}
+{##define-macro at-compile-time
   [|form|
    (eval form)
    `{quote noop}]}
@@ -67,7 +67,7 @@
 ;;; \index{lang\#at-both-times}
 ;;; \begin{code}
 {##namespace ("lang#" at-both-times)}
-{define-macro at-both-times
+{##define-macro at-both-times
   [|form|
    (eval form)
    form]}
@@ -105,43 +105,45 @@
 ;;; \end{code}
 ;;; \subsubsection*{Create File for Namespaces}
 ;;; \begin{code}
-   {define libbug-headers-file
+   {##define libbug-headers-file
      (open-output-file '(path:
 			 "libbug#.scm"
 			 append:
 			 #f))}
    (display
     ";; Copyright 2014-2016 - William Emerison Six
-;;;  All rights reserved
-;;;  Distributed under LGPL 2.1 or Apache 2.0
-{##namespace (\"lang#\" at-compile-time)}
-{##namespace (\"lang#\" at-both-times)}"
+     ;;;  All rights reserved
+     ;;;  Distributed under LGPL 2.1 or Apache 2.0
+     {##namespace (\"lang#\" at-compile-time)}
+     {##namespace (\"lang#\" at-both-times)}
+     "
     libbug-headers-file)
 
 ;;; \end{code}
 ;;; \subsubsection*{Create File for Macro Definitions}
 ;;; \begin{code}
-   {define libbug-macros-file
+   {##define libbug-macros-file
      (open-output-file '(path:
 			 "libbug-macros.scm"
 			 append:
 			 #f))}
-    (display
-      ";; Copyright 2014-2016 - William Emerison Six
-;;;  All rights reserved
-;;;  Distributed under LGPL 2.1 or Apache 2.0
-(##include \"~~lib/gambit#.scm\")
-(##include \"libbug#.scm\")
+   (display
+    ";; Copyright 2014-2016 - William Emerison Six
+     ;;;  All rights reserved
+     ;;;  Distributed under LGPL 2.1 or Apache 2.0
+     (##include \"~~lib/gambit#.scm\")
+     (##include \"libbug#.scm\")
 
-{define-macro at-compile-time
-  [|form|
-   (eval form)
-   `{quote noop}]}
+     {##define-macro at-compile-time
+       [|form|
+        (eval form)
+        `{quote noop}]}
 
-{define-macro at-both-times
-  [|form|
-   (eval form)
-   form]}"
+     {##define-macro at-both-times
+       [|form|
+        (eval form)
+        form]}
+     "
     libbug-macros-file)}}
 ;;; \end{code}
 
@@ -162,8 +164,8 @@
 {define-macro write-and-eval
   [|port form|
    (eval `(begin
-	    (newline ,port)
-	    (write ',form ,port)))
+	    (write ',form ,port)
+	    (newline ,port)))
    form]}
 ;;; \end{code}
 
@@ -248,7 +250,7 @@
  {##namespace ("lang#" with-tests)}}
 (write-and-eval
  libbug-macros-file
- {define-macro with-tests
+ {##define-macro with-tests
    [|definition #!rest tests|
     (eval
      `{begin
@@ -280,7 +282,7 @@
 {at-compile-time
  {begin
    {##include "config.scm"}
-   {define bug-configuration#libbugsharp
+   {##define bug-configuration#libbugsharp
      (string-append
       bug-configuration#prefix
       "/include/bug/libbug#.scm")}}}
@@ -296,7 +298,7 @@
 
 ;;; \index{libbug\#namespace}
 ;;; \begin{code}
-{define-macro libbug#namespace
+{##define-macro libbug#namespace
   [|namespace-name-pair|
    {begin
      (eval `{##namespace ,namespace-name-pair})
@@ -322,12 +324,11 @@
 ;;;
 ;;; \index{libbug\#define-macro}
 ;;; \begin{code}
-{define-macro libbug#define-macro
+{##define-macro libbug#define-macro
   [|namespace name lambda-value #!rest tests|
 ;;; \end{code}
 ;;; \subsubsection*{Write Macro to File}
 ;;; \begin{code}
-   (newline libbug-macros-file)
    (write
     `{begin
        {at-both-times
@@ -359,6 +360,7 @@
 				 (number->string gensym-count)))}]))
 		(list 'quote ,@(cddr lambda-value))}})}}}
     libbug-macros-file)
+   (newline libbug-macros-file)
 ;;; \end{code}
 ;;; \subsubsection*{Define Macro and Run Tests}
 ;;; \begin{code}
@@ -415,7 +417,7 @@
 ;;; \label{sec:libbugdefine}
 ;;; \index{libbug\#define}
 ;;; \begin{code}
-{define-macro
+{##define-macro
   libbug#define
   [|namespace name body #!rest tests|
    `{begin
