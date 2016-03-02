@@ -10,7 +10,8 @@
 ;;; \usepackage{courier}
 ;;; \usepackage{color}
 ;;; \usepackage{makeidx}
-;;;\usepackage{titlesec}
+;;; \usepackage{amsmath}
+;;; \usepackage{titlesec}
 ;;; \lstnewenvironment{code}[1][]%
 ;;;  {  \noindent
 ;;;     \minipage{\linewidth}
@@ -214,15 +215,151 @@
 ;;;
 ;;;
 ;;;
+;;; \chapter{Compile-Time Language}
+;;;
+;;; This chapter provides a quick tour of computer language which is interpreted
+;;; by the compiler, but which has no direct representation in the executable.
+;;; But first, let's discuss was is meant by the word ``language''.
+;;;
+;;; In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
+;;; Motwani, and Ullman define language as ``A set of strings all of which are chosen
+;;; from some $\Sigma$ $\star$, where $\Sigma$ is a particular alphabet, is called
+;;; a language''.  They further state ``In automata theory, a problem is the question
+;;; of deciding whether a given string is a member of some particular language''.
+;;; Languages have grammars, which formally define whether or not a given string is in the
+;;; language.
+;;;
+;;; In practice, if your compiler successfully compiles your code, congratulations!
+;;; The compiler decided that your code is in fact a valid string in the language
+;;; accepted by the compiler.  But does all of that language have a representation
+;;; in the generated machine code?  No, it does not.
 
-;;; \chapter{libbug}
+;;; \section{C}
+;;;Consider the following C code:
+;;;
+;;; \begin{examplecode}
+;;;#include <stdio.h>
+;;;#define square(x) ((x) * (x))
+;;;int fact(int n);
+;;;int main(int argc, char* argv[]){
+;;;#ifdef DEBUG
+;;;  printf("Debug - argc = %d\n", argc);
+;;;#endif
+;;;  printf("%d\n",square(fact(argc)));
+;;;  return 0;
+;;;}
+;;;int fact(int n){
+;;;  return n == 0
+;;;    ? 1
+;;;    : n * fact(n-1);
+;;;}
+;;; \end{examplecode}
+;;;
+;;; On the first line, the \#include preprocessor command, specified by the C grammar,
+;;; is language that the compiler
+;;; is intended to interpret but not to compile, instructing the compiler to
+;;; read the file ``stdio.h''
+;;; from the filesystem and to splice the content
+;;; into the current C file.  The include command
+;;; itself has no representation in the machine code, although the contents
+;;; of the included file may.
+;;;
+;;; The second line, also part of the C grammar, defines a C macro, which
+;;; is a procedure for concatenating strings which takes text strings as input,
+;;; and outputs text strings.  This expansion happens before the compiler does anything
+;;; else.  For example, if using GCC as a compiler, if you run just the the C preprocessor
+;;; ``cpp'' on the above C code, you'll see that
+;;;
+;;; \begin{examplecode}
+;;;  printf("%d\n",square(fact(argc)));
+;;; \end{examplecode}
+;;;
+;;; expands into
+;;;
+;;; \begin{examplecode}
+;;;  printf("%d\n",((fact(argc)) * (fact(argc))));
+;;; \end{examplecode}
+;;;
+;;; The third line, also part of the C grammar, defines a function prototype, so that
+;;; the compiler knows the argument types and return type for a function called ``fact''.
+;;; This code is language, yet still has no representation in the machine code,
+;;; as it is language used by the compiler to determine the types for the function
+;;; call to ``fact'' on line 8, since ``fact'' has not yet been defined.
+;;;
+;;; The fourth through tenth line is a function definition, which will have
+;;; a representation in the machine code.  However, line 5 is language
+;;; to be interpreted by the compiler, referencing a variable defined
+;;; only during compilation, to detemine whether or not line 6 should be
+;;; compiled.
+;;;
+;;; \section{C++}
+;;;
+;;; C++ inherits C's macros, but with the introduction
+;;; of templates, C++'s compile time language
+;;; accidently became Turing complete.  This means that
+;;; theorectically, anything that can be
+;;; calculated by a computer can be done using templates running
+;;; at compile time.  In practice it is not pragmatic to do so.
+;;;
+;;; The following is an example of calculating the factorial of
+;;; 3, both using C++ functions, and using C++'s templates.
+;;;
+;;; \begin{examplecode}
+;;; #include <iostream>
+;;; template <unsigned int n>
+;;; struct factorial {
+;;; 	enum { value = n * factorial<n - 1>::value };
+;;; };
+;;; template <>
+;;; struct factorial<0> {
+;;; 	enum { value = 1 };
+;;; };
+;;; int fact(int n){
+;;;   return n == 0
+;;;     ? 1
+;;;     : n * fact(n-1);
+;;; }
+;;; int main(int argc, char* argv[]){
+;;;   std::cout << factorial<3>::value << std::endl;
+;;;   std::cout << fact(3) << std::endl;
+;;;   return 0;
+;;; }
+;;; \end{examplecode}
+
+;;; By disassembling the machine code using ``objdump -D'', you can
+;;; see the drastic difference in the generated code
+;;;
+;;; \begin{examplecode}
+;;; 400850:       be 06 00 00 00          mov    $0x6,%esi
+;;; 400855:       bf c0 0d 60 00          mov    $0x600dc0,%edi
+;;; 40085a:       e8 41 fe ff ff          callq  4006a0 <_ZNSolsEi@plt>
+;;;  .......
+;;;  .......
+;;;  .......
+;;; 40086c:       bf 03 00 00 00          mov    $0x3,%edi
+;;; 400871:       e8 a0 ff ff ff          callq  400816 <_Z4facti>
+;;; 400876:       89 c6                   mov    %eax,%esi
+;;; 400878:       bf c0 0d 60 00          mov    $0x600dc0,%edi
+;;; 40087d:       e8 1e fe ff ff          callq  4006a0 <_ZNSolsEi@plt>
+;;; \end{examplecode}
+ 
+
+
+
+;;; So that was a tad bit boring.  Why care about this?
+;;; It's to demonstrate that there is no compiler or interpreter binary,
+;;; computer languages implementations are on a spectrum.
+;;; C has two distince sub-''languages'', one for compile-time, and one
+;;; for run-time;
+;;; both of which have variables and procedure definitions.
+;;;
+;;; \chapter{The Implementation of libbug}
 ;;;
 ;;; This chapter defines a standard library of Scheme procedures and macros
 ;;; \footnote{The code within this section is all found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.
 ;;;
-;;; \section{Language Definition}
 ;;;
 ;;; Libbug defines extensions to the Scheme language, implemented via
 ;;; macros.  They are ``libbug\#define'', and ``libbug\#define-macro''.
