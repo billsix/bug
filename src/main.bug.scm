@@ -25,7 +25,7 @@
 ;;;  {  \noindent
 ;;;     \minipage{\linewidth}
 ;;;     \vspace{0.5\baselineskip}
-;;;     \lstset{language=Lisp, frame=single,framerule=.8pt,
+;;;     \lstset{language=Lisp, frame=single,framerule=.0pt,
 ;;;             basicstyle=\ttfamily,
 ;;;             identifierstyle=\ttfamily,keywordstyle=\ttfamily,
 ;;;             showstringspaces=false,#1}}
@@ -67,7 +67,7 @@
 ;;; you are unfamiliar, such as the following:
 ;;;
 ;;; \begin{examplecode}
-;;;{libbug#define
+;;;{define
 ;;; "list#"
 ;;; permutations
 ;;; [|lst|
@@ -147,56 +147,74 @@
 ;;; suited for this style of programming since unevaluated Lisp code is
 ;;; specified using a data structure of the language, and because the compiler,
 ;;; itself being a Lisp program, is an interpreter of the same language which
-;;; it compiles.
+;;; it compiles, fully capable of being augmented with user-defined code.
 ;;;
 ;;;
 ;;; \tableofcontents
 ;;; \break
 ;;; \chapter{Introduction}
 ;;; \pagenumbering{arabic}
-;;; BUG is Bill's Utilities for Gambit-C.  BUG provides a concise syntax for
-;;; lambdas,  utilities for general-purpose evaluation at compile-time, a
-;;; compile-time unit test framework, and a collection of utility functions that
-;;; I find useful.  Taken together, these can be used in a ``literate programming''
-;;; style.
+;;; Libbug is Bill's Utilities for Gambit Scheme, a ``standard library'' of procedures,
+;;; since Scheme itself is a small language.  Libbug also provides utilities for
+;;; general-purpose evaluation at compile-time, a
+;;; compile-time test framework, and a Scheme preprocessor to
+;;; provide a lambda literal syntax.  Programs written using libbug can be
+;;; programmed in a relatively unobstructive ``literate programming''
+;;; style, so that programs can be read linearly in a book form.
 
 ;;; \section{Prerequisites}
 ;;;
-;;; The reader is assumed to be familiar both with Scheme, and with Common Lisp-style
-;;; macros, which Gambit-C provides.  Suggested reading is ``The Structure and
+;;; The reader is assumed to be somewhat familiar both with Scheme, and with Common Lisp-style
+;;; macros (which Gambit provides).  Suggested reading is ``The Structure and
 ;;; Interpretation of Computer Programs'' by Sussman and Abelson, ``ANSI Common
 ;;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  These books inspired many
 ;;; ideas within BUG.
 ;;;
 ;;; \section{Conventions}
-;;; In BUG, the notation ``(fun arg1 arg2)'' means evaluate ``fun'', ``arg1''
+;;; Code which is part of libbug will have an outline and line numbers.
+;;;
+;;; \begin{code}
+;; This is Scheme source code.
+;;; \end{code}
+;;;
+;;; 
+;;; Example code which is not part of libbug will not have an outline, nor line
+;;; numbers.
+;;;
+;;; \begin{examplecode}
+(+ 1 ("This is NOT part of libbug"))
+;;; \end{examplecode}
+
+;;; In libbug, the notation
+
+;;; \begin{examplecode}
+(fun arg1 arg2)
+;;; \end{examplecode}
+;;;
+;;;  means evaluate ``fun'', ``arg1''
 ;;; and ``arg2'', and then apply ``fun'' to ``arg1'' and ``arg2''.  This notation
 ;;; is standard Scheme, but Scheme uses the same notation for macro application.
 ;;; This can cause some confusion to a reader.  To attempt to minimize the confusion,
-;;; within BUG the notation ``\{fun1 arg1 arg2\}'' is used to denote to
+;;; within BUG the notation
+
+;;; \begin{examplecode}
+{fun1 arg1 arg2}
+;;; \end{examplecode}
+
+;;;      is used to denote to
 ;;; the reader that the standard evaluation rules do not necessarily apply to
-;;; all arguments.  For instance, in ``\{define x 5\}'', \{\} are used because ``x''
+;;; all arguments.  For instance, in
+
+;;; \begin{examplecode}
+;;;{define x 5}
+;;; \end{examplecode}
+
+;;; \{\} are used because ``x''
 ;;; is a new variable, and as such, cannot currently evaluate to anything.
 ;;;
 ;;;
 ;;;
 
-;;; \section{Language Definition}
-;;;
-;;;
-;;;
-;;; BUG defines extensions to the Scheme language, implemented via
-;;; macros.  They are implemented in ``bug-language.bug.scm''\footnote{Although
-;;; the filename is ``bug-language.bug.scm'', ``bug-language.scm'' is imported.  This
-;;; is because ``bug-gscpp'' preprocesses the bug file, and outputs a standard Gambit
-;;; Scheme file, with a different filename}, which will now
-;;; import.  How to use these procedure-defining procedures will be explained
-;;; incrementally, and their implementation is defined in
-;;; section~\ref{sec:buglang}.
-;;;
-;;; \begin{code}
-(include "bug-language.scm")
-;;;\end{code}
 ;;; \chapter{libbug}
 ;;;
 ;;; This chapter defines a standard library of Scheme procedures and macros
@@ -204,6 +222,26 @@
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.
 ;;;
+;;; \section{Language Definition}
+;;;
+;;; Libbug defines extensions to the Scheme language, implemented via
+;;; macros.  They are ``libbug\#define'', and ``libbug\#define-macro''.
+;;; Any variable namespaced with ``libbug'' is not included in the library
+;;; or associated files, they are meant for private use within the implementation
+;;; of libbug.  They are implemented in ``bug-language.bug.scm''\footnote{Although
+;;; the filename is ``bug-language.bug.scm'', ``bug-language.scm'' is imported.  This
+;;; is because ``bug-gscpp'' preprocesses the bug file, and outputs a standard Gambit
+;;; Scheme file, with a different filename}, which will now
+;;; be imported.  How to use these procedure-defining procedures will be explained
+;;; incrementally, and their implementation is defined in
+;;; chapter~\ref{sec:buglang}.
+;;;
+;;; \begin{code}
+(include "bug-language.scm")
+(##namespace ("libbug#" define))
+(##namespace ("libbug#" define-macro))
+;;;\end{code}
+
 ;;;
 ;;; \section*{lang\#noop}
 ;;; The first definition is ``noop'', a procedure which takes no arguments and
@@ -212,7 +250,7 @@
 
 ;;; \index{lang\#noop}
 ;;; \begin{code}
-{libbug#define
+{define
  "lang#"
  noop
  ['noop]
@@ -248,7 +286,7 @@
 ;;;
 ;;; \index{lang\#identity}
 ;;; \begin{code}
-{libbug#define
+{define
  "lang#"
  identity
  [|x| x]
@@ -270,7 +308,7 @@
 ;;;
 ;;; \index{list\#all?}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  all?
  [|lst|
@@ -285,11 +323,11 @@
 ;;;         lambda expressions for the two parameters. I like to think of
 ;;;         \#t, \#f, and if as the following:
 ;;;
-;;;     (define \#t {[}\textbar t f\textbar (t){]}
-;;;
-;;;     (define \#f {[}\textbar t f\textbar (f){]}
-;;;
-;;;     (define lang\#if {[}\textbar b t f\textbar (b t f) {]}
+;;; \begin{examplecode}
+;;;{define #t [|t f| (t)]}
+;;;{define #f [|t f| (f)]}
+;;;{define lang#if [|b t f| (b t f)]}
+;;; \end{examplecode}
 ;;;
 ;;; As such, if would not be a special form, and is more consistent with the
 ;;; rest of BUG.
@@ -325,7 +363,7 @@
 ;;;
 ;;; \index{lang\#satisfies-relation}
 ;;; \begin{code}
-{libbug#define
+{define
  "lang#"
  satisfies-relation
  [|fn list-of-pairs|
@@ -360,7 +398,7 @@
 
 ;;; \index{lang\#compose}
 ;;; \begin{code}
-{libbug#define-macro
+{define-macro
  "lang#"
  compose
  [|#!rest fns|
@@ -452,7 +490,7 @@
 ;;;
 ;;; \index{list\#any?}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  any?
  [|lst|
@@ -481,7 +519,7 @@
 ;;;
 ;;; \index{lang\#complement}
 ;;; \begin{code}
-{libbug#define
+{define
  "lang#"
  complement
  [|f|
@@ -512,7 +550,7 @@
 ;;;
 ;;; \index{list\#copy}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  copy
  [|l| (map identity l)]
@@ -532,7 +570,7 @@
 ;;;
 ;;; \index{list\#proper?}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  proper?
  [|l| (if (null? l)
@@ -564,7 +602,7 @@
 ;;;
 ;;; \index{list\#first}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  first
  [|lst #!key (onNull noop)|
@@ -592,7 +630,7 @@
 ;;; \section*{list\#but-first}
 ;;; \index{list\#but-first}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  but-first
  [|lst #!key (onNull noop)|
@@ -619,7 +657,7 @@
 ;;; \section*{list\#last}
 ;;; \index{list\#last}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  last
  [|lst #!key (onNull noop)|
@@ -649,7 +687,7 @@
 ;;; \section*{list\#but-last}
 ;;; \index{list\#but-last}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  but-last
  [|lst #!key (onNull noop)|
@@ -682,7 +720,7 @@
 ;;; \section*{list\#filter}
 ;;; \index{list\#filter}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  filter
  [|p? lst|
@@ -710,7 +748,7 @@
 ;;; \section*{list\#remove}
 ;;; \index{list\#remove}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  remove
  [|x lst|
@@ -732,7 +770,7 @@
 ;;;
 ;;; \index{list\#fold-left}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  fold-left
  [|fn initial lst|
@@ -770,7 +808,7 @@
 ;;;
 ;;; \index{list\#fold-right}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  fold-right
  [|fn initial lst|
@@ -798,7 +836,7 @@
 ;;;
 ;;; \index{list\#append!}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  append!
  [|lst x|
@@ -831,7 +869,7 @@
 ;;;
 ;;; \index{list\#scan-left}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  scan-left
  [|fn initial lst|
@@ -867,7 +905,7 @@
 ;;;
 ;;; \index{list\#flatmap}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  flatmap
  [|fn lst|
@@ -887,7 +925,7 @@
 ;;; \section*{list\#enumerate-interval}
 ;;; \index{list\#enumerate-interval}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  enumerate-interval
  [|low high #!key (step 1)|
@@ -908,7 +946,7 @@
 ;;; \section*{list\#zip}
 ;;; \index{list\#zip}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  zip
  [|#!rest lsts|
@@ -961,7 +999,7 @@
 ;;; \section*{list\#permutations}
 ;;; \index{list\#permutations}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  permutations
  [|lst|
@@ -997,7 +1035,7 @@
 ;;; \section*{list\#sublists}
 ;;; \index{list\#sublists}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  sublists
  [|lst|
@@ -1011,8 +1049,8 @@
   sublists
   '(
     (() ())
-    ((1) ((1)))
-    ((1 2) ((1 2) (2)))
+    ((3) ((3)))
+    ((2 3) ((2 3) (3)))
     ((1 2 3) ((1 2 3) (2 3) (3)))
     ))}
 ;;; \end{code}
@@ -1022,7 +1060,7 @@
 ;;;
 ;;; \index{list\#ref-of}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  ref-of
  [|lst x #!key (onMissing noop)|
@@ -1076,7 +1114,7 @@
 ;;;
 ;;; \index{list\#partition}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  partition
  [|lst pred?|
@@ -1107,7 +1145,7 @@
 ;;; \section*{list\#sort}
 ;;; \index{list\#sort}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  sort
  [|lst comparison|
@@ -1142,7 +1180,7 @@
 ;;;
 ;;; \index{list\#reverse"!}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  reverse!
  [|lst|
@@ -1184,7 +1222,7 @@
 ;;;
 ;;; \index{lang\#aif}
 ;;; \begin{code}
-{libbug#define-macro
+{define-macro
  "lang#"
  aif
  [|bool body|
@@ -1216,7 +1254,7 @@
 ;;;
 ;;; \index{symbol\#symbol-append"}
 ;;; \begin{code}
-{libbug#define
+{define
  "symbol#"
  symbol-append
  [|#!rest symlst|
@@ -1250,7 +1288,7 @@
 
 ;;; \index{lang\#setf"!}
 ;;; \begin{code}
-{libbug#define-macro
+{define-macro
  "lang#"
  setf!
  [|exp val|
@@ -1462,7 +1500,7 @@
 ;;;   with variables local to the macro caller.
 ;;;
 ;;; \begin{code}
-{libbug#define-macro
+{define-macro
  "lang#"
  with-gensyms
  [|symbols #!rest body|
@@ -1489,7 +1527,7 @@
 ;;;
 ;;; \index{lang\#while}
 ;;; \begin{code}
-{libbug#define
+{define
  "lang#"
  while
  [|pred body|
@@ -1510,7 +1548,7 @@
 ;;;
 ;;; \index{lang\#numeric-if}
 ;;; \begin{code}
-{libbug#define
+{define
  "lang#"
  numeric-if
  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
@@ -1537,7 +1575,7 @@
 ;;;
 ;;; \index{stream\#stream-cons}
 ;;; \begin{code}
-{libbug#define-macro
+{define-macro
  "stream#"
  stream-cons
  [|a b|
@@ -1558,7 +1596,7 @@
 ;;;
 ;;; \index{stream\#stream-car}
 ;;; \begin{code}
-{libbug#define
+{define
  "stream#"
  stream-car
  car
@@ -1574,7 +1612,7 @@
 ;;;
 ;;; \index{stream\#stream-cdr}
 ;;; \begin{code}
-{libbug#define
+{define
  "stream#"
  stream-cdr
  [|s| {force (cdr s)}]
@@ -1590,7 +1628,7 @@
 ;;;
 ;;; \index{list\#list-\textgreater stream}
 ;;; \begin{code}
-{libbug#define
+{define
  "list#"
  list->stream
  [|l|
@@ -1621,20 +1659,18 @@
 ;;;
 ;;; \index{stream\#stream-ref}
 ;;; \begin{code}
-{libbug#define
+{define
  "stream#"
  stream-ref
  [|s n #!key (onOutOfBounds noop)|
-  {define refPrime
-    [|s n|
-     (if (equal? n 0)
-	 [(stream-car s)]
-	 [(if (not (null? (stream-cdr s)))
-	      [(refPrime (stream-cdr s) (- n 1))]
-	      [(onOutOfBounds)])])]}
   (if (< n 0)
       [(onOutOfBounds)]
-      [(refPrime s n)])]
+      [{let stream-ref ((s s) (n n))
+	 (if (equal? n 0)
+	     [(stream-car s)]
+	     [(if (not (null? (stream-cdr s)))
+		  [(stream-ref (stream-cdr s) (- n 1))]
+		  [(onOutOfBounds)])])}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}

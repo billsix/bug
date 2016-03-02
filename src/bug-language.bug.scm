@@ -161,7 +161,7 @@
 
 ;;; \index{write-and-eval}
 ;;; \begin{code}
-{define-macro write-and-eval
+{##define-macro write-and-eval
   [|port form|
    (eval `(begin
 	    (write ',form ,port)
@@ -195,7 +195,7 @@
 (write-and-eval
  libbug-macros-file
  {at-both-times
-  {define-macro if
+  {##define-macro if
     [|pred ifTrue ifFalse|
      ;; (single-expression? [5]) => true
      ;; (single-expression? [(pp 4) 6]) => false
@@ -423,6 +423,6 @@
    `{begin
       {libbug#namespace (,namespace ,name)}
       {with-tests
-       {define ,name ,body}
+       {##define ,name ,body}
        ,@tests}}]}
 ;;; \end{code}
