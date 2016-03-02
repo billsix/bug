@@ -53,8 +53,103 @@
 ;;; \break
 
 ;;; \chapter*{Preface}
-;;;  This will be the preface.
-
+;;; This book is a book about compiler design for people who have no interest
+;;; in studying compiler design.  ...Wait... then who will want to read the book?
+;;; Let me try this again.  This book is the study of all your
+;;; source code which doesn't up end getting compiled into your executable.
+;;; ...Ummm, still not right...  This book is about viewing your compiler not only
+;;; as a means of translating your source code into an executable for
+;;; later execution, but also viewing it as an interpreter capable of any
+;;; general purpose computation.  ...Closer..., but who cares. I think I got it
+;;; now - This is a book about ``Testing at Compile-Time''!
+;;;
+;;; What do I mean by that?  Let's say you're looking at source code with which
+;;; you are unfamiliar, such as the following:
+;;;
+;;; \begin{examplecode}
+;;;{libbug#define
+;;; "list#"
+;;; permutations
+;;; [|lst|
+;;;  (if (null? lst)
+;;;      ['()]
+;;;      [{let permutations ((lst lst))
+;;;	   (if (null? lst)
+;;;	     [(list '())]
+;;;	     [(flatmap
+;;;	       [|x|
+;;;		(map [|y| (cons x y)]
+;;;		     (permutations (remove x lst)))]
+;;;	       lst)])}])]
+;;; \end{examplecode}
+;;;
+;;; So what does the code do?  How did the author intend for it to be used?
+;;; In trying to answer those questions, fans of statically-typed programming
+;;; languages might lament the lack of types.  In trying to answer those questions,
+;;; fans of dynamically-typed languages might argue ``Look at the tests!''  But
+;;; where are the tests?  Probably in some other file, whose filesystem path is
+;;; similar to the current file's path, (e.g, src/com/BigCorp/HugeProject/Foo.java -\textgreater test/com/BigCorp/HugeProject/FooTest.java)
+;;; Then you'd have to look through that whole file, while ignoring tests which are
+;;; for other methods.  Frankly, it's too much work, and interrupts the flow
+;;; of coding.
+;;;
+;;; What else could be done?  Well, in this book, which by the way is the
+;;; implementation of a library called ``libbug''\footnote{Bill's Utilities
+;;; for Gambit}, tests are specified as part of the procedure's definition,
+;;; they are run at compile-time, and should any test fail the compiler will
+;;; exit and not produce the libbug library, much like a type error in a
+;;; statically-typed language.  Furthermore, the book you are currently reading
+;;; is embedded into the source code of libbug, so this book couldn't exist if the tests
+;;; failed.
+;;;
+;;; The very alert reader may have noticed that the opening '\{' in the definition
+;;; of ``permutations'' was not closed, and that's because during procedure definition,
+;;; we can specify tests which are to be run at compile-time, which will test
+;;; the procedure currently being defined.
+;;;
+;;; \begin{examplecode}
+;;; (equal? (permutations '())
+;;;	 '())
+;;; (equal? (permutations '(1))
+;;;	 '((1)))
+;;; (equal? (permutations '(1 2))
+;;;	 '((1 2)
+;;;	   (2 1)))
+;;; (equal? (permutations '(1 2 3))
+;;;	 '((1 2 3)
+;;;	   (1 3 2)
+;;;	   (2 1 3)
+;;;	   (2 3 1)
+;;;	   (3 1 2)
+;;;	   (3 2 1)))
+;;; }
+;;; \end{examplecode}
+;;;
+;;; Now, the closing '\}' is there, and the procedure is defined.
+;;;
+;;; So why does this matter?
+;;; Towards answering the questions ``so what does the code do?'', ``how did the author
+;;; intend for it to be used?'', there is no guessing involved.  The fact that the
+;;; tests are collocated with the procedure definition means that the reader can immediately
+;;; read the tests, perhaps before reading the procedure definition.  And the reader
+;;; may not even read the definition at all if the tests gave them enough information
+;;; to use the procedure.  But should the reader want to understand the definition, the
+;;; tests in this book have been designed to help the reader incrementally understand
+;;; the procedure under test.  
+;;;
+;;; Wait a second, if those tests are defined in the source code itself, won't they
+;;; be in the executable?  And won't they run every time I run the executable?  The
+;;; answer to both is no, because in Chapter~\ref{sec:buglang} I show how to specify
+;;; that certain code should be interpreted by the compiler, instead of code to be
+;;; compiled\footnote{Which is also why this book is
+;;; called the more general ``Computation at Compile-Time'' instead of ``Testing
+;;; at Compile-Time''}.  Lisp implementations such as Gambit are particularly well
+;;; suited for this style of programming since unevaluated Lisp code is
+;;; specified using a data structure of the language, and because the compiler,
+;;; itself being a Lisp program, is an interpreter of the same language which
+;;; it compiles.
+;;;
+;;;
 ;;; \tableofcontents
 ;;; \break
 ;;; \chapter{Introduction}
@@ -65,10 +160,6 @@
 ;;; I find useful.  Taken together, these can be used in a ``literate programming''
 ;;; style.
 
-;;; \begin{examplecode}
-;;; class Foo{
-;;; }
-;;; \end{examplecode}
 ;;; \section{Prerequisites}
 ;;;
 ;;; The reader is assumed to be familiar both with Scheme, and with Common Lisp-style
@@ -902,6 +993,7 @@
 	      (3 2 1)))
     ))}
 ;;; \end{code}
+
 ;;; \section*{list\#sublists}
 ;;; \index{list\#sublists}
 ;;; \begin{code}
