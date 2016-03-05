@@ -183,13 +183,13 @@
 ;;; numbers.
 ;;;
 ;;; \begin{examplecode}
-(+ 1 ("This is NOT part of libbug"))
+;;; (+ 1 ("This is NOT part of libbug"))
 ;;; \end{examplecode}
 
 ;;; In libbug, the notation
 
 ;;; \begin{examplecode}
-(fun arg1 arg2)
+;;; (fun arg1 arg2)
 ;;; \end{examplecode}
 ;;;
 ;;;  means evaluate ``fun'', ``arg1''
@@ -199,7 +199,7 @@
 ;;; within BUG the notation
 
 ;;; \begin{examplecode}
-{fun1 arg1 arg2}
+;;; {fun1 arg1 arg2}
 ;;; \end{examplecode}
 
 ;;;      is used to denote to
