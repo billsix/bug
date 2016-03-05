@@ -174,11 +174,14 @@
 ;;; \chapter{Introduction}
 ;;; \pagenumbering{arabic}
 ;;; Libbug is Bill's Utilities for Gambit Scheme, a ``standard library'' of procedures,
-;;; since Scheme itself is a small language.  Libbug also provides utilities for
+;;; augmenting Scheme's small set of built-in procedures and macros.
+;;; Libbug provides procedures for list processing, streams, procedure-building procedures,
+;;; control structures,
 ;;; general-purpose evaluation at compile-time, a
-;;; compile-time test framework, and a Scheme preprocessor to
+;;; compile-time test framework (in only 9 lines of code!), and a Scheme preprocessor to
 ;;; provide a lambda literal syntax.  Programs written using libbug can be
-;;; programmed in a relatively unobstructive ``literate programming''
+;;; programmed in a relatively unobstructive
+;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
 ;;; style, so that programs can be read linearly in a book form.
 
 ;;; \section{Prerequisites}
@@ -196,7 +199,7 @@
 ;; This is Scheme source code.
 ;;; \end{code}
 ;;;
-;;; 
+;;; \noindent
 ;;; Example code which is not part of libbug will not have an outline, nor line
 ;;; numbers.
 ;;;
@@ -204,12 +207,14 @@
 ;;; (+ 1 ("This is NOT part of libbug"))
 ;;; \end{examplecode}
 
+;;; \noindent
 ;;; In libbug, the notation
 
 ;;; \begin{examplecode}
 ;;; (fun arg1 arg2)
 ;;; \end{examplecode}
 ;;;
+;;; \noindent
 ;;;  means evaluate ``fun'', ``arg1''
 ;;; and ``arg2'', and then apply ``fun'' to ``arg1'' and ``arg2''.  This notation
 ;;; is standard Scheme, but Scheme uses the same notation for macro application.
@@ -220,6 +225,7 @@
 ;;; {fun1 arg1 arg2}
 ;;; \end{examplecode}
 
+;;; \noindent
 ;;;      is used to denote to
 ;;; the reader that the standard evaluation rules do not necessarily apply to
 ;;; all arguments.  For instance, in
@@ -228,11 +234,28 @@
 ;;;{define x 5}
 ;;; \end{examplecode}
 
+;;; \noindent
 ;;; \{\} are used because ``x''
 ;;; is a new variable, and as such, cannot currently evaluate to anything.
 ;;;
 ;;;
+;;; \section{Getting the Source Code}
+;;;  The Scheme source code is located at http://github.com/billsix/bug.
+;;;  The Scheme files can produce the libbug library, as well as this book.
+;;;  This book was generated from git commit ID \input{version.tex}.
+;;;  Currently, the code works on various distributions of Linux, and on
+;;;  OS X.  The build currently does not work on Windows.
 ;;;
+;;; You will of course need a C compiler, and Gambit
+;;; Scheme\footnote{http://gambitscheme.org}
+;;;  To compile the book and library
+;;; \begin{examplecode}
+;;; $ ./configure --enable-pdf=yes
+;;; $ make
+;;; $ make install
+;;; \end{examplecode}
+
+
 ;;; \chapter{Compile-Time Language}
 ;;;
 ;;; This chapter provides a quick tour of computer language which is interpreted
@@ -242,7 +265,8 @@
 ;;; In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
 ;;; Motwani, and Ullman define language as ``A set of strings all of which are chosen
 ;;; from some $\Sigma$ $\star$, where $\Sigma$ is a particular alphabet, is called
-;;; a language''.  They further state ``In automata theory, a problem is the question
+;;; a language'' \cite[p. 30]{hmu2001}.
+;;;  They further state ``In automata theory, a problem is the question
 ;;; of deciding whether a given string is a member of some particular language''.
 ;;; Languages have grammars, which formally define whether or not a given string is in the
 ;;; language.
@@ -438,8 +462,11 @@
 ;;; \end{itemize}
 ;;;
 ;;; \section*{lang\#identity}
+;;; lang\#identity is a procedure of one argument which evaluates to
+;;; its argument. \cite[p. 2]{calculi}
 ;;;
 ;;; \index{lang\#identity}
+;;;
 ;;; \begin{code}
 {define
   "lang#"
@@ -450,10 +477,14 @@
 ;;;   \item On line 4, ``bug-gscpp'' expands ``[\textbar x\textbar x]'' to ``(lambda (x) x)''.  This expansion
 ;;;         works with multiple arguments, as long as they are between the ``\textbar''s.
 ;;; \end{itemize}
+;;; \noindent
+;;; libbug\#define can take more than one test as parameters.
 
 ;;; \subsection*{Test}
 ;;; \begin{code}
-  (equal? "foo" (identity "foo"))}
+  (equal? "foo" (identity "foo"))
+  (equal? identity (identity identity))
+  }
 ;;; \end{code}
 ;;;
 ;;;
@@ -476,7 +507,8 @@
 ;;; \begin{itemize}
 ;;;   \item On line 5, if, which is currently namespaced to lang\#if, takes
 ;;;         lambda expressions for the two parameters. I like to think of
-;;;         \#t, \#f, and if as the following:
+;;;         \#t, \#f, and if as the
+;;;         following\footnote{\#t is the constancy function K\cite[p. 4]{calculi}}:
 ;;;
 ;;; \begin{examplecode}
 ;;;{define #t [|t f| (t)]}
@@ -489,7 +521,6 @@
 ;;;
 ;;; \end{itemize}
 ;;;
-;;; libbug\#define can take more than one test as parameters.
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -569,6 +600,7 @@
                       ,(compose (cdr fns)))])}]}])]
 ;;; \end{code}
 ;;;
+;;;
 ;;; libbug\#define-macro \footnote{defined in section ~\ref{sec:libbugdefinemacro}}
 ;;; is a wrapper around Gambit's \#\#define-macro\footnote{which is very similar to Common
 ;;; Lisp's macro system}, but libbug\#define-macro only allows the lambda literal
@@ -638,6 +670,8 @@
                      gensymed-var1)))])
   }
 ;;; \end{code}
+;;;
+;;; \cite[p. 66]{onlisp}
 ;;; \section*{list\#any?}
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
@@ -680,6 +714,7 @@
   [|f|
    [|#!rest args| (not (apply f args))]]
 ;;; \end{code}
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies-relation
@@ -696,7 +731,55 @@
      ))
   }
 ;;; \end{code}
+;;;
+;;; \cite[p. 63]{onlisp}
 
+;;; \section*{lang\#while}
+;;;
+;;; \index{lang\#while}
+;;; \begin{code}
+{define
+  "lang#"
+  while
+  [|pred body|
+   (if (pred)
+       [(body)
+        (while pred body)]
+       [(noop)])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  {let ((a 0))
+    (while [(< a 5)]
+           [(set! a (+ a 1))])
+    (equal? a 5)}}
+;;; \end{code}
+;;; \section*{lang\#numeric-if}
+;;;   An if expression for numbers, based on their sign.
+;;;
+;;; \index{lang\#numeric-if}
+;;; \begin{code}
+{define
+  "lang#"
+  numeric-if
+  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
+   {cond ((> expr 0) (ifPositive))
+         ((= expr 0) (ifZero))
+         (else (ifNegative))}]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies-relation
+   [|n|
+    (numeric-if n ifPositive: ['pos] ifZero: ['zero] ifNegative: ['neg])]
+   '(
+     (5 pos)
+     (0 zero)
+     (-5 neg)
+     ))}
+;;; \end{code}
+;;;
+;;; \cite[p. 150, called ``nif'']{onlisp}
 
 
 ;;; \section*{list\#copy}
@@ -765,6 +848,7 @@
        [(onNull)]
        [(car lst)])]
 ;;; \end{code}
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies-relation
@@ -780,6 +864,8 @@
      ((1 2 3) 1)
      ))}
 ;;; \end{code}
+;;;
+;;; \cite[p. 59]{ss}
 
 
 ;;; \section*{list\#but-first}
@@ -793,6 +879,7 @@
        [(onNull)]
        [(cdr lst)])]
 ;;; \end{code}
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies-relation
@@ -809,6 +896,7 @@
      ))}
 ;;; \end{code}
 
+;;; \cite[p. 59]{ss}
 ;;; \section*{list\#last}
 ;;; \index{list\#last}
 ;;; \begin{code}
@@ -823,6 +911,7 @@
               [(car lst)]
               [(last (cdr lst))])}])]
 ;;; \end{code}
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies-relation
@@ -839,6 +928,8 @@
      ((2 1) 1)
      ))}
 ;;; \end{code}
+;;;
+;;; \cite[p. 59]{ss}
 ;;; \section*{list\#but-last}
 ;;; \index{list\#but-last}
 ;;; \begin{code}
@@ -854,6 +945,7 @@
               [(cons (car lst)
                      (but-last (cdr lst)))])}])]
 ;;; \end{code}
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies-relation
@@ -872,6 +964,8 @@
      ))
   }
 ;;; \end{code}
+;;;
+;;; \cite[p. 59]{ss}
 ;;; \section*{list\#filter}
 ;;; \index{list\#filter}
 ;;; \begin{code}
@@ -900,6 +994,10 @@
      ((2 4 1 4) (2 1))
      ))}
 ;;; \end{code}
+;;;
+;;; \cite[p. 331]{ss}. \cite[p. 115]{sicp}.
+;;; \footnote{Simply Scheme has an excellent discussion on section
+;;;  on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}.}
 ;;; \section*{list\#remove}
 ;;; \index{list\#remove}
 ;;; \begin{code}
@@ -955,6 +1053,8 @@
      ((1 2) 2)
      ((1 2 3 4 5 6) -16)))}
 ;;; \end{code}
+;;;
+;;; \cite[p. 121]{sicp}
 
 ;;; \section*{list\#fold-right}
 ;;;    Reduces the list to a scalar by applying the reducing
@@ -984,6 +1084,8 @@
      ((3 2 1) 2)
      ))}
 ;;; \end{code}
+;;;
+;;; \cite[p. 116 (named ``accumulate'')]{sicp}
 
 ;;; \section*{list\#append!}
 ;;;   Like append, but recycles the last cons cell, so it's
@@ -1054,18 +1156,15 @@
 
 
 ;;; \section*{list\#flatmap}
-;;;  Maps a prodecure to a list, but the result of the
-;;;  procedure application will be a list.  Aggregate all
-;;;  of those lists together.
-;;;
 ;;; \index{list\#flatmap}
 ;;; \begin{code}
 {define
   "list#"
   flatmap
   [|fn lst|
-   (fold-left append '() (map fn lst))]
+   (fold-left append! '() (map fn lst))]
 ;;; \end{code}
+
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies-relation
@@ -1077,6 +1176,8 @@
      ((10 20) (10 11 12 20 21 22))
      ))}
 ;;; \end{code}
+;;;
+;;; \cite[p. 123]{sicp}
 ;;; \section*{list\#enumerate-interval}
 ;;; \index{list\#enumerate-interval}
 ;;; \begin{code}
@@ -1138,6 +1239,7 @@
           '((1 4 7)
             (2 5 8)
             (3 6 9)))
+;;; \end{code}
 ;;; \subsection*{Tests with 4 Lists}
 ;;; \begin{code}
   (equal? (zip '() '() '() '())
@@ -1186,6 +1288,12 @@
                (3 2 1)))
      ))}
 ;;; \end{code}
+;;;
+;;; Inspired by \cite[p. 124]{sicp}, although I think they have a slight
+;;; mistake in
+;;;  their code.  Given their definition (permutations '()) evalutes to '(()), instead of '().
+;;;
+;;; \cite[p. 45]{taocp}
 
 ;;; \section*{list\#sublists}
 ;;; \index{list\#sublists}
@@ -1363,17 +1471,6 @@
 
 
 ;;; \section*{lang\#aif}
-;;; BUG also provides a new procedure for creating macros.  Just as libbug\#define
-;;; exports the namespace to a file during compilation time, libbug\#define-macro
-;;; exports the namespace to ``libbug\#.scm'', and also exports the definition of
-;;; the macro to ``libbug-macros.scm'' during compile time.  Since external
-;;; projects will actually load those macros as input files, much care was needed
-;;; in defining libbug\#define-macro to ensure that the macros work externally in
-;;; the same manner as they work in this file.  The details of how this works
-;;; outside the current scope; it is defined in ``bug-language.bug.scm'
-
-;;; aif evaluates bool, binds it to the variable ``it'', which is accessible in
-;;; body.
 ;;;
 ;;; \index{lang\#aif}
 ;;; \begin{code}
@@ -1401,11 +1498,11 @@
 
   }
 ;;; \end{code}
+;;;
+;;; \cite[p. 191]{onlisp}
 
 
 ;;; \section*{symbol\#symbol-append}
-;;;   Like append, but recycles the last cons cell, so it's
-;;;   faster, but mutates the input.
 ;;;
 ;;; \index{symbol\#symbol-append"}
 ;;; \begin{code}
@@ -1425,11 +1522,173 @@
 ;;; \end{code}
 
 
+;;; \section*{lang\#with-gensyms}
+;;;   Utility for macros to minimize explicit use of gensym.
+;;;   Gensym creates a symbol at compile time which is guaranteed
+;;;   to be unique.  Macros which intentionally capture variables,
+;;;   such as aif, are the anomaly.
+;;;   Usually, variables local to a macro should not clash
+;;;   with variables local to the macro caller.
+;;;
+;;; \begin{code}
+{define-macro
+  "lang#"
+  with-gensyms
+  [|symbols #!rest body|
+   `{let ,(map [|symbol| `(,symbol {gensym})]
+               symbols)
+      ,@body}]
+  (equal? (macroexpand-1 (with-gensyms (foo bar baz)
+                                       `{begin
+                                          (pp ,foo)
+                                          (pp ,bar)
+                                          (pp ,baz)}))
+          '{let ((foo (gensym))
+                 (bar (gensym))
+                 (baz (gensym)))
+             `{begin
+                (pp ,foo)
+                (pp ,bar)
+                (pp ,baz)}})
+  }
+;;; \end{code}
+;;;
+;;; \cite[p. 145]{onlisp}
+
+
+;;; \section*{stream\#stream-cons}
+;;; Streams are lists whose evaluation is deferred until the value is
+;;; requested.  For more information, consult ``The Structure and
+;;; Interpretation of Computer Programs''.
+;;;
+;;; \index{stream\#stream-cons}
+;;; \begin{code}
+{define-macro
+  "stream#"
+  stream-cons
+  [|a b|
+   `(cons ,a {delay ,b})]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  {begin
+    {let ((s {stream-cons 1 2}))
+      {and
+       (equal? (car s)
+               1)
+       (equal? {force (cdr s)}
+               2)}}}}
+;;; \end{code}
+;;;
+;;; \cite[p. 321]{sicp}.
+;;; \section*{stream\#stream-car}
+;;; Get the first element of the stream.
+;;;
+;;; \index{stream\#stream-car}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-car
+  car
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  {let ((s {stream-cons 1 2}))
+    (equal? (stream-car s)
+            1)}}
+;;; \end{code}
+;;;
+;;; \cite[p. 321]{sicp}.
+;;; \section*{stream\#stream-cdr}
+;;; Forces the evaluation of the next element of the stream.
+;;;
+;;; \index{stream\#stream-cdr}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-cdr
+  [|s| {force (cdr s)}]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  {let ((s {stream-cons 1 2}))
+    (equal? (stream-cdr s)
+            2)}}
+;;; \end{code}
+;;;
+;;; \cite[p. 321]{sicp}.
+;;; \section*{list\#list-\textgreater stream}
+;;; Converts a list into a stream
+;;;
+;;; \index{list\#list-\textgreater stream}
+;;; \begin{code}
+{define
+  "list#"
+  list->stream
+  [|l|
+   (if (null? l)
+       [l]
+       [(stream-cons (car l)
+                     {let list->stream ((l (cdr l)))
+                       (if (null? l)
+                           ['()]
+                           [(stream-cons (car l)
+                                         (list->stream (cdr l)))])})])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  {let ((foo (list#list->stream '(1 2 3))))
+    {and (equal? 1 (stream-car foo))
+         (equal? 2 (stream-car
+                    (stream-cdr foo)))
+         (equal? 3 (stream-car
+                    (stream-cdr
+                     (stream-cdr foo))))
+         (null? (stream-cdr
+                 (stream-cdr
+                  (stream-cdr foo))))}}}
+;;; \end{code}
+;;; \section*{stream\#stream-ref}
+;;; The analogous procedure of list-ref
+;;;
+;;; \index{stream\#stream-ref}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-ref
+  [|s n #!key (onOutOfBounds noop)|
+   (if (< n 0)
+       [(onOutOfBounds)]
+       [{let stream-ref ((s s) (n n))
+          (if (equal? n 0)
+              [(stream-car s)]
+              [(if (not (null? (stream-cdr s)))
+                   [(stream-ref (stream-cdr s) (- n 1))]
+                   [(onOutOfBounds)])])}])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  {let ((s (list->stream '(5 4 3 2 1))))
+    (and
+     (equal? (stream-ref s -1)
+             'noop)
+     (equal? (stream-ref s 0)
+             5)
+     (equal? (stream-ref s 4)
+             1)
+     (equal? (stream-ref s 5)
+             'noop)
+     (equal? (stream-ref s 5 onOutOfBounds: ['out])
+             'out))}}
+;;; \end{code}
+;;;
+;;; \cite[p. 319]{sicp}.
+
 ;;; \section*{lang\#setf!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
-;;; The implementation inspired by \footnote{http://okmij.org/ftp/Scheme/setf.txt}
+;;; The implementation inspired by \cite{setf}.
 ;;;
-;;; Libbug includes a macro called ``at-compile-time''\footnote{define
+;;; Libbug includes a macro called ``at-compile-time''\footnote{defined
 ;;; in chapter ~\ref{sec:buglang}}, which executes its' argument exclusively
 ;;; at compile-time.  For the purpose of testing the ``setf!'' macro, a dummy
 ;;; structure is created, for use in the test.  The structure is not present
@@ -1643,206 +1902,6 @@
     (equal? (cddddr a) 10)}
   }
 ;;; \end{code}
-
-
-
-;;; \section*{lang\#with-gensyms}
-;;;   Utility for macros to minimize explicit use of gensym.
-;;;   Gensym creates a symbol at compile time which is guaranteed
-;;;   to be unique.  Macros which intentionally capture variables,
-;;;   such as aif, are the anomaly.
-;;;   Usually, variables local to a macro should not clash
-;;;   with variables local to the macro caller.
-;;;
-;;; \begin{code}
-{define-macro
-  "lang#"
-  with-gensyms
-  [|symbols #!rest body|
-   `{let ,(map [|symbol| `(,symbol {gensym})]
-               symbols)
-      ,@body}]
-  (equal? (macroexpand-1 (with-gensyms (foo bar baz)
-                                       `{begin
-                                          (pp ,foo)
-                                          (pp ,bar)
-                                          (pp ,baz)}))
-          '{let ((foo (gensym))
-                 (bar (gensym))
-                 (baz (gensym)))
-             `{begin
-                (pp ,foo)
-                (pp ,bar)
-                (pp ,baz)}})
-  }
-;;; \end{code}
-
-;;; \section*{lang\#while}
-;;; Sometimes a person needs an imperative loop
-;;;
-;;; \index{lang\#while}
-;;; \begin{code}
-{define
-  "lang#"
-  while
-  [|pred body|
-   (if (pred)
-       [(body)
-        (while pred body)]
-       [(noop)])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  {let ((a 0))
-    (while [(< a 5)]
-           [(set! a (+ a 1))])
-    (equal? a 5)}}
-;;; \end{code}
-;;; \section*{lang\#numeric-if}
-;;;   An if expression for numbers, based on their sign.
-;;;
-;;; \index{lang\#numeric-if}
-;;; \begin{code}
-{define
-  "lang#"
-  numeric-if
-  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
-   {cond ((> expr 0) (ifPositive))
-         ((= expr 0) (ifZero))
-         (else (ifNegative))}]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (satisfies-relation
-   [|n|
-    (numeric-if n ifPositive: ['pos] ifZero: ['zero] ifNegative: ['neg])]
-   '(
-     (5 pos)
-     (0 zero)
-     (-5 neg)
-     ))}
-;;; \end{code}
-
-;;; \section*{stream\#stream-cons}
-;;; Streams are lists whose evaluation is deferred until the value is
-;;; requested.  For more information, consult ``The Structure and
-;;; Interpretation of Computer Programs''.
-;;;
-;;; \index{stream\#stream-cons}
-;;; \begin{code}
-{define-macro
-  "stream#"
-  stream-cons
-  [|a b|
-   `(cons ,a {delay ,b})]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  {begin
-    {let ((s {stream-cons 1 2}))
-      {and
-       (equal? (car s)
-               1)
-       (equal? {force (cdr s)}
-               2)}}}}
-;;; \end{code}
-;;; \section*{stream\#stream-car}
-;;; Get the first element of the stream.
-;;;
-;;; \index{stream\#stream-car}
-;;; \begin{code}
-{define
-  "stream#"
-  stream-car
-  car
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  {let ((s {stream-cons 1 2}))
-    (equal? (stream-car s)
-            1)}}
-;;; \end{code}
-;;; \section*{stream\#stream-cdr}
-;;; Forces the evaluation of the next element of the stream.
-;;;
-;;; \index{stream\#stream-cdr}
-;;; \begin{code}
-{define
-  "stream#"
-  stream-cdr
-  [|s| {force (cdr s)}]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  {let ((s {stream-cons 1 2}))
-    (equal? (stream-cdr s)
-            2)}}
-;;; \end{code}
-;;; \section*{list\#list-\textgreater stream}
-;;; Converts a list into a stream
-;;;
-;;; \index{list\#list-\textgreater stream}
-;;; \begin{code}
-{define
-  "list#"
-  list->stream
-  [|l|
-   (if (null? l)
-       [l]
-       [(stream-cons (car l)
-                     {let list->stream ((l (cdr l)))
-                       (if (null? l)
-                           ['()]
-                           [(stream-cons (car l)
-                                         (list->stream (cdr l)))])})])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  {let ((foo (list#list->stream '(1 2 3))))
-    {and (equal? 1 (stream-car foo))
-         (equal? 2 (stream-car
-                    (stream-cdr foo)))
-         (equal? 3 (stream-car
-                    (stream-cdr
-                     (stream-cdr foo))))
-         (null? (stream-cdr
-                 (stream-cdr
-                  (stream-cdr foo))))}}}
-;;; \end{code}
-;;; \section*{stream\#stream-ref}
-;;; The analogous procedure of list-ref
-;;;
-;;; \index{stream\#stream-ref}
-;;; \begin{code}
-{define
-  "stream#"
-  stream-ref
-  [|s n #!key (onOutOfBounds noop)|
-   (if (< n 0)
-       [(onOutOfBounds)]
-       [{let stream-ref ((s s) (n n))
-          (if (equal? n 0)
-              [(stream-car s)]
-              [(if (not (null? (stream-cdr s)))
-                   [(stream-ref (stream-cdr s) (- n 1))]
-                   [(onOutOfBounds)])])}])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  {let ((s (list->stream '(5 4 3 2 1))))
-    (and
-     (equal? (stream-ref s -1)
-             'noop)
-     (equal? (stream-ref s 0)
-             5)
-     (equal? (stream-ref s 4)
-             1)
-     (equal? (stream-ref s 5)
-             'noop)
-     (equal? (stream-ref s 5 onOutOfBounds: ['out])
-             'out))}}
-;;; \end{code}
-
 
 ;;; \begin{code}
 (include "bug-language-end.scm")
