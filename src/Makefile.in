@@ -45,6 +45,7 @@ bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm
 	rm bug-language.tex
 	cat bug-language-end.tex >> bug.tex
 	rm bug-language-end.tex
+	git log | head  -n 1 | cut -d ' ' -f 2   > version.tex
 
 bug.pdf: bug.tex
 	pdflatex bug.tex

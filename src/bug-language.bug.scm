@@ -107,9 +107,9 @@
 ;;; \begin{code}
    {##define libbug-headers-file
      (open-output-file '(path:
-			 "libbug#.scm"
-			 append:
-			 #f))}
+                         "libbug#.scm"
+                         append:
+                         #f))}
    (display
     ";; Copyright 2014-2016 - William Emerison Six
      ;;;  All rights reserved
@@ -124,9 +124,9 @@
 ;;; \begin{code}
    {##define libbug-macros-file
      (open-output-file '(path:
-			 "libbug-macros.scm"
-			 append:
-			 #f))}
+                         "libbug-macros.scm"
+                         append:
+                         #f))}
    (display
     ";; Copyright 2014-2016 - William Emerison Six
      ;;;  All rights reserved
@@ -164,8 +164,8 @@
 {##define-macro write-and-eval
   [|port form|
    (eval `(begin
-	    (write ',form ,port)
-	    (newline ,port)))
+            (write ',form ,port)
+            (newline ,port)))
    form]}
 ;;; \end{code}
 
@@ -200,14 +200,14 @@
      ;; (single-expression? [5]) => true
      ;; (single-expression? [(pp 4) 6]) => false
      {let ((single-expression?
-	    [|lst| (equal? 3 (length lst))]))
+            [|lst| (equal? 3 (length lst))]))
        `{##if ,pred
-	      ,{##if (single-expression? ifTrue)
-		     (caddr ifTrue)
-		     `{begin ,@(cddr ifTrue)}}
-	      ,{##if (single-expression? ifFalse)
-		     (caddr ifFalse)
-		     `{begin ,@(cddr ifFalse)}}}}]}})
+              ,{##if (single-expression? ifTrue)
+                     (caddr ifTrue)
+                     `{begin ,@(cddr ifTrue)}}
+              ,{##if (single-expression? ifFalse)
+                     (caddr ifFalse)
+                     `{begin ,@(cddr ifFalse)}}}}]}})
 ;;; \end{code}
 
 
@@ -254,11 +254,11 @@
    [|definition #!rest tests|
     (eval
      `{begin
-	,definition
-	(if (and ,@tests)
-	    [',definition]
-	    [(for-each pp (list "Test Failed" ',tests ',definition))
-	     (error "Tests Failed")])})]})
+        ,definition
+        (if (and ,@tests)
+            [',definition]
+            [(for-each pp (list "Test Failed" ',tests ',definition))
+             (error "Tests Failed")])})]})
 ;;; \end{code}
 
 
@@ -303,9 +303,9 @@
    {begin
      (eval `{##namespace ,namespace-name-pair})
      `{begin
-	(write-and-eval
-	 libbug-headers-file
-	 {##namespace ,namespace-name-pair})}}]}
+        (write-and-eval
+         libbug-headers-file
+         {##namespace ,namespace-name-pair})}}]}
 ;;; \end{code}
 
 
@@ -332,33 +332,33 @@
    (write
     `{begin
        {at-both-times
-	{##define-macro
-	  ,name
-	  (lambda ,(cadr lambda-value)
-	    ,(list 'quasiquote
-		   `(##let ()
-		      {##include "~~lib/gambit#.scm"}
-		      {##include ,bug-configuration#libbugsharp}
-		      ,(if (equal? 'quasiquote
-				   (caaddr lambda-value))
-			   [(car (cdaddr lambda-value))]
-			   [(append (list 'unquote)
-				    (cddr lambda-value))]))))}}
+        {##define-macro
+          ,name
+          (lambda ,(cadr lambda-value)
+            ,(list 'quasiquote
+                   `(##let ()
+                      {##include "~~lib/gambit#.scm"}
+                      {##include ,bug-configuration#libbugsharp}
+                      ,(if (equal? 'quasiquote
+                                   (caaddr lambda-value))
+                           [(car (cdaddr lambda-value))]
+                           [(append (list 'unquote)
+                                    (cddr lambda-value))]))))}}
        {at-both-times
-	;; TODO - namespace this procedure
-	{##define-macro
-	  ,(string->symbol (string-append (symbol->string name)
-					  "-expand"))
-	  (lambda ,(cadr lambda-value)
-	    {let ((gensym-count 0))
-	      {let ((gensym [{begin
-			       {set! gensym-count
-				     (+ 1 gensym-count)}
-			       (string->symbol
-				(string-append
-				 "gensymed-var"
-				 (number->string gensym-count)))}]))
-		(list 'quote ,@(cddr lambda-value))}})}}}
+        ;; TODO - namespace this procedure
+        {##define-macro
+          ,(string->symbol (string-append (symbol->string name)
+                                          "-expand"))
+          (lambda ,(cadr lambda-value)
+            {let ((gensym-count 0))
+              {let ((gensym [{begin
+                               {set! gensym-count
+                                     (+ 1 gensym-count)}
+                               (string->symbol
+                                (string-append
+                                 "gensymed-var"
+                                 (number->string gensym-count)))}]))
+                (list 'quote ,@(cddr lambda-value))}})}}}
     libbug-macros-file)
    (newline libbug-macros-file)
 ;;; \end{code}
@@ -366,27 +366,27 @@
 ;;; \begin{code}
    {let ((gensym-count (gensym)))
      `{begin
-	{libbug#namespace (,namespace ,name)}
-	{at-both-times
-	 ;; TODO - namespace this procedure
-	 {##define-macro
-	   ,(string->symbol (string-append (symbol->string name)
-					   "-expand"))
-	   (lambda ,(cadr lambda-value)
-	     {let ((,gensym-count 0))
-	       {let ((gensym [{begin
-				{set! ,gensym-count
-				      (+ 1 ,gensym-count)}
-				(string->symbol
-				 (string-append
-				  "gensymed-var"
-				  (number->string ,gensym-count)))}]))
-		 (list 'quote ,@(cddr lambda-value))}})}}
-	{with-tests
-	 {##define-macro
-	   ,name
-	   ,lambda-value}
-	 ,@tests}}}]}
+        {libbug#namespace (,namespace ,name)}
+        {at-both-times
+         ;; TODO - namespace this procedure
+         {##define-macro
+           ,(string->symbol (string-append (symbol->string name)
+                                           "-expand"))
+           (lambda ,(cadr lambda-value)
+             {let ((,gensym-count 0))
+               {let ((gensym [{begin
+                                {set! ,gensym-count
+                                      (+ 1 ,gensym-count)}
+                                (string->symbol
+                                 (string-append
+                                  "gensymed-var"
+                                  (number->string ,gensym-count)))}]))
+                 (list 'quote ,@(cddr lambda-value))}})}}
+        {with-tests
+         {##define-macro
+           ,name
+           ,lambda-value}
+         ,@tests}}}]}
 
 ;;; \end{code}
 
@@ -402,9 +402,9 @@
  [|form|
   ;; TODO -error check the list
   {let* ((m (car form))
-	 (new-name (string->symbol
-		    (string-append (symbol->string m)
-				   "-expand"))))
+         (new-name (string->symbol
+                    (string-append (symbol->string m)
+                                   "-expand"))))
     `(,new-name ,@(cdr form))}]}
 ;;; \end{code}
 

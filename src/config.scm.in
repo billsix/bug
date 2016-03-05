@@ -3,10 +3,10 @@
 ;;;  Distributed under LGPL 2.1 or Apache 2.0
 
 {namespace ("bug-configuration#"
-	    package
-	    version
-	    prefix
-	    )}
+            package
+            version
+            prefix
+            )}
 
 {define package  "@PACKAGE_NAME@"}
 {define version  "@PACKAGE_VERSION@"}
