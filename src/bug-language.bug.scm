@@ -93,7 +93,16 @@
 ;;; BUG-syntax enhancements, and they are not intended to be read by
 ;;; a person.  Their documentation is in this file.
 ;;;
-;;; The previous two macros are also written to the libbug-macros.scm file,
+;;; \subsection*{lang\#at-compile-time-expand}
+;;; \index{lang\#at-compile-time-expand}
+;;; \begin{code}
+{##namespace ("lang#" at-compile-time-expand)}
+{##define-macro at-compile-time-expand
+  [|form|
+   (eval form)]}
+;;; \end{code}
+
+;;; The previous three macros are also written to the libbug-macros.scm file,
 ;;; and a reference from libbug-macros.scm to libbug\#.scm is made, so
 ;;; a person can now assume that the files must be collocated.
 ;;;
@@ -116,6 +125,7 @@
      ;;;  Distributed under LGPL 2.1 or Apache 2.0
      {##namespace (\"lang#\" at-compile-time)}
      {##namespace (\"lang#\" at-both-times)}
+     {##namespace (\"lang#\" at-compile-time-expand)}
      "
     libbug-headers-file)
 
@@ -143,6 +153,9 @@
        [|form|
         (eval form)
         form]}
+     {##define-macro at-compile-time-expand
+       [|form|
+       (eval form)]}
      "
     libbug-macros-file)}}
 ;;; \end{code}

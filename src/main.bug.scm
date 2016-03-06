@@ -434,6 +434,67 @@
 ;;;
 ;;; The compile-time computation worked!
 
+;;; \section{libbug}
+;;; With libbug, the following is how you'd define factorial, and print
+;;; out the factorial of 3, computed at runtime.
+;;;
+;;; \begin{examplecode}
+;;; {at-both-times
+;;;  {define fact
+;;;    [|n| (if (= n 0)
+;;;             [1]
+;;;             [(* n (fact (- n 1)))])]}}
+;;;
+;;; (pp (fact 3))
+;;; \end{examplecode}
+;;;
+;;; To turn this into a compile time expansion, just add a call to
+;;; ``at-compile-time-expand'' around the code which should run
+;;; at compile-time, essentially turning any expression into a macro.
+
+;;; \begin{examplecode}
+;;; {at-both-times
+;;;  {define fact
+;;;    [|n| (if (= n 0)
+;;;             [1]
+;;;             [(* n (fact (- n 1)))])]}}
+;;;
+;;; (pp (at-compile-time-expand (fact 3)))
+;;; \end{examplecode}
+
+;;; That's all you have to do!  We could verify that it is working as expected by disassembling
+;;; the machine code, but by compiling the Scheme source to the ``gvm'' intermediate
+;;; code, we get a much better idea of what's happening.
+
+;;; In the run-time calculation of fact, the following gvm code is produced.
+
+;;; \begin{examplecode}
+;;; r1 = '3
+;;;   r0 = #4
+;;;   jump/safe fs=4 global[fact] nargs=1
+;;; #4 fs=4 return-point
+;;;   r0 = frame[1]
+;;;   jump/poll fs=4 #5
+;;; #5 fs=4
+;;;   jump/safe fs=0 global[pp] nargs=1
+;;; \end{examplecode}
+
+;;; \noindent The number 3 is being loaded into a variable, there's a jump to the
+;;; fact procedure, and then a jump to pp.
+
+;;; \noindent In the compile-time calculation of fact, the following gvm code is produced.
+
+;;; \begin{examplecode}
+;;; r1 = '6
+;;;   r0 = frame[1]
+;;;   jump/poll fs=4 #4
+;;; #4 fs=4
+;;;   jump/safe fs=0 global[pp] nargs=1
+;;; \end{examplecode}
+
+;;;  \noindent The precomputed value of 6 is loaded into a variable, there's no
+;;;  jump to fact, just a jump to pp.  Fantastic!
+;;;
 ;;; So that was a tad bit boring.  Why care about this?
 ;;; It's to demonstrate that there is no definitive difference between
 ;;; a compiler or a interpreter.
