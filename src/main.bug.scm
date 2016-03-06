@@ -196,7 +196,7 @@
 ;;; Code which is part of libbug will have an outline and line numbers.
 ;;;
 ;;; \begin{code}
-;; This is Scheme source code.
+;; This is part of libbug.
 ;;; \end{code}
 ;;;
 ;;; \noindent
@@ -216,8 +216,11 @@
 ;;;
 ;;; \noindent
 ;;;  means evaluate ``fun'', ``arg1''
-;;; and ``arg2'', and then apply ``fun'' to ``arg1'' and ``arg2''.  This notation
-;;; is standard Scheme, but Scheme uses the same notation for macro application.
+;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2''.  This notation
+;;; is standard Scheme. But Scheme uses this same notation for all macro applications.
+;;; Macros transform source code as data before evaluation, and as such, the generated
+;;; code may not follow the same order of evaluation.  Or an argument may be evaluated multiple
+;;; times, causing unexpected side-effects for an argument which mutates state.
 ;;; This can cause some confusion to a reader.  To attempt to minimize the confusion,
 ;;; within BUG the notation
 
@@ -238,6 +241,12 @@
 ;;; \{\} are used because ``x''
 ;;; is a new variable, and as such, cannot currently evaluate to anything.
 ;;;
+;;; Not all macro applications use \{\}.  If the macro respects Scheme's standard
+;;; order of evaluation, it will use regular Scheme notation:
+;;;
+;;; \begin{examplecode}
+;;; (macro arg1 arg2)
+;;; \end{examplecode}
 ;;;
 ;;; \section{Getting the Source Code}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug.
@@ -249,6 +258,7 @@
 ;;; You will of course need a C compiler, and Gambit
 ;;; Scheme\footnote{http://gambitscheme.org}
 ;;;  To compile the book and library
+;;;
 ;;; \begin{examplecode}
 ;;; $ ./configure --enable-pdf=yes
 ;;; $ make
@@ -259,74 +269,77 @@
 ;;; \chapter{Compile-Time Language}
 ;;;
 ;;; This chapter provides a quick tour of computer language which is interpreted
-;;; by the compiler, but which has no direct representation in the executable.
-;;; But first, let's discuss was is meant by the word ``language''.
-;;;
+;;; by the compiler, but which has no direct representation in the generated machine
+;;; code.  Examples are provided in well-known languages, to illustrate that
+;;; many compilers are also interpreters for a subset of the language.  This
+;;; chapter is not required to understand the rest of the book, and may be freely
+;;; skipped, but it provides a baseline understanding of compile-time computation,
+;;; so the reader may contrast these languages' capabilities with libbug's.
+
+;;; First, let's discuss was is meant by the word ``language''.
 ;;; In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
 ;;; Motwani, and Ullman define language as ``A set of strings all of which are chosen
 ;;; from some $\Sigma$ $\star$, where $\Sigma$ is a particular alphabet, is called
 ;;; a language'' \cite[p. 30]{hmu2001}.
 ;;;  They further state ``In automata theory, a problem is the question
 ;;; of deciding whether a given string is a member of some particular language''.
-;;; Languages have grammars, which formally define whether or not a given string is in the
-;;; language.
 ;;;
 ;;; In practice, if your compiler successfully compiles your code, congratulations!
-;;; The compiler decided that your code is in fact a valid string in the language
-;;; accepted by the compiler.  But does all of that language have a representation
-;;; in the generated machine code?  No, it does not.
+;;; The code is a valid string in the language, and passed additional constraints
+;;; (e.g. type-checking).  But does all of that language directly generate instructions
+;;; in the machine code?  Turns out, no, it does not.
 
 ;;; \section{C}
 ;;;Consider the following C code:
 ;;;
 ;;; \begin{examplecode}
-;;;#include <stdio.h>
-;;;#define square(x) ((x) * (x))
-;;;int fact(int n);
-;;;int main(int argc, char* argv[]){
-;;;#ifdef DEBUG
-;;;  printf("Debug - argc = %d\n", argc);
-;;;#endif
-;;;  printf("%d\n",square(fact(argc)));
-;;;  return 0;
-;;;}
-;;;int fact(int n){
-;;;  return n == 0
-;;;    ? 1
-;;;    : n * fact(n-1);
-;;;}
+;;;/*Line01*/  #include <stdio.h>
+;;;/*Line02*/  #define square(x) ((x) * (x))
+;;;/*Line03*/  int fact(unsigned int n);
+;;;/*Line04*/  int main(int argc, char* argv[]){
+;;;/*Line05*/  #ifdef DEBUG
+;;;/*Line06*/    printf("Debug - argc = %d\n", argc);
+;;;/*Line07*/  #endif
+;;;/*Line08*/   printf("%d\n",square(fact(argc)));
+;;;/*Line09*/    return 0;
+;;;/*Line10*/  }
+;;;/*Line11*/  int fact(unsigned int n){
+;;;/*Line12*/    return n == 0
+;;;/*Line13*/      ? 1
+;;;/*Line14*/      : n * fact(n-1);
+;;;/*Line15*/  }
 ;;; \end{examplecode}
 ;;;
-;;; On the first line, the \#include preprocessor command, specified by the C grammar,
+;;; On the first line, the \#include preprocessor command
 ;;; is language that the compiler
-;;; is intended to interpret but not to compile, instructing the compiler to
+;;; is intended to interpret, instructing the compiler to
 ;;; read the file ``stdio.h''
 ;;; from the filesystem and to splice the content
 ;;; into the current C file.  The include command
 ;;; itself has no representation in the machine code, although the contents
 ;;; of the included file may.
 ;;;
-;;; The second line, also part of the C grammar, defines a C macro, which
-;;; is a procedure for concatenating strings which takes text strings as input,
-;;; and outputs text strings.  This expansion happens before the compiler does anything
-;;; else.  For example, if using GCC as a compiler, if you run just the the C preprocessor
+;;; The second line defines a C macro. It is a procedure which takes text
+;;; strings as input, and transforms them into a new text string as output.
+;;; This expansion happens before the compiler does anything
+;;; else.  For example, using GCC as a compiler, if you run just the the C preprocessor
 ;;; ``cpp'' on the above C code, you'll see that
 ;;;
 ;;; \begin{examplecode}
 ;;;  printf("%d\n",square(fact(argc)));
 ;;; \end{examplecode}
 ;;;
-;;; expands into
+;;; \noindent expands into
 ;;;
 ;;; \begin{examplecode}
 ;;;  printf("%d\n",((fact(argc)) * (fact(argc))));
 ;;; \end{examplecode}
 ;;;
-;;; The third line, also part of the C grammar, defines a function prototype, so that
+;;; The third line defines a function prototype, so that
 ;;; the compiler knows the argument types and return type for a function called ``fact''.
-;;; This code is language, yet still has no representation in the machine code,
-;;; as it is language used by the compiler to determine the types for the function
-;;; call to ``fact'' on line 8, since ``fact'' has not yet been defined.
+;;; It is language interpreted by the compiler to determine the types for the function
+;;; call to ``fact'' on line 8, since ``fact'' has not yet been defined in this
+;;; translation unit.
 ;;;
 ;;; The fourth through tenth line is a function definition, which will have
 ;;; a representation in the machine code.  However, line 5 is language
@@ -336,48 +349,70 @@
 ;;;
 ;;; \section{C++}
 ;;;
-;;; C++ inherits C's macros, but with the introduction
+;;; C++ inherits C's macros, but with the additional introduction
 ;;; of templates, C++'s compile time language
-;;; accidently became Turing complete.  This means that
-;;; theorectically, anything that can be
+;;; incidently became Turing complete.  This means that
+;;; theoretically, anything that can be
 ;;; calculated by a computer can be done using templates running
-;;; at compile time.  In practice it is not pragmatic to do so.
+;;; at compile time.  Fun fact, but general purpose computation using template
+;;; metaprogramming is not useful in practice.
 ;;;
 ;;; The following is an example of calculating the factorial of
 ;;; 3, both using C++ functions, and using C++'s templates.
 ;;;
 ;;; \begin{examplecode}
-;;; #include <iostream>
-;;; template <unsigned int n>
-;;; struct factorial {
-;;;     enum { value = n * factorial<n - 1>::value };
-;;; };
-;;; template <>
-;;; struct factorial<0> {
-;;;     enum { value = 1 };
-;;; };
-;;; int fact(int n){
-;;;   return n == 0
-;;;     ? 1
-;;;     : n * fact(n-1);
-;;; }
-;;; int main(int argc, char* argv[]){
-;;;   std::cout << factorial<3>::value << std::endl;
-;;;   std::cout << fact(3) << std::endl;
-;;;   return 0;
-;;; }
+;;; /*Line01*/  #include <iostream>
+;;; /*Line02*/  template <unsigned int n>
+;;; /*Line03*/  struct factorial {
+;;; /*Line04*/      enum { value = n * factorial<n - 1>::value };
+;;; /*Line05*/  };
+;;; /*Line06*/  template <>
+;;; /*Line07*/  struct factorial<0> {
+;;; /*Line08*/      enum { value = 1 };
+;;; /*Line09*/  };
+;;; /*Line10*/  int fact(unsigned int n){
+;;; /*Line11*/    return n == 0
+;;; /*Line12*/      ? 1
+;;; /*Line13*/      : n * fact(n-1);
+;;; /*Line14*/  }
+;;; /*Line15*/  int main(int argc, char* argv[]){
+;;; /*Line16*/    std::cout << factorial<3>::value << std::endl;
+;;; /*Line17*/    std::cout << fact(3) << std::endl;
+;;; /*Line18*/    return 0;
+;;; /*Line19*/  }
 ;;; \end{examplecode}
 
+;;; On line 16, ``factorial\textless3\textgreater::value'' is an
+;;; instruction to be interpreted
+;;; by the compiler, using templates.  Template expansions happen at compile-time
+;;; conditionally matching patters based on types (or values in the case
+;;; of integers).  Instead of loops, templates can expand recursively.
+;;; In this case, the expansion of
+;;; ``factorial\textless3\textgreater::value'' in dependent upon
+;;; ``factorial\textless n-1\textgreater::value''.  The compiler
+;;; does the subtraction at compile-time,
+;;; so ``factorial\textless3\textgreater::value'' is dependent on
+;;; ``factorial\textless2\textgreater::value''.
+;;; This recursion will terminate on ``factorial\textless0\textgreater::value''
+;;; on line 7. (Even though
+;;; the base case of ``factorial\textless0\textgreater'' is specified
+;;; after the more general
+;;; case of ``factorial\textless n\textgreater'', template expansion expands to the most
+;;; specific case first.  So the compiler will terminate.)
+;;;
+;;; On line 17, a run-time call to ``fact'', defined on line 10, is declared.
+;;;
+;;; We can verify that the stated behavior is true by dissambling the machine code.
 ;;; By disassembling the machine code using ``objdump -D'', you can
-;;; see the drastic difference in the generated code
+;;; see the drastic difference in the generated code.
 ;;;
 ;;; \begin{examplecode}
 ;;; 400850:       be 06 00 00 00          mov    $0x6,%esi
 ;;; 400855:       bf c0 0d 60 00          mov    $0x600dc0,%edi
 ;;; 40085a:       e8 41 fe ff ff          callq  4006a0 <_ZNSolsEi@plt>
-;;;  .......
-;;;  .......
-;;;  .......
+;;; .......
+;;; .......
+;;; .......
 ;;; 40086c:       bf 03 00 00 00          mov    $0x3,%edi
 ;;; 400871:       e8 a0 ff ff ff          callq  400816 <_Z4facti>
 ;;; 400876:       89 c6                   mov    %eax,%esi
@@ -385,16 +420,34 @@
 ;;; 40087d:       e8 1e fe ff ff          callq  4006a0 <_ZNSolsEi@plt>
 ;;; \end{examplecode}
 
+;;; The instructions at locations 400850 through 40085a correspond to the
+;;; printing out of the compile-time expanded call to factorial\textless3\textgreater.
+;;; The number 6 is loaded into the esi register, and the second
+;;; two lines call the printing routine\footnote{at least I assume, because
+;;; I don't completely understand how C++ name-mangling works}.
 
-
+;;; The instructions at locations 40086c through 40087d correpond to the
+;;; printing out of the run-time calculation to fact(3).  The number 3
+;;; is loaded into the edi register, calls fact, moves the result of
+;;; calling fact from the eax register to the esi register, and then
+;;; calls the printing routine.
+;;;
+;;; The compile-time computation worked!
 
 ;;; So that was a tad bit boring.  Why care about this?
-;;; It's to demonstrate that there is no compiler or interpreter binary,
-;;; computer languages implementations are on a spectrum.
+;;; It's to demonstrate that there is no definitive difference between
+;;; a compiler or a interpreter.
 ;;; C has two distince sub-''languages'', one for compile-time, and one
 ;;; for run-time;
 ;;; both of which have variables and procedure definitions.
+;;; As does C++. The Java Virtal Machine, initially just an interpreter
+;;; of Java bytecode, eventually added the ability to compile byte-code
+;;; into an optimized form while it was interpreting, to gain performance.
+;;; Libbug, on the otherhand, is meant to be compiled, but adds
+;;; a full interpreter to be executed during compile-time.
+
 ;;;
+;;; Computer languages implementations are on a spectrum.
 ;;; \chapter{The Implementation of libbug}
 ;;;
 ;;; This chapter defines a standard library of Scheme procedures and macros
@@ -796,8 +849,8 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((a '(1 2 3 4 5)))
-    (and (equal? a (copy a))
-         (not (eq? a (copy a))))}
+    {and (equal? a (copy a))
+         (not (eq? a (copy a)))}}
   }
 ;;; \end{code}
 
@@ -1669,7 +1722,7 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((s (list->stream '(5 4 3 2 1))))
-    (and
+    {and
      (equal? (stream-ref s -1)
              'noop)
      (equal? (stream-ref s 0)
@@ -1679,7 +1732,7 @@
      (equal? (stream-ref s 5)
              'noop)
      (equal? (stream-ref s 5 onOutOfBounds: ['out])
-             'out))}}
+             'out)}}}
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 319]{sicp}.
