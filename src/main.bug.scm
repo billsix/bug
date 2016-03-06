@@ -157,8 +157,8 @@
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
 ;;; be in the executable?  And won't they run every time I run the executable?
 ;;; That would be unacceptable, as it would increase the size of the binary and
-;;; slow downthe program at startup.  Fortunately, the
-;;; answer to both questions is no, because in Chapter~\ref{sec:buglang} I show how to specify
+;;; slow down the program at startup.  Fortunately, the
+;;; answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
 ;;; that certain code should be interpreted by the compiler, instead of code to be
 ;;; compiled\footnote{Which is also why this book is
 ;;; called the more general ``Computation at Compile-Time'' instead of ``Testing
@@ -187,10 +187,14 @@
 ;;; \section{Prerequisites}
 ;;;
 ;;; The reader is assumed to be somewhat familiar both with Scheme, and with Common Lisp-style
-;;; macros (which Gambit provides).  Suggested reading is ``The Structure and
-;;; Interpretation of Computer Programs'' by Sussman and Abelson, ``ANSI Common
-;;; Lisp'' by Paul Graham, and ``On Lisp'' by Paul Graham.  These books inspired many
-;;; ideas within BUG.
+;;; macros (which Gambit provides).  Reading ``Simply Scheme'' \cite{ss}
+;;; or ``The Little Schemer'' \cite{littleschemer} should be sufficient
+;;; to understand Scheme, and reading ``On Lisp'' \cite{onlisp} is more than sufficient
+;;; to understand Common Lisp-style macros.
+;;;
+;;; The other books listed in the bibliography, all of which inspired ideas for this
+;;; book, are all recommended reading, but are
+;;; not necessary to understand the content of this book.
 ;;;
 ;;; \section{Conventions}
 ;;; Code which is part of libbug will have an outline and line numbers.
@@ -222,7 +226,7 @@
 ;;; code may not follow the same order of evaluation.  Or an argument may be evaluated multiple
 ;;; times, causing unexpected side-effects for an argument which mutates state.
 ;;; This can cause some confusion to a reader.  To attempt to minimize the confusion,
-;;; within BUG the notation
+;;; within libbug the notation
 
 ;;; \begin{examplecode}
 ;;; {fun1 arg1 arg2}
@@ -353,7 +357,7 @@
 ;;; of templates, C++'s compile time language
 ;;; incidently became Turing complete.  This means that
 ;;; theoretically, anything that can be
-;;; calculated by a computer can be done using templates running
+;;; calculated by a computer can be calculated using template expansion
 ;;; at compile time.  Fun fact, but general purpose computation using template
 ;;; metaprogramming is not useful in practice.
 ;;;
@@ -403,7 +407,7 @@
 ;;; On line 17, a run-time call to ``fact'', defined on line 10, is declared.
 ;;;
 ;;; We can verify that the stated behavior is true by dissambling the machine code.
-;;; By disassembling the machine code using ``objdump -D'', you can
+;;; By disassembling the machine code using ``objdump -D'', we can
 ;;; see the drastic difference in the generated code.
 ;;;
 ;;; \begin{examplecode}
@@ -435,8 +439,8 @@
 ;;; The compile-time computation worked!
 
 ;;; \section{libbug}
-;;; With libbug, the following is how you'd define factorial, and print
-;;; out the factorial of 3, computed at runtime.
+;;; With libbug, the following is how you'd define factorial, and pretty-print
+;;; the factorial of 3, computed at runtime.
 ;;;
 ;;; \begin{examplecode}
 ;;; {at-both-times
@@ -448,23 +452,21 @@
 ;;; (pp (fact 3))
 ;;; \end{examplecode}
 ;;;
-;;; To turn this into a compile time expansion, just add a call to
-;;; ``at-compile-time-expand'' around the code which should run
-;;; at compile-time, essentially turning any expression into a macro.
+;;; To turn the calculation of the factorial of 3 into a compile time
+;;; expansion, effectively compiling ``(pp 6)'', just add a call to
+;;; ``at-compile-time-expand'' around the code which should evaluated
+;;; at compile-time.
 
 ;;; \begin{examplecode}
-;;; {at-both-times
-;;;  {define fact
-;;;    [|n| (if (= n 0)
-;;;             [1]
-;;;             [(* n (fact (- n 1)))])]}}
-;;;
+;;; ......
+;;; ......
 ;;; (pp (at-compile-time-expand (fact 3)))
 ;;; \end{examplecode}
 
-;;; That's all you have to do!  We could verify that it is working as expected by disassembling
-;;; the machine code, but by compiling the Scheme source to the ``gvm'' intermediate
-;;; code, we get a much better idea of what's happening.
+;;; We could verify that it is working as expected by disassembling
+;;; the machine code, but instead by compiling the Scheme source to the
+;;; ``gvm'' intermediate
+;;; code, we get a much clearer idea of what's happening.
 
 ;;; In the run-time calculation of fact, the following gvm code is produced.
 
@@ -479,7 +481,8 @@
 ;;;   jump/safe fs=0 global[pp] nargs=1
 ;;; \end{examplecode}
 
-;;; \noindent The number 3 is being loaded into a variable, there's a jump to the
+;;; \noindent The number 3 is being loaded into a variable r1, there's a jump
+;;; (effectively a procedure call) to the
 ;;; fact procedure, and then a jump to pp.
 
 ;;; \noindent In the compile-time calculation of fact, the following gvm code is produced.
@@ -492,23 +495,38 @@
 ;;;   jump/safe fs=0 global[pp] nargs=1
 ;;; \end{examplecode}
 
-;;;  \noindent The precomputed value of 6 is loaded into a variable, there's no
+;;;  \noindent The precomputed value of ``(fact 3)'', 6, is loaded into a variable, there's no
 ;;;  jump to fact, just a jump to pp.  Fantastic!
 ;;;
-;;; So that was a tad bit boring.  Why care about this?
-;;; It's to demonstrate that there is no definitive difference between
-;;; a compiler or a interpreter.
+;;; So this has been an moderately interesting excercise, but why is
+;;; this important?
+;;; This chapter demonstrates that compilers have interpretive aspects to them,
+;;; which is mostly taken for granted and not questioned.
 ;;; C has two distince sub-''languages'', one for compile-time, and one
 ;;; for run-time;
 ;;; both of which have variables and procedure definitions.
-;;; As does C++. The Java Virtal Machine, initially just an interpreter
+;;; As does C++, which also has compile-time Turing-completeness, in an awkward
+;;; purely functional language
+;;; lacking state and IO. The Java Virtal Machine, initially just an interpreter
 ;;; of Java bytecode, eventually added the ability to compile byte-code
-;;; into an optimized form while it was interpreting, to gain performance.
+;;; into an optimized form while it was interpreting for performance improvements.
 ;;; Libbug, on the otherhand, is meant to be compiled, but adds
-;;; a full interpreter to be executed during compile-time.
-
+;;; a full interpreter to be executed during compile-time, including state, and IO.
 ;;;
-;;; Computer languages implementations are on a spectrum.
+;;; At first I only wanted a way to collocate
+;;; tests with definitions, evaluate the tests at compile time, and error out
+;;; of compilation
+;;; if a test failed.  Only later did I realize that compile-time evaluation
+;;; can execute anything at all, including state and IO.  What else could be
+;;; calculated at compile-time?  In graphics, perhaps calculating normal vectors
+;;; from a vertex mesh automatically; perhaps writing ``shaders'' as compile-time
+;;; tested Scheme procedures, which are translated into actual shaders at compile-time.
+;;; In database programming, perhaps fetching the table definitions at compile-time,
+;;; and generating code for easy database access.
+;;;
+;;; I don't understand all of the implications of having a compiler augment itself
+;;; with the code its currently compiling.   ``Come along and ride on a fantastic voyage.''
+;;;
 ;;; \chapter{The Implementation of libbug}
 ;;;
 ;;; This chapter defines a standard library of Scheme procedures and macros
@@ -555,7 +573,7 @@
 ;;;   \item On line 3, the variable name, which will be declared in the
 ;;;         namespace defined on line 2.
 ;;;   \item On line 4, the lambda literal to be stored into the variable.
-;;;         BUG includes a Scheme preprocessor ``bug-gscpp'',
+;;;         libbug includes a Scheme preprocessor ``bug-gscpp'',
 ;;;         which expands lambda literals
 ;;;         into lambdas.  In this case ``['noop]'' is expanded into
 ;;;         ``(lambda () 'noop)''
@@ -631,7 +649,7 @@
 ;;; \end{examplecode}
 ;;;
 ;;; As such, if would not be a special form, and is more consistent with the
-;;; rest of BUG.
+;;; rest of libbug.
 ;;;
 ;;; \end{itemize}
 ;;;

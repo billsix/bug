@@ -7,25 +7,25 @@
 ;;;  \label{sec:buglang}
 ;;; \section{Motivation}
 ;;;
-;;; BUG is a library which contains procedure definitions, but is not
+;;; Libbug is a library which contains procedure definitions, but is not
 ;;; an application on its own.  External
-;;; projects will link to BUG and use BUG's procedures; however,
+;;; projects will link to libbug and use libbug's procedures; however,
 ;;; those projects will need additional information such as namespace mappings
-;;; and BUG's macro definitions (since those are not present in the library.)
+;;; and libbug's macro definitions (since those are not present in the library.)
 ;;;
 ;;; Many languages, namely C and C++, also must deal with a similar issue with libraries
 ;;; when dealing with function prototypes.  Whenever a C programmer
 ;;; creates a new function, he must then copy the parameter list into an ``.h'' file,
 ;;; so that other files may type check against it at compile-time.
 ;;;
-;;; BUG takes a novel approach; BUG generates this type of information at
+;;; Libbug takes a novel approach; it generates this type of information at
 ;;; compile-time.  At first glance, that sound simple enough.  But what types of computation
 ;;; can be performed at compile-time, and how can a programmer program I/O to be evaluated at compile-time?
 ;;; C's macros only allow textual substitution and conditional compilation, is not Turing Complete,
 ;;; and definitely doesn't do I/O.  C++'s template metaprogramming is Turing Complete, yet is
 ;;; a drastically different language from ``run-time'' C++; and also lacks I/O capabilities.
 ;;;
-;;; So, what does BUG do that is novel?  BUG provides procedures to do arbitrary computation
+;;; So, what does libbug do that is novel?  It provides procedures to do arbitrary computation
 ;;; at compile-time, where the compile-time ``language'' is the same exact language which
 ;;; the compiler compiles.  Less verbosely, a programmer can write programs to run at compile time
 ;;; in the same manner as he'd normally write them.
@@ -78,10 +78,10 @@
 ;;; \item On line 5, evaluation in the run-time environment
 ;;; \end{itemize}
 
-;;; BUG is a collection of procedures and macros.  Building bug results
+;;; Libbug is a collection of procedures and macros.  Building bug results
 ;;; in a shared library and a "loadable" library (as in (load "foo.o1").
 ;;; Macro definitions and namespace declarations, however do not reside
-;;; in such libraries.  I intend to keep the vast majority of BUG code
+;;; in such libraries.  I intend to keep the vast majority of libbug code
 ;;; in this one file (minus the C preprocessor, gsi interpreter glue,
 ;;; and build files).  As such, I don't want to define the namespaces
 ;;; or macros definitions in a different file.
@@ -90,7 +90,7 @@
 ;;; so why not open files and write to them during compile time?
 ;;; Open one file for the namespaces, ``libbug\#.scm'', and one for the macros,
 ;;; ``libbug-macros.scm''.  These files will be pure Gambit scheme code, no
-;;; BUG-syntax enhancements, and they are not intended to be read by
+;;; libbug-syntax enhancements, and they are not intended to be read by
 ;;; a person.  Their documentation is in this file.
 ;;;
 ;;; \subsection*{lang\#at-compile-time-expand}
@@ -248,7 +248,7 @@
 ;;; tests are intended to test which procedures.
 ;;;
 ;;; with-tests, combined with the more general purpose at-compile-time,
-;;; provide the basis to create BUG programs in a "Literate Programming"
+;;; provide the basis to create libbug programs in a "Literate Programming"
 ;;; style.
 
 
@@ -277,16 +277,16 @@
 
 ;;; \subsection{Build configuration}
 
-;;; BUG is compiled using the Autoconf, and when running "make
+;;; Libbug is compiled using the Autoconf, and when running "make
 ;;; install", will be installed to the prefix specified to
 ;;; "configure".  The headers file defined above at compile-time
 ;;; will be installed relative to prefix, and as such, external
-;;; programs which use BUG need to know where to find it.
+;;; programs which use libbug need to know where to find it.
 ;;; More importantly, libbug-macros-file needs to have functions
 ;;; and macros namespaced accordingly, and as such, will need
 ;;; to know where the headers file is installed.
 ;;;
-;;; The autotools takes "config.scm.in" as input, and puts the
+;;; Autoconf takes "config.scm.in" as input, and puts the
 ;;; relevant configuration/installation information into config.scm
 ;;; This information is then used at compile time when both defining
 ;;; and exporting macros to an external file.
@@ -307,7 +307,7 @@
 ;;; For both lang\#if and lang\#with-tests, defining the namespace
 ;;; at compile-time, run-time, and in the namespace file at compile-
 ;;; time was tedious.  This is easily extractable into a macro,
-;;; as is used heavily throughout BUG.
+;;; as is used heavily throughout libbug.
 
 ;;; \index{libbug\#namespace}
 ;;; \begin{code}
