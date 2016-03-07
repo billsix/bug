@@ -157,7 +157,7 @@
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
 ;;; be in the executable?  And won't they run every time I run the executable?
 ;;; That would be unacceptable, as it would increase the size of the binary and
-;;; slow down the program at startup.  Fortunately, the
+;;; slow down the program at start up.  Fortunately, the
 ;;; answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
 ;;; that certain code should be interpreted by the compiler, instead of code to be
 ;;; compiled\footnote{Which is also why this book is
@@ -554,7 +554,7 @@
 ;;;\end{code}
 
 ;;;
-;;; \section*{lang\#noop}
+;;; \section{lang\#noop}
 ;;; The first definition is ``noop'', a procedure which takes no arguments and
 ;;; which evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
 ;;; instead of Scheme's regular define.
@@ -593,7 +593,7 @@
 ;;; library.
 ;;; \end{itemize}
 ;;;
-;;; \section*{lang\#identity}
+;;; \section{lang\#identity}
 ;;; lang\#identity is a procedure of one argument which evaluates to
 ;;; its argument. \cite[p. 2]{calculi}
 ;;;
@@ -621,7 +621,7 @@
 ;;;
 ;;;
 
-;;; \section*{list\#all?}
+;;; \section{list\#all?}
 ;;; Like and, but takes a list instead of a variable number of arguments.
 ;;;
 ;;; \index{list\#all?}
@@ -673,7 +673,7 @@
 ;;; procedure before reading the implementation; since in many cases, the tests are designed
 ;;; specifically to walk the reader through the implementation.
 ;;;
-;;; \section*{lang\#satisfies-relation}
+;;; \section{lang\#satisfies-relation}
 
 ;;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
 ;;; with varying inputs and outputs?  Instead, provide the procedure, and a list
@@ -712,7 +712,7 @@
      ))}
 ;;; \end{code}
 
-;;; \section*{lang\#compose}
+;;; \section{lang\#compose}
 
 ;;; \index{lang\#compose}
 ;;; \begin{code}
@@ -804,7 +804,7 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 66]{onlisp}
-;;; \section*{list\#any?}
+;;; \section{list\#any?}
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
@@ -836,7 +836,7 @@
 ;;; \end{code}
 
 
-;;; \section*{lang\#complement}
+;;; \section{lang\#complement}
 ;;;
 ;;; \index{lang\#complement}
 ;;; \begin{code}
@@ -866,7 +866,7 @@
 ;;;
 ;;; \cite[p. 63]{onlisp}
 
-;;; \section*{lang\#while}
+;;; \section{lang\#while}
 ;;;
 ;;; \index{lang\#while}
 ;;; \begin{code}
@@ -886,7 +886,7 @@
            [(set! a (+ a 1))])
     (equal? a 5)}}
 ;;; \end{code}
-;;; \section*{lang\#numeric-if}
+;;; \section{lang\#numeric-if}
 ;;;   An if expression for numbers, based on their sign.
 ;;;
 ;;; \index{lang\#numeric-if}
@@ -914,7 +914,7 @@
 ;;; \cite[p. 150, called ``nif'']{onlisp}
 
 
-;;; \section*{list\#copy}
+;;; \section{list\#copy}
 ;;;   Creates a copy of the list data structure.  Does not copy the contents
 ;;;   of the list.
 ;;;
@@ -934,7 +934,7 @@
 ;;; \end{code}
 
 
-;;; \section*{list\#proper?}
+;;; \section{list\#proper?}
 ;;;   Tests that the argument is a list that is properly
 ;;;   termitated.  Will not terminate on a circular list.
 ;;;
@@ -963,7 +963,7 @@
 
 
 
-;;; \section*{list\#first}
+;;; \section{list\#first}
 ;;;
 ;;; list\#first uses Gambit's keyword syntax.  In the code, ``onNull'' is
 ;;; an optional argument, with a default value of the value in the ``noop''
@@ -1000,7 +1000,7 @@
 ;;; \cite[p. 59]{ss}
 
 
-;;; \section*{list\#but-first}
+;;; \section{list\#but-first}
 ;;; \index{list\#but-first}
 ;;; \begin{code}
 {define
@@ -1029,7 +1029,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 59]{ss}
-;;; \section*{list\#last}
+;;; \section{list\#last}
 ;;; \index{list\#last}
 ;;; \begin{code}
 {define
@@ -1062,7 +1062,7 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 59]{ss}
-;;; \section*{list\#but-last}
+;;; \section{list\#but-last}
 ;;; \index{list\#but-last}
 ;;; \begin{code}
 {define
@@ -1098,7 +1098,7 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 59]{ss}
-;;; \section*{list\#filter}
+;;; \section{list\#filter}
 ;;; \index{list\#filter}
 ;;; \begin{code}
 {define
@@ -1130,7 +1130,7 @@
 ;;; \cite[p. 331]{ss}. \cite[p. 115]{sicp}.
 ;;; \footnote{Simply Scheme has an excellent discussion on section
 ;;;  on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}.}
-;;; \section*{list\#remove}
+;;; \section{list\#remove}
 ;;; \index{list\#remove}
 ;;; \begin{code}
 {define
@@ -1149,7 +1149,7 @@
      ))}
 ;;; \end{code}
 
-;;; \section*{list\#fold-left}
+;;; \section{list\#fold-left}
 ;;;    Reduce the list to a scalar by applying the reducing function repeatedly,
 ;;;    starting from the ``left'' side of the list
 ;;;
@@ -1188,7 +1188,7 @@
 ;;;
 ;;; \cite[p. 121]{sicp}
 
-;;; \section*{list\#fold-right}
+;;; \section{list\#fold-right}
 ;;;    Reduces the list to a scalar by applying the reducing
 ;;;    function repeatedly,
 ;;;    starting from the ``right'' side of the list
@@ -1219,7 +1219,7 @@
 ;;;
 ;;; \cite[p. 116 (named ``accumulate'')]{sicp}
 
-;;; \section*{list\#append!}
+;;; \section{list\#append!}
 ;;;   Like append, but recycles the last cons cell, so it's
 ;;;   faster, but mutates the input.
 ;;;
@@ -1252,7 +1252,7 @@
   }
 ;;; \end{code}
 
-;;; \section*{list\#scan-left}
+;;; \section{list\#scan-left}
 ;;;   Like fold-left, but every intermediate value
 ;;;   of fold-left's accumulator is put onto the resulting list
 ;;;
@@ -1287,7 +1287,7 @@
 
 
 
-;;; \section*{list\#flatmap}
+;;; \section{list\#flatmap}
 ;;; \index{list\#flatmap}
 ;;; \begin{code}
 {define
@@ -1310,7 +1310,7 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 123]{sicp}
-;;; \section*{list\#enumerate-interval}
+;;; \section{list\#enumerate-interval}
 ;;; \index{list\#enumerate-interval}
 ;;; \begin{code}
 {define
@@ -1331,7 +1331,7 @@
   (equal? (enumerate-interval 1 10 step: 2)
           '(1 3 5 7 9))}
 ;;; \end{code}
-;;; \section*{list\#zip}
+;;; \section{list\#zip}
 ;;; \index{list\#zip}
 ;;; \begin{code}
 {define
@@ -1385,7 +1385,7 @@
             (3 6 9 12)))
   }
 ;;; \end{code}
-;;; \section*{list\#permutations}
+;;; \section{list\#permutations}
 ;;; \index{list\#permutations}
 ;;; \begin{code}
 {define
@@ -1423,11 +1423,11 @@
 ;;;
 ;;; Inspired by \cite[p. 124]{sicp}, although I think they have a slight
 ;;; mistake in
-;;;  their code.  Given their definition (permutations '()) evalutes to '(()), instead of '().
+;;;  their code.  Given their definition (permutations '()) evaluates to '(()), instead of '().
 ;;;
 ;;; \cite[p. 45]{taocp}
 
-;;; \section*{list\#sublists}
+;;; \section{list\#sublists}
 ;;; \index{list\#sublists}
 ;;; \begin{code}
 {define
@@ -1450,7 +1450,7 @@
      ))}
 ;;; \end{code}
 
-;;; \section*{list\#ref-of}
+;;; \section{list\#ref-of}
 ;;; The inverse of list-ref.
 ;;;
 ;;; \index{list\#ref-of}
@@ -1501,7 +1501,7 @@
        ))}
   }
 ;;; \end{code}
-;;; \section*{list\#partition}
+;;; \section{list\#partition}
 ;;;  Partitions the input list into two lists, one list where
 ;;;  the predicate matched the element of the list, the second list
 ;;;  where the predicate did not match the element of the list.
@@ -1537,7 +1537,7 @@
                    (4 5)))
      ))}
 ;;; \end{code}
-;;; \section*{list\#sort}
+;;; \section{list\#sort}
 ;;; \index{list\#sort}
 ;;; \begin{code}
 {define
@@ -1570,7 +1570,7 @@
 ;;; \end{code}
 
 
-;;; \section*{list\#reverse!}
+;;; \section{list\#reverse!}
 ;;;   Reverses the list quickly by reusing cons cells
 ;;;
 ;;; \index{list\#reverse"!}
@@ -1602,7 +1602,7 @@
 ;;; \end{code}
 
 
-;;; \section*{lang\#aif}
+;;; \section{lang\#aif}
 ;;;
 ;;; \index{lang\#aif}
 ;;; \begin{code}
@@ -1634,7 +1634,7 @@
 ;;; \cite[p. 191]{onlisp}
 
 
-;;; \section*{symbol\#symbol-append}
+;;; \section{symbol\#symbol-append}
 ;;;
 ;;; \index{symbol\#symbol-append"}
 ;;; \begin{code}
@@ -1654,7 +1654,7 @@
 ;;; \end{code}
 
 
-;;; \section*{lang\#with-gensyms}
+;;; \section{lang\#with-gensyms}
 ;;;   Utility for macros to minimize explicit use of gensym.
 ;;;   Gensym creates a symbol at compile time which is guaranteed
 ;;;   to be unique.  Macros which intentionally capture variables,
@@ -1688,7 +1688,7 @@
 ;;; \cite[p. 145]{onlisp}
 
 
-;;; \section*{stream\#stream-cons}
+;;; \section{stream\#stream-cons}
 ;;; Streams are lists whose evaluation is deferred until the value is
 ;;; requested.  For more information, consult ``The Structure and
 ;;; Interpretation of Computer Programs''.
@@ -1713,7 +1713,7 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 321]{sicp}.
-;;; \section*{stream\#stream-car}
+;;; \section{stream\#stream-car}
 ;;; Get the first element of the stream.
 ;;;
 ;;; \index{stream\#stream-car}
@@ -1731,7 +1731,7 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 321]{sicp}.
-;;; \section*{stream\#stream-cdr}
+;;; \section{stream\#stream-cdr}
 ;;; Forces the evaluation of the next element of the stream.
 ;;;
 ;;; \index{stream\#stream-cdr}
@@ -1749,7 +1749,7 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 321]{sicp}.
-;;; \section*{list\#list-\textgreater stream}
+;;; \section{list\#list-\textgreater stream}
 ;;; Converts a list into a stream
 ;;;
 ;;; \index{list\#list-\textgreater stream}
@@ -1780,7 +1780,7 @@
                  (stream-cdr
                   (stream-cdr foo))))}}}
 ;;; \end{code}
-;;; \section*{stream\#stream-ref}
+;;; \section{stream\#stream-ref}
 ;;; The analogous procedure of list-ref
 ;;;
 ;;; \index{stream\#stream-ref}
@@ -1816,7 +1816,7 @@
 ;;;
 ;;; \cite[p. 319]{sicp}.
 
-;;; \section*{lang\#Y}
+;;; \section{lang\#Y}
 ;;; \index{lang\#Y}
 ;;;
 ;;; The Y combinator allows a programmer to create a procedure which references
@@ -1851,7 +1851,7 @@
 ;;; \end{code}
 
 
-;;; \section*{lang\#setf!}
+;;; \section{lang\#setf!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \cite{setf}.
 ;;;

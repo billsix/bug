@@ -41,7 +41,7 @@
 ;;;\end{code}
 
 
-;;; \subsection*{lang\#at-compile-time}
+;;; \subsection{lang\#at-compile-time}
 ;;; ``at-compile-time'' macro is implemented by ``eval''ing code
 ;;; during macro-expansion
 ;;; \footnote{https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html}
@@ -63,7 +63,7 @@
 ;;;  code will not evaluate at runtime.
 ;;; \end{itemize}
 
-;;; \subsection*{lang\#at-both-times}
+;;; \subsection{lang\#at-both-times}
 ;;; \index{lang\#at-both-times}
 ;;; \begin{code}
 {##namespace ("lang#" at-both-times)}
@@ -93,7 +93,7 @@
 ;;; libbug-syntax enhancements, and they are not intended to be read by
 ;;; a person.  Their documentation is in this file.
 ;;;
-;;; \subsection*{lang\#at-compile-time-expand}
+;;; \subsection{lang\#at-compile-time-expand}
 ;;; \index{lang\#at-compile-time-expand}
 ;;; \begin{code}
 {##namespace ("lang#" at-compile-time-expand)}
@@ -112,7 +112,7 @@
 {at-compile-time
  {begin
 ;;; \end{code}
-;;; \subsubsection*{Create File for Namespaces}
+;;; \subsubsection{Create File for Namespaces}
 ;;; \begin{code}
    {##define libbug-headers-file
      (open-output-file '(path:
@@ -130,7 +130,7 @@
     libbug-headers-file)
 
 ;;; \end{code}
-;;; \subsubsection*{Create File for Macro Definitions}
+;;; \subsubsection{Create File for Macro Definitions}
 ;;; \begin{code}
    {##define libbug-macros-file
      (open-output-file '(path:
@@ -162,7 +162,7 @@
 
 ;;; The files are closed section~\ref{sec:closefiles}
 
-;;; \subsection*{write-and-eval}
+;;; \subsection{write-and-eval}
 
 ;;; Now that those files are open, I want to write to them.  Namespaces
 ;;; to libbug\#.scm, and macros to libbug-macros.scm.  However, I don't want
@@ -186,7 +186,7 @@
 ;;; time, I'm going to namespace every function/macro at compile-time,
 ;;; at run time, and in the libbug-headers file.
 
-;;; \subsection*{lang\#if}
+;;; \subsection{lang\#if}
 ;;; In the following, I define a new version of "if".  I prefer how
 ;;; Smalltalk 80 defines an if expression as compared to how Scheme
 ;;; and common Lisp do.  Scheme and Common Lisp have special evaluation
@@ -252,7 +252,7 @@
 ;;; style.
 
 
-;;; \subsection*{lang\#with-tests}
+;;; \subsection{lang\#with-tests}
 
 ;;; \index{lang\#with-tests}
 ;;; \begin{code}
@@ -302,7 +302,7 @@
 ;;; \end{code}
 
 
-;;; \subsection*{libbug\#namespace}
+;;; \subsection{libbug\#namespace}
 
 ;;; For both lang\#if and lang\#with-tests, defining the namespace
 ;;; at compile-time, run-time, and in the namespace file at compile-
@@ -322,7 +322,7 @@
 ;;; \end{code}
 
 
-;;; \subsection*{libbug\#define-macro}
+;;; \subsection{libbug\#define-macro}
 ;;; Likewise, defining the macros and exporting them has also
 ;;; been a repetitive process.
 ;;;
@@ -340,7 +340,7 @@
 {##define-macro libbug#define-macro
   [|namespace name lambda-value #!rest tests|
 ;;; \end{code}
-;;; \subsubsection*{Write Macro to File}
+;;; \subsubsection{Write Macro to File}
 ;;; \begin{code}
    (write
     `{begin
@@ -375,7 +375,7 @@
     libbug-macros-file)
    (newline libbug-macros-file)
 ;;; \end{code}
-;;; \subsubsection*{Define Macro and Run Tests}
+;;; \subsubsection{Define Macro and Run Tests}
 ;;; \begin{code}
    {let ((gensym-count (gensym)))
      `{begin
@@ -403,7 +403,7 @@
 
 ;;; \end{code}
 
-;;; \subsubsection*{Macroexpansion}
+;;; \subsection{lang\#macroexpand-1}
 
 ;;; A convenience wrapper to expand macros.
 
@@ -423,7 +423,7 @@
 
 
 
-;;; \subsection*{libbug\#define}
+;;; \subsection{libbug\#define}
 ;;; Function definitions will all have a namespace, name, body,
 ;;; and an optional suite of tests
 ;;;
