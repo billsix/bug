@@ -59,7 +59,7 @@
 ;;; Source code - http://github.com/billsix/bug \\
 ;;; Book generated from Git commit ID - \input{version.tex}
 ;;; \newpage
-;;; \break 
+;;; \break
 
 ;;; \chapter*{Preface}
 ;;; This is a book about compiler design for people who have no interest
@@ -152,7 +152,7 @@
 ;;; may not even read the definition at all if the tests gave them enough information
 ;;; to use the procedure.  But should the reader want to understand the definition, the
 ;;; tests have been designed to help the reader incrementally understand
-;;; the procedure under test.  
+;;; the procedure under test.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
 ;;; be in the executable?  And won't they run every time I run the executable?
@@ -1815,6 +1815,41 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 319]{sicp}.
+
+;;; \section*{lang\#Y}
+;;; \index{lang\#Y}
+;;;
+;;; The Y combinator allows a programmer to create a procedure which references
+;;; itself without needing to define a variable.  There is never an actual need
+;;; to use this in real code.  Read \cite[p. 149-172]{littleschemer} for an excellent
+;;; derivation of this combinator.
+;;;
+;;;
+;;; \begin{code}
+{define
+  "lang#"
+  Y
+  [|le|
+   ([|f| (f f)]
+    [|f| (le [|x| ((f f) x)])])]
+;;; \end{code}
+;;; \subsection*{Test}
+;;; \begin{code}
+  (satisfies-relation
+   (Y [|fact|
+       [|n|
+	(if (= n 0)
+	    [1]
+	    [(* n (fact (- n 1)))])]])
+   `(
+     (0 1)
+     (1 1)
+     (2 2)
+     (3 6)
+     (4 24)
+     ))}
+;;; \end{code}
+
 
 ;;; \section*{lang\#setf!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
