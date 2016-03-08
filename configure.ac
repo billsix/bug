@@ -32,8 +32,6 @@ if test x"$MAKEINDEX_CHECK" != x"yes" ; then
 fi
 
 # this whole shared/static library system needs to be rewritten
-GAMBITS_C_COMPILER=$(gambcomp-C | grep '^C_COMPILER' | cut -d '"' -f 2)
-AC_SUBST(GAMBITS_C_COMPILER)
 LIB_EXTENSION=$(gambcomp-C | grep '^LIB_EXTENSION' | cut -d '"' -f 2)
 AC_SUBST(LIB_EXTENSION)
 if gambcomp-C | grep '^FLAGS_LIB'| grep '\-dynamiclib'

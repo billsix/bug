@@ -10,7 +10,6 @@ bindir=@bindir@
 libdir=@libdir@
 includedir=@includedir@
 datarootdir = @datarootdir@
-CC = @GAMBITS_C_COMPILER@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
 ENABLE_PDF = @ENABLE_PDF@
