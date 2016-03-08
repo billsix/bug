@@ -63,12 +63,12 @@
 
 ;;; \chapter*{Preface}
 ;;; This is a book about compiler design for people who have no interest
-;;; in studying compiler design.  ...Wait... then who will want to read the book?
+;;; in studying compiler design.  ...Wait - then who wants to read this book?
 ;;; Let me try this again...  This book is the study of
 ;;; source code which is discarded by the compiler, having no representation in
 ;;; the generated machine code.
 ;;; ...Ummm, still not right...  This book is about viewing a compiler not only
-;;; as a means of translating source code into an executable,
+;;; as a means of translating source code into machine code,
 ;;;  but also viewing it as an interpreter capable of any
 ;;; general purpose computation.  ...Closer, but who cares about that... I think I got it
 ;;; now - This is a book about ``Testing at Compile-Time''!
@@ -155,7 +155,7 @@
 ;;; the procedure under test.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
-;;; be in the executable?  And won't they run every time I run the executable?
+;;; be in the executable?  And won't they run every time I run the program?
 ;;; That would be unacceptable, as it would increase the size of the binary and
 ;;; slow down the program at start up.  Fortunately, the
 ;;; answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
@@ -406,7 +406,7 @@
 ;;;
 ;;; On line 17, a run-time call to ``fact'', defined on line 10, is declared.
 ;;;
-;;; We can verify that the stated behavior is true by dissambling the machine code.
+;;; We can verify that the stated behavior is true by disassembling the machine code.
 ;;; By disassembling the machine code using ``objdump -D'', we can
 ;;; see the drastic difference in the generated code.
 ;;;
@@ -430,11 +430,11 @@
 ;;; two lines call the printing routine\footnote{at least I assume, because
 ;;; I don't completely understand how C++ name-mangling works}.
 
-;;; The instructions at locations 40086c through 40087d correpond to the
+;;; The instructions at locations 40086c through 40087d correspond to the
 ;;; printing out of the run-time calculation to fact(3).  The number 3
-;;; is loaded into the edi register, calls fact, moves the result of
-;;; calling fact from the eax register to the esi register, and then
-;;; calls the printing routine.
+;;; is loaded into the edi register, fact is invoked, the result of
+;;; calling fact is moved from the eax register to the esi register, and then
+;;; printing routine is called.
 ;;;
 ;;; The compile-time computation worked!
 
@@ -459,14 +459,13 @@
 
 ;;; \begin{examplecode}
 ;;; ......
-;;; ......
 ;;; (pp (at-compile-time-expand (fact 3)))
 ;;; \end{examplecode}
 
-;;; We could verify that it is working as expected by disassembling
-;;; the machine code, but instead by compiling the Scheme source to the
+;;; By compiling the Scheme source to the
 ;;; ``gvm'' intermediate
-;;; code, we get a much clearer idea of what's happening.
+;;; representation, we can verify the stated
+;;; behavior.
 
 ;;; In the run-time calculation of fact, the following gvm code is produced.
 
@@ -504,12 +503,12 @@
 ;;; which is mostly taken for granted and not questioned.
 ;;; C has two distince sub-''languages'', one for compile-time, and one
 ;;; for run-time;
-;;; both of which have variables and procedure definitions.
+;;; both of which have variables, conditionals, and procedure definitions.
 ;;; As does C++, which also has compile-time Turing-completeness, in an awkward
 ;;; purely functional language
 ;;; lacking state and IO. The Java Virtal Machine, initially just an interpreter
-;;; of Java bytecode, eventually added the ability to compile byte-code
-;;; into an optimized form while it was interpreting for performance improvements.
+;;; of Java byte-code, eventually added the ability to compile byte-code
+;;; into optimized machine code during interpretation to increase performance.
 ;;; Libbug, on the otherhand, is meant to be compiled, but adds
 ;;; a full interpreter to be executed during compile-time, including state, and IO.
 ;;;
