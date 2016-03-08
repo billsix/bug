@@ -95,33 +95,35 @@
 ;;;
 ;;; So what does the code do?  How did the author intend for it to be used?
 ;;; In trying to answer those questions, fans of statically-typed programming
-;;; languages might lament the lack of types, as types help them reason about
-;;; programs, and help them deduce where to look to find more information.
+;;; languages might lament the lack of types, as types help them to reason about
+;;; programs and help them to deduce where to look to find more information.
 ;;; In trying to answer those questions,
 ;;; fans of dynamically-typed languages might argue ``Look at the tests!'',
-;;; as tests ensure the code functions in a user-specified way, and also
-;;; serve as a form of documentation.  But
+;;; as tests ensure the code functions in a user-specified way and 
+;;; they serve as a form of documentation.  But
 ;;; where are those tests?  Probably in some other file, whose filesystem path is
 ;;; similar to the current file's path, (e.g, src/com/BigCorp/HugeProject/Foo.java
 ;;; -\textgreater test/com/BigCorp/HugeProject/FooTest.java)
 ;;; Then you'd have to find the file, open the file, look through it
 ;;; while ignoring tests which are
-;;; for other methods.  Frankly, it's too much work, and interrupts the flow
+;;; for other methods.  Frankly, it's too much work and it interrupts the flow
 ;;; of coding, at least for me.
 ;;;
-;;; What else could be done?  Well, in this book, which is the
+;;; But how else would a programmer organize tests?  Well, in this book, which is the
 ;;; implementation of a library called ``libbug''\footnote{Bill's Utilities
 ;;; for Gambit}, tests are specified as part of the procedure's definition,
-;;; they are run at compile-time, and should any test fail the compiler will
-;;; exit and not produce the libbug library, much like a type error in a
-;;; statically-typed language.  Furthermore, the book you are currently reading
-;;; is embedded into the source code of libbug, is generated only upon successful
-;;; compilation of libbug, so it couldn't exist if a single test
-;;; failed.  So where are these tests then?
-;;;
-;;; The very alert reader may have noticed that the opening '\{' in the definition
-;;; of ``permutations'' was not closed, and that's because during procedure definition,
-;;; we can specify tests which are to be run at compile-time.
+;;; executed at compile-time.  Should any test fail the compiler will
+;;; exit in error, not producing the libbug library.  Much like a type error in a
+;;; statically-typed language.  Furthering the reliability of the code,
+;;; the book you are currently reading
+;;; is embedded into the source code of libbug; it is generated only upon successful
+;;; compilation of libbug and it couldn't exist if a single test
+;;; failed.
+
+;;; So where are these tests then? The very alert reader may have noticed
+;;; that the opening '\{' in the definition
+;;; of ``permutations'' was not closed.  That is because tests can be specified
+;;; to be run at compile-time as part of the definition of a procedure.
 ;;;
 ;;; \begin{examplecode}
 ;;; (equal? (permutations '())
@@ -141,70 +143,74 @@
 ;;; }
 ;;; \end{examplecode}
 ;;;
-;;; Now, the closing '\}' is there, and the ``permutations'' procedure is defined.
+;;; \noindent Now, the closing '\}' is there, so ``permutations'' procedure is defined.
 ;;;
-;;; So why does this matter?
+;;; Why does this matter?
 ;;; Towards answering the questions ``so what does the code do?'' and ``how did the author
-;;; intend for it to be used?'', there is no guessing involved.  The fact that the
+;;; intend for it to be used?'', there is no searching, no extrapolation involved.
+;;; The fact that the
 ;;; tests are collocated with the procedure definition means that the reader can
 ;;; read the tests without switching between files, perhaps reading the tests
 ;;; before reading the procedure definition.  And the reader
 ;;; may not even read the definition at all if the tests gave them enough information
-;;; to use the procedure.  But should the reader want to understand the definition, the
-;;; tests have been designed to help the reader incrementally understand
-;;; the procedure under test.
+;;; to use the procedure.  Should the reader want to understand the definition, the
+;;; tests can be read incrementally to understand the procedure under test.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
-;;; be in the executable?  And won't they run every time I run the program?
+;;; be in the executable?  And won't they run every time I execute the program?
 ;;; That would be unacceptable, as it would increase the size of the binary and
 ;;; slow down the program at start up.  Fortunately, the
 ;;; answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
-;;; that certain code should be interpreted by the compiler, instead of code to be
+;;; that certain code should be interpreted by the compiler instead of being
 ;;; compiled\footnote{Which is also why this book is
 ;;; called the more general ``Computation at Compile-Time'' instead of ``Testing
 ;;; at Compile-Time''}.  Lisp implementations such as Gambit are particularly well
 ;;; suited for this style of programming since unevaluated Lisp code is
-;;; specified using a data structure of the language, and because the compiler,
-;;; itself being a Lisp program, is an interpreter of the same language which
-;;; it compiles, fully capable of being augmented with user-defined code.
+;;; specified using a data structure of the language to be compiled; because the compiler,
+;;; being a Lisp program, is an interpreter capable of being augmented with the very
+;;; same code which it is compiling.  Upon finishing compilation, the
+;;; compiler \emph{is} your program.
 ;;;
 ;;;
 ;;; \tableofcontents
 ;;; \break
 ;;; \chapter{Introduction}
 ;;; \pagenumbering{arabic}
-;;; Libbug is Bill's Utilities for Gambit Scheme, a ``standard library'' of procedures,
-;;; augmenting Scheme's small set of built-in procedures and macros.
+;;; Libbug is Bill's Utilities for Gambit Scheme:  a ``standard library'' of procedures
+;;; which augments Scheme's small set of built-in procedures and macros.
 ;;; Libbug provides procedures for list processing, streams, procedure-building procedures,
 ;;; control structures,
 ;;; general-purpose evaluation at compile-time, a
-;;; compile-time test framework (in only 9 lines of code!), and a Scheme preprocessor to
-;;; provide a lambda literal syntax.  Programs written using libbug can be
+;;; compile-time test framework\footnote{in only 9 lines of code!}, and a Scheme preprocessor to
+;;; provide a lambda literal syntax.  Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
-;;; style, so that programs can be read linearly in a book form.
+;;; style, so that programs, such as libbug, can be read linearly in a book form.
 
 ;;; \section{Prerequisites}
 ;;;
 ;;; The reader is assumed to be somewhat familiar both with Scheme, and with Common Lisp-style
-;;; macros (which Gambit provides).  Reading ``Simply Scheme'' \cite{ss}
+;;; macros (which Gambit provides).  Reading ``Simply Scheme''
+;;; \cite{ss}\footnote{available on-line for no cost, let me google that for you}
 ;;; or ``The Little Schemer'' \cite{littleschemer} should be sufficient
-;;; to understand Scheme, and reading ``On Lisp'' \cite{onlisp} is more than sufficient
-;;; to understand Common Lisp-style macros.
+;;; to understand Scheme.  Reading ``On Lisp''
+;;; \cite{onlisp}\footnote{available on-line for no cost} is more than sufficient
+;;; to understand Common Lisp-style macros, as well as an excellent demonstration
+;;; of taste in programming.
 ;;;
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
 ;;; book, are all recommended reading, but are
 ;;; not necessary to understand the content of this book.
 ;;;
 ;;; \section{Conventions}
-;;; Code which is part of libbug will have an outline and line numbers.
+;;; Code which is part of libbug will be outlined and will have line numbers on the left.
 ;;;
 ;;; \begin{code}
 ;; This is part of libbug.
 ;;; \end{code}
 ;;;
 ;;; \noindent
-;;; Example code which is not part of libbug will not have an outline, nor line
+;;; Example code which is not part of libbug will not be outlined nor will have line
 ;;; numbers.
 ;;;
 ;;; \begin{examplecode}
@@ -220,12 +226,14 @@
 ;;;
 ;;; \noindent
 ;;;  means evaluate ``fun'', ``arg1''
-;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2''.  This notation
-;;; is standard Scheme. But Scheme uses this same notation for all macro applications.
-;;; Macros transform source code as data before evaluation, and as such, the generated
-;;; code may not follow the same order of evaluation.  Or an argument may be evaluated multiple
-;;; times, causing unexpected side-effects for an argument which mutates state.
-;;; This can cause some confusion to a reader.  To attempt to minimize the confusion,
+;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2''.
+;;; Standard Scheme semantics. But regular Scheme uses this same notation for all macro applications.
+;;; As macros transform source code into different source code before compilation, the generated
+;;; code may not follow the standard order of evaluation.  For instance, an argument may be
+;;; evaluated multiple
+;;; times in the generated code, causing an unintended side-effect.
+;;; The inability for the reader to reason about the evaluation semantics of arguments to a macro
+;;; at the call site may cause confusion to the reader; as such,
 ;;; within libbug the notation
 
 ;;; \begin{examplecode}
@@ -233,7 +241,7 @@
 ;;; \end{examplecode}
 
 ;;; \noindent
-;;;      is used to denote to
+;;; is used to denote to
 ;;; the reader that the standard evaluation rules do not necessarily apply to
 ;;; all arguments.  For instance, in
 
@@ -243,13 +251,13 @@
 
 ;;; \noindent
 ;;; \{\} are used because ``x''
-;;; is a new variable, and as such, cannot currently evaluate to anything.
+;;; may be a new variable.  As such, it cannot currently evaluate to anything.
 ;;;
 ;;; Not all macro applications use \{\}.  If the macro respects Scheme's standard
-;;; order of evaluation, it will use regular Scheme notation:
+;;; order of evaluation, macro application will use standard Scheme notation:
 ;;;
 ;;; \begin{examplecode}
-;;; (macro arg1 arg2)
+;;; ((compose [|x| (* x 2)]) 5)
 ;;; \end{examplecode}
 ;;;
 ;;; \section{Getting the Source Code}
@@ -264,6 +272,7 @@
 ;;;  To compile the book and library
 ;;;
 ;;; \begin{examplecode}
+;;; $ ./autogen.sh
 ;;; $ ./configure --enable-pdf=yes
 ;;; $ make
 ;;; $ make install
