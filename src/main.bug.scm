@@ -60,7 +60,11 @@
 ;;; Book generated from Git commit ID - \input{version.tex}
 ;;; \newpage
 ;;; \break
+
+;;;  \noindent
+;;;  EITHER
 ;;;
+;;;  \vspace{1cm}
 ;;;  \noindent
 ;;;   Copyright 2014-2016 William Emerison Six
 ;;;
@@ -104,18 +108,27 @@
 ;;;    License along with this library; if not, write to the Free Software
 ;;;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+;;; \clearpage
+;;; \vspace*{\fill}
+;;; \begin{center}
+;;;  \begin{minipage}{.6\textwidth}
+;;;   For Mom and Dad.  Thanks for everything.
+;;;  \end{minipage}
+;;;  \end{center}
+;;;  \vfill
+;;;  \clearpage
 
 ;;; \chapter*{Preface}
 ;;; This is a book about compiler design for people who have no interest
-;;; in studying compiler design.  ...Wait - then who wants to read this book?
+;;; in studying compiler design.  ...Umm, then who wants to read this book?
 ;;; Let me try this again...  This book is the study of
 ;;; source code which is discarded by the compiler, having no representation in
 ;;; the generated machine code.
 ;;; ...Ummm, still not right...  This book is about viewing a compiler not only
 ;;; as a means of translating source code into machine code,
 ;;;  but also viewing it as an interpreter capable of any
-;;; general purpose computation.  ...Closer, but who cares about that... I think I got it
-;;; now - This is a book about ``Testing at Compile-Time''!
+;;; general purpose computation.  ...Closer, but who cares?... I think I got it
+;;; now. This is a book about ``Testing at Compile-Time''!
 ;;;
 ;;; What do I mean by that?  Let's say you're looking at source code with which
 ;;; you are unfamiliar, such as the following:
@@ -143,11 +156,11 @@
 ;;; programs and help them to deduce where to look to find more information.
 ;;; In trying to answer those questions,
 ;;; fans of dynamically-typed languages might argue ``Look at the tests!'',
-;;; as tests ensure the code functions in a user-specified way and 
+;;; as tests ensure the code functions in a user-specified way and
 ;;; they serve as a form of documentation.  But
 ;;; where are those tests?  Probably in some other file, whose filesystem path is
-;;; similar to the current file's path, (e.g, src/com/BigCorp/HugeProject/Foo.java
-;;; -\textgreater test/com/BigCorp/HugeProject/FooTest.java)
+;;; similar to the current file's path, (e.g., src/com/BigCorp/HugeProject/Foo.java
+;;; is tested by test/com/BigCorp/HugeProject/FooTest.java)
 ;;; Then you'd have to find the file, open the file, look through it
 ;;; while ignoring tests which are
 ;;; for other methods.  Frankly, it's too much work and it interrupts the flow
@@ -191,14 +204,15 @@
 ;;;
 ;;; Why does this matter?
 ;;; Towards answering the questions ``so what does the code do?'' and ``how did the author
-;;; intend for it to be used?'', there is no searching, no extrapolation involved.
+;;; intend for it to be used?'', there is no searching through files, no extrapolation
+;;; of expected inputs and outputs required.
 ;;; The fact that the
 ;;; tests are collocated with the procedure definition means that the reader can
 ;;; read the tests without switching between files, perhaps reading the tests
 ;;; before reading the procedure definition.  And the reader
-;;; may not even read the definition at all if the tests gave them enough information
-;;; to use the procedure.  Should the reader want to understand the definition, the
-;;; tests can be read incrementally to understand the procedure under test.
+;;; may not even read the procedure at all if the tests gave them enough information
+;;; to use it successfully.  But should the reader want to understand the procedure, they
+;;; can apply the procedure incrementally to the tests to understand it.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
 ;;; be in the executable?  And won't they run every time I execute the program?
@@ -209,11 +223,11 @@
 ;;; compiled\footnote{Which is also why this book is
 ;;; called the more general ``Computation at Compile-Time'' instead of ``Testing
 ;;; at Compile-Time''}.  Lisp implementations such as Gambit are particularly well
-;;; suited for this style of programming since unevaluated Lisp code is
-;;; specified using a data structure of the language to be compiled; because the compiler,
-;;; being a Lisp program, is an interpreter capable of being augmented with the very
+;;; suited for this style of programming because unevaluated Lisp code is
+;;; specified using a data structure of Lisp; because the compiler
+;;; is an interpreter capable of being augmented with the very
 ;;; same code which it is compiling.  Upon finishing compilation, the
-;;; compiler \emph{is} your program.
+;;; compiler has \emph{become} the very program it is compiling.
 ;;;
 ;;;
 ;;; \tableofcontents
@@ -229,18 +243,19 @@
 ;;; provide a lambda literal syntax.  Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
-;;; style, so that programs, such as libbug, can be read linearly in a book form.
+;;; style, so that a program, such as libbug, can be read linearly in a book form.
 
 ;;; \section{Prerequisites}
 ;;;
 ;;; The reader is assumed to be somewhat familiar both with Scheme, and with Common Lisp-style
-;;; macros (which Gambit provides).  Reading ``Simply Scheme''
+;;; macros.  Reading ``Simply Scheme''
 ;;; \cite{ss}\footnote{available on-line for no cost, let me google that for you}
 ;;; or ``The Little Schemer'' \cite{littleschemer} should be sufficient
-;;; to understand Scheme.  Reading ``On Lisp''
+;;; to understand all of the code except for the macros.  Reading ``On Lisp''
 ;;; \cite{onlisp}\footnote{available on-line for no cost} is more than sufficient
-;;; to understand Common Lisp-style macros, as well as an excellent demonstration
-;;; of taste in programming.
+;;; to understand everything in this book, as this book is DLC\footnote{Downloadable Content
+;;; (i.e. extra content for a video game)}
+;;; for chapter 13 of ``On Lisp''', also called``Computation at Compile-Time''.
 ;;;
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
 ;;; book, are all recommended reading, but are
@@ -307,13 +322,14 @@
 ;;; \section{Getting the Source Code}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug.
 ;;;  The Scheme files can produce the libbug library, as well as this book.
-;;;  This book was generated from git commit ID \input{version.tex}.
+;;;  This book was generated from git commit ID \input{version.tex} .
 ;;;  Currently, the code works on various distributions of Linux, and on
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
 ;;; You will of course need a C compiler, and Gambit
-;;; Scheme\footnote{http://gambitscheme.org}
-;;;  To compile the book and library
+;;; Scheme\footnote{http://gambitscheme.org}.
+;;;
+;;; To compile the book and library, execute the following on the comman line:
 ;;;
 ;;; \begin{examplecode}
 ;;; $ ./autogen.sh
@@ -327,7 +343,7 @@
 ;;;
 ;;; This chapter provides a quick tour of computer language which is interpreted
 ;;; by the compiler, but which has no direct representation in the generated machine
-;;; code.  Examples are provided in well-known languages, to illustrate that
+;;; code.  Examples are provided in well-known languages to illustrate that
 ;;; many compilers are also interpreters for a subset of the language.  This
 ;;; chapter is not required to understand the rest of the book, and may be freely
 ;;; skipped, but it provides a baseline understanding of compile-time computation,
@@ -342,7 +358,7 @@
 ;;; of deciding whether a given string is a member of some particular language''.
 ;;;
 ;;; In practice, if your compiler successfully compiles your code, congratulations!
-;;; The code is a valid string in the language, and passed additional constraints
+;;; The code is a valid string in the language, and passed any additional constraints
 ;;; (e.g. type-checking).  But does all of that language directly generate instructions
 ;;; in the machine code?  Turns out, no, it does not.
 
@@ -376,8 +392,8 @@
 ;;; itself has no representation in the machine code, although the contents
 ;;; of the included file may.
 ;;;
-;;; The second line defines a C macro. It is a procedure which takes text
-;;; strings as input, and transforms them into a new text string as output.
+;;; The second line defines a C macro. It is a procedure which takes a text
+;;; string as input and transforms it into a new text string as output.
 ;;; This expansion happens before the compiler does anything
 ;;; else.  For example, using GCC as a compiler, if you run just the the C preprocessor
 ;;; ``cpp'' on the above C code, you'll see that
@@ -391,6 +407,8 @@
 ;;; \begin{examplecode}
 ;;;  printf("%d\n",((fact(argc)) * (fact(argc))));
 ;;; \end{examplecode}
+;;;
+;;; \noindent before compilation.
 ;;;
 ;;; The third line defines a function prototype, so that
 ;;; the compiler knows the argument types and return type for a function called ``fact''.
@@ -415,7 +433,7 @@
 ;;; metaprogramming is not useful in practice.
 ;;;
 ;;; The following is an example of calculating the factorial of
-;;; 3, both using C++ functions, and using C++'s templates.
+;;; 3, using both C++ functions and C++'s templates.
 ;;;
 ;;; \begin{examplecode}
 ;;; /*Line01*/  #include <iostream>
@@ -441,9 +459,9 @@
 
 ;;; On line 16, ``factorial\textless3\textgreater::value'' is an
 ;;; instruction to be interpreted
-;;; by the compiler, using templates.  Template expansions happen at compile-time
-;;; conditionally matching patters based on types (or values in the case
-;;; of integers).  Instead of loops, templates can expand recursively.
+;;; by the compiler using templates.  Template expansions
+;;; conditionally matching patterns based on types (or values in the case
+;;; of integers).  Instead of loops templates expand recursively.
 ;;; In this case, the expansion of
 ;;; ``factorial\textless3\textgreater::value'' in dependent upon
 ;;; ``factorial\textless n-1\textgreater::value''.  The compiler
@@ -479,7 +497,7 @@
 
 ;;; The instructions at locations 400850 through 40085a correspond to the
 ;;; printing out of the compile-time expanded call to factorial\textless3\textgreater.
-;;; The number 6 is loaded into the esi register, and the second
+;;; The number 6 is loaded into the esi register; then the second
 ;;; two lines call the printing routine\footnote{at least I assume, because
 ;;; I don't completely understand how C++ name-mangling works}.
 
@@ -519,7 +537,6 @@
 ;;; ``gvm'' intermediate
 ;;; representation, we can verify the stated
 ;;; behavior.
-
 ;;; In the run-time calculation of fact, the following gvm code is produced.
 
 ;;; \begin{examplecode}
@@ -537,7 +554,7 @@
 ;;; (effectively a procedure call) to the
 ;;; fact procedure, and then a jump to pp.
 
-;;; \noindent In the compile-time calculation of fact, the following gvm code is produced.
+;;; In the compile-time calculation of fact, the following gvm code is produced.
 
 ;;; \begin{examplecode}
 ;;; r1 = '6
@@ -554,25 +571,25 @@
 ;;; this important?
 ;;; This chapter demonstrates that compilers have interpretive aspects to them,
 ;;; which is mostly taken for granted and not questioned.
-;;; C has two distince sub-''languages'', one for compile-time, and one
+;;; C has two distinct sub-''languages'', one for compile-time and one
 ;;; for run-time;
 ;;; both of which have variables, conditionals, and procedure definitions.
-;;; As does C++, which also has compile-time Turing-completeness, in an awkward
+;;; As does C++, which also has compile-time Turing-completeness in an awkward
 ;;; purely functional language
-;;; lacking state and IO. The Java Virtal Machine, initially just an interpreter
+;;; lacking state and IO. The Java Virtual Machine, initially just an interpreter
 ;;; of Java byte-code, eventually added the ability to compile byte-code
 ;;; into optimized machine code during interpretation to increase performance.
-;;; Libbug, on the otherhand, is meant to be compiled, but adds
-;;; a full interpreter to be executed during compile-time, including state, and IO.
+;;; Libbug, on the opposite end of the spectrum, is meant to be compiled, but it adds
+;;; a full interpreter to be executed during compile-time, including state and IO.
 ;;;
-;;; At first I only wanted a way to collocate
-;;; tests with definitions, evaluate the tests at compile time, and error out
+;;; When I first started on this project, I only wanted a way to collocate
+;;; tests with definitions, to evaluate the tests at compile time, and to error out
 ;;; of compilation
 ;;; if a test failed.  Only later did I realize that compile-time evaluation
-;;; can execute anything at all, including state and IO.  What else could be
+;;; can execute full programs without limitations.  What else could be
 ;;; calculated at compile-time?  In graphics, perhaps calculating normal vectors
 ;;; from a vertex mesh automatically; perhaps writing ``shaders'' as compile-time
-;;; tested Scheme procedures, which are translated into actual shaders at compile-time.
+;;; tested Scheme procedures which are translated into actual shaders at compile-time.
 ;;; In database programming, perhaps fetching the table definitions at compile-time,
 ;;; and generating code for easy database access.
 ;;;
@@ -581,16 +598,16 @@
 ;;;
 ;;; \chapter{The Implementation of libbug}
 ;;;
-;;; This chapter defines a standard library of Scheme procedures and macros
-;;; \footnote{The code within this section is all found in
+;;; This chapter defines a standard library of Scheme procedures and
+;;; macros\footnote{The code within this section is all found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.
 ;;;
 ;;;
 ;;; Libbug defines extensions to the Scheme language, implemented via
 ;;; macros.  They are ``libbug\#define'', and ``libbug\#define-macro''.
-;;; Any variable namespaced with ``libbug'' is not included in the library
-;;; or associated files, they are meant for private use within the implementation
+;;; As they are namespaced to ``libbug'', they are not compiled into the library
+;;; or other output files; they are meant for private use within the implementation
 ;;; of libbug.  They are implemented in ``bug-language.bug.scm''\footnote{Although
 ;;; the filename is ``bug-language.bug.scm'', ``bug-language.scm'' is imported.  This
 ;;; is because ``bug-gscpp'' preprocesses the bug file, and outputs a standard Gambit
@@ -601,15 +618,14 @@
 ;;;
 ;;; \begin{code}
 (include "bug-language.scm")
-(##namespace ("libbug#" define))
-(##namespace ("libbug#" define-macro))
+{##namespace ("libbug#" define)}
+{##namespace ("libbug#" define-macro)}
 ;;;\end{code}
 
 ;;;
 ;;; \section{lang\#noop}
 ;;; The first definition is ``noop'', a procedure which takes no arguments and
-;;; which evaluates to the symbol 'noop.  noop is defined using ``libbug\#define''
-;;; instead of Scheme's regular define.
+;;; which evaluates to the symbol 'noop.
 
 ;;; \index{lang\#noop}
 ;;; \begin{code}
