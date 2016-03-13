@@ -162,7 +162,7 @@
 
 ;;; The files are closed section~\ref{sec:closefiles}
 
-;;; \subsection{write-and-eval}
+;;; \subsection{libbug\#write-and-eval}
 
 ;;; Now that those files are open, I want to write to them.  Namespaces
 ;;; to libbug\#.scm, and macros to libbug-macros.scm.  However, I don't want
@@ -172,9 +172,9 @@
 ;;; So, create a new line on the file, write the unevaluated form to the
 ;;; file, and the return the form so that the compiler actually processes it.
 
-;;; \index{write-and-eval}
+;;; \index{libbug\#write-and-eval}
 ;;; \begin{code}
-{##define-macro write-and-eval
+{##define-macro libbug#write-and-eval
   [|port form|
    (eval `(begin
             (write ',form ,port)
@@ -199,13 +199,13 @@
 ;;; \begin{code}
 {at-compile-time
  {##namespace ("lang#" if)}}
-{write-and-eval
+{libbug#write-and-eval
  libbug-headers-file
  {##namespace ("lang#" if)}}
 ;;; \end{code}
 ;;; \index{lang\#if}
 ;;; \begin{code}
-(write-and-eval
+(libbug#write-and-eval
  libbug-macros-file
  {at-both-times
   {##define-macro if
@@ -258,10 +258,10 @@
 ;;; \begin{code}
 {at-compile-time
  {##namespace ("lang#" with-tests)}}
-{write-and-eval
+{libbug#write-and-eval
  libbug-headers-file
  {##namespace ("lang#" with-tests)}}
-(write-and-eval
+(libbug#write-and-eval
  libbug-macros-file
  {##define-macro with-tests
    [|definition #!rest tests|
@@ -316,7 +316,7 @@
    {begin
      (eval `{##namespace ,namespace-name-pair})
      `{begin
-        (write-and-eval
+        (libbug#write-and-eval
          libbug-headers-file
          {##namespace ,namespace-name-pair})}}]}
 ;;; \end{code}

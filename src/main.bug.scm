@@ -636,7 +636,8 @@
 ;;; \end{code}
 
 ;;; \begin{itemize}
-;;;   \item On line 1, the libbug\#define macro\footnote{defined in section ~\ref{sec:libbugdefine} } is invoked.
+;;;   \item On line 1, the libbug\#define macro\footnote{defined in section ~\ref{sec:libbugdefine}}
+;;; is invoked.
 ;;;   \item On line 2, a namespace
 ;;;   \item On line 3, the variable name, which will be declared in the
 ;;;         namespace defined on line 2.
@@ -690,7 +691,7 @@
 ;;;
 
 ;;; \section{list\#all?}
-;;; Like and, but takes a list instead of a variable number of arguments.
+;;; Like ``and'', but takes a list instead of a variable number of arguments.
 ;;;
 ;;; \index{list\#all?}
 ;;; \begin{code}
@@ -801,14 +802,11 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;; libbug\#define-macro \footnote{defined in section ~\ref{sec:libbugdefinemacro}}
-;;; is a wrapper around Gambit's \#\#define-macro\footnote{which is very similar to Common
-;;; Lisp's macro system}, but libbug\#define-macro only allows the lambda literal
-;;; syntax.
-;;;
 ;;; Libbug is a library, meant to be used by other projects.  From libbug, these
 ;;; projects will require namespace definitions, as well as macro definitions.
-;;; As such, besides defining the macro, libbug\#define-macro also exports the
+;;; As such, besides defining the macro, libbug\#define-macro\footnote{
+;;; defined in section ~\ref{sec:libbugdefinemacro}}
+;;; also exports the
 ;;; namespace definition and the macro definitions to external files.
 ;;;
 ;;; If the reader does not understand the macro definition above, don't worry,
@@ -834,17 +832,6 @@
           11/13)
 ;;; \end{code}
 ;;; \subsection*{Code Expansion Tests}
-;;; ``macroexpand-1'' expands the unevaluated code passed to the
-;;; macro into the new form, which the compiler would have then compiled
-;;; if ``macroexpand-1'' had not been there.  But, how should ``gensyms'' be
-;;; handled, since by definition it creates symbols which cannot be entered
-;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
-;;; is overridden into a procedure
-;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
-;;; call during a macroexpansion generates a new, unique symbol.  Although this symbol
-;;; may clash with symbols in the expanded code, this is not a problem, as these
-;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
-;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
 ;;;
 ;;;
 ;;; \begin{code}
@@ -872,6 +859,19 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 66]{onlisp}
+
+;;; ``macroexpand-1'' expands the unevaluated code passed to the
+;;; macro into the new form, which the compiler would have then compiled
+;;; if ``macroexpand-1'' had not been there.  But, how should ``gensyms'' be
+;;; handled, since by definition it creates symbols which cannot be entered
+;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
+;;; is overridden into a procedure
+;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
+;;; call during a macroexpansion generates a new, unique symbol.  Although this symbol
+;;; may clash with symbols in the expanded code, this is not a problem, as these
+;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
+;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
+
 ;;; \section{list\#any?}
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
