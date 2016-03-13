@@ -1436,6 +1436,58 @@
 ;;; \end{code}
 
 
+;;; \section{list\#drop}
+;;; \index{list\#drop}
+;;; \begin{code}
+{define
+  "list#"
+  drop
+  [|n lst|
+   (if (or (null? lst) (= n 0))
+       [lst]
+       [(drop (- n 1)
+              (cdr lst))])]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies-relation
+   [|n| (drop n '(a b))]
+   '(
+     (0 (a b))
+     (1 (b))
+     (2 ())
+     (3 ())
+     ))}
+;;; \end{code}
+
+;;; \section{list\#drop-while}
+;;; \index{list\#drop-while}
+;;; \begin{code}
+{define
+  "list#"
+  drop-while
+  [|p? lst|
+   (if (null? lst)
+       ['()]
+       [(if ((complement p?) (car lst))
+            [(cdr lst)]
+            [(drop-while p?
+                         (cdr lst))])])]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies-relation
+   [|x| (drop-while [|y| (not (equal? x y))]
+                    '(a b c))]
+   '(
+     (a (b c))
+     (b (c))
+     (c ())
+     (d ())
+     ))}
+;;; \end{code}
 
 
 ;;; \section{list\#enumerate-interval}
