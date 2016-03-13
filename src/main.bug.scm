@@ -1415,11 +1415,11 @@
   "list#"
   take-while
   [|p? lst|
-   (if (or (null? lst) ((complement p?) (car lst)))
-       ['()]
-       [(cons (car lst)
-              (take-while p?
-                          (cdr lst)))])]
+   {let take-while ((lst lst))
+     (if (or (null? lst) ((complement p?) (car lst)))
+         ['()]
+         [(cons (car lst)
+                (take-while (cdr lst)))])}]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -1468,12 +1468,12 @@
   "list#"
   drop-while
   [|p? lst|
-   (if (null? lst)
-       ['()]
-       [(if ((complement p?) (car lst))
-            [(cdr lst)]
-            [(drop-while p?
-                         (cdr lst))])])]
+   {let drop-while ((lst lst))
+     (if (null? lst)
+         ['()]
+         [(if ((complement p?) (car lst))
+              [(cdr lst)]
+              [(drop-while (cdr lst))])])}]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
