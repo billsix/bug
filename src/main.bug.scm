@@ -460,8 +460,8 @@
 ;;; On line 16, ``factorial\textless3\textgreater::value'' is an
 ;;; instruction to be interpreted
 ;;; by the compiler using templates.  Template expansions
-;;; conditionally matching patterns based on types (or values in the case
-;;; of integers).  Instead of loops templates expand recursively.
+;;; conditionally match patterns based on types (or values in the case
+;;; of integers).  For iteration, instead of loops, templates expand recursively.
 ;;; In this case, the expansion of
 ;;; ``factorial\textless3\textgreater::value'' in dependent upon
 ;;; ``factorial\textless n-1\textgreater::value''.  The compiler
