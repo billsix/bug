@@ -1374,10 +1374,70 @@
                  l)]
    '(
      ((10 20) (10 11 12 20 21 22))
-     ))}
+     ))
+  }
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 123]{sicp}
+
+
+;;; \section{list\#take}
+;;; \index{list\#take}
+;;; \begin{code}
+{define
+  "list#"
+  take
+  [|n lst|
+   (if (or (null? lst) (= n 0))
+       ['()]
+       [(cons (car lst)
+              (take (- n 1)
+                    (cdr lst)))])]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies-relation
+   [|n| (take n '(a b))]
+   '(
+     (0 ())
+     (1 (a))
+     (2 (a b))
+     (3 (a b))
+     ))}
+;;; \end{code}
+
+
+;;; \section{list\#take-while}
+;;; \index{list\#take-while}
+;;; \begin{code}
+{define
+  "list#"
+  take-while
+  [|p? lst|
+   (if (or (null? lst) ((complement p?) (car lst)))
+       ['()]
+       [(cons (car lst)
+              (take-while p?
+                          (cdr lst)))])]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies-relation
+   [|x| (take-while [|y| (not (equal? x y))]
+                    '(a b c))]
+   '(
+     (a ())
+     (b (a))
+     (c (a b))
+     (d (a b c))
+     ))}
+;;; \end{code}
+
+
+
+
 ;;; \section{list\#enumerate-interval}
 ;;; \index{list\#enumerate-interval}
 ;;; \begin{code}
