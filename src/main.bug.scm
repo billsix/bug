@@ -645,8 +645,19 @@
 ;;;   \item On line 4, the lambda literal to be stored into the variable.
 ;;;         libbug includes a Scheme preprocessor ``bug-gscpp'',
 ;;;         which expands lambda literals
-;;;         into lambdas.  In this case ``['noop]'' is expanded into
-;;;         ``(lambda () 'noop)''
+;;;         into lambdas.  In this case
+;;;
+;;; \begin{examplecode}
+;;; ['noop]
+;;; \end{examplecode}
+
+;;; \noindent
+;;; is expanded into
+
+;;; \begin{examplecode}
+;;; (lambda () 'noop)
+;;; \end{examplecode}
+
 ;;; \end{itemize}
 ;;; \subsection*{Test}
 ;;; \begin{code}
@@ -676,8 +687,20 @@
   [|x| x]
 ;;; \end{code}
 ;;; \begin{itemize}
-;;;   \item On line 4, ``bug-gscpp'' expands ``[\textbar x\textbar x]'' to ``(lambda (x) x)''.  This expansion
-;;;         works with multiple arguments, as long as they are between the ``\textbar''s.
+;;;   \item On line 4, ``bug-gscpp'' expands
+
+;;; \begin{examplecode}
+;;; [|x| x]
+;;; \end{examplecode}
+;;;
+;;; to
+;;;
+;;; \begin{examplecode}
+;;; (lambda (x) x)
+;;; \end{examplecode}
+;;;
+;;; This expansion works with multiple arguments, as long as they are between
+;;; the ``\textbar''s.
 ;;; \end{itemize}
 ;;; \noindent
 ;;; libbug\#define can take more than one test as parameters.
