@@ -5,20 +5,22 @@
 ;;; \break
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
-;;; \section{Motivation}
 ;;;
+;;; Testing at compile-time has dominated the reader's attention in the previous
+;;; chapter, but many other computations have occurred at compile-time2,
+;;; unbeknownst to the reader.
 ;;; Libbug is a library which contains procedure definitions, but is not
 ;;; an application on its own.  External
 ;;; projects will link to libbug and use libbug's procedures; however,
 ;;; those projects will need additional information such as namespace mappings
-;;; and libbug's macro definitions (since those are not present in the library.)
+;;; and libbug's macro definitions (since they are not present in a library.)
 ;;;
 ;;; Many languages, namely C and C++, also must deal with a similar issue with libraries
 ;;; when dealing with function prototypes.  Whenever a C programmer
 ;;; creates a new function, he must then copy the parameter list into an ``.h'' file,
 ;;; so that other files may type check against it at compile-time.
 ;;;
-;;; Libbug takes a novel approach; it generates this type of information at
+;;; Libbug takes a novel approach; it generates this information at
 ;;; compile-time.  At first glance, that sound simple enough.  But what types of computation
 ;;; can be performed at compile-time, and how can a programmer program I/O to be evaluated at compile-time?
 ;;; C's macros only allow textual substitution and conditional compilation, is not Turing Complete,
@@ -27,7 +29,7 @@
 ;;;
 ;;; So, what does libbug do that is novel?  It provides procedures to do arbitrary computation
 ;;; at compile-time, where the compile-time ``language'' is the same exact language which
-;;; the compiler compiles.  Less verbosely, a programmer can write programs to run at compile time
+;;; the compiler compiles.  A programmer can write programs to run at compile time
 ;;; in the same manner as he'd normally write them.
 
 
@@ -43,9 +45,10 @@
 
 ;;; \subsection{lang\#at-compile-time}
 ;;; ``at-compile-time'' macro is implemented by ``eval''ing code
-;;; during macro-expansion
-;;; \footnote{https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html}
-;;;
+;;; during macro-expansion. \cite{evalduringmacroexpansion}
+;;; 
+;;; Evaling during macroexpansion is how we can augment the compiler with new procedures,
+;;; thus treating the compiler as an interpreter.
 
 ;;; \index{lang\#at-compile-time}
 ;;; \begin{code}

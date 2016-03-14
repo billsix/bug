@@ -88,6 +88,9 @@
 ;;;
 ;;;\bibitem{setf}
 ;;;  http://okmij.org/ftp/Scheme/setf.txt .
+;;;
+;;;\bibitem{evalduringmacroexpansion}
+;;;  https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html
 
 ;;;\end{thebibliography}
 ;;; \printindex
