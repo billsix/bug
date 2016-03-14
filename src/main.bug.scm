@@ -61,12 +61,14 @@
 ;;; \newpage
 ;;; \break
 
+;;; \noindent  Copyright 2014-2016 William Emerison Six
+;;;  \vspace{1cm}
+;;;
 ;;;  \noindent
 ;;;  EITHER
 ;;;
 ;;;  \vspace{1cm}
 ;;;  \noindent
-;;;   Copyright 2014-2016 William Emerison Six
 ;;;
 ;;;  \noindent
 ;;;   Licensed under the Apache License, Version 2.0 (the "License");
@@ -89,7 +91,6 @@
 ;;;
 ;;;  \vspace{1cm}
 ;;;  \noindent
-;;;    Copyright (C) 2014-2016  William Emerison Six
 ;;;
 ;;;  \noindent
 ;;;    This library is free software; you can redistribute it and/or
