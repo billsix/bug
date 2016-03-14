@@ -187,6 +187,7 @@
 ;;; at run time, and in the libbug-headers file.
 
 ;;; \subsection{lang\#if}
+;;; \label{sec:langif}
 ;;; In the following, I define a new version of "if".  I prefer how
 ;;; Smalltalk 80 defines an if expression as compared to how Scheme
 ;;; and common Lisp do.  Scheme and Common Lisp have special evaluation

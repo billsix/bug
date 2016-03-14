@@ -730,7 +730,8 @@
             [(all? (cdr lst))])])]
 ;;; \end{code}
 ;;; \begin{itemize}
-;;;   \item On line 5, if, which is currently namespaced to lang\#if, takes
+;;;   \item On line 5, if, which is currently namespaced to lang\#if\footnote{
+;;;      defined in section ~\ref{sec:langif} }, takes
 ;;;         lambda expressions for the two parameters. I like to think of
 ;;;         \#t, \#f, and if as the
 ;;;         following\footnote{\#t is the constancy function K\cite[p. 4]{calculi}}:
@@ -741,7 +742,7 @@
 ;;;{define lang#if [|b t f| (b t f)]}
 ;;; \end{examplecode}
 ;;;
-;;; As such, if would not be a special form, and is more consistent with the
+;;; \noindent As such, if would not be a special form, and is more consistent with the
 ;;; rest of libbug.
 ;;;
 ;;; \end{itemize}
@@ -782,7 +783,7 @@
                               (cadr pair))]
               list-of-pairs))]
 ;;; \end{code}
-;;; \subsection*{Test}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies-relation
    all?
@@ -793,9 +794,6 @@
      ((#t #t) #t)
      ((#f) #f)
      ((#t #t #t #f) #f)))
-;;; \end{code}
-;;; \subsection*{Test}
-;;; \begin{code}
   (satisfies-relation
    [|x| (+ x 1)]
    '(
@@ -857,6 +855,9 @@
 ;;; \end{code}
 ;;; \subsection*{Code Expansion Tests}
 ;;;
+;;; Macro-expansions occur during compile-time, so how should a person
+;;; test them?  Libbug provides ``macro-expand1'' which treats the macro
+;;; as a normal procedure, and as such is able to be tested.
 ;;;
 ;;; \begin{code}
   (equal? (macroexpand-1 (compose))
@@ -1403,7 +1404,10 @@
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 123]{sicp}
-
+;;;
+;;; Mutating cons cells which were created in this procedure still
+;;; respects referential-transparency 
+;;; from the caller's point of view.
 
 ;;; \section{list\#take}
 ;;; \index{list\#take}
@@ -2277,4 +2281,7 @@
 ;;; \begin{code}
 (include "bug-language-end.scm")
 ;;; \end{code}
+
+;;; \footnote{defined in section ~\ref{sec:closefiles}}
+;;;
 
