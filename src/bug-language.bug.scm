@@ -6,14 +6,11 @@
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
 ;;;
-;;; Testing at compile-time has dominated the reader's attention in the previous
-;;; chapter, but many other computations have occurred at compile-time2,
-;;; unbeknownst to the reader.
-;;; Libbug is a library which contains procedure definitions, but is not
-;;; an application on its own.  External
-;;; projects will link to libbug and use libbug's procedures; however,
-;;; those projects will need additional information such as namespace mappings
-;;; and libbug's macro definitions (since they are not present in a library.)
+;;; The most prevalent code which executed at compile-time in the previous chapter
+;;; was testing code, but many other computations occurred during compile-time
+;;; transparently to the reader.  These other computations produced output
+;;; files for namespace mappings and for macro definitions, to be used by other
+;;; programs which link against libbug.
 ;;;
 ;;; Many languages, namely C and C++, also must deal with a similar issue with libraries
 ;;; when dealing with function prototypes.  Whenever a C programmer
