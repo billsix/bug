@@ -7,20 +7,23 @@
 ;;;  \label{sec:buglang}
 ;;;
 ;;; The most prevalent code which executed at compile-time in the previous chapter
-;;; was testing code, but many other computations occurred during compile-time
+;;; was testing code, but many other computations occurred during compile-time,
 ;;; transparently to the reader.  These other computations produced output
 ;;; files for namespace mappings and for macro definitions, to be used by other
 ;;; programs which link against libbug.
 ;;;
 ;;; Many languages, namely C and C++, also must deal with a similar issue with libraries
 ;;; when dealing with function prototypes.  Whenever a C programmer
-;;; creates a new function, he must then copy the parameter list into an ``.h'' file,
+;;; creates a new function, he must then copy the function name and parameter list into
+;;; a ``.h'' file,
 ;;; so that other files may type check against it at compile-time.
 ;;;
 ;;; Libbug takes a novel approach; it generates this information at
 ;;; compile-time.  At first glance, that sound simple enough.  But what types of computation
-;;; can be performed at compile-time, and how can a programmer program I/O to be evaluated at compile-time?
-;;; C's macros only allow textual substitution and conditional compilation, is not Turing Complete,
+;;; can be performed at compile-time, and how can a programmer program I/O to be evaluated
+;;; at compile-time?
+;;; Programs written in C and C++ cannot do this, as C's macros only allow textual substitution
+;;; and conditional compilation, is not Turing Complete,
 ;;; and definitely doesn't do I/O.  C++'s template metaprogramming is Turing Complete, yet is
 ;;; a drastically different language from ``run-time'' C++; and also lacks I/O capabilities.
 ;;;
@@ -31,7 +34,6 @@
 
 
 ;;;
-;;; \section{Eval'ing during Macroexpansion}
 ;;;
 ;;; Reset all namespace mappings for procedures defined by Gambit.
 ;;;
@@ -40,10 +42,10 @@
 ;;;\end{code}
 
 
-;;; \subsection{lang\#at-compile-time}
+;;; \section{lang\#at-compile-time}
 ;;; ``at-compile-time'' macro is implemented by ``eval''ing code
 ;;; during macro-expansion. \cite{evalduringmacroexpansion}
-;;; 
+;;;
 ;;; Evaling during macroexpansion is how we can augment the compiler with new procedures,
 ;;; thus treating the compiler as an interpreter.
 
@@ -58,12 +60,12 @@
 
 ;;; \begin{itemize}
 ;;;   \item On line 4, the unevaluated code which was passed to
-;;;  ``at-compile-time is evaluated during macroexpansion, so it is evaluated
+;;;  ``at-compile-time'' is evaluated during macroexpansion, so it is evaluated
 ;;;  at compile-time.  The macroexpansion expands into ``(quote noop)'', so the
-;;;  code will not evaluate at runtime.
+;;;  form will not evaluate at runtime.
 ;;; \end{itemize}
 
-;;; \subsection{lang\#at-both-times}
+;;; \section{lang\#at-both-times}
 ;;; \index{lang\#at-both-times}
 ;;; \begin{code}
 {##namespace ("lang#" at-both-times)}
@@ -74,17 +76,14 @@
 ;;; \end{code}
 
 ;;; \begin{itemize}
-;;; \item On line 4, evaluation in the expansion-time environment
+;;; \item On line 4, evaluation in the compile-time environment
 ;;; \item On line 5, evaluation in the run-time environment
 ;;; \end{itemize}
 
-;;; Libbug is a collection of procedures and macros.  Building bug results
-;;; in a shared library and a "loadable" library (as in (load "foo.o1").
+;;; Libbug is a collection of procedures and macros.  Building libbug results
+;;; in a library (static or dynamic) and a "loadable" library (a .o1 file).
 ;;; Macro definitions and namespace declarations, however do not reside
-;;; in such libraries.  I intend to keep the vast majority of libbug code
-;;; in this one file (minus the C preprocessor, gsi interpreter glue,
-;;; and build files).  As such, I don't want to define the namespaces
-;;; or macros definitions in a different file.
+;;; in such libraries.
 ;;;
 ;;; ``at-compile-time'' allows us to execute arbitrary code at compile time,
 ;;; so why not open files and write to them during compile time?
@@ -93,8 +92,11 @@
 ;;; libbug-syntax enhancements, and they are not intended to be read by
 ;;; a person.  Their documentation is in this file.
 ;;;
-;;; \subsection{lang\#at-compile-time-expand}
+;;; \section{lang\#at-compile-time-expand}
 ;;; \index{lang\#at-compile-time-expand}
+
+;;; ``at-compile-time-expand'' allows any procedure to act as a macro.
+
 ;;; \begin{code}
 {##namespace ("lang#" at-compile-time-expand)}
 {##define-macro at-compile-time-expand
@@ -106,37 +108,23 @@
 ;;; and a reference from libbug-macros.scm to libbug\#.scm is made, so
 ;;; a person can now assume that the files must be collocated.
 ;;;
-;;; At the end of this document, the files are closed during compile time.
+
+
+
+;;; \subsection{Create File for Macro Definitions}
+
+;;;
+;;;  The previous three macros are currently available throughout libbug,
+;;;  but not to programs which use libbug.  To rectify that, open a file
+;;;  during compile-time, and manually write those macro definitions
+;;;  to the file.
 
 ;;; \begin{code}
 {at-compile-time
  {begin
-;;; \end{code}
-;;; \subsubsection{Create File for Namespaces}
-;;; \begin{code}
-   {##define libbug-headers-file
-     (open-output-file '(path:
-                         "libbug#.scm"
-                         append:
-                         #f))}
-   (display
-    ";; Copyright 2014-2016 - William Emerison Six
-     ;;;  All rights reserved
-     ;;;  Distributed under LGPL 2.1 or Apache 2.0
-     {##namespace (\"lang#\" at-compile-time)}
-     {##namespace (\"lang#\" at-both-times)}
-     {##namespace (\"lang#\" at-compile-time-expand)}
-     "
-    libbug-headers-file)
-
-;;; \end{code}
-;;; \subsubsection{Create File for Macro Definitions}
-;;; \begin{code}
    {##define libbug-macros-file
-     (open-output-file '(path:
-                         "libbug-macros.scm"
-                         append:
-                         #f))}
+     (open-output-file '(path: "libbug-macros.scm"
+                         append: #f))}
    (display
     ";; Copyright 2014-2016 - William Emerison Six
      ;;;  All rights reserved
@@ -157,19 +145,38 @@
        [|form|
        (eval form)]}
      "
-    libbug-macros-file)}}
+    libbug-macros-file)
+;;; \end{code}
+
+;;; \subsection{Create File for Namespaces}
+;;; \begin{code}
+   {##define libbug-headers-file
+     (open-output-file '(path:
+                         "libbug#.scm"
+                         append:
+                         #f))}
+   (display
+    ";; Copyright 2014-2016 - William Emerison Six
+     ;;;  All rights reserved
+     ;;;  Distributed under LGPL 2.1 or Apache 2.0
+     {##namespace (\"lang#\" at-compile-time)}
+     {##namespace (\"lang#\" at-both-times)}
+     {##namespace (\"lang#\" at-compile-time-expand)}
+     "
+    libbug-headers-file)
+   }}
 ;;; \end{code}
 
 ;;; The files are closed section~\ref{sec:closefiles}
 
-;;; \subsection{libbug\#write-and-eval}
+;;; \section{libbug\#write-and-eval}
 
 ;;; Now that those files are open, I want to write to them.  Namespaces
 ;;; to libbug\#.scm, and macros to libbug-macros.scm.  However, I don't want
 ;;; to have to duplicate the code for each context, like I just did for
 ;;; the previous two macros.
 ;;;
-;;; So, create a new line on the file, write the unevaluated form to the
+;;; So, write the unevaluated form plus a newline to the
 ;;; file, and the return the form so that the compiler actually processes it.
 
 ;;; \index{libbug\#write-and-eval}
@@ -182,133 +189,13 @@
    form]}
 ;;; \end{code}
 
-;;; Although I'm not quite sure if namespaces work correctly at compile
-;;; time, I'm going to namespace every function/macro at compile-time,
-;;; at run time, and in the libbug-headers file.
 
-;;; \subsection{lang\#if}
-;;; \label{sec:langif}
-;;; In the following, I define a new version of "if".  I prefer how
-;;; Smalltalk 80 defines an if expression as compared to how Scheme
-;;; and common Lisp do.  Scheme and Common Lisp have special evaluation
-;;; rules for if.   true and false could be represented as procedures,
-;;; with an if function which would just apply the boolean procedure to
-;;; the ifTrue and ifFalse procedures
-;;;
-;;;
+;;; \section{libbug\#namespace}
 
-;;; \begin{code}
-{at-compile-time
- {##namespace ("lang#" if)}}
-{libbug#write-and-eval
- libbug-headers-file
- {##namespace ("lang#" if)}}
-;;; \end{code}
-;;; \index{lang\#if}
-;;; \begin{code}
-(libbug#write-and-eval
- libbug-macros-file
- {at-both-times
-  {##define-macro if
-    [|pred ifTrue ifFalse|
-     ;; (single-expression? [5]) => true
-     ;; (single-expression? [(pp 4) 6]) => false
-     {let ((single-expression?
-            [|lst| (equal? 3 (length lst))]))
-       `{##if ,pred
-              ,{##if (single-expression? ifTrue)
-                     (caddr ifTrue)
-                     `{begin ,@(cddr ifTrue)}}
-              ,{##if (single-expression? ifFalse)
-                     (caddr ifFalse)
-                     `{begin ,@(cddr ifFalse)}}}}]}})
-;;; \end{code}
-
-
-
-;;; Just like for the definiton of lang\#if, the subsequent macro
-;;; "with-tests" will be namespaced at compile-time, run-time, and
-;;; in libbug-macros-file
-;;;
-;;; \section{Testing at Compile-Time}
-;;; Statically-typed programming languages are compiled/interpreted
-;;; by programming language implementations which themselves are
-;;; programs.  To add new types of compile-time type checks, the compiler
-;;; needs to be updated and redistributed.  Changes to the language
-;;; need to be documented are communicated.
-;;;
-;;; Unit tests, since moving away from the image-based SUnit and into
-;;; file-based xUnits implementations, are collections of procedures
-;;; which test procedures in other files.
-;;;
-;;; with-tests in a new type of test procedure, which execute at
-;;; compile-time, and should they fail, no executable is produced;
-;;; just as with a statically typed language.  The initial impetus
-;;; for the creation of this macro was the desire to collocate procedures
-;;; with their tests, for linear reading, and for clearly seeing which
-;;; tests are intended to test which procedures.
-;;;
-;;; with-tests, combined with the more general purpose at-compile-time,
-;;; provide the basis to create libbug programs in a "Literate Programming"
-;;; style.
-
-
-;;; \subsection{lang\#with-tests}
-
-;;; \index{lang\#with-tests}
-;;; \begin{code}
-{at-compile-time
- {##namespace ("lang#" with-tests)}}
-{libbug#write-and-eval
- libbug-headers-file
- {##namespace ("lang#" with-tests)}}
-(libbug#write-and-eval
- libbug-macros-file
- {##define-macro with-tests
-   [|definition #!rest tests|
-    (eval
-     `{begin
-        ,definition
-        (if (and ,@tests)
-            [',definition]
-            [(for-each pp (list "Test Failed" ',tests ',definition))
-             (error "Tests Failed")])})]})
-;;; \end{code}
-
-
-;;; \subsection{Build configuration}
-
-;;; Libbug is compiled using the Autoconf, and when running "make
-;;; install", will be installed to the prefix specified to
-;;; "configure".  The headers file defined above at compile-time
-;;; will be installed relative to prefix, and as such, external
-;;; programs which use libbug need to know where to find it.
-;;; More importantly, libbug-macros-file needs to have functions
-;;; and macros namespaced accordingly, and as such, will need
-;;; to know where the headers file is installed.
-;;;
-;;; Autoconf takes "config.scm.in" as input, and puts the
-;;; relevant configuration/installation information into config.scm
-;;; This information is then used at compile time when both defining
-;;; and exporting macros to an external file.
-
-;;; \begin{code}
-{at-compile-time
- {begin
-   {##include "config.scm"}
-   {##define bug-configuration#libbugsharp
-     (string-append
-      bug-configuration#prefix
-      "/include/bug/libbug#.scm")}}}
-;;; \end{code}
-
-
-;;; \subsection{libbug\#namespace}
-
-;;; For both lang\#if and lang\#with-tests, defining the namespace
-;;; at compile-time, run-time, and in the namespace file at compile-
-;;; time was tedious.  This is easily extractable into a macro,
-;;; as is used heavily throughout libbug.
+;;; ``write-and-eval'' writes the form to a file, and evaluates the
+;;; form in the run-time context.  For namespaces in libbug, that
+;;; behavior is desired, but the namespaces should be valid at
+;;; compile-time too.
 
 ;;; \index{libbug\#namespace}
 ;;; \begin{code}
@@ -323,16 +210,99 @@
 ;;; \end{code}
 
 
-;;; \subsection{libbug\#define-macro}
-;;; Likewise, defining the macros and exporting them has also
-;;; been a repetitive process.
+
+;;; \section{lang\#if}
+;;; \label{sec:langif}
+;;; In the following, I define a new version of "if", which was first used
+;;; in section ~\ref{sec:langiffirstuse}
 ;;;
-;;; The macro that libbug\#define-macro creates should
-;;; have the same parameter list, augmented with some namespacing,
-;;; with otherwise the same macro body. Write the augmented lambda
-;;; form out to the macro file for use by external
-;;; projects
-;;; Note: the compile-time tests are not included
+;;;
+
+;;; \index{lang\#if}
+;;; \begin{code}
+{libbug#namespace ("lang#" if)}
+(libbug#write-and-eval
+ libbug-macros-file
+ {at-both-times
+  {##define-macro if
+    [|pred ifTrue ifFalse|
+     ;; check that the person is not using lang#if as if it were ##if
+     (##if (or (not (list? ifTrue))
+               (not (list? ifFalse))
+               (not (equal? 'lambda (car ifTrue)))
+               (not (equal? 'lambda (car ifFalse))))
+           (error "lang#if requires two lambda expressions")
+           {let ((single-expression-in-lambda?
+                  [|lst| (equal? 3 (length lst))]))
+             ;; (single-expression-in-lambda? [5]) => true
+             ;; (single-expression-in-lambda? [(pp 4) 6]) => false
+             `{##if ,pred
+                    ,{##if (single-expression-in-lambda? ifTrue)
+                           (caddr ifTrue)
+                           `{begin ,@(cddr ifTrue)}}
+                    ,{##if (single-expression-in-lambda? ifFalse)
+                           (caddr ifFalse)
+                           `{begin ,@(cddr ifFalse)}}}})]}})
+;;; \end{code}
+
+
+;;;
+;;; \section{lang\#with-tests}
+;;;
+;;; \index{lang\#with-tests}
+;;;
+;;; Given that the reader now knows how to evaluate at compile time, implementing
+;;; a macro to execute tests at compile-time is trivial.
+;;;
+;;; \begin{itemize}
+;;;  \item  Make a macro called ``with-tests'', which takes an unevaluated definition
+;;;         and an unevaluated list of tests.
+;;;  \item  ``eval'' a form which will either error, causing the compilation to
+;;;         exit, or will evaluate to the unevaluated definition, thus allowing the
+;;;         Gambit compiler to compile the form as usual.
+;;; \end{itemize}
+
+;;;
+;;; \begin{code}
+{libbug#namespace ("lang#" with-tests)}
+(libbug#write-and-eval
+ libbug-macros-file
+ {##define-macro with-tests
+   [|definition #!rest tests|
+    (eval
+     `{begin
+        ,definition
+        (if (and ,@tests)
+            [',definition]
+            [(for-each pp (list "Test Failed" ',tests ',definition))
+             (error "Tests Failed")])})]})
+;;; \end{code}
+
+
+
+;;; \section{libbug\#define-macro}
+
+;;; ``libbug\#define-macro'' acts just like ''\#\#define-macro'', but
+;;; it also writes the macro definition to a file, and overrides
+;;; ``\#\#gensym'' so that macroexpansions may be tested.
+;;; But when the macros are loaded by an external project, how
+;;; does it load the namespaces for them?  From the namespace file, which
+;;; is installed as a relative path to the ``prefix'' argument passed to ``configure''.
+;;;
+;;; Autoconf takes "config.scm.in" as input, and puts the
+;;; relevant configuration/installation information (such as
+;;; the installation prefix) into config.scm
+
+;;; \begin{code}
+{at-compile-time
+ {begin
+   {##include "config.scm"}
+   {##define bug-configuration#libbugsharp
+     (string-append
+      bug-configuration#prefix
+      "/include/bug/libbug#.scm")}}}
+;;; \end{code}
+
 
 ;;; \label{sec:libbugdefinemacro}
 ;;;
@@ -341,7 +311,8 @@
 {##define-macro libbug#define-macro
   [|namespace name lambda-value #!rest tests|
 ;;; \end{code}
-;;; \subsubsection{Write Macro to File}
+;;; \subsection{Write Macro to File}
+;;;
 ;;; \begin{code}
    (write
     `{begin
@@ -376,7 +347,31 @@
     libbug-macros-file)
    (newline libbug-macros-file)
 ;;; \end{code}
-;;; \subsubsection{Define Macro and Run Tests}
+
+
+;;; \begin{itemize}
+;;;   \item On line 1 through line 32, write the form out to the macro file
+;;;   \item On line 3, the program which imports this macro shall define the
+;;;         macro at both compile-time and run-time.
+;;;   \item On line 6, the written-to-file lambda value shall have the same
+;;;         argument list as the argument list passed to ``libbug\#define-macro''
+;;;   \item On line 7, the unevaluated form in argument ``lambda-value'' may
+;;;         or may not be quasi-quoted.  Either way, write a quasi-quoted form
+;;;         to the file.  In the case that the ``lambda-value'' argument was not
+;;;         actually intended to be quasi-quoted, immediately unquote, thereby
+;;;         negating the quasi-quoting (which is done on line 14-15)
+;;;   \item On line 8-10, ensure that the currently unevaluated form will be
+;;;         evaluated in a context in which the namespaces resolve consistently
+;;;         as they were written in this book.
+;;;   \item On line 11-12, check to see if the unevaluated form is quasi-quoted.
+;;;   \item On line 13, it is quasi-quoted, as such, grab the content of the
+;;;         list minus the quasi-quoting.
+;;;   \item On line 14-15, since this is not a quasi-quoted form, just grab
+;;;         the form
+;;; \end{itemize}
+
+
+;;; \subsection{Define Macro and Run Tests}
 ;;; \begin{code}
    {let ((gensym-count (gensym)))
      `{begin
@@ -404,7 +399,7 @@
 
 ;;; \end{code}
 
-;;; \subsection{lang\#macroexpand-1}
+;;; \section{lang\#macroexpand-1}
 
 ;;; A convenience wrapper to expand macros.
 
@@ -424,7 +419,7 @@
 
 
 
-;;; \subsection{libbug\#define}
+;;; \section{libbug\#define}
 ;;; Function definitions will all have a namespace, name, body,
 ;;; and an optional suite of tests
 ;;;

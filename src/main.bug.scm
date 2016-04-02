@@ -109,6 +109,11 @@
 ;;;    License along with this library; if not, write to the Free Software
 ;;;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+;;; \newpage
+;;; \thispagestyle{empty}
+;;; \mbox{}
+;;;
+;;;
 ;;; \clearpage
 ;;; \vspace*{\fill}
 ;;; \begin{center}
@@ -233,6 +238,7 @@
 ;;;
 ;;; \tableofcontents
 ;;; \break
+;;; \part{Background}
 ;;; \chapter{Introduction}
 ;;; \pagenumbering{arabic}
 ;;; Libbug is Bill's Utilities for Gambit Scheme:  a ``standard library'' of procedures
@@ -587,10 +593,11 @@
 ;;;
 ;;; I don't understand all of the implications of having a compiler augment itself
 ;;; with the code its currently compiling.   ``Come along and ride on a fantastic voyage.''
+
+;;; \part{The Implementation of Libbug}
+;;; \chapter{General Procedures}
 ;;;
-;;; \chapter{The Implementation of Libbug}
-;;;
-;;; This chapter defines a standard library of Scheme procedures and
+;;; This part defines a standard library of Scheme procedures and
 ;;; macros\footnote{The code within this section is all found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.
@@ -615,9 +622,8 @@
 ;;;\end{code}
 
 ;;;
-;;; \section{General Procedures}
 ;;; \newpage
-;;; \subsection{lang\#noop}
+;;; \section{lang\#noop}
 ;;; The first definition is ``noop'', a procedure which takes no arguments and
 ;;; which evaluates to the symbol 'noop.
 
@@ -652,7 +658,7 @@
 ;;; \end{examplecode}
 
 ;;; \end{itemize}
-;;; \subsubsection*{Test}
+;;; \subsection*{Test}
 ;;; \begin{code}
   (equal? (noop) 'noop)}
 ;;; \end{code}
@@ -668,7 +674,7 @@
 ;;; \end{itemize}
 ;;;
 ;;; \newpage
-;;; \subsection{lang\#identity}
+;;; \section{lang\#identity}
 ;;; lang\#identity is a procedure of one argument which evaluates to
 ;;; its argument. \cite[p. 2]{calculi}
 ;;;
@@ -697,7 +703,7 @@
 ;;; the ``\textbar''s.
 ;;; \end{itemize}
 
-;;; \subsubsection*{Test}
+;;; \subsection*{Test}
 
 ;;; libbug\#define can take more than one test as parameters.
 ;;;
@@ -710,9 +716,10 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{list\#all?}
+;;; \section{list\#all?}
 ;;; Like ``and'', but takes a list instead of a variable number of arguments.
 ;;;
+;;; \label{sec:langiffirstuse}
 ;;; \index{list\#all?}
 ;;; \begin{code}
 {define
@@ -727,7 +734,7 @@
 ;;; \end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 5, if, which is currently namespaced to lang\#if\footnote{
-;;;      defined in section ~\ref{sec:langif} }, takes
+;;;      defined in section~\ref{sec:langif} }, takes
 ;;;         lambda expressions for the two parameters. I like to think of
 ;;;         \#t, \#f, and if as the
 ;;;         following\footnote{\#t is the constancy function K\cite[p. 4]{calculi}}:
@@ -744,7 +751,7 @@
 ;;; \end{itemize}
 ;;;
 ;;;
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (all? '())
   (all? '(1))
@@ -764,7 +771,7 @@
 ;;; specifically to walk the reader through the implementation.
 ;;;
 ;;; \newpage
-;;; \subsection{lang\#satisfies?}
+;;; \section{lang\#satisfies?}
 
 ;;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
 ;;; with varying inputs and outputs?  Instead, provide the procedure, and a list
@@ -780,7 +787,7 @@
                               (cadr pair))]
               list-of-pairs))]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    all?
@@ -801,7 +808,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{lang\#compose}
+;;; \section{lang\#compose}
 
 ;;; \index{lang\#compose}
 ;;; \begin{code}
@@ -836,7 +843,7 @@
 ;;; of the content of this book.  The reader should at least though understand
 ;;; how to use the macros, which can be learned by reading the associated tests.
 ;;;
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? ((compose) 5)
           5)
@@ -853,7 +860,7 @@
            5)
           11/13)
 ;;; \end{code}
-;;; \subsubsection*{Code Expansion Tests}
+;;; \subsection*{Code Expansion Tests}
 ;;;
 ;;; Macro-expansions occur during compile-time, so how should a person
 ;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
@@ -898,7 +905,7 @@
 
 
 ;;; \newpage
-;;; \subsection{lang\#atom?}
+;;; \section{lang\#atom?}
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
@@ -914,7 +921,7 @@
 
 ;;; \noindent \cite[p. TODO]{littleschemer}
 
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    atom?
@@ -929,7 +936,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{lang\#complement}
+;;; \section{lang\#complement}
 ;;;
 ;;; \index{lang\#complement}
 ;;; \begin{code}
@@ -942,7 +949,7 @@
 
 ;;; \cite[p. 63]{onlisp}
 ;;;
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    pair?
@@ -961,7 +968,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{lang\#while}
+;;; \section{lang\#while}
 ;;;
 ;;; \index{lang\#while}
 ;;; \begin{code}
@@ -974,7 +981,7 @@
         (while pred body)]
        [(noop)])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((a 0))
     (while [(< a 5)]
@@ -983,7 +990,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{lang\#numeric-if}
+;;; \section{lang\#numeric-if}
 ;;;   An if expression for numbers, based on their sign.
 ;;;
 ;;; \index{lang\#numeric-if}
@@ -998,7 +1005,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 150, called ``nif'']{onlisp}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|n|
@@ -1013,7 +1020,7 @@
 
 
 ;;; \newpage
-;;; \subsection{lang\#aif}
+;;; \section{lang\#aif}
 ;;;
 ;;; \index{lang\#aif}
 ;;; \begin{code}
@@ -1028,7 +1035,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 191]{onlisp}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {aif (+ 5 10) (* 2 it)}
           30)
@@ -1047,19 +1054,19 @@
 
 
 ;;; \newpage
-;;; \subsection{symbol\#symbol-append}
+;;; \section{lang\#symbol-append}
 ;;;
-;;; \index{symbol\#symbol-append"}
+;;; \index{lang\#symbol-append"}
 ;;; \begin{code}
 {define
-  "symbol#"
+  "lang#"
   symbol-append
   [|#!rest symlst|
    (string->symbol (apply string-append
                           (map symbol->string symlst)))]
 
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? (symbol-append 'foo 'bar) 'foobar)
   (equal? (symbol-append 'foo 'bar 'baz) 'foobarbaz)
@@ -1068,7 +1075,7 @@
 
 
 ;;; \newpage
-;;; \subsection{lang\#with-gensyms}
+;;; \section{lang\#with-gensyms}
 ;;;   Utility for macros to minimize explicit use of gensym.
 ;;;   Gensym creates a symbol at compile time which is guaranteed
 ;;;   to be unique.  Macros which intentionally capture variables,
@@ -1088,7 +1095,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 145]{onlisp}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? (macroexpand-1 (with-gensyms (foo bar baz)
                                        `{begin
@@ -1106,10 +1113,44 @@
 ;;; \end{code}
 ;;;
 
+;;; \newpage
+;;; \section{lang\#Y}
+;;; \index{lang\#Y}
+;;;
+;;; The Y combinator allows a programmer to create a procedure which references
+;;; itself without needing to define a variable.  There is never an actual need
+;;; to use this in real code.  Read \cite[p. 149-172]{littleschemer} for an excellent
+;;; derivation of this combinator.
+;;;
+;;;
+;;; \begin{code}
+{define
+  "lang#"
+  Y
+  [|le|
+   ([|f| (f f)]
+    [|f| (le [|x| ((f f) x)])])]
+;;; \end{code}
+;;; \section*{Test}
+;;; \begin{code}
+  (satisfies?
+   (Y [|fact|
+       [|n|
+	(if (= n 0)
+	    [1]
+	    [(* n (fact (- n 1)))])]])
+   `(
+     (0 1)
+     (1 1)
+     (2 2)
+     (3 6)
+     (4 24)
+     ))}
+;;; \end{code}
 
 ;;; \newpage
-;;; \section{Lists}
-;;; \subsection{list\#copy}
+;;; \chapter{Lists}
+;;; \section{list\#copy}
 ;;;   Creates a copy of the list data structure.  Does not copy the contents
 ;;;   of the list.
 ;;;
@@ -1120,7 +1161,7 @@
   copy
   [|l| (map identity l)]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((a '(1 2 3 4 5)))
     {and (equal? a (copy a))
@@ -1130,7 +1171,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#proper?}
+;;; \section{list\#proper?}
 ;;;   Tests that the argument is a list that is properly
 ;;;   termitated.  Will not terminate on a circular list.
 ;;;
@@ -1145,7 +1186,7 @@
                 [(proper? (cdr l))]
                 [#f])])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    proper?
@@ -1160,7 +1201,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#first}
+;;; \section{list\#first}
 ;;;
 ;;; list\#first uses Gambit's keyword syntax.  In the code, ``onNull'' is
 ;;; an optional argument, with a default value of the value in the ``noop''
@@ -1180,7 +1221,7 @@
 
 ;;; \cite[p. 59]{ss}
 ;;;
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    first
@@ -1199,7 +1240,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#but-first}
+;;; \section{list\#but-first}
 ;;; \index{list\#but-first}
 ;;; \begin{code}
 {define
@@ -1213,7 +1254,7 @@
 
 ;;; \cite[p. 59]{ss}
 ;;;
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    but-first
@@ -1230,7 +1271,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#last}
+;;; \section{list\#last}
 ;;; \index{list\#last}
 ;;; \begin{code}
 {define
@@ -1247,7 +1288,7 @@
 
 ;;; \cite[p. 59]{ss}
 ;;;
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    last
@@ -1266,7 +1307,7 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \subsection{list\#but-last}
+;;; \section{list\#but-last}
 ;;; \index{list\#but-last}
 ;;; \begin{code}
 {define
@@ -1284,7 +1325,7 @@
 
 ;;; \cite[p. 59]{ss}
 ;;;
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    but-last
@@ -1305,7 +1346,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{list\#filter}
+;;; \section{list\#filter}
 ;;; \index{list\#filter}
 ;;; \begin{code}
 {define
@@ -1323,7 +1364,7 @@
 
 ;;; \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
 ;;; on Higher-Order Functions and their combinations TODO ensure the pages are correct from this source \cite[p. 103-125]{ss}}. \cite[p. 115]{sicp}.
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|l| (filter [|x| (not (= 4 x))]
@@ -1341,7 +1382,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{list\#remove}
+;;; \section{list\#remove}
 ;;; \index{list\#remove}
 ;;; \begin{code}
 {define
@@ -1351,7 +1392,7 @@
    (filter [|y| (not (equal? x y))]
            lst)]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|l| (remove 5 l)]
@@ -1361,7 +1402,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#fold-left}
+;;; \section{list\#fold-left}
 ;;;    Reduce the list to a scalar by applying the reducing function repeatedly,
 ;;;    starting from the ``left'' side of the list
 ;;;
@@ -1380,7 +1421,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 121]{sicp}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|l| (fold-left + 5 l)]
@@ -1401,7 +1442,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{list\#fold-right}
+;;; \section{list\#fold-right}
 ;;;    Reduces the list to a scalar by applying the reducing
 ;;;    function repeatedly,
 ;;;    starting from the ``right'' side of the list
@@ -1420,7 +1461,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 116 (named ``accumulate'')]{sicp}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|l| (fold-right - 0 l)]
@@ -1434,7 +1475,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{list\#append!}
+;;; \section{list\#append!}
 ;;;   Like append, but recycles the last cons cell, so it's
 ;;;   faster, but mutates the input.
 ;;;
@@ -1453,7 +1494,7 @@
                 [(append! (cdr lst))])}
           head}])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? (append! '()
                    '(5))
@@ -1468,7 +1509,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#scan-left}
+;;; \section{list\#scan-left}
 ;;;   Like fold-left, but every intermediate value
 ;;;   of fold-left's accumulator is put onto the resulting list
 ;;;
@@ -1487,7 +1528,7 @@
                        (append! acc-list (list newacc))
                        (cdr lst))}])}]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   ;; (calulating factorials via scan-left
   (satisfies?
@@ -1504,7 +1545,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#flatmap}
+;;; \section{list\#flatmap}
 ;;; \index{list\#flatmap}
 ;;; \begin{code}
 {define
@@ -1516,7 +1557,7 @@
 
 ;;; \cite[p. 123]{sicp}
 
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|l| (flatmap [|x| (list x
@@ -1535,7 +1576,7 @@
 ;;; from the caller's point of view.
 
 ;;; \newpage
-;;; \subsection{list\#take}
+;;; \section{list\#take}
 ;;; \index{list\#take}
 ;;; \begin{code}
 {define
@@ -1549,7 +1590,7 @@
                     (cdr lst)))])]
 ;;; \end{code}
 
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|n| (take n '(a b))]
@@ -1563,7 +1604,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#take-while}
+;;; \section{list\#take-while}
 ;;; \index{list\#take-while}
 ;;; \begin{code}
 {define
@@ -1577,7 +1618,7 @@
                 (take-while (cdr lst)))])}]
 ;;; \end{code}
 
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|x| (take-while [|y| (not (equal? x y))]
@@ -1592,7 +1633,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#drop}
+;;; \section{list\#drop}
 ;;; \index{list\#drop}
 ;;; \begin{code}
 {define
@@ -1605,7 +1646,7 @@
               (cdr lst))])]
 ;;; \end{code}
 
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|n| (drop n '(a b))]
@@ -1618,7 +1659,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#drop-while}
+;;; \section{list\#drop-while}
 ;;; \index{list\#drop-while}
 ;;; \begin{code}
 {define
@@ -1629,26 +1670,27 @@
      (if (null? lst)
          ['()]
          [(if ((complement p?) (car lst))
-              [(cdr lst)]
+              [lst]
               [(drop-while (cdr lst))])])}]
 ;;; \end{code}
 
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|x| (drop-while [|y| (not (equal? x y))]
                     '(a b c))]
    '(
-     (a (b c))
-     (b (c))
-     (c ())
+     (a (a b c))
+     (b (b c))
+     (c (c))
      (d ())
+     (e ())
      ))}
 ;;; \end{code}
 
 
 ;;; \newpage
-;;; \subsection{list\#enumerate-interval}
+;;; \section{list\#enumerate-interval}
 ;;; \index{list\#enumerate-interval}
 ;;; \begin{code}
 {define
@@ -1662,7 +1704,7 @@
                                   high
                                   step: step))])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? (enumerate-interval 1 10)
           '(1 2 3 4 5 6 7 8 9 10))
@@ -1671,7 +1713,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#any?}
+;;; \section{list\#any?}
 ;;;
 ;;; \index{list\#any?}
 ;;; \begin{code}
@@ -1685,7 +1727,7 @@
             [#t]
             [(any? (cdr lst))])])]
 ;;; \end{code}
-;;; \subsubsection*{Test}
+;;; \subsection*{Test}
 ;;; \begin{code}
   (satisfies?
    any?
@@ -1700,7 +1742,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#zip}
+;;; \section{list\#zip}
 ;;; \index{list\#zip}
 ;;; \begin{code}
 {define
@@ -1712,7 +1754,7 @@
        [(cons (apply list (map car lsts))
               (apply zip (map cdr lsts)))])]
 ;;; \end{code}
-;;; \subsubsection*{Tests with 2 Lists}
+;;; \subsection*{Tests with 2 Lists}
 ;;; \begin{code}
   (equal? (zip '() '())
           '())
@@ -1730,7 +1772,7 @@
   (equal? (zip '() '(1))
           '())
 ;;; \end{code}
-;;; \subsubsection*{Tests with 3 Lists}
+;;; \subsection*{Tests with 3 Lists}
 ;;; \begin{code}
   (equal? (zip '() '() '())
           '())
@@ -1741,7 +1783,7 @@
             (2 5 8)
             (3 6 9)))
 ;;; \end{code}
-;;; \subsubsection*{Tests with 4 Lists}
+;;; \subsection*{Tests with 4 Lists}
 ;;; \begin{code}
   (equal? (zip '() '() '() '())
           '())
@@ -1756,7 +1798,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#permutations}
+;;; \section{list\#permutations}
 ;;; \index{list\#permutations}
 ;;; \begin{code}
 {define
@@ -1774,7 +1816,7 @@
                       (permutations (remove x lst)))]
                 lst)])}])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    permutations
@@ -1799,7 +1841,7 @@
 ;;; \cite[p. 45]{taocp}
 
 ;;; \newpage
-;;; \subsection{list\#sublists}
+;;; \section{list\#sublists}
 ;;; \index{list\#sublists}
 ;;; \begin{code}
 {define
@@ -1810,7 +1852,7 @@
        ['()]
        [(cons lst (sublists (cdr lst)))])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    sublists
@@ -1823,7 +1865,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#ref-of}
+;;; \section{list\#ref-of}
 ;;; The inverse of list-ref.
 ;;;
 ;;; \index{list\#ref-of}
@@ -1842,7 +1884,7 @@
                    [(onMissing)]
                    [(ref-of (cdr lst) (+ index 1))])])}])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|x| (ref-of '(a b c d e f g) x)]
@@ -1878,7 +1920,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#partition}
+;;; \section{list\#partition}
 ;;;  Partitions the input list into two lists, one list where
 ;;;  the predicate matched the element of the list, the second list
 ;;;  where the predicate did not match the element of the list.
@@ -1903,7 +1945,7 @@
                           (cons (car lst) falseList)
                           trueList)])])}]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|lst| (partition lst [|x| (<= x 3)])]
@@ -1916,7 +1958,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{list\#sort}
+;;; \section{list\#sort}
 ;;; \index{list\#sort}
 ;;; \begin{code}
 {define
@@ -1938,7 +1980,7 @@
                          (sort greater-than
                                comparison)))}])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    [|lst| (sort lst <)]
@@ -1950,7 +1992,7 @@
 
 
 ;;; \newpage
-;;; \subsection{list\#reverse!}
+;;; \section{list\#reverse!}
 ;;;   Reverses the list quickly by reusing cons cells
 ;;;
 ;;; \index{list\#reverse"!}
@@ -1969,7 +2011,7 @@
                  (set-cdr! cons-cell reversed-list)
                  (reverse! rest cons-cell)}])}])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
    reverse!
@@ -1985,13 +2027,13 @@
 
 
 ;;; \newpage
-;;; \section{Streams}
+;;; \chapter{Streams}
 
 ;;; Streams are lists whose evaluation is deferred until the value is
 ;;; requested.  For more information, consult ``The Structure and
 ;;; Interpretation of Computer Programs''.
 
-;;; \subsection{stream\#stream-cons}
+;;; \section{stream\#stream-cons}
 ;;;
 ;;; \index{stream\#stream-cons}
 ;;; \begin{code}
@@ -2003,7 +2045,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 321]{sicp}.
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   {begin
     {let ((s {stream-cons 1 2}))
@@ -2016,7 +2058,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{stream\#stream-car}
+;;; \section{stream\#stream-car}
 ;;; Get the first element of the stream.
 ;;;
 ;;; \index{stream\#stream-car}
@@ -2028,7 +2070,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 321]{sicp}.
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((s {stream-cons 1 2}))
     (equal? (stream-car s)
@@ -2037,7 +2079,7 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{stream\#stream-cdr}
+;;; \section{stream\#stream-cdr}
 ;;; Forces the evaluation of the next element of the stream.
 ;;;
 ;;; \index{stream\#stream-cdr}
@@ -2049,7 +2091,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 321]{sicp}.
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((s {stream-cons 1 2}))
     (equal? (stream-cdr s)
@@ -2058,13 +2100,13 @@
 ;;;
 
 ;;; \newpage
-;;; \subsection{list\#list-\textgreater stream}
+;;; \section{stream\#list-\textgreater stream}
 ;;; Converts a list into a stream
 ;;;
-;;; \index{list\#list-\textgreater stream}
+;;; \index{stream\#list-\textgreater stream}
 ;;; \begin{code}
 {define
-  "list#"
+  "stream#"
   list->stream
   [|l|
    (if (null? l)
@@ -2076,9 +2118,9 @@
                            [(stream-cons (car l)
                                          (list->stream (cdr l)))])})])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((foo (list#list->stream '(1 2 3))))
+  {let ((foo (stream#list->stream '(1 2 3))))
     {and (equal? 1 (stream-car foo))
          (equal? 2 (stream-car
                     (stream-cdr foo)))
@@ -2091,7 +2133,7 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \subsection{stream\#stream-ref}
+;;; \section{stream\#stream-ref}
 ;;; The analogous procedure of list-ref
 ;;;
 ;;; \index{stream\#stream-ref}
@@ -2111,7 +2153,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 319]{sicp}.
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((s (list->stream '(5 4 3 2 1))))
     {and
@@ -2128,44 +2170,10 @@
 ;;; \end{code}
 ;;;
 
-;;; \newpage
-;;; \section{lang\#Y}
-;;; \index{lang\#Y}
-;;;
-;;; The Y combinator allows a programmer to create a procedure which references
-;;; itself without needing to define a variable.  There is never an actual need
-;;; to use this in real code.  Read \cite[p. 149-172]{littleschemer} for an excellent
-;;; derivation of this combinator.
-;;;
-;;;
-;;; \begin{code}
-{define
-  "lang#"
-  Y
-  [|le|
-   ([|f| (f f)]
-    [|f| (le [|x| ((f f) x)])])]
-;;; \end{code}
-;;; \subsection*{Test}
-;;; \begin{code}
-  (satisfies?
-   (Y [|fact|
-       [|n|
-	(if (= n 0)
-	    [1]
-	    [(* n (fact (- n 1)))])]])
-   `(
-     (0 1)
-     (1 1)
-     (2 2)
-     (3 6)
-     (4 24)
-     ))}
-;;; \end{code}
 
 ;;; \newpage
-;;; \section{Generalized Assignment}
-;;; \subsection{lang\#setf!}
+;;; \chapter{Generalized Assignment}
+;;; \section{lang\#setf!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \cite{setf}.
 ;;;
@@ -2224,7 +2232,7 @@
                   ,@(cdr exp)
                   ,val))}])]
 ;;; \end{code}
-;;; \subsubsection*{Tests}
+;;; \subsection*{Tests}
 ;;; \begin{code}
   ;; test variable
   {let ((a 5))

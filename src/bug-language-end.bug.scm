@@ -15,7 +15,7 @@
  (begin
    (display
     "
-(##namespace (\"\"))"
+     (##namespace (\"\"))"
     libbug-macros-file)))
 
 
