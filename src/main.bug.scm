@@ -43,7 +43,7 @@
 ;;;  {\bfseries\huge}%
 ;;; \date{}
 ;;; \begin{document}
-;;;
+;;; \bibliographystyle{alpha}
 ;;; % Article top matter
 ;;; \title{Computation At Compile-Time \\
 ;;;    \vspace{4 mm} \large{and the Implementation of Libbug}}

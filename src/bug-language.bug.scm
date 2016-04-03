@@ -358,8 +358,11 @@
 ;;;   \item On line 7, the unevaluated form in argument ``lambda-value'' may
 ;;;         or may not be quasi-quoted.  Either way, write a quasi-quoted form
 ;;;         to the file.  In the case that the ``lambda-value'' argument was not
-;;;         actually intended to be quasi-quoted, immediately unquote, thereby
-;;;         negating the quasi-quoting (which is done on line 14-15)
+;;;         actually intended to be quasi-quoted, immediately unquote (which is
+;;;         done on line 14-15), thereby negating the quasi-quoting.
+;;;   \item On line 7-8, rather than nesting quasi-quotes, line 7 uses a technique
+;;;         of replacing a would be nested quasiquote with ``,(list 'quasiquote `(...)''.
+;;;         This makes the code more readable \cite[p. 854]{paip}.
 ;;;   \item On line 8-10, ensure that the currently unevaluated form will be
 ;;;         evaluated in a context in which the namespaces resolve consistently
 ;;;         as they were written in this book.
