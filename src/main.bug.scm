@@ -261,21 +261,23 @@
 ;;; to understand all of the code except for the macros.  Reading ``On Lisp''
 ;;; \cite{onlisp}\footnote{available on-line for no cost} is more than sufficient
 ;;; to understand everything in this book, as this book expands on chapter 13 of
-;;; ``On Lisp'''; also called``Computation at Compile-Time''.
+;;; ``On Lisp''; also called``Computation at Compile-Time''.
 ;;;
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
 ;;; book, are all recommended reading, but are
 ;;; not necessary to understand the content of this book.
 ;;;
 ;;; \section{Conventions}
-;;; Code which is part of libbug will be outlined and will have line numbers on the left.
+;;; Code which is part of libbug will use the following font, will be outlined and
+;;; will have line numbers on the left.
 ;;;
 ;;; \begin{code}
 ;; This is part of libbug.
 ;;; \end{code}
 ;;;
 ;;; \noindent
-;;; Example code which is not part of libbug will not be outlined nor will have line
+;;; Example code which is not part of libbug will have the same font as other code,
+;;; but will not be outlined nor will have line
 ;;; numbers.
 ;;;
 ;;; \begin{examplecode}

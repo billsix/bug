@@ -316,6 +316,16 @@
 ;;; \begin{code}
    (write
     `{begin
+;;; \end{code}
+;;; \subsubsection{Macro Definition}
+;;;   The macro definition written to the file will be imported as
+;;;   text by other projects,
+;;;   which themselves may have different namespace mappings than libbug.
+;;;   To ensure that the macro works correctly in other contexts, the
+;;;   appropriate namespace
+;;;   mappings must be loaded, but just for this macro definition.
+
+;;; \begin{code}
        {at-both-times
         {##define-macro
           ,name
@@ -329,6 +339,48 @@
                            [(car (cdaddr lambda-value))]
                            [(append (list 'unquote)
                                     (cddr lambda-value))]))))}}
+;;; \end{code}
+
+
+;;; \begin{itemize}
+;;;   \item On line 1, the program which imports this macro shall define the
+;;;         macro at both compile-time and run-time.
+;;;   \item On line 4, the written-to-file lambda value shall have the same
+;;;         argument list as the argument list passed to ``libbug\#define-macro''
+;;;   \item On line 5, the unevaluated form in argument ``lambda-value'' may
+;;;         or may not be quasiquoted.  Either way, write a quasiquoted form
+;;;         to the file.  In the case that the ``lambda-value'' argument was not
+;;;         actually intended to be quasiquoted, immediately unquote (which is
+;;;         done on line 12-13), thereby negating the quasi-quoting.
+;;;   \item On line 5-6, rather than nesting quasiquotes, line 5 uses a technique
+;;;         of replacing a would-be nested quasiquote with ``,(list 'quasiquote `(...)''.
+;;;         This makes the code more readable \cite[p. 854]{paip}.  Should the reader
+;;;         be interested in learning more about nested quasiquotes, Appendix C
+;;;         of \cite[p. 960]{cl} is a great reference.
+;;;   \item On line 6-8, ensure that the currently unevaluated form will be
+;;;         evaluated in a context in which the namespaces resolve consistently
+;;;         as they were written in this book.
+;;;   \item On line 9-10, check to see if the unevaluated form is quasiquoted.
+;;;   \item On line 11, it is quasiquoted, as such, grab the content of the
+;;;         list minus the quasiquoting.
+;;;   \item On line 12-13, since this is not a quasi-quoted form, just grab
+;;;         the form, and ``unquote'' it.
+;;; \end{itemize}
+
+
+
+
+;;; \subsubsection{Procedure to expand macro invocations}
+;;;
+;;; In order to be able to test the macro transformation as unevaluated
+;;; code, create a procedure (instead of a macro) with ``-expand''
+;;; suffixed to the ``name'', with the same procedure body as
+;;; the ``lambda-value'''s body.  Override ``gensym'' in this generated
+;;; procedure, so that tests may be written\footnote{``\#\#gensym'', by definition,
+;;; creates a unique symbol which the programmer could never input, which is why it
+;;; needs to be overridden for testing macroexpansions. }.
+;;;
+;;; \begin{code}
        {at-both-times
         ;; TODO - namespace this procedure
         {##define-macro
@@ -347,40 +399,24 @@
     libbug-macros-file)
    (newline libbug-macros-file)
 ;;; \end{code}
-
-
-;;; \begin{itemize}
-;;;   \item On line 1 through line 32, write the form out to the macro file
-;;;   \item On line 3, the program which imports this macro shall define the
-;;;         macro at both compile-time and run-time.
-;;;   \item On line 6, the written-to-file lambda value shall have the same
-;;;         argument list as the argument list passed to ``libbug\#define-macro''
-;;;   \item On line 7, the unevaluated form in argument ``lambda-value'' may
-;;;         or may not be quasi-quoted.  Either way, write a quasi-quoted form
-;;;         to the file.  In the case that the ``lambda-value'' argument was not
-;;;         actually intended to be quasi-quoted, immediately unquote (which is
-;;;         done on line 14-15), thereby negating the quasi-quoting.
-;;;   \item On line 7-8, rather than nesting quasi-quotes, line 7 uses a technique
-;;;         of replacing a would be nested quasiquote with ``,(list 'quasiquote `(...)''.
-;;;         This makes the code more readable \cite[p. 854]{paip}.  Should the reader
-;;;         be interested in learning more about nested quasiquotes, Appendix C
-;;;         of \cite[p. 960]{cl} is a great reference.
-;;;   \item On line 8-10, ensure that the currently unevaluated form will be
-;;;         evaluated in a context in which the namespaces resolve consistently
-;;;         as they were written in this book.
-;;;   \item On line 11-12, check to see if the unevaluated form is quasi-quoted.
-;;;   \item On line 13, it is quasi-quoted, as such, grab the content of the
-;;;         list minus the quasi-quoting.
-;;;   \item On line 14-15, since this is not a quasi-quoted form, just grab
-;;;         the form
-;;; \end{itemize}
-
-
 ;;; \subsection{Define Macro and Run Tests}
+;;; Now that the macro has been exported to a file, now the macro must
+;;; be defined within libbug itself.
+
 ;;; \begin{code}
    {let ((gensym-count (gensym)))
      `{begin
+;;; \end{code}
+
+;;; \noindent Namespace the procedure
+
+;;; \begin{code}
         {libbug#namespace (,namespace ,name)}
+;;; \end{code}
+
+;;; \noindent Create the expander just like in the previous section.
+
+;;; \begin{code}
         {at-both-times
          ;; TODO - namespace this procedure
          {##define-macro
@@ -396,6 +432,12 @@
                                   "gensymed-var"
                                   (number->string ,gensym-count)))}]))
                  (list 'quote ,@(cddr lambda-value))}})}}
+;;; \end{code}
+
+;;; \noindent Now that the macroexpander procedure has been defined, define the macro
+;;; and execute the compile-time tests.
+
+;;; \begin{code}
         {with-tests
          {##define-macro
            ,name
@@ -406,7 +448,27 @@
 
 ;;; \section{lang\#macroexpand-1}
 
-;;; A convenience wrapper to expand macros.
+;;; ``macroexpand-1'' allows the programmer to test macroexpansion by writing
+
+;;; \begin{examplecode}
+;;;(equal? (macroexpand-1 (aif (+ 5 10)
+;;;                            (* 2 it)))
+;;;       '{let ((it (+ 5 10)))
+;;;          (if it
+;;;              [(* 2 it)]
+;;;              [#f])})
+;;; \end{examplecode}
+
+;;; \noindent instead of
+
+;;; \begin{examplecode}
+;;;(equal? (aif-expand (+ 5 10)
+;;;                    (* 2 it)))
+;;;       '{let ((it (+ 5 10)))
+;;;          (if it
+;;;              [(* 2 it)]
+;;;              [#f])})
+;;; \end{examplecode}
 
 ;;; \index{lang\#macroexpand-1}
 ;;; \begin{code}
