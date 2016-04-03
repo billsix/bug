@@ -362,7 +362,9 @@
 ;;;         done on line 14-15), thereby negating the quasi-quoting.
 ;;;   \item On line 7-8, rather than nesting quasi-quotes, line 7 uses a technique
 ;;;         of replacing a would be nested quasiquote with ``,(list 'quasiquote `(...)''.
-;;;         This makes the code more readable \cite[p. 854]{paip}.
+;;;         This makes the code more readable \cite[p. 854]{paip}.  Should the reader
+;;;         be interested in learning more about nested quasiquotes, Appendix C
+;;;         of \cite[p. 960]{cl} is a great reference.
 ;;;   \item On line 8-10, ensure that the currently unevaluated form will be
 ;;;         evaluated in a context in which the namespaces resolve consistently
 ;;;         as they were written in this book.

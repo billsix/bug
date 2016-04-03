@@ -98,6 +98,11 @@
 ;;;  \emph{Paradigms of Artificial Intelligence Programming: Case Studies in Common Lisp},
 ;;;  San Francisco, CA
 ;;;  1992.
+;;;\bibitem[Steele90]{cl}
+;;;  Steele Jr, Guy L.
+;;;  \emph{Common Lisp the Language},
+;;;  Digital Press,
+;;;  1990.
 ;;;
 ;;;
 ;;;
