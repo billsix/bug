@@ -2,7 +2,7 @@
 ;;; %All rights reserved
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;;
-;;; \documentclass[twoside]{book}
+;;; \documentclass[twoside,12pt]{book}
 ;;; \pagenumbering{gobble}
 ;;; \usepackage[paperwidth=7.44in, paperheight=9.68in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
 ;;; \usepackage{times}
@@ -61,9 +61,6 @@
 ;;; \newpage
 ;;; \break
 
-;;; \noindent  Copyright 2014-2016 William Emerison Six
-;;;  \vspace{1cm}
-;;;
 ;;;  \noindent
 ;;;  EITHER
 ;;;
@@ -149,11 +146,10 @@
 ;;;      [{let permutations ((lst lst))
 ;;;        (if (null? lst)
 ;;;          [(list '())]
-;;;          [(flatmap
-;;;            [|x|
-;;;             (map [|y| (cons x y)]
-;;;                  (permutations (remove x lst)))]
-;;;            lst)])}])]
+;;;          [(flatmap [|x|
+;;;                     (map [|y| (cons x y)]
+;;;                          (permutations (remove x lst)))]
+;;;                    lst)])}])]
 ;;; \end{examplecode}
 ;;;
 ;;; So what does the code do?  How did the author intend for it to be used?
@@ -164,7 +160,7 @@
 ;;; fans of dynamically-typed languages might argue ``Look at the tests!'',
 ;;; as tests ensure the code functions in a user-specified way and
 ;;; they serve as a form of documentation.  But
-;;; where are those tests?  Probably in some other file, whose filesystem path is
+;;; where are those tests?  Probably in some other file whose filesystem path is
 ;;; similar to the current file's path, (e.g., src/com/BigCorp/HugeProject/Foo.java
 ;;; is tested by test/com/BigCorp/HugeProject/FooTest.java)
 ;;; Then you'd have to find the file, open the file, look through it
@@ -175,9 +171,9 @@
 ;;; But how else would a programmer organize tests?  Well, in this book, which is the
 ;;; implementation of a library called ``libbug''\footnote{Bill's Utilities
 ;;; for Gambit}, tests are specified as part of the procedure's definition,
-;;; executed at compile-time.  Should any test fail the compiler will
-;;; exit in error, not producing the libbug library.  Much like a type error in a
-;;; statically-typed language.  Furthering the reliability of the code,
+;;; and they are executed at compile-time.  Should any test fail the compiler will
+;;; exit in error, much like a type error in a
+;;; statically-typed language.  Furthermore,
 ;;; the book you are currently reading
 ;;; is embedded into the source code of libbug; it is generated only upon successful
 ;;; compilation of libbug and it couldn't exist if a single test
@@ -185,8 +181,9 @@
 
 ;;; So where are these tests then? The very alert reader may have noticed
 ;;; that the opening '\{' in the definition
-;;; of ``permutations'' was not closed.  That is because tests can be specified
-;;; to be run at compile-time as part of the definition of a procedure.
+;;; of ``permutations'' was not closed.  That is because we complete the definition
+;;; of ``permutations'' by specifying tests
+;;; to be run at compile-time.
 ;;;
 ;;; \begin{examplecode}
 ;;; (equal? (permutations '())
@@ -206,7 +203,6 @@
 ;;; }
 ;;; \end{examplecode}
 ;;;
-;;; \noindent Now, the closing '\}' is there, so ``permutations'' procedure is defined.
 ;;;
 ;;; Why does this matter?
 ;;; Towards answering the questions ``so what does the code do?'' and ``how did the author
@@ -218,7 +214,7 @@
 ;;; before reading the procedure definition.  And the reader
 ;;; may not even read the procedure at all if the tests gave them enough information
 ;;; to use it successfully.  But should the reader want to understand the procedure, they
-;;; can apply the procedure incrementally to the tests to understand it.
+;;; can mentally apply the procedure to the tests to understand it.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
 ;;; be in the executable?  And won't they run every time I execute the program?
@@ -226,12 +222,12 @@
 ;;; slow down the program at start up.  Fortunately, the
 ;;; answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
 ;;; that certain code should be interpreted by the compiler instead of being
-;;; compiled\footnote{Which is also why this book is
-;;; called the more general ``Computation at Compile-Time'' instead of ``Testing
+;;; compiled\footnote{Which is why this book is
+;;; called ``Computation at Compile-Time'' instead of ``Testing
 ;;; at Compile-Time''}.  Lisp implementations such as Gambit are particularly well
 ;;; suited for this style of programming because unevaluated Lisp code is
 ;;; specified using a data structure of Lisp; because the compiler
-;;; is an interpreter capable of being augmented with the very
+;;; is an interpreter capable of being augmented with the
 ;;; same code which it is compiling.  Upon finishing compilation, the
 ;;; compiler has \emph{become} the very program it is compiling.
 ;;;
@@ -243,10 +239,10 @@
 ;;; \pagenumbering{arabic}
 ;;; Libbug is Bill's Utilities for Gambit Scheme:  a ``standard library'' of procedures
 ;;; which augments Scheme's small set of built-in procedures and macros.
-;;; Libbug provides procedures for list processing, streams, procedure-building procedures,
+;;; Libbug provides procedures for list processing, streams,
 ;;; control structures,
 ;;; general-purpose evaluation at compile-time, a
-;;; compile-time test framework\footnote{in only 9 lines of code!}, and a Scheme preprocessor to
+;;; compile-time test framework (in only 9 lines of code!), and a Scheme preprocessor to
 ;;; provide a lambda literal syntax.  Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
@@ -255,13 +251,13 @@
 ;;; \section{Prerequisites}
 ;;;
 ;;; The reader is assumed to be somewhat familiar both with Scheme, with Common Lisp-style
-;;; macros, and with recursive design.  Reading ``Simply Scheme''
+;;; macros, and with recursive design.  If the book proves too difficult for the reader,
+;;; they should first read ``Simply Scheme''
 ;;; \cite{ss}\footnote{available on-line for no cost}
-;;; or ``The Little Schemer'' \cite{littleschemer} should be sufficient
-;;; to understand all of the code except for the macros.  Reading ``On Lisp''
+;;; or ``The Little Schemer'' \cite{littleschemer}.  Reading ``On Lisp''
 ;;; \cite{onlisp}\footnote{available on-line for no cost} is more than sufficient
-;;; to understand everything in this book, as this book expands on chapter 13 of
-;;; ``On Lisp''; also called``Computation at Compile-Time''.
+;;; to understand everything in this book.
+;;;
 ;;;
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
 ;;; book, are all recommended reading, but are
@@ -313,7 +309,7 @@
 ;;; all arguments.  For instance, in
 
 ;;; \begin{examplecode}
-;;;{define x 5}
+;;; {define x 5}
 ;;; \end{examplecode}
 
 ;;; \noindent
@@ -330,40 +326,52 @@
 ;;; \section{Getting the Source Code}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug.
 ;;;  The Scheme files can produce the libbug library, as well as this book.
-;;;  This book was generated from git commit ID \input{version.tex} .
-;;;  Currently, the code works on various distributions of Linux, and on
+;;;;  Currently, the code works on various distributions of Linux, and on
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
-;;; You will of course need a C compiler, and Gambit
-;;; Scheme\footnote{http://gambitscheme.org}.
+;;; You will need a C compiler, such as GCC,
+;;; Autoconf, Automake, and Gambit
+;;; Scheme\footnote{http://gambitscheme.org}, version 4.8 or newer.
 ;;;
 ;;; To compile the book and library, execute the following on the command line:
 ;;;
 ;;; \begin{examplecode}
 ;;; $ ./autogen.sh
-;;; $ ./configure --enable-pdf=yes
+;;; $ ./configure --prefix=$BUG_HOME --enable-shared --enable-pdf
 ;;; $ make
 ;;; $ make install
 ;;; \end{examplecode}
-
-
+;;;
+;;; \begin{itemize}
+;;;   \item
+;;;      The argument to ``prefix'' tells Autoconf the location into which libbug
+;;;      should be installed when ``make install'' is called.
+;;;   \item
+;;;      Libbug can be compiled as a static library, or a dynamic library. ``--enable-shared''
+;;;      configures the build so that a shared library is created.  If you desire to build
+;;;      libbug as a static library, substitute ``--disable-shared''.
+;;;   \item
+;;;      ``--enable-pdf'' means to build this PDF.  To disable the creation of the PDF,
+;;;      substitute ``--enable-pdf=no''.
+;;; \end{itemize}
+;;;
 ;;; \chapter{Compile-Time Language}
 ;;;
 ;;; This chapter provides a quick tour of computer language which is interpreted
-;;; by the compiler, but which has no direct representation in the generated machine
+;;; by the compiler, but which is absent in the generated machine
 ;;; code.  Examples are provided in well-known languages to illustrate that
 ;;; many compilers are also interpreters for a subset of the language.  This
 ;;; chapter is not required to understand the rest of the book, and may be freely
 ;;; skipped, but it provides a baseline understanding of compile-time computation,
-;;; so the reader may contrast these languages' capabilities with libbug's.
+;;; so that the reader may contrast these languages' capabilities with libbug's.
 
 ;;; First, let's discuss was is meant by the word ``language''.
 ;;; In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
 ;;; Motwani, and Ullman define language as ``A set of strings all of which are chosen
-;;; from some $\Sigma$ $\star$, where $\Sigma$ is a particular alphabet, is called
+;;; from some $\Sigma^{\star}$, where $\Sigma$ is a particular alphabet, is called
 ;;; a language'' \cite[p. 30]{hmu2001}.
 ;;;  They further state ``In automata theory, a problem is the question
-;;; of deciding whether a given string is a member of some particular language''. TODO cite.
+;;; of deciding whether a given string is a member of some particular language''. \cite[p. 31]{hmu2001}.
 ;;;
 ;;; In practice, if your compiler successfully compiles your code, congratulations!
 ;;; The code is a valid string in the language, and passed any additional constraints
@@ -400,7 +408,8 @@
 ;;; itself has no representation in the machine code, although the contents
 ;;; of the included file may.
 ;;;
-;;; The second line defines a C macro. It is a procedure which takes a text
+;;; The second line defines a C macro. It is a procedure for interpretation
+;;; at compile-time only, which takes a text
 ;;; string as input and transforms it into a new text string as output.
 ;;; This expansion happens before the compiler does anything
 ;;; else.  For example, using GCC as a compiler, if you run the C preprocessor
@@ -419,13 +428,14 @@
 ;;; \noindent before compilation.
 ;;;
 ;;; The third line defines a function prototype, so that
-;;; the compiler knows the argument types and return type for a function called ``fact''.
+;;; the compiler knows the argument types and return type for a function not
+;;; yet defined called ``fact''.
 ;;; It is language interpreted by the compiler to determine the types for the function
 ;;; call to ``fact'' on line 8, since ``fact'' has not yet been defined in this
 ;;; translation unit.
 ;;;
-;;; The fourth through tenth line is a function definition, which will have
-;;; a representation in the machine code.  However, line 5 is language
+;;; The fourth through tenth line is a function definition, which will be
+;;; translated into instructions in the generated machine code.  Line 5, however, is language
 ;;; to be interpreted by the compiler, referencing a variable defined
 ;;; only during compilation, to detemine whether or not line 6 should be
 ;;; compiled.
@@ -434,14 +444,15 @@
 ;;;
 ;;; C++ inherits C's macros, but with the additional introduction
 ;;; of templates, C++'s compile time language
-;;; incidently became Turing complete.  This means that
-;;; theoretically, anything that can be
+;;; incidently became Turing complete.  This theoretically means that
+;;; anything that can be
 ;;; calculated by a computer can be calculated using template expansion
 ;;; at compile time.  Fun fact, but general purpose computation using template
 ;;; metaprogramming is not useful in practice.
 ;;;
 ;;; The following is an example of calculating the factorial of
-;;; 3, using both C++ functions and C++'s templates.
+;;; 3, using C++ functions for run-time calulation, and C++'s templates for compile-time
+;;; calculation.
 ;;;
 ;;; \begin{examplecode}
 ;;; /*Line01*/  #include <iostream>
@@ -465,9 +476,11 @@
 ;;; /*Line19*/  }
 ;;; \end{examplecode}
 
+;;; Lines 10-13 are the run-time calculation of ``fact''.  Lines 2-9 are the
+;;; template code for the compile-time calculation of ``factorial''.
 ;;; On line 16, ``factorial\textless3\textgreater::value'' is an
 ;;; instruction to be interpreted
-;;; by the compiler using templates.  Template expansions
+;;; by the compiler via template expansions.  Template expansions
 ;;; conditionally match patterns based on types (or values in the case
 ;;; of integers).  For iteration, instead of loops, templates expand recursively.
 ;;; In this case, the expansion of
@@ -503,7 +516,7 @@
 ;;; 40087d:       e8 1e fe ff ff          callq  4006a0 <_ZNSolsEi@plt>
 ;;; \end{examplecode}
 
-;;; The instructions at locations 400850 through 40085a correspond to the
+;;; The instructions at memory locations 400850 through 40085a correspond to the
 ;;; printing out of the compile-time expanded call to factorial\textless3\textgreater.
 ;;; The number 6 is loaded into the esi register; then the second
 ;;; two lines call the printing routine\footnote{at least I assume, because
@@ -522,67 +535,78 @@
 ;;; the factorial of 3, both computed at compile-time and computed at run-time.
 ;;;
 ;;; \begin{examplecode}
-;;; {at-both-times
-;;;  {define fact
-;;;    [|n| (if (= n 0)
-;;;             [1]
-;;;             [(* n (fact (- n 1)))])]}}
-;;;
-;;; (pp (at-compile-time-expand (fact 3)))
-;;; (pp (fact 3))
+;;; {at-both-times                           ;; Line 1
+;;;  {define fact                            ;; Line 2
+;;;    [|n| (if (= n 0)                      ;; Line 3
+;;;             [1]                          ;; Line 4
+;;;             [(* n (fact (- n 1)))])]}}   ;; Line 5
+;;;                                          ;; Line 6
+;;; (pp (at-compile-time-expand (fact 3)))   ;; Line 7
+;;; (pp (fact 3))                            ;; Line 8
 ;;; \end{examplecode}
 ;;;
-
+;;; \begin{itemize}
+;;;   \item
+;;;      On Line 1, the ``at-both-times'' macro is invoked, taking unevaluated code as
+;;;      as argument, interpreting it at compile-time, and compiling it for use at runtime.
+;;;   \item
+;;;      On lines 2-5, the definition of the ``fact''.
+;;;   \item
+;;;      On lines 7, ``at-compile-time-expand'' is a macro which takes unevaluated code,
+;;;      evaluates it to some result which is then compiled by the compiler.  So the code
+;;;      will expand at compile time to ``(pp 6)''.
+;;;   \item
+;;;      On lines 8, the run-time calculation of ``(fact 3)''.
+;;; \end{itemize}
+;;;
 ;;; By compiling the Scheme source to the ``gvm'' intermediate
 ;;; representation, we can verify the stated behavior.
 
-;;; In the compile-time calculation of fact, the following gvm code is produced.
-
 ;;; \begin{examplecode}
-;;; r1 = '6
-;;;   r0 = frame[1]
-;;;   jump/poll fs=4 #4
-;;; #4 fs=4
-;;;   jump/safe fs=0 global[pp] nargs=1
+;;;  ...
+;;;  r1 = '6                                ;; Line 1
+;;;  r0 = #4                                ;; Line 2
+;;;  jump/safe fs=4 global[pp] nargs=1      ;; Line 3
+;;;#4 fs=4 return-point                     ;; Line 4
+;;;  r1 = '3                                ;; Line 5
+;;;  r0 = #5                                ;; Line 6
+;;;  jump/safe fs=4 global[fact] nargs=1    ;; Line 7
+;;;#5 fs=4 return-point                     ;; Line 8
+;;;  r0 = frame[1]                          ;; Line 9
+;;;  jump/poll fs=4 #6                      ;; Line 10
+;;;#6 fs=4                                  ;; Line 11
+;;;  jump/safe fs=0 global[pp] nargs=1      ;; Line 12
+;;;  ...
 ;;; \end{examplecode}
 
-;;;  \noindent The precomputed value of ``(fact 3)'', 6, is loaded into a variable, there's no
-;;;  jump to fact, just a jump to pp.  Fantastic!
+;;; \begin{itemize}
+;;;   \item
+;;;      Lines 1-4 correspond to ``(pp (at-compile-time-expand (fact 3)))''.  The precomputed
+;;;      value of ``(fact 3)'' is 6, which is directly stored into a GVM register, and
+;;;      then the ``pp'' routine is called to print it out.
+;;;   \item
+;;;      Lines 5-12 correspond to ``(pp (fact 3))''.  3 is stored in a GVM regiister, ``fact''
+;;;      is called, and then ``pp'' is called on the result.
+;;; \end{itemize}
 
-;;; In the run-time calculation of fact, the following gvm code is produced.
-
-;;; \begin{examplecode}
-;;; r1 = '3
-;;;   r0 = #4
-;;;   jump/safe fs=4 global[fact] nargs=1
-;;; #4 fs=4 return-point
-;;;   r0 = frame[1]
-;;;   jump/poll fs=4 #5
-;;; #5 fs=4
-;;;   jump/safe fs=0 global[pp] nargs=1
-;;; \end{examplecode}
-
-;;; \noindent The number 3 is being loaded into a variable r1, there's a jump
-;;; (effectively a procedure call) to the
-;;; fact procedure, and then a jump to pp.
 
 ;;;
 ;;; So this has been an moderately interesting excercise, but why is
 ;;; this important?
-;;; This chapter demonstrates that compilers have interpretive aspects to them,
+;;; This chapter demonstrates that many compilers are also interpreters of
+;;; a limited langugage,
 ;;; which is mostly taken for granted and not questioned.
-;;; C has two distinct sub-''languages'', one for compile-time and one
+;;; C has two distinct sub-``languages'', one for compile-time and one
 ;;; for run-time;
 ;;; both of which have variables, conditionals, and procedure definitions.
 ;;; As does C++, which also has compile-time Turing-completeness in an awkward
 ;;; purely functional language
-;;; lacking state and IO. The Java Virtual Machine, initially just an interpreter
-;;; of Java byte-code, eventually added the ability to compile byte-code
-;;; into optimized machine code during interpretation to increase performance.
-;;; Libbug, on the opposite end of the spectrum, is meant to be compiled, but it adds
-;;; a full interpreter to be executed during compile-time, including state and IO.
+;;; which lacks state and IO.
+;;; In contrast, libbug enables compile-time computation using the same exact
+;;; language as the run-time, complete with state and IO.
+
 ;;;
-;;; When I first started on this project, I only wanted a way to collocate
+;;; When I first started on libbug, I only wanted a way to collocate
 ;;; tests with definitions, to evaluate the tests at compile time, and to error out
 ;;; of compilation
 ;;; if a test failed.  Only later did I realize that compile-time evaluation
@@ -600,7 +624,7 @@
 ;;; \chapter{General Procedures}
 ;;;
 ;;; This part defines a standard library of Scheme procedures and
-;;; macros\footnote{The code within this section is all found in
+;;; macros\footnote{The code within this part is all found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.
 ;;;
@@ -609,13 +633,14 @@
 ;;; macros.  They are ``libbug\#define'', and ``libbug\#define-macro''.
 ;;; As they are namespaced to ``libbug'', they are not compiled into the library
 ;;; or other output files; they are meant for private use within the implementation
-;;; of libbug.  They are implemented in ``bug-language.bug.scm''\footnote{Although
+;;; of libbug.  They are implemented in Chapter~\ref{sec:buglang}, in file
+;;; ``bug-language.bug.scm''\footnote{Although
 ;;; the filename is ``bug-language.bug.scm'', ``bug-language.scm'' is imported.  This
 ;;; is because ``bug-gscpp'' preprocesses the bug file, and outputs a standard Gambit
 ;;; Scheme file, with a different filename}, which will now
 ;;; be imported.  How to use these procedure-defining procedures will be explained
-;;; incrementally, and their implementation is defined in
-;;; chapter~\ref{sec:buglang}.
+;;; incrementally.
+;;; chapter
 ;;;
 ;;; \begin{code}
 (include "bug-language.scm")
@@ -674,6 +699,11 @@
 ;;; test runs at compile time, but is not present in the resulting
 ;;; library.
 ;;; \end{itemize}
+;;;
+;;; ``noop'' does not look useful at first glance, but it is frequently used when
+;;;  you need to execute something, but you do not care about the resulting value.
+;;;  For instance, ``noop'' is used as a default ``exception-handler'' for many
+;;;  procedures within libbug.
 ;;;
 ;;; \newpage
 ;;; \section{lang\#identity}
@@ -737,9 +767,9 @@
 ;;; \begin{itemize}
 ;;;   \item On line 5, if, which is currently namespaced to lang\#if\footnote{
 ;;;      defined in section~\ref{sec:langif} }, takes
-;;;         lambda expressions for the two parameters. I like to think of
-;;;         \#t, \#f, and if as the
-;;;         following\footnote{\#t is the constancy function K\cite[p. 4]{calculi}}:
+;;;         lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
+;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that lang\#if is just syntactic sugar:
+
 ;;;
 ;;; \begin{examplecode}
 ;;;{define #t [|t f| (t)]}
@@ -776,7 +806,8 @@
 ;;; \section{lang\#satisfies?}
 
 ;;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
-;;; with varying inputs and outputs?  Instead, provide the procedure, and a list
+;;; with varying inputs and outputs, as was done for ``all''?  Instead, provide
+;;; the procedure, and a list
 ;;; of input/output pairs.
 ;;;
 ;;; \index{lang\#satisfies?}
@@ -809,109 +840,75 @@
      ))}
 ;;; \end{code}
 
-;;; \newpage
-;;; \section{lang\#compose}
-
-;;; \index{lang\#compose}
-;;; \begin{code}
-{define-macro
-  "lang#"
-  compose
-  [|#!rest fns|
-   (if (null? fns)
-       ['identity]
-       [{let ((args (gensym)))
-          `[|#!rest ,args|
-            ,{let compose ((fns fns))
-               (if (null? (cdr fns))
-                   [`(apply ,(car fns)
-                            ,args)]
-                   [`(,(car fns)
-                      ,(compose (cdr fns)))])}]}])]
-;;; \end{code}
-
-;;; \cite[p. 66]{onlisp}
-;;;
-;;;
-;;; Libbug is a library, meant to be used by other projects.  From libbug, these
-;;; projects will require namespace definitions, as well as macro definitions.
-;;; As such, besides defining the macro, libbug\#define-macro\footnote{
-;;; defined in section ~\ref{sec:libbugdefinemacro}}
-;;; also exports the
-;;; namespace definition and the macro definitions to external files.
-;;;
-;;; If the reader does not understand the macro definition above, don't worry,
-;;; understanding the macro definitions is not required to understand the rest
-;;; of the content of this book.  The reader should at least though understand
-;;; how to use the macros, which can be learned by reading the associated tests.
-;;;
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? ((compose) 5)
-          5)
-  (equal? ((compose [|x| (* x 2)])
-           5)
-          10)
-  (equal? ((compose [|x| (+ x 1)]
-                    [|x| (* x 2)])
-           5)
-          11)
-  (equal? ((compose [|x| (/ x 13)]
-                    [|x| (+ x 1)]
-                    [|x| (* x 2)])
-           5)
-          11/13)
-;;; \end{code}
-;;; \subsection*{Code Expansion Tests}
-;;;
-;;; Macro-expansions occur during compile-time, so how should a person
-;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
-;;; as a normal procedure, and as such is able to be tested.
-;;;
-;;; \begin{code}
-  (equal? (macroexpand-1 (compose))
-          'identity)
-  (equal? (macroexpand-1 (compose [|x| (* x 2)]))
-          '[|#!rest gensymed-var1|
-            (apply [|x| (* x 2)]
-                   gensymed-var1)])
-  (equal? (macroexpand-1 (compose [|x| (+ x 1)]
-                                  [|x| (* x 2)]))
-          '[|#!rest gensymed-var1|
-            ([|x| (+ x 1)]
-             (apply [|x| (* x 2)]
-                    gensymed-var1))])
-  (equal? (macroexpand-1 (compose [|x| (/ x 13)]
-                                  [|x| (+ x 1)]
-                                  [|x| (* x 2)]))
-          '[|#!rest gensymed-var1|
-            ([|x| (/ x 13)]
-             ([|x| (+ x 1)]
-              (apply [|x| (* x 2)]
-                     gensymed-var1)))])
-  }
-;;; \end{code}
-;;;
-
-;;; ``macroexpand-1'' expands the unevaluated code passed to the
-;;; macro into the new form, which the compiler would have then compiled
-;;; if ``macroexpand-1'' had not been there.  But, how should ``gensyms'' be
-;;; handled, since by definition it creates symbols which cannot be entered
-;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
-;;; is overridden into a procedure
-;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
-;;; call during a macroexpansion generates a new, unique symbol.  Although this symbol
-;;; may clash with symbols in the expanded code, this is not a problem, as these
-;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
-;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
-
-
-;;; \newpage
-;;; \section{lang\#atom?}
-;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
+
+;;; \newpage
+;;; \section{lang\#while}
 ;;;
+;;; \index{lang\#while}
+;;; \begin{code}
+{define
+  "lang#"
+  while
+  [|pred body|
+   {let while ()
+     (if (pred)
+         [(body)
+          (while)]
+         [(noop)])}]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  {let ((a 0))
+    (while [(< a 5)]
+           [(set! a (+ a 1))])
+    (equal? a 5)}}
+;;; \end{code}
+
+;;; Programmers who are new to Scheme systems may be surprised that
+;;; the language provides no built-in loops syntax, such as ``for''
+;;; or ``while''.  A better question though, is why don't other
+;;; languages provide primitives from which you can create
+;;; those looping constructs yourself?
+;;;
+
+;;; \newpage
+;;; \section{lang\#numeric-if}
+;;;   An if expression for numbers, based on their sign.
+;;;
+;;; \index{lang\#numeric-if}
+;;; \begin{code}
+{define
+  "lang#"
+  numeric-if
+  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
+   {cond ((> expr 0) (ifPositive))
+         ((= expr 0) (ifZero))
+         (else (ifNegative))}]
+;;; \end{code}
+
+;;; \cite[p. 150, called ``nif'']{onlisp}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   [|n|
+    (numeric-if n
+                ifPositive: ['pos]
+                ifZero: ['zero]
+                ifNegative: ['neg])]
+   '(
+     (5 pos)
+     (0 zero)
+     (-5 neg)
+     ))}
+;;; \end{code}
+;;;
+
+
+;;;
+;;; \newpage
+;;; \section{lang\#atom?}
 ;;; \index{lang\#atom?}
 ;;; \begin{code}
 {define
@@ -921,7 +918,7 @@
             (not (null? x))}]
 ;;; \end{code}
 
-;;; \noindent \cite[p. TODO]{littleschemer}
+;;; \noindent \cite[p. 10]{littleschemer}
 
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -969,90 +966,7 @@
 ;;; \end{code}
 ;;;
 
-;;; \newpage
-;;; \section{lang\#while}
-;;;
-;;; \index{lang\#while}
-;;; \begin{code}
-{define
-  "lang#"
-  while
-  [|pred body|
-   (if (pred)
-       [(body)
-        (while pred body)]
-       [(noop)])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  {let ((a 0))
-    (while [(< a 5)]
-           [(set! a (+ a 1))])
-    (equal? a 5)}}
-;;; \end{code}
 
-;;; \newpage
-;;; \section{lang\#numeric-if}
-;;;   An if expression for numbers, based on their sign.
-;;;
-;;; \index{lang\#numeric-if}
-;;; \begin{code}
-{define
-  "lang#"
-  numeric-if
-  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
-   {cond ((> expr 0) (ifPositive))
-         ((= expr 0) (ifZero))
-         (else (ifNegative))}]
-;;; \end{code}
-
-;;; \cite[p. 150, called ``nif'']{onlisp}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (satisfies?
-   [|n|
-    (numeric-if n ifPositive: ['pos] ifZero: ['zero] ifNegative: ['neg])]
-   '(
-     (5 pos)
-     (0 zero)
-     (-5 neg)
-     ))}
-;;; \end{code}
-;;;
-
-
-;;; \newpage
-;;; \section{lang\#aif}
-;;;
-;;; \index{lang\#aif}
-;;; \begin{code}
-{define-macro
-  "lang#"
-  aif
-  [|bool body|
-   `{let ((it ,bool))
-      (if it
-          [,body]
-          [#f])}]
-;;; \end{code}
-
-;;; \cite[p. 191]{onlisp}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? {aif (+ 5 10) (* 2 it)}
-          30)
-  (equal? {aif #f (* 2 it)}
-          #f)
-  (equal? (macroexpand-1 (aif (+ 5 10)
-                              (* 2 it)))
-          '{let ((it (+ 5 10)))
-             (if it
-                 [(* 2 it)]
-                 [#f])})
-
-  }
-;;; \end{code}
-;;;
 
 
 ;;; \newpage
@@ -1076,79 +990,6 @@
 ;;; \end{code}
 
 
-;;; \newpage
-;;; \section{lang\#with-gensyms}
-;;;   Utility for macros to minimize explicit use of gensym.
-;;;   Gensym creates a symbol at compile time which is guaranteed
-;;;   to be unique.  Macros which intentionally capture variables,
-;;;   such as aif, are the anomaly.
-;;;   Usually, variables local to a macro should not clash
-;;;   with variables local to the macro caller.
-;;;
-;;; \index{lang\#with-gensyms"}
-;;; \begin{code}
-{define-macro
-  "lang#"
-  with-gensyms
-  [|symbols #!rest body|
-   `{let ,(map [|symbol| `(,symbol {gensym})]
-               symbols)
-      ,@body}]
-;;; \end{code}
-
-;;; \cite[p. 145]{onlisp}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? (macroexpand-1 (with-gensyms (foo bar baz)
-                                       `{begin
-                                          (pp ,foo)
-                                          (pp ,bar)
-                                          (pp ,baz)}))
-          '{let ((foo (gensym))
-                 (bar (gensym))
-                 (baz (gensym)))
-             `{begin
-                (pp ,foo)
-                (pp ,bar)
-                (pp ,baz)}})
-  }
-;;; \end{code}
-;;;
-
-;;; \newpage
-;;; \section{lang\#Y}
-;;; \index{lang\#Y}
-;;;
-;;; The Y combinator allows a programmer to create a procedure which references
-;;; itself without needing to define a variable.  There is never an actual need
-;;; to use this in real code.  Read \cite[p. 149-172]{littleschemer} for an excellent
-;;; derivation of this combinator.
-;;;
-;;;
-;;; \begin{code}
-{define
-  "lang#"
-  Y
-  [|le|
-   ([|f| (f f)]
-    [|f| (le [|x| ((f f) x)])])]
-;;; \end{code}
-;;; \section*{Test}
-;;; \begin{code}
-  (satisfies?
-   (Y [|fact|
-       [|n|
-	(if (= n 0)
-	    [1]
-	    [(* n (fact (- n 1)))])]])
-   `(
-     (0 1)
-     (1 1)
-     (2 2)
-     (3 6)
-     (4 24)
-     ))}
-;;; \end{code}
 
 ;;; \newpage
 ;;; \chapter{Lists}
@@ -1171,6 +1012,7 @@
   }
 ;;; \end{code}
 
+;;; For an thorough description of ``equal?'' vs ``eq?'', see \cite[p. 122-129]{schemeprogramminglanguage}.
 
 ;;; \newpage
 ;;; \section{list\#proper?}
@@ -1365,7 +1207,7 @@
 ;;; \end{code}
 
 ;;; \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
-;;; on Higher-Order Functions and their combinations TODO ensure the pages are correct from this source \cite[p. 103-125]{ss}}. \cite[p. 115]{sicp}.
+;;; on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}}. \cite[p. 115]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1433,6 +1275,13 @@
      ((1 2) 8)
      ((1 2 3 4 5 6) 26)
      ))
+;;; \end{code}
+;;;
+;;; Understanding the first test may give the reader false confidence in understanding
+;;; ``fold-left''.  To understand how ``fold-left'' really works, pay close attention
+;;; to how it works with non-commutative procedures, such as ``-''.
+;;;
+;;; \begin{code}
   (satisfies?
    [|l| (fold-left - 5 l)]
    '(
@@ -1466,13 +1315,21 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
-   [|l| (fold-right - 0 l)]
+   [|l| (fold-right + 5 l)]
    '(
-     (() 0)
-     ((1) 1)
-     ((2 1) 1)
-     ((3 2 1) 2)
-     ))}
+     (() 5)
+     ((1) 6)
+     ((1 2) 8)
+     ((1 2 3 4 5 6) 26)
+     ))
+  (satisfies?
+   [|l| (fold-right - 5 l)]
+   '(
+     (() 5)
+     ((1) -4)
+     ((1 2) 4)
+     ((1 2 3 4 5 6) 2)))
+  }
 ;;; \end{code}
 ;;;
 
@@ -2171,6 +2028,209 @@
              'out)}}}
 ;;; \end{code}
 ;;;
+
+
+;;; \newpage
+;;; \chapter{General Procedures Part 2}
+
+
+;;; \section{lang\#compose}
+
+;;; \index{lang\#compose}
+;;; \begin{code}
+{define-macro
+  "lang#"
+  compose
+  [|#!rest fns|
+   (if (null? fns)
+       ['identity]
+       [{let ((args (gensym)))
+          `[|#!rest ,args|
+            ,{let compose ((fns fns))
+               (if (null? (cdr fns))
+                   [`(apply ,(car fns)
+                            ,args)]
+                   [`(,(car fns)
+                      ,(compose (cdr fns)))])}]}])]
+;;; \end{code}
+
+;;; \cite[p. 66]{onlisp}
+;;;
+;;;
+;;; Libbug is a library, meant to be used by other projects.  From libbug, these
+;;; projects will require namespace definitions, as well as macro definitions.
+;;; As such, besides defining the macro, libbug\#define-macro\footnote{
+;;; defined in section ~\ref{sec:libbugdefinemacro}}
+;;; also exports the
+;;; namespace definition and the macro definitions to external files.
+;;;
+;;; If the reader does not understand the macro definition above, don't worry,
+;;; understanding the macro definitions is not required to understand the rest
+;;; of the content of this book.  The reader should at least though understand
+;;; how to use the macros, which can be learned by reading the associated tests.
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? ((compose) 5)
+          5)
+  (equal? ((compose [|x| (* x 2)])
+           5)
+          10)
+  (equal? ((compose [|x| (+ x 1)]
+                    [|x| (* x 2)])
+           5)
+          11)
+  (equal? ((compose [|x| (/ x 13)]
+                    [|x| (+ x 1)]
+                    [|x| (* x 2)])
+           5)
+          11/13)
+;;; \end{code}
+;;; \subsection*{Code Expansion Tests}
+;;;
+;;; Macro-expansions occur during compile-time, so how should a person
+;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
+;;; as a normal procedure, and as such is able to be tested.
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1 (compose))
+          'identity)
+  (equal? (macroexpand-1 (compose [|x| (* x 2)]))
+          '[|#!rest gensymed-var1|
+            (apply [|x| (* x 2)]
+                   gensymed-var1)])
+  (equal? (macroexpand-1 (compose [|x| (+ x 1)]
+                                  [|x| (* x 2)]))
+          '[|#!rest gensymed-var1|
+            ([|x| (+ x 1)]
+             (apply [|x| (* x 2)]
+                    gensymed-var1))])
+  (equal? (macroexpand-1 (compose [|x| (/ x 13)]
+                                  [|x| (+ x 1)]
+                                  [|x| (* x 2)]))
+          '[|#!rest gensymed-var1|
+            ([|x| (/ x 13)]
+             ([|x| (+ x 1)]
+              (apply [|x| (* x 2)]
+                     gensymed-var1)))])
+  }
+;;; \end{code}
+;;;
+
+;;; ``macroexpand-1'' expands the unevaluated code passed to the
+;;; macro into the new form, which the compiler would have then compiled
+;;; if ``macroexpand-1'' had not been there.  But, how should ``gensyms'' be
+;;; handled, since by definition it creates symbols which cannot be entered
+;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
+;;; is overridden into a procedure
+;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
+;;; call during a macroexpansion generates a new, unique symbol.  Although this symbol
+;;; may clash with symbols in the expanded code, this is not a problem, as these
+;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
+;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
+
+
+;;; \newpage
+;;; \section{lang\#aif}
+;;;
+;;; \index{lang\#aif}
+;;; \begin{code}
+{define-macro
+  "lang#"
+  aif
+  [|bool body|
+   `{let ((it ,bool))
+      (if it
+          [,body]
+          [#f])}]
+;;; \end{code}
+
+;;; \cite[p. 191]{onlisp}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? {aif (+ 5 10) (* 2 it)}
+          30)
+  (equal? {aif #f (* 2 it)}
+          #f)
+  (equal? (macroexpand-1 (aif (+ 5 10)
+                              (* 2 it)))
+          '{let ((it (+ 5 10)))
+             (if it
+                 [(* 2 it)]
+                 [#f])})
+
+  }
+;;; \end{code}
+;;;
+
+;;; \newpage
+;;; \section{lang\#with-gensyms}
+;;;   Utility for macros to minimize repetitive calls to ``gensym''.
+;;;
+;;; \index{lang\#with-gensyms"}
+;;; \begin{code}
+{define-macro
+  "lang#"
+  with-gensyms
+  [|symbols #!rest body|
+   `{let ,(map [|symbol| `(,symbol {gensym})]
+               symbols)
+      ,@body}]
+;;; \end{code}
+
+;;; \cite[p. 145]{onlisp}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? (macroexpand-1 (with-gensyms (foo bar baz)
+                                       `{begin
+                                          (pp ,foo)
+                                          (pp ,bar)
+                                          (pp ,baz)}))
+          '{let ((foo (gensym))
+                 (bar (gensym))
+                 (baz (gensym)))
+             `{begin
+                (pp ,foo)
+                (pp ,bar)
+                (pp ,baz)}})
+  }
+;;; \end{code}
+;;;
+
+;;; \newpage
+;;; \section{lang\#Y}
+;;; \index{lang\#Y}
+;;;
+;;; The Y combinator allows a programmer to create a procedure which references
+;;; itself without needing to define a variable.  There is never an actual need
+;;; to use this in real code.  Read \cite[p. 149-172]{littleschemer} for an excellent
+;;; derivation of this combinator.
+;;;
+;;;
+;;; \begin{code}
+{define
+  "lang#"
+  Y
+  [|le|
+   ([|f| (f f)]
+    [|f| (le [|x| ((f f) x)])])]
+;;; \end{code}
+;;; \section*{Test}
+;;; \begin{code}
+  (satisfies?
+   (Y [|fact|
+       [|n|
+	(if (= n 0)
+	    [1]
+	    [(* n (fact (- n 1)))])]])
+   `(
+     (0 1)
+     (1 1)
+     (2 2)
+     (3 6)
+     (4 24)
+     ))}
+;;; \end{code}
 
 
 ;;; \newpage

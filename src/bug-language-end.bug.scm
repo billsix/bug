@@ -98,6 +98,12 @@
 ;;;  \emph{Paradigms of Artificial Intelligence Programming: Case Studies in Common Lisp},
 ;;;  San Francisco, CA
 ;;;  1992.
+;;;\bibitem[Pierce02]{tapl}
+;;;  Pierce, Benjamin C.
+;;;  \emph{Types and Programming Languages},
+;;;  The MIT Press
+;;;  Cambridge, Massachusetts
+;;;  2002.
 ;;;\bibitem[Steele90]{cl}
 ;;;  Steele Jr, Guy L.
 ;;;  \emph{Common Lisp the Language},
