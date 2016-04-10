@@ -226,7 +226,8 @@
  {at-both-times
   {##define-macro if
     [|pred ifTrue ifFalse|
-     ;; check that the person is not using lang#if as if it were ##if
+     ;; check that the person is not using lang#if as if
+     ;; it were ##if
      (##if (or (not (list? ifTrue))
                (not (list? ifFalse))
                (not (equal? 'lambda (car ifTrue)))
@@ -234,13 +235,17 @@
            (error "lang#if requires two lambda expressions")
            {let ((single-expression-in-lambda?
                   [|lst| (equal? 3 (length lst))]))
-             ;; (single-expression-in-lambda? [5]) => true
-             ;; (single-expression-in-lambda? [(pp 4) 6]) => false
+             ;; (single-expression-in-lambda? [5])
+             ;;   => true
+             ;; (single-expression-in-lambda? [(pp 4) 6])
+             ;;   => false
              `{##if ,pred
-                    ,{##if (single-expression-in-lambda? ifTrue)
+                    ,{##if (single-expression-in-lambda?
+                            ifTrue)
                            (caddr ifTrue)
                            `{begin ,@(cddr ifTrue)}}
-                    ,{##if (single-expression-in-lambda? ifFalse)
+                    ,{##if (single-expression-in-lambda?
+                            ifFalse)
                            (caddr ifFalse)
                            `{begin ,@(cddr ifFalse)}}}})]}})
 ;;; \end{code}
@@ -274,7 +279,9 @@
         ,definition
         (if (and ,@tests)
             [',definition]
-            [(for-each pp (list "Test Failed" ',tests ',definition))
+            [(for-each pp (list "Test Failed"
+                                ',tests
+                                ',definition))
              (error "Tests Failed")])})]})
 ;;; \end{code}
 

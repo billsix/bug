@@ -242,7 +242,7 @@
 ;;; Libbug provides procedures for list processing, streams,
 ;;; control structures,
 ;;; general-purpose evaluation at compile-time, a
-;;; compile-time test framework (in only 9 lines of code!), and a Scheme preprocessor to
+;;; compile-time test framework (in only 11 lines of code!), and a Scheme preprocessor to
 ;;; provide a lambda literal syntax.  Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
@@ -503,17 +503,17 @@
 ;;; see the drastic difference in the generated code.
 ;;;
 ;;; \begin{examplecode}
-;;; 400850:       be 06 00 00 00          mov    $0x6,%esi
-;;; 400855:       bf c0 0d 60 00          mov    $0x600dc0,%edi
-;;; 40085a:       e8 41 fe ff ff          callq  4006a0 <_ZNSolsEi@plt>
+;;; 400850: be 06 00 00 00   mov    $0x6,%esi
+;;; 400855: bf c0 0d 60 00   mov    $0x600dc0,%edi
+;;; 40085a: e8 41 fe ff ff   callq  4006a0 <_ZNSolsEi@plt>
 ;;; .......
 ;;; .......
 ;;; .......
-;;; 40086c:       bf 03 00 00 00          mov    $0x3,%edi
-;;; 400871:       e8 a0 ff ff ff          callq  400816 <_Z4facti>
-;;; 400876:       89 c6                   mov    %eax,%esi
-;;; 400878:       bf c0 0d 60 00          mov    $0x600dc0,%edi
-;;; 40087d:       e8 1e fe ff ff          callq  4006a0 <_ZNSolsEi@plt>
+;;; 40086c: bf 03 00 00 00   mov    $0x3,%edi
+;;; 400871: e8 a0 ff ff ff   callq  400816 <_Z4facti>
+;;; 400876: 89 c6            mov    %eax,%esi
+;;; 400878: bf c0 0d 60 00   mov    $0x600dc0,%edi
+;;; 40087d: e8 1e fe ff ff   callq  4006a0 <_ZNSolsEi@plt>
 ;;; \end{examplecode}
 
 ;;; The instructions at memory locations 400850 through 40085a correspond to the
@@ -882,7 +882,9 @@
 {define
   "lang#"
   numeric-if
-  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
+  [|expr #!key (ifPositive noop)
+               (ifZero noop)
+               (ifNegative noop)|
    {cond ((> expr 0) (ifPositive))
          ((= expr 0) (ifZero))
          (else (ifNegative))}]
@@ -1333,6 +1335,67 @@
 ;;; \end{code}
 ;;;
 
+
+;;; \newpage
+;;; \section{list\#scan-left}
+;;;   Like fold-left, but every intermediate value
+;;;   of fold-left's accumulator is put onto the resulting list
+;;;
+;;; \index{list\#scan-left}
+;;; \begin{code}
+{define
+  "list#"
+  scan-left
+  [|fn initial lst|
+   {let ((acc-list (list initial)))
+     {let scan-left ((acc initial)
+                     (last-cell acc-list)
+                     (lst lst))
+       (if (null? lst)
+           [acc-list]
+           [{let ((newacc (fn acc
+                              (car lst))))
+              (scan-left newacc
+                         {begin
+                           (set-cdr! last-cell (list newacc))
+                           (cdr last-cell)}
+                         (cdr lst))}])}}]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  ;; (calulating factorials via scan-left
+  (satisfies?
+   [|l| (scan-left * 1 l)]
+   '(
+     (() (1))
+     ((2) (1 2))
+     ((2 3) (1 2 6))
+     ((2 3 4) (1 2 6 24))
+     ((2 3 4 5 ) (1 2 6 24 120))
+     ))
+;;; \end{code}
+;;; \begin{code}
+  (satisfies?
+   [|l| (scan-left + 5 l)]
+   '(
+     (() (5))
+     ((1) (5 6))
+     ((1 2) (5 6 8))
+     ((1 2 3 4 5 6) (5 6 8 11 15 20 26)
+     )))
+;;; \end{code}
+;;; \begin{code}
+  (satisfies?
+   [|l| (scan-left - 5 l)]
+   '(
+     (() (5))
+     ((1) (5 4))
+     ((1 2) (5 4 2))
+     ((1 2 3 4 5 6) (5 4 2 -1 -5 -10 -16))
+     ))
+  }
+;;; \end{code}
+
 ;;; \newpage
 ;;; \section{list\#append!}
 ;;;   Like append, but recycles the last cons cell, so it's
@@ -1366,41 +1429,6 @@
     (not (equal? '(1 2 3) a))}
   }
 ;;; \end{code}
-
-;;; \newpage
-;;; \section{list\#scan-left}
-;;;   Like fold-left, but every intermediate value
-;;;   of fold-left's accumulator is put onto the resulting list
-;;;
-;;; \index{list\#scan-left}
-;;; \begin{code}
-{define
-  "list#"
-  scan-left
-  [|fn initial lst|
-   {let scan-left ((acc initial) (acc-list (list initial)) (lst lst))
-     (if (null? lst)
-         [acc-list]
-         [{let ((newacc (fn acc
-                            (car lst))))
-            (scan-left newacc
-                       (append! acc-list (list newacc))
-                       (cdr lst))}])}]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  ;; (calulating factorials via scan-left
-  (satisfies?
-   [|l| (scan-left * 1 l)]
-   '(
-     (() (1))
-     ((2) (1 2))
-     ((2 3) (1 2 6))
-     ((2 3 4) (1 2 6 24))
-     ((2 3 4 5 ) (1 2 6 24 120))
-     ))}
-;;; \end{code}
-
 
 
 ;;; \newpage
@@ -1669,11 +1697,10 @@
        [{let permutations ((lst lst))
           (if (null? lst)
               [(list '())]
-              [(flatmap
-                [|x|
-                 (map [|y| (cons x y)]
-                      (permutations (remove x lst)))]
-                lst)])}])]
+              [(flatmap [|x| (map [|y| (cons x y)]
+                                  (permutations
+                                   (remove x lst)))]
+                        lst)])}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1975,7 +2002,8 @@
                        (if (null? l)
                            ['()]
                            [(stream-cons (car l)
-                                         (list->stream (cdr l)))])})])]
+                                         (list->stream
+                                          (cdr l)))])})])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2261,6 +2289,8 @@
        [{case (car exp)
           ((car) `{set-car! ,@(cdr exp) ,val})
           ((cdr) `{set-cdr! ,@(cdr exp) ,val})
+;;; \end{code}
+;;; \begin{code}
           ((caar) `{setf! (car (car ,@(cdr exp))) ,val})
           ((cadr) `{setf! (car (cdr ,@(cdr exp))) ,val})
           ((cdar) `{setf! (cdr (car ,@(cdr exp))) ,val})
@@ -2289,6 +2319,8 @@
           ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
           ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
           ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
+;;; \end{code}
+;;; \begin{code}
           ;; TODO - handle other atypical cases
           (else `(,(symbol-append (car exp) '-set!)
                   ,@(cdr exp)
@@ -2459,4 +2491,3 @@
 
 ;;; \footnote{defined in section ~\ref{sec:closefiles}}
 ;;;
-
