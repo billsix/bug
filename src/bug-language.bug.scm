@@ -286,6 +286,22 @@
 ;;; \end{code}
 
 
+;;; \section{libbug\#define}
+;;; Function definitions will all have a namespace, name, body,
+;;; and an optional suite of tests
+;;;
+;;; \label{sec:libbugdefine}
+;;; \index{libbug\#define}
+;;; \begin{code}
+{##define-macro
+  libbug#define
+  [|namespace name body #!rest tests|
+   `{begin
+      {libbug#namespace (,namespace ,name)}
+      {with-tests
+       {##define ,name ,body}
+       ,@tests}}]}
+;;; \end{code}
 
 ;;; \section{libbug\#define-macro}
 
@@ -303,12 +319,14 @@
 ;;; \begin{code}
 {at-compile-time
  {begin
-   {##include "config.scm"}
+   (##include "config.scm")
    {##define bug-configuration#libbugsharp
      (string-append
       bug-configuration#prefix
       "/include/bug/libbug#.scm")}}}
 ;;; \end{code}
+
+
 
 
 ;;; \label{sec:libbugdefinemacro}
@@ -338,14 +356,14 @@
           ,name
           (lambda ,(cadr lambda-value)
             ,(list 'quasiquote
-                   `(##let ()
-                      {##include "~~lib/gambit#.scm"}
-                      {##include ,bug-configuration#libbugsharp}
+                   `{##let ()
+                      (##include "~~lib/gambit#.scm")
+                      (##include ,bug-configuration#libbugsharp)
                       ,(if (equal? 'quasiquote
                                    (caaddr lambda-value))
                            [(car (cdaddr lambda-value))]
                            [(append (list 'unquote)
-                                    (cddr lambda-value))]))))}}
+                                    (cddr lambda-value))])}))}}
 ;;; \end{code}
 
 
@@ -493,19 +511,3 @@
 
 
 
-;;; \section{libbug\#define}
-;;; Function definitions will all have a namespace, name, body,
-;;; and an optional suite of tests
-;;;
-;;; \label{sec:libbugdefine}
-;;; \index{libbug\#define}
-;;; \begin{code}
-{##define-macro
-  libbug#define
-  [|namespace name body #!rest tests|
-   `{begin
-      {libbug#namespace (,namespace ,name)}
-      {with-tests
-       {##define ,name ,body}
-       ,@tests}}]}
-;;; \end{code}

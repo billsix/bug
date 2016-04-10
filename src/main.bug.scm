@@ -2020,6 +2020,29 @@
 ;;; \end{code}
 
 ;;; \newpage
+;;; \section{stream\#stream-\textgreater list}
+;;; Converts a stream into a list
+;;;
+;;; \index{stream\#stream-\textgreater list}
+;;; \begin{code}
+{define
+  "stream#"
+  stream->list
+  [|s|
+   (if (null? s)
+       ['()]
+       [(cons (stream-car s)
+              (stream->list
+               (stream-cdr s)))])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? '(1 2 3) (stream->list (stream#list->stream '(1 2 3))))
+  }
+;;; \end{code}
+
+
+;;; \newpage
 ;;; \section{stream\#stream-ref}
 ;;; The analogous procedure of list-ref
 ;;;
@@ -2056,6 +2079,72 @@
              'out)}}}
 ;;; \end{code}
 ;;;
+
+;;; \newpage
+;;; \section{stream\#stream-map}
+;;; The analogous procedure of \#\#map.
+;;;
+;;; \index{stream\#stream-map}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-map
+  [|f #!rest s|
+   {let stream-map ((s s))
+     (if (any? (map null? s))
+         ['()]
+         [(stream-cons (apply f
+                              (map stream-car s))
+                       (stream-map (map stream-cdr s)))])}]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? '(6 5 4 3 2)
+          (stream->list
+           (stream-map [|x| (+ x 1)]
+                       (list->stream '(5 4 3 2 1)))))
+  (equal? '(6 5 4 3 2)
+          (stream->list
+           (stream-map [|x y| (+ x y)]
+                       (list->stream '(5 4 3 2 1))
+                       (list->stream '(1 1 1 1 1)))))
+  }
+
+;;; \end{code}
+;;;
+
+;;; \newpage
+;;; \section{stream\#stream-filter}
+;;; The analogous procedure of list\#filter.
+;;;
+;;; \index{stream\#stream-filter}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-filter
+  [|p? s|
+   {let stream-filter ((s s))
+     (if (null? s)
+         ['()]
+         [{let ((first (stream-car s)))
+            (if (p? first)
+                [(stream-cons first
+                              (stream-filter (stream-cdr s)))]
+                [(stream-filter (stream-cdr s))])}])}]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? '(2 1)
+          (stream->list
+           (stream-filter [|x| (not (= 4 x))]
+                          (list->stream '(2 4 1 4)))))
+  }
+
+;;; \end{code}
+;;;
+
 
 
 ;;; \newpage
