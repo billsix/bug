@@ -2167,6 +2167,30 @@
 ;;; \end{code}
 ;;;
 
+;;; \newpage
+;;; \section{stream\#stream-enumerate-interval}
+;;; \index{stream\#stream-enumerate-interval}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-enumerate-interval
+  [|low high #!key (step 1)|
+   (if (> low high)
+       ['()]
+       [(stream-cons low
+                     (stream-enumerate-interval (+ low step)
+                                                high
+                                                step: step))])]
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? (stream->list
+           (stream-enumerate-interval 1 10))
+          '(1 2 3 4 5 6 7 8 9 10))
+  (equal? (stream->list
+           (stream-enumerate-interval 1 10 step: 2))
+          '(1 3 5 7 9))}
+;;; \end{code}
 
 
 ;;; \newpage
