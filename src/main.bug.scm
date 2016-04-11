@@ -140,16 +140,16 @@
 ;;;{define
 ;;; "list#"
 ;;; permutations
-;;; [|lst|
-;;;  (if (null? lst)
+;;; [|l|
+;;;  (if (null? l)
 ;;;      ['()]
-;;;      [{let permutations ((lst lst))
-;;;        (if (null? lst)
+;;;      [{let permutations ((l l))
+;;;        (if (null? l)
 ;;;          [(list '())]
 ;;;          [(flatmap [|x|
 ;;;                     (map [|y| (cons x y)]
-;;;                          (permutations (remove x lst)))]
-;;;                    lst)])}])]
+;;;                          (permutations (remove x l)))]
+;;;                    l)])}])]
 ;;; \end{examplecode}
 ;;;
 ;;; So what does the code do?  How did the author intend for it to be used?
@@ -222,9 +222,7 @@
 ;;; slow down the program at start up.  Fortunately, the
 ;;; answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
 ;;; that certain code should be interpreted by the compiler instead of being
-;;; compiled\footnote{Which is why this book is
-;;; called ``Computation at Compile-Time'' instead of ``Testing
-;;; at Compile-Time''}.  Lisp implementations such as Gambit are particularly well
+;;; compiled.  Lisp implementations such as Gambit are particularly well
 ;;; suited for this style of programming because unevaluated Lisp code is
 ;;; specified using a data structure of Lisp; because the compiler
 ;;; is an interpreter capable of being augmented with the
@@ -326,7 +324,7 @@
 ;;; \section{Getting the Source Code}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug.
 ;;;  The Scheme files can produce the libbug library, as well as this book.
-;;;;  Currently, the code works on various distributions of Linux, and on
+;;;  Currently, the code works on various distributions of Linux, and on
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
 ;;; You will need a C compiler, such as GCC,
@@ -735,7 +733,7 @@
 ;;; the ``\textbar''s.
 ;;; \end{itemize}
 
-;;; \subsection*{Test}
+;;; \subsection*{Tests}
 
 ;;; libbug\#define can take more than one test as parameters.
 ;;;
@@ -757,12 +755,12 @@
 {define
   "list#"
   all?
-  [|lst|
-   (if (null? lst)
+  [|l|
+   (if (null? l)
        [#t]
-       [(if (not (car lst))
+       [(if (not (car l))
             [#f]
-            [(all? (cdr lst))])])]
+            [(all? (cdr l))])])]
 ;;; \end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 5, if, which is currently namespaced to lang\#if\footnote{
@@ -843,7 +841,6 @@
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
 
-;;; \newpage
 ;;; \section{lang\#while}
 ;;;
 ;;; \index{lang\#while}
@@ -1014,7 +1011,7 @@
   }
 ;;; \end{code}
 
-;;; For an thorough description of ``equal?'' vs ``eq?'', see \cite[p. 122-129]{schemeprogramminglanguage}.
+;;; For a thorough description of ``equal?'' vs ``eq?'', see \cite[p. 122-129]{schemeprogramminglanguage}.
 
 ;;; \newpage
 ;;; \section{list\#proper?}
@@ -1059,10 +1056,10 @@
 {define
   "list#"
   first
-  [|lst #!key (onNull noop)|
-   (if (null? lst)
+  [|l #!key (onNull noop)|
+   (if (null? l)
        [(onNull)]
-       [(car lst)])]
+       [(car l)])]
 ;;; \end{code}
 
 ;;; \cite[p. 59]{ss}
@@ -1092,10 +1089,10 @@
 {define
   "list#"
   but-first
-  [|lst #!key (onNull noop)|
-   (if (null? lst)
+  [|l #!key (onNull noop)|
+   (if (null? l)
        [(onNull)]
-       [(cdr lst)])]
+       [(cdr l)])]
 ;;; \end{code}
 
 ;;; \cite[p. 59]{ss}
@@ -1123,13 +1120,13 @@
 {define
   "list#"
   last
-  [|lst #!key (onNull noop)|
-   (if (null? lst)
+  [|l #!key (onNull noop)|
+   (if (null? l)
        [(onNull)]
-       [{let last ((lst lst))
-          (if (null? (cdr lst))
-              [(car lst)]
-              [(last (cdr lst))])}])]
+       [{let last ((l l))
+          (if (null? (cdr l))
+              [(car l)]
+              [(last (cdr l))])}])]
 ;;; \end{code}
 
 ;;; \cite[p. 59]{ss}
@@ -1159,14 +1156,14 @@
 {define
   "list#"
   but-last
-  [|lst #!key (onNull noop)|
-   (if (null? lst)
+  [|l #!key (onNull noop)|
+   (if (null? l)
        [(onNull)]
-       [{let but-last ((lst lst))
-          (if (null? (cdr lst))
+       [{let but-last ((l l))
+          (if (null? (cdr l))
               ['()]
-              [(cons (car lst)
-                     (but-last (cdr lst)))])}])]
+              [(cons (car l)
+                     (but-last (cdr l)))])}])]
 ;;; \end{code}
 
 ;;; \cite[p. 59]{ss}
@@ -1198,14 +1195,14 @@
 {define
   "list#"
   filter
-  [|p? lst|
-   {let filter ((lst lst))
-     (if (null? lst)
+  [|p? l|
+   {let filter ((l l))
+     (if (null? l)
          ['()]
-         [{let ((first (car lst)))
+         [{let ((first (car l)))
             (if (p? first)
-                [(cons first (filter (cdr lst)))]
-                [(filter (cdr lst))])}])}]
+                [(cons first (filter (cdr l)))]
+                [(filter (cdr l))])}])}]
 ;;; \end{code}
 
 ;;; \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
@@ -1234,9 +1231,9 @@
 {define
   "list#"
   remove
-  [|x lst|
+  [|x l|
    (filter [|y| (not (equal? x y))]
-           lst)]
+           l)]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1257,13 +1254,13 @@
 {define
   "list#"
   fold-left
-  [|fn initial lst|
-   {let fold-left ((acc initial) (lst lst))
-     (if (null? lst)
+  [|fn acc l|
+   {let fold-left ((acc acc) (l l))
+     (if (null? l)
          [acc]
          [(fold-left (fn acc
-                         (car lst))
-                     (cdr lst))])}]
+                         (car l))
+                     (cdr l))])}]
 ;;; \end{code}
 
 ;;; \cite[p. 121]{sicp}
@@ -1305,12 +1302,12 @@
 {define
   "list#"
   fold-right
-  [|fn initial lst|
-   {let fold-right ((acc initial) (lst lst))
-     (if (null? lst)
+  [|fn acc l|
+   {let fold-right ((acc acc) (l l))
+     (if (null? l)
          [acc]
-         [(fn (car lst)
-              (fold-right acc (cdr lst)))])}]
+         [(fn (car l)
+              (fold-right acc (cdr l)))])}]
 ;;; \end{code}
 
 ;;; \cite[p. 116 (named ``accumulate'')]{sicp}
@@ -1324,6 +1321,8 @@
      ((1 2) 8)
      ((1 2 3 4 5 6) 26)
      ))
+;;; \end{code}
+;;; \begin{code}
   (satisfies?
    [|l| (fold-right - 5 l)]
    '(
@@ -1346,20 +1345,20 @@
 {define
   "list#"
   scan-left
-  [|fn initial lst|
-   {let ((acc-list (list initial)))
-     {let scan-left ((acc initial)
+  [|fn acc l|
+   {let ((acc-list (list acc)))
+     {let scan-left ((acc acc)
                      (last-cell acc-list)
-                     (lst lst))
-       (if (null? lst)
+                     (l l))
+       (if (null? l)
            [acc-list]
            [{let ((newacc (fn acc
-                              (car lst))))
+                              (car l))))
               (scan-left newacc
                          {begin
                            (set-cdr! last-cell (list newacc))
                            (cdr last-cell)}
-                         (cdr lst))}])}}]
+                         (cdr l))}])}}]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1406,14 +1405,14 @@
 {define
   "list#"
   append!
-  [|lst x|
-   (if (null? lst)
+  [|l x|
+   (if (null? l)
        [x]
-       [{let ((head lst))
-          {let append! ((lst lst))
-            (if (null? (cdr lst))
-                [(set-cdr! lst x)]
-                [(append! (cdr lst))])}
+       [{let ((head l))
+          {let append! ((l l))
+            (if (null? (cdr l))
+                [(set-cdr! l x)]
+                [(append! (cdr l))])}
           head}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
@@ -1438,8 +1437,8 @@
 {define
   "list#"
   flatmap
-  [|fn lst|
-   (fold-left append! '() (map fn lst))]
+  [|fn l|
+   (fold-left append! '() (map fn l))]
 ;;; \end{code}
 
 ;;; \cite[p. 123]{sicp}
@@ -1469,12 +1468,12 @@
 {define
   "list#"
   take
-  [|n lst|
-   (if (or (null? lst) (= n 0))
+  [|n l|
+   (if (or (null? l) (= n 0))
        ['()]
-       [(cons (car lst)
+       [(cons (car l)
               (take (- n 1)
-                    (cdr lst)))])]
+                    (cdr l)))])]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -1497,12 +1496,12 @@
 {define
   "list#"
   take-while
-  [|p? lst|
-   {let take-while ((lst lst))
-     (if (or (null? lst) ((complement p?) (car lst)))
+  [|p? l|
+   {let take-while ((l l))
+     (if (or (null? l) ((complement p?) (car l)))
          ['()]
-         [(cons (car lst)
-                (take-while (cdr lst)))])}]
+         [(cons (car l)
+                (take-while (cdr l)))])}]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -1526,11 +1525,11 @@
 {define
   "list#"
   drop
-  [|n lst|
-   (if (or (null? lst) (= n 0))
-       [lst]
+  [|n l|
+   (if (or (null? l) (= n 0))
+       [l]
        [(drop (- n 1)
-              (cdr lst))])]
+              (cdr l))])]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -1552,13 +1551,13 @@
 {define
   "list#"
   drop-while
-  [|p? lst|
-   {let drop-while ((lst lst))
-     (if (null? lst)
+  [|p? l|
+   {let drop-while ((l l))
+     (if (null? l)
          ['()]
-         [(if ((complement p?) (car lst))
-              [lst]
-              [(drop-while (cdr lst))])])}]
+         [(if ((complement p?) (car l))
+              [l]
+              [(drop-while (cdr l))])])}]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -1607,12 +1606,12 @@
 {define
   "list#"
   any?
-  [|lst|
-   (if (null? lst)
+  [|l|
+   (if (null? l)
        [#f]
-       [(if (car lst)
+       [(if (car l)
             [#t]
-            [(any? (cdr lst))])])]
+            [(any? (cdr l))])])]
 ;;; \end{code}
 ;;; \subsection*{Test}
 ;;; \begin{code}
@@ -1691,16 +1690,15 @@
 {define
   "list#"
   permutations
-  [|lst|
-   (if (null? lst)
+  [|l|
+   (if (null? l)
        ['()]
-       [{let permutations ((lst lst))
-          (if (null? lst)
+       [{let permutations ((l l))
+          (if (null? l)
               [(list '())]
               [(flatmap [|x| (map [|y| (cons x y)]
-                                  (permutations
-                                   (remove x lst)))]
-                        lst)])}])]
+                                  (permutations (remove x l)))]
+                        l)])}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1733,10 +1731,10 @@
 {define
   "list#"
   sublists
-  [|lst|
-   (if (null? lst)
+  [|l|
+   (if (null? l)
        ['()]
-       [(cons lst (sublists (cdr lst)))])]
+       [(cons l (sublists (cdr l)))])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1759,16 +1757,16 @@
 {define
   "list#"
   ref-of
-  [|lst x #!key (onMissing noop)|
-   (if (null? lst)
+  [|l x #!key (onMissing noop)|
+   (if (null? l)
        [(onMissing)]
-       [{let ref-of ((lst lst)
+       [{let ref-of ((l l)
                      (index 0))
-          (if (equal? (car lst) x)
+          (if (equal? (car l) x)
               [index]
-              [(if (null? (cdr lst))
+              [(if (null? (cdr l))
                    [(onMissing)]
-                   [(ref-of (cdr lst) (+ index 1))])])}])]
+                   [(ref-of (cdr l) (+ index 1))])])}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1792,9 +1790,9 @@
      ))
 ;;; \end{code}
 ;;; \begin{code}
-  {let ((lst '(a b c d e f g)))
+  {let ((l '(a b c d e f g)))
     (satisfies?
-     [|x| (list-ref lst (ref-of lst x))]
+     [|x| (list-ref l (ref-of l x))]
      '(
        (a a)
        (b b)
@@ -1817,24 +1815,24 @@
 {define
   "list#"
   partition
-  [|lst pred?|
-   {let partition ((lst lst)
+  [|l pred?|
+   {let partition ((l l)
                    (falseList '())
                    (trueList '()))
-     (if (null? lst)
+     (if (null? l)
          [(list trueList falseList)]
-         [(if (pred? (car lst))
-              [(partition (cdr lst)
+         [(if (pred? (car l))
+              [(partition (cdr l)
                           falseList
-                          (cons (car lst) trueList))]
-              [(partition (cdr lst)
-                          (cons (car lst) falseList)
+                          (cons (car l) trueList))]
+              [(partition (cdr l)
+                          (cons (car l) falseList)
                           trueList)])])}]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
-   [|lst| (partition lst [|x| (<= x 3)])]
+   [|l| (partition l [|x| (<= x 3)])]
    '(
      (() (()
           ()))
@@ -1850,11 +1848,11 @@
 {define
   "list#"
   sort
-  [|lst comparison|
-   (if (null? lst)
+  [|l comparison|
+   (if (null? l)
        ['()]
-       [{let* ((current-node (car lst))
-               (p (partition (cdr lst)
+       [{let* ((current-node (car l))
+               (p (partition (cdr l)
                              [|x| (comparison
                                    x
                                    current-node)]))
@@ -1869,7 +1867,7 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
-   [|lst| (sort lst <)]
+   [|l| (sort l <)]
    '(
      (() ())
      ((1 3 2 5 4 0) (0 1 2 3 4 5))
@@ -1886,10 +1884,10 @@
 {define
   "list#"
   reverse!
-  [|lst|
-   (if (null? lst)
+  [|l|
+   (if (null? l)
        ['()]
-       [{let reverse! ((cons-cell lst) (reversed-list '()))
+       [{let reverse! ((cons-cell l) (reversed-list '()))
           (if (null? (cdr cons-cell))
               [(set-cdr! cons-cell reversed-list)
                cons-cell]
@@ -1927,14 +1925,18 @@
   "stream#"
   stream-cons
   [|a b|
-   `(cons ,a {delay ,b})]
+   (if (or (not (list? b))
+           (not (equal? 'lambda (car b))))
+       [(error "stream#stream-cons requires a lambda in it's \
+                second arg")]
+       [`(cons ,a {delay ,(caddr b)})])]
 ;;; \end{code}
 
 ;;; \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {begin
-    {let ((s {stream-cons 1 2}))
+    {let ((s {stream-cons 1 [2]}))
       {and
        (equal? (car s)
                1)
@@ -1958,7 +1960,7 @@
 ;;; \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s {stream-cons 1 2}))
+  {let ((s {stream-cons 1 [2]}))
     (equal? (stream-car s)
             1)}}
 ;;; \end{code}
@@ -1979,7 +1981,7 @@
 ;;; \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s {stream-cons 1 2}))
+  {let ((s {stream-cons 1 [2]}))
     (equal? (stream-cdr s)
             2)}}
 ;;; \end{code}
@@ -1998,16 +2000,16 @@
    (if (null? l)
        [l]
        [(stream-cons (car l)
-                     {let list->stream ((l (cdr l)))
-                       (if (null? l)
-                           ['()]
-                           [(stream-cons (car l)
-                                         (list->stream
-                                          (cdr l)))])})])]
+                     [{let list->stream ((l (cdr l)))
+                        (if (null? l)
+                            ['()]
+                            [(stream-cons (car l)
+                                          [(list->stream
+                                            (cdr l))])])}])])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((foo (stream#list->stream '(1 2 3))))
+  {let ((foo (list->stream '(1 2 3))))
     {and (equal? 1 (stream-car foo))
          (equal? 2 (stream-car
                     (stream-cdr foo)))
@@ -2037,7 +2039,7 @@
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? '(1 2 3) (stream->list (stream#list->stream '(1 2 3))))
+  (equal? '(1 2 3) (stream->list (list->stream '(1 2 3))))
   }
 ;;; \end{code}
 
@@ -2095,7 +2097,7 @@
          ['()]
          [(stream-cons (apply f
                               (map stream-car s))
-                       (stream-map (map stream-cdr s)))])}]
+                       [(stream-map (map stream-cdr s))])])}]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -2129,8 +2131,9 @@
          ['()]
          [{let ((first (stream-car s)))
             (if (p? first)
-                [(stream-cons first
-                              (stream-filter (stream-cdr s)))]
+                [(stream-cons
+                  first
+                  [(stream-filter (stream-cdr s))])]
                 [(stream-filter (stream-cdr s))])}])}]
 ;;; \end{code}
 

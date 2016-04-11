@@ -131,12 +131,10 @@
      ;;;  Distributed under LGPL 2.1 or Apache 2.0
      (##include \"~~lib/gambit#.scm\")
      (##include \"libbug#.scm\")
-
      {##define-macro at-compile-time
        [|form|
         (eval form)
         `{quote noop}]}
-
      {##define-macro at-both-times
        [|form|
         (eval form)
@@ -358,7 +356,8 @@
             ,(list 'quasiquote
                    `{##let ()
                       (##include "~~lib/gambit#.scm")
-                      (##include ,bug-configuration#libbugsharp)
+                      (##include
+                       ,bug-configuration#libbugsharp)
                       ,(if (equal? 'quasiquote
                                    (caaddr lambda-value))
                            [(car (cdaddr lambda-value))]
@@ -413,13 +412,14 @@
                                           "-expand"))
           (lambda ,(cadr lambda-value)
             {let ((gensym-count 0))
-              {let ((gensym [{begin
-                               {set! gensym-count
-                                     (+ 1 gensym-count)}
-                               (string->symbol
-                                (string-append
-                                 "gensymed-var"
-                                 (number->string gensym-count)))}]))
+              {let ((gensym
+                     [{begin
+                        {set! gensym-count
+                              (+ 1 gensym-count)}
+                        (string->symbol
+                         (string-append
+                          "gensymed-var"
+                          (number->string gensym-count)))}]))
                 (list 'quote ,@(cddr lambda-value))}})}}}
     libbug-macros-file)
    (newline libbug-macros-file)
@@ -445,17 +445,19 @@
         {at-both-times
          ;; TODO - namespace this procedure
          {##define-macro
-           ,(string->symbol (string-append (symbol->string name)
-                                           "-expand"))
+           ,(string->symbol
+             (string-append (symbol->string name)
+                            "-expand"))
            (lambda ,(cadr lambda-value)
              {let ((,gensym-count 0))
-               {let ((gensym [{begin
-                                {set! ,gensym-count
-                                      (+ 1 ,gensym-count)}
-                                (string->symbol
-                                 (string-append
-                                  "gensymed-var"
-                                  (number->string ,gensym-count)))}]))
+               {let ((gensym
+                      [{begin
+                         {set! ,gensym-count
+                               (+ 1 ,gensym-count)}
+                         (string->symbol
+                          (string-append
+                           "gensymed-var"
+                           (number->string ,gensym-count)))}]))
                  (list 'quote ,@(cddr lambda-value))}})}}
 ;;; \end{code}
 
