@@ -2,7 +2,7 @@
 ;;; %All rights reserved
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;;
-;;; \documentclass[twoside,12pt]{book}
+;;; \documentclass[twoside]{book}
 ;;; \pagenumbering{gobble}
 ;;; \usepackage[paperwidth=7.44in, paperheight=9.68in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
 ;;; \usepackage{times}
@@ -172,11 +172,11 @@
 ;;; implementation of a library called ``libbug''\footnote{Bill's Utilities
 ;;; for Gambit}, tests are specified as part of the procedure's definition,
 ;;; and they are executed at compile-time.  Should any test fail the compiler will
-;;; exit in error, much like a type error in a
+;;; exit in error, like a type error in a
 ;;; statically-typed language.  Furthermore,
 ;;; the book you are currently reading
 ;;; is embedded into the source code of libbug; it is generated only upon successful
-;;; compilation of libbug and it couldn't exist if a single test
+;;; compilation of libbug and couldn't exist if a single test
 ;;; failed.
 
 ;;; So where are these tests then? The very alert reader may have noticed
@@ -212,8 +212,8 @@
 ;;; tests are collocated with the procedure definition means that the reader can
 ;;; read the tests without switching between files, perhaps reading the tests
 ;;; before reading the procedure definition.  And the reader
-;;; may not even read the procedure at all if the tests gave them enough information
-;;; to use it successfully.  But should the reader want to understand the procedure, they
+;;; may not even read the procedure at all if the tests gave him enough information
+;;; to use it successfully.  But should the reader want to understand the procedure, he
 ;;; can mentally apply the procedure to the tests to understand it.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
@@ -232,7 +232,6 @@
 ;;;
 ;;; \tableofcontents
 ;;; \break
-;;; \part{Background}
 ;;; \chapter{Introduction}
 ;;; \pagenumbering{arabic}
 ;;; Libbug is Bill's Utilities for Gambit Scheme:  a ``standard library'' of procedures
@@ -249,8 +248,8 @@
 ;;; \section{Prerequisites}
 ;;;
 ;;; The reader is assumed to be somewhat familiar both with Scheme, with Common Lisp-style
-;;; macros, and with recursive design.  If the book proves too difficult for the reader,
-;;; they should first read ``Simply Scheme''
+;;; macros, and with recursive design.  If the book proves too difficult for you,
+;;; read ``Simply Scheme''
 ;;; \cite{ss}\footnote{available on-line for no cost}
 ;;; or ``The Little Schemer'' \cite{littleschemer}.  Reading ``On Lisp''
 ;;; \cite{onlisp}\footnote{available on-line for no cost} is more than sufficient
@@ -262,7 +261,7 @@
 ;;; not necessary to understand the content of this book.
 ;;;
 ;;; \section{Conventions}
-;;; Code which is part of libbug will use the following font, will be outlined and
+;;; Code which is part of libbug will be outlined and
 ;;; will have line numbers on the left.
 ;;;
 ;;; \begin{code}
@@ -270,8 +269,7 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent
-;;; Example code which is not part of libbug will have the same font as other code,
-;;; but will not be outlined nor will have line
+;;; Example code which is not part of libbug not be outlined nor will it have line
 ;;; numbers.
 ;;;
 ;;; \begin{examplecode}
@@ -287,10 +285,10 @@
 ;;;
 ;;; \noindent
 ;;;  means evaluate ``fun'', ``arg1''
-;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2''.
-;;; Standard Scheme semantics. But regular Scheme uses this same notation for all macro applications.
+;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2'';
+;;; standard Scheme semantics. But regular Scheme also uses this same notation for macro applications.
 ;;; As macros transform source code into different source code before compilation, the generated
-;;; code may not follow the standard order of evaluation.  For instance, an argument may be
+;;; code may not follow the standard order of evaluation;  for instance, an argument may be
 ;;; evaluated multiple
 ;;; times in the generated code, causing an unintended side-effect.
 ;;; The inability for the reader to reason about the evaluation semantics of arguments to a macro
@@ -303,8 +301,7 @@
 
 ;;; \noindent
 ;;; is used to denote to
-;;; the reader that the standard evaluation rules do not necessarily apply to
-;;; all arguments.  For instance, in
+;;; the reader that the standard evaluation rules do not necessarily apply.  For instance, in
 
 ;;; \begin{examplecode}
 ;;; {define x 5}
@@ -324,7 +321,7 @@
 ;;; \section{Getting the Source Code}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug.
 ;;;  The Scheme files can produce the libbug library, as well as this book.
-;;;  Currently, the code works on various distributions of Linux, and on
+;;;  Currently the code works on various distributions of Linux, and on
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
 ;;; You will need a C compiler, such as GCC,
@@ -349,7 +346,7 @@
 ;;;      configures the build so that a shared library is created.  If you desire to build
 ;;;      libbug as a static library, substitute ``--disable-shared''.
 ;;;   \item
-;;;      ``--enable-pdf'' means to build this PDF.  To disable the creation of the PDF,
+;;;      ``--enable-pdf'' means to build this book as a PDF.  To disable the creation of the PDF,
 ;;;      substitute ``--enable-pdf=no''.
 ;;; \end{itemize}
 ;;;
@@ -359,7 +356,7 @@
 ;;; by the compiler, but which is absent in the generated machine
 ;;; code.  Examples are provided in well-known languages to illustrate that
 ;;; many compilers are also interpreters for a subset of the language.  This
-;;; chapter is not required to understand the rest of the book, and may be freely
+;;; chapter is not required to understand the rest of the book and may be freely
 ;;; skipped, but it provides a baseline understanding of compile-time computation,
 ;;; so that the reader may contrast these languages' capabilities with libbug's.
 
@@ -373,7 +370,7 @@
 ;;;
 ;;; In practice, if your compiler successfully compiles your code, congratulations!
 ;;; The code is a valid string in the language, and passed any additional constraints
-;;; (e.g. type-checking).  But does all of that language directly generate instructions
+;;; (e.g. type-checking).  But does all of that language correspond to generated instructions
 ;;; in the machine code?  Turns out, no, it does not.
 
 ;;; \section{C}
@@ -406,10 +403,10 @@
 ;;; itself has no representation in the machine code, although the contents
 ;;; of the included file may.
 ;;;
-;;; The second line defines a C macro. It is a procedure for interpretation
+;;; The second line defines a C macro. It is a procedure to be interpreted
 ;;; at compile-time only, which takes a text
 ;;; string as input and transforms it into a new text string as output.
-;;; This expansion happens before the compiler does anything
+;;; This expansion happens before the compiler does much
 ;;; else.  For example, using GCC as a compiler, if you run the C preprocessor
 ;;; ``cpp'' on the above C code, you'll see that
 ;;;
@@ -434,7 +431,7 @@
 ;;;
 ;;; The fourth through tenth line is a function definition, which will be
 ;;; translated into instructions in the generated machine code.  Line 5, however, is language
-;;; to be interpreted by the compiler, referencing a variable defined
+;;; to be interpreted by the compiler, referencing a variable which is defined
 ;;; only during compilation, to detemine whether or not line 6 should be
 ;;; compiled.
 ;;;
@@ -442,7 +439,7 @@
 ;;;
 ;;; C++ inherits C's macros, but with the additional introduction
 ;;; of templates, C++'s compile time language
-;;; incidently became Turing complete.  This theoretically means that
+;;; incidentally became Turing complete.  This means that
 ;;; anything that can be
 ;;; calculated by a computer can be calculated using template expansion
 ;;; at compile time.  Fun fact, but general purpose computation using template
@@ -474,8 +471,14 @@
 ;;; /*Line19*/  }
 ;;; \end{examplecode}
 
-;;; Lines 10-13 are the run-time calculation of ``fact''.  Lines 2-9 are the
-;;; template code for the compile-time calculation of ``factorial''.
+;;; \begin{itemize}
+;;;  \item
+;;;    Lines 10-13 are the run-time calculation of ``fact'', identical
+;;;    to the previous version in C.
+;;;  \item
+;;;   Lines 2-9 are the
+;;;   template code for the compile-time calculation of ``factorial''.
+;;;   \item
 ;;; On line 16, ``factorial\textless3\textgreater::value'' is an
 ;;; instruction to be interpreted
 ;;; by the compiler via template expansions.  Template expansions
@@ -494,10 +497,11 @@
 ;;; case of ``factorial\textless n\textgreater'', template expansion expands to the most
 ;;; specific case first.  So the compiler will terminate.)
 ;;;
+;;;   \item
 ;;; On line 17, a run-time call to ``fact'', defined on line 10, is declared.
+;;; \end{itemize}
 ;;;
-;;; We can verify that the stated behavior is true by disassembling the machine code.
-;;; By disassembling the machine code using ``objdump -D'', we can
+;;; Using ``objdump -D'', we can
 ;;; see the drastic difference in the generated code.
 ;;;
 ;;; \begin{examplecode}
@@ -514,22 +518,25 @@
 ;;; 40087d: e8 1e fe ff ff   callq  4006a0 <_ZNSolsEi@plt>
 ;;; \end{examplecode}
 
+;;; \begin{itemize}
+;;;   \item
 ;;; The instructions at memory locations 400850 through 40085a correspond to the
-;;; printing out of the compile-time expanded call to factorial\textless3\textgreater.
+;;; printing of the compile-time expanded call to factorial\textless3\textgreater.
 ;;; The number 6 is loaded into the esi register; then the second
 ;;; two lines call the printing routine\footnote{at least I assume, because
 ;;; I don't completely understand how C++ name-mangling works}.
-
+;;;   \item
 ;;; The instructions at locations 40086c through 40087d correspond to the
-;;; printing out of the run-time calculation to fact(3).  The number 3
+;;; printing of the run-time calculation to fact(3).  The number 3
 ;;; is loaded into the edi register, fact is invoked, the result of
 ;;; calling fact is moved from the eax register to the esi register, and then
 ;;; printing routine is called.
 ;;;
+;;; \end{itemize}
 ;;; The compile-time computation worked!
 
 ;;; \section{libbug}
-;;; With libbug, the following is how you'd define factorial, pretty-print
+;;; With libbug, the following is how you'd define factorial, and the pretty-print
 ;;; the factorial of 3, both computed at compile-time and computed at run-time.
 ;;;
 ;;; \begin{examplecode}
@@ -545,16 +552,17 @@
 ;;;
 ;;; \begin{itemize}
 ;;;   \item
-;;;      On Line 1, the ``at-both-times'' macro is invoked, taking unevaluated code as
+;;;      On line 1, the ``at-both-times'' macro is invoked, taking the unevaluated
+;;;      definition of ``fact'' as
 ;;;      as argument, interpreting it at compile-time, and compiling it for use at runtime.
 ;;;   \item
 ;;;      On lines 2-5, the definition of the ``fact''.
 ;;;   \item
-;;;      On lines 7, ``at-compile-time-expand'' is a macro which takes unevaluated code,
+;;;      On line 7, ``at-compile-time-expand'' is a macro which takes unevaluated code,
 ;;;      evaluates it to some result which is then compiled by the compiler.  So the code
 ;;;      will expand at compile time to ``(pp 6)''.
 ;;;   \item
-;;;      On lines 8, the run-time calculation of ``(fact 3)''.
+;;;      On line 8, the run-time calculation of ``(fact 3)''.
 ;;; \end{itemize}
 ;;;
 ;;; By compiling the Scheme source to the ``gvm'' intermediate
@@ -589,7 +597,7 @@
 
 
 ;;;
-;;; So this has been an moderately interesting excercise, but why is
+;;; So this has been an moderately interesting exercise, but why is
 ;;; this important?
 ;;; This chapter demonstrates that many compilers are also interpreters of
 ;;; a limited langugage,
@@ -604,7 +612,7 @@
 ;;; language as the run-time, complete with state and IO.
 
 ;;;
-;;; When I first started on libbug, I only wanted a way to collocate
+;;; When I first started creating libbug, I only wanted to collocate
 ;;; tests with definitions, to evaluate the tests at compile time, and to error out
 ;;; of compilation
 ;;; if a test failed.  Only later did I realize that compile-time evaluation
@@ -618,11 +626,12 @@
 ;;; I don't understand all of the implications of having a compiler augment itself
 ;;; with the code its currently compiling.   ``Come along and ride on a fantastic voyage.''
 
-;;; \part{The Implementation of Libbug}
 ;;; \chapter{General Procedures}
-;;;
-;;; This part defines a standard library of Scheme procedures and
-;;; macros\footnote{The code within this part is all found in
+;;;  \label{sec:beginninglibbug}
+
+;;; Now begins the definition of a standard library of Scheme procedures and
+;;; macros\footnote{The code within chapters~\ref{sec:beginninglibbug}
+;;; to~\ref{sec:endinglibbug} is found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.
 ;;;
@@ -630,7 +639,7 @@
 ;;; Libbug defines extensions to the Scheme language, implemented via
 ;;; macros.  They are ``libbug\#define'', and ``libbug\#define-macro''.
 ;;; As they are namespaced to ``libbug'', they are not compiled into the library
-;;; or other output files; they are meant for private use within the implementation
+;;; or other output files; such procedures are meant for private use within the implementation
 ;;; of libbug.  They are implemented in Chapter~\ref{sec:buglang}, in file
 ;;; ``bug-language.bug.scm''\footnote{Although
 ;;; the filename is ``bug-language.bug.scm'', ``bug-language.scm'' is imported.  This
@@ -638,7 +647,6 @@
 ;;; Scheme file, with a different filename}, which will now
 ;;; be imported.  How to use these procedure-defining procedures will be explained
 ;;; incrementally.
-;;; chapter
 ;;;
 ;;; \begin{code}
 (include "bug-language.scm")
@@ -667,7 +675,7 @@
 ;;;   \item On line 3, the variable name, which will be declared in the
 ;;;         namespace defined on line 2.
 ;;;   \item On line 4, the lambda literal to be stored into the variable.
-;;;         libbug includes a Scheme preprocessor ``bug-gscpp'',
+;;;         Libbug includes a Scheme preprocessor ``bug-gscpp'',
 ;;;         which expands lambda literals
 ;;;         into lambdas.  In this case
 ;;;
@@ -694,7 +702,7 @@
 ;;; test which will be evaluated at compile-time, and should the test fail,
 ;;; the build process will fail and no shared library, nor the document which
 ;;; you are currently reading, will be created.  The
-;;; test runs at compile time, but is not present in the resulting
+;;; tests are not present in the resulting
 ;;; library.
 ;;; \end{itemize}
 ;;;
@@ -730,7 +738,8 @@
 ;;; \end{examplecode}
 ;;;
 ;;; This expansion works with multiple arguments, as long as they are between
-;;; the ``\textbar''s.
+;;; the ``\textbar''s \footnote{Since ``bug-gscpp'' uses ``\textbar''s for lambda
+;;; literals, Scheme's block comments are not allowed in libbug programs}.
 ;;; \end{itemize}
 
 ;;; \subsection*{Tests}
@@ -792,13 +801,13 @@
   }
 ;;; \end{code}
 ;;;
-;;; Tests in libbug are defined for two purposes.  First, to ensure
+;;; Tests in libbug are defined for two purposes.  Firstly, to ensure
 ;;; that expected behavior of a procedure does not change when that procedure's internal
-;;; definition has changed.  Second, as a form of documentation of the procedure.
+;;; definition has changed.  Secondly, as a form of documentation of the procedure.
 ;;; Libbug is unique\footnote{as far as the author knows} in that the tests are collocated with
-;;; the procedure definitions.  As such, the reader is encouraged to read the tests for a
+;;; the procedure definitions.  The reader is encouraged to read the tests for a
 ;;; procedure before reading the implementation; since in many cases, the tests are designed
-;;; specifically to walk the reader through the implementation.
+;;; specifically to guide the reader through the implementation.
 ;;;
 ;;; \newpage
 ;;; \section{lang\#satisfies?}
@@ -863,16 +872,16 @@
     (equal? a 5)}}
 ;;; \end{code}
 
-;;; Programmers who are new to Scheme systems may be surprised that
-;;; the language provides no built-in loops syntax, such as ``for''
+;;; Programmers who are new to the Scheme language  may be surprised that
+;;; the language provides no built-in syntax for looping, such as ``for''
 ;;; or ``while''.  A better question though, is why don't other
 ;;; languages provide primitives from which you can create
-;;; those looping constructs yourself?
+;;; those looping constructs yourself?  Take the red pill.
 ;;;
 
 ;;; \newpage
 ;;; \section{lang\#numeric-if}
-;;;   An if expression for numbers, based on their sign.
+;;;   A conditional expression for numbers, based on their sign.
 ;;;
 ;;; \index{lang\#numeric-if}
 ;;; \begin{code}
@@ -882,9 +891,11 @@
   [|expr #!key (ifPositive noop)
                (ifZero noop)
                (ifNegative noop)|
-   {cond ((> expr 0) (ifPositive))
-         ((= expr 0) (ifZero))
-         (else (ifNegative))}]
+   (if (> expr 0)
+       [(ifPositive)]
+       [(if (= expr 0)
+            [(ifZero)]
+            [(ifNegative)])])]
 ;;; \end{code}
 
 ;;; \cite[p. 150, called ``nif'']{onlisp}
@@ -1015,8 +1026,7 @@
 
 ;;; \newpage
 ;;; \section{list\#proper?}
-;;;   Tests that the argument is a list that is properly
-;;;   termitated.  Will not terminate on a circular list.
+;;;   Will not terminate on a circular list.
 ;;;
 ;;; \index{list\#proper?}
 ;;; \begin{code}
@@ -1046,10 +1056,9 @@
 ;;; \newpage
 ;;; \section{list\#first}
 ;;;
-;;; list\#first uses Gambit's keyword syntax.  In the code, ``onNull'' is
+;;; list\#first uses Gambit's keyword syntax.  ``onNull'' is
 ;;; an optional argument, with a default value of the value in the ``noop''
-;;; variable.  The first test does not provide a value for ``onNull'',
-;;; the second test does, which demonstrates the syntax.
+;;; variable.  
 ;;;
 ;;; \index{list\#first}
 ;;; \begin{code}
@@ -1064,6 +1073,8 @@
 
 ;;; \cite[p. 59]{ss}
 ;;;
+;;;  The first test does not provide a value for ``onNull'',
+;;; the second test does, which demonstrates the keyword syntax.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1913,11 +1924,19 @@
 ;;; \newpage
 ;;; \chapter{Streams}
 
-;;; Streams are lists whose evaluation is deferred until the value is
-;;; requested.  For more information, consult ``The Structure and
-;;; Interpretation of Computer Programs''.
+;;; Streams are sequential collections like lists, but the
+;;; ``cdr'' of each pair must be a zero-argument lambda value.  That lambda
+;;; is automatically evaluated when ``(stream-cdr s)'' is applied,
+;;; where s is a stream created by ``stream-cons''.
+;;; For more information, consult ``The Structure and
+;;; Interpretation of Computer Programs''\footnote{although they
+;;; define ``stream-cons'' as syntax, instead of passing a lambda
+;;; to the second argument}.
 
 ;;; \section{stream\#stream-cons}
+;;;
+;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
+;;; lambda value.
 ;;;
 ;;; \index{stream\#stream-cons}
 ;;; \begin{code}
@@ -1936,7 +1955,7 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {begin
-    {let ((s {stream-cons 1 [2]}))
+    {let ((s (stream-cons 1 [2])))
       {and
        (equal? (car s)
                1)
@@ -1960,7 +1979,7 @@
 ;;; \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s {stream-cons 1 [2]}))
+  {let ((s (stream-cons 1 [2])))
     (equal? (stream-car s)
             1)}}
 ;;; \end{code}
@@ -1981,7 +2000,7 @@
 ;;; \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s {stream-cons 1 [2]}))
+  {let ((s (stream-cons 1 [2])))
     (equal? (stream-cdr s)
             2)}}
 ;;; \end{code}
@@ -2355,6 +2374,7 @@
 
 ;;; \newpage
 ;;; \chapter{Generalized Assignment}
+;;;  \label{sec:endinglibbug}
 ;;; \section{lang\#setf!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \cite{setf}.
