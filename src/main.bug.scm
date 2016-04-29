@@ -1448,8 +1448,8 @@
 {define
   "list#"
   flatmap
-  [|fn l|
-   (fold-left append! '() (map fn l))]
+  [|f l|
+   (fold-left append! '() (map f l))]
 ;;; \end{code}
 
 ;;; \cite[p. 123]{sicp}
@@ -1733,7 +1733,7 @@
 ;;; mistake in
 ;;;  their code.  Given their definition (permutations '()) evaluates to '(()), instead of '().
 ;;;
-;;; \cite[p. 45]{taocp}
+;;; See also \cite[p. 45]{taocp}
 
 ;;; \newpage
 ;;; \section{list\#sublists}
@@ -1817,8 +1817,8 @@
 ;;; \newpage
 ;;; \section{list\#partition}
 ;;;  Partitions the input list into two lists, one list where
-;;;  the predicate matched the element of the list, the second list
-;;;  where the predicate did not match the element of the list.
+;;;  the predicate matched the element of the input list, the second list
+;;;  where the predicate did not match the element of the input list.
 ;;;
 ;;;
 ;;; \index{list\#partition}
@@ -1826,19 +1826,19 @@
 {define
   "list#"
   partition
-  [|l pred?|
+  [|l p?|
    {let partition ((l l)
-                   (falseList '())
-                   (trueList '()))
+                   (trueList '())
+                   (falseList '()))
      (if (null? l)
          [(list trueList falseList)]
-         [(if (pred? (car l))
+         [(if (p? (car l))
               [(partition (cdr l)
-                          falseList
-                          (cons (car l) trueList))]
+                          (cons (car l) trueList)
+                          falseList)]
               [(partition (cdr l)
-                          (cons (car l) falseList)
-                          trueList)])])}]
+                          trueList
+                          (cons (car l) falseList))])])}]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1859,21 +1859,20 @@
 {define
   "list#"
   sort
-  [|l comparison|
-   (if (null? l)
-       ['()]
-       [{let* ((current-node (car l))
-               (p (partition (cdr l)
-                             [|x| (comparison
-                                   x
-                                   current-node)]))
-               (less-than (car p))
-               (greater-than (cadr p)))
-          (append! (sort less-than
-                         comparison)
-                   (cons current-node
-                         (sort greater-than
-                               comparison)))}])]
+  [|l comparison?|
+   {let sort ((l l))
+     (if (null? l)
+         ['()]
+         [{let* ((current-node (car l))
+                 (p (partition (cdr l)
+                               [|x| (comparison?
+                                     x
+                                     current-node)]))
+                 (less-than (car p))
+                 (greater-than (cadr p)))
+            (append! (sort less-than)
+                     (cons current-node
+                           (sort greater-than)))}])}]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1929,7 +1928,7 @@
 ;;; is automatically evaluated when ``(stream-cdr s)'' is applied,
 ;;; where s is a stream created by ``stream-cons''.
 ;;; For more information, consult ``The Structure and
-;;; Interpretation of Computer Programs''\footnote{although they
+;;; Interpretation of Computer Programs''\footnote{although, they
 ;;; define ``stream-cons'' as syntax, instead of passing a lambda
 ;;; to the second argument}.
 
@@ -1943,12 +1942,14 @@
 {define-macro
   "stream#"
   stream-cons
-  [|a b|
-   (if (or (not (list? b))
-           (not (equal? 'lambda (car b))))
-       [(error "stream#stream-cons requires a lambda in it's \
+  [|a d|
+   (if (or (not (list? d))
+           (not (equal? 'lambda (car d)))
+           (null? (cdr d))
+           (not (equal? '() (cadr d))))
+       [(error "stream#stream-cons requires a zero-argument lambda in it's \
                 second arg")]
-       [`(cons ,a {delay ,(caddr b)})])]
+       [`(cons ,a {delay ,(caddr d)})])]
 ;;; \end{code}
 
 ;;; \cite[p. 321]{sicp}.
@@ -1979,9 +1980,9 @@
 ;;; \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s (stream-cons 1 [2])))
-    (equal? (stream-car s)
-            1)}}
+  (equal? (stream-car (stream-cons 1 [2]))
+          1)
+  }
 ;;; \end{code}
 ;;;
 
@@ -2000,9 +2001,9 @@
 ;;; \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s (stream-cons 1 [2])))
-    (equal? (stream-cdr s)
-            2)}}
+  (equal? (stream-cdr (stream-cons 1 [2]))
+          2)
+  }
 ;;; \end{code}
 ;;;
 
@@ -2015,16 +2016,15 @@
 {define
   "stream#"
   list->stream
-  [|l|
-   (if (null? l)
-       [l]
-       [(stream-cons (car l)
-                     [{let list->stream ((l (cdr l)))
-                        (if (null? l)
-                            ['()]
-                            [(stream-cons (car l)
-                                          [(list->stream
-                                            (cdr l))])])}])])]
+  [|l| (if (null? l)
+           [stream-null]
+           [(stream-cons (car l)
+                         [{let list->stream ((l (cdr l)))
+                            (if (null? l)
+                                ['()]
+                                [(stream-cons (car l)
+                                              [(list->stream
+                                                (cdr l))])])}])])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2035,9 +2035,9 @@
          (equal? 3 (stream-car
                     (stream-cdr
                      (stream-cdr foo))))
-         (null? (stream-cdr
-                 (stream-cdr
-                  (stream-cdr foo))))}}}
+         (stream-null? (stream-cdr
+                        (stream-cdr
+                         (stream-cdr foo))))}}}
 ;;; \end{code}
 
 ;;; \newpage
@@ -2050,7 +2050,7 @@
   "stream#"
   stream->list
   [|s|
-   (if (null? s)
+   (if (stream-null? s)
        ['()]
        [(cons (stream-car s)
               (stream->list
@@ -2078,7 +2078,7 @@
        [{let stream-ref ((s s) (n n))
           (if (equal? n 0)
               [(stream-car s)]
-              [(if (not (null? (stream-cdr s)))
+              [(if (not (stream-null? (stream-cdr s)))
                    [(stream-ref (stream-cdr s) (- n 1))]
                    [(onOutOfBounds)])])}])]
 ;;; \end{code}
@@ -2086,18 +2086,19 @@
 ;;; \cite[p. 319]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s (list->stream '(5 4 3 2 1))))
-    {and
-     (equal? (stream-ref s -1)
-             'noop)
-     (equal? (stream-ref s 0)
-             5)
-     (equal? (stream-ref s 4)
-             1)
-     (equal? (stream-ref s 5)
-             'noop)
-     (equal? (stream-ref s 5 onOutOfBounds: ['out])
-             'out)}}}
+  (satisfies?
+   [|i| (stream-ref (list->stream '(5 4 3 2 1)) i)]
+   '(
+     (-1 noop)
+     (0 5)
+     (4 1)
+     (5 noop)
+     )
+   )
+  (equal? (stream-ref (list->stream '(5 4 3 2 1))
+                      5
+                      onOutOfBounds: ['out])
+          'out)}
 ;;; \end{code}
 ;;;
 
@@ -2110,13 +2111,13 @@
 {define
   "stream#"
   stream-map
-  [|f #!rest s|
-   {let stream-map ((s s))
-     (if (any? (map null? s))
-         ['()]
+  [|f #!rest list-of-streams|
+   {let stream-map ((list-of-streams list-of-streams))
+     (if (any? (map stream-null? list-of-streams))
+         [stream-null]
          [(stream-cons (apply f
-                              (map stream-car s))
-                       [(stream-map (map stream-cdr s))])])}]
+                              (map stream-car list-of-streams))
+                       [(stream-map (map stream-cdr list-of-streams))])])}]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -2146,7 +2147,7 @@
   stream-filter
   [|p? s|
    {let stream-filter ((s s))
-     (if (null? s)
+     (if (stream-null? s)
          ['()]
          [{let ((first (stream-car s)))
             (if (p? first)
@@ -2178,9 +2179,9 @@
    (if (> low high)
        ['()]
        [(stream-cons low
-                     (stream-enumerate-interval (+ low step)
-                                                high
-                                                step: step))])]
+                     [(stream-enumerate-interval (+ low step)
+                                                 high
+                                                 step: step)])])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2198,6 +2199,14 @@
 
 
 ;;; \section{lang\#compose}
+
+;;; Libbug is a library, meant to be used by other projects.  From libbug, these
+;;; projects will require namespace definitions, as well as macro definitions.
+;;; As such, besides defining the macro, libbug\#define-macro\footnote{
+;;; defined in section ~\ref{sec:libbugdefinemacro}}
+;;; also exports the
+;;; namespace definition and the macro definitions to external files.
+;;;
 
 ;;; \index{lang\#compose}
 ;;; \begin{code}
@@ -2220,18 +2229,6 @@
 ;;; \cite[p. 66]{onlisp}
 ;;;
 ;;;
-;;; Libbug is a library, meant to be used by other projects.  From libbug, these
-;;; projects will require namespace definitions, as well as macro definitions.
-;;; As such, besides defining the macro, libbug\#define-macro\footnote{
-;;; defined in section ~\ref{sec:libbugdefinemacro}}
-;;; also exports the
-;;; namespace definition and the macro definitions to external files.
-;;;
-;;; If the reader does not understand the macro definition above, don't worry,
-;;; understanding the macro definitions is not required to understand the rest
-;;; of the content of this book.  The reader should at least though understand
-;;; how to use the macros, which can be learned by reading the associated tests.
-;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? ((compose) 5)
@@ -2253,7 +2250,7 @@
 ;;;
 ;;; Macro-expansions occur during compile-time, so how should a person
 ;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
-;;; as a normal procedure, and as such is able to be tested.
+;;; as a procedure which transforms lists, and as such is able to be tested.
 ;;;
 ;;; \begin{code}
   (equal? (macroexpand-1 (compose))
@@ -2282,8 +2279,8 @@
 
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
 ;;; macro into the new form, which the compiler would have then compiled
-;;; if ``macroexpand-1'' had not been there.  But, how should ``gensyms'' be
-;;; handled, since by definition it creates symbols which cannot be entered
+;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms'' 
+;;; evaluate, since by definition it creates symbols which cannot be entered
 ;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
 ;;; is overridden into a procedure
 ;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
@@ -2315,8 +2312,8 @@
           30)
   (equal? {aif #f (* 2 it)}
           #f)
-  (equal? (macroexpand-1 (aif (+ 5 10)
-                              (* 2 it)))
+  (equal? (macroexpand-1 {aif (+ 5 10)
+                              (* 2 it)})
           '{let ((it (+ 5 10)))
              (if it
                  [(* 2 it)]
