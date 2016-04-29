@@ -2008,6 +2008,38 @@
 ;;;
 
 ;;; \newpage
+;;; \section{stream\#stream-null}
+;;;
+;;; \index{stream\#stream-null}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-null
+  '()
+  }
+;;; \end{code}
+
+;;; \section{stream\#stream-null?}
+;;;
+;;; \index{stream\#stream-null?}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-null?
+  null?
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (stream-null?
+   (stream-cdr
+    (stream-cdr (stream-cons 1 [(stream-cons 2
+                                             [stream-null])]))))
+  }
+;;; \end{code}
+;;;
+
+;;; \newpage
 ;;; \section{stream\#list-\textgreater stream}
 ;;; Converts a list into a stream
 ;;;
