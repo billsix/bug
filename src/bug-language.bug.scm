@@ -1,7 +1,7 @@
 ;;; %Copyright 2014-2016 - William Emerison Six
 ;;; %All rights reserved
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
-
+;;;
 ;;; \break
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
@@ -31,8 +31,8 @@
 ;;; at compile-time, where the compile-time ``language'' is the same exact language which
 ;;; the compiler compiles.  A programmer can write programs to run at compile time
 ;;; in the same manner as he'd normally write them.
-
-
+;;;
+;;;
 ;;;
 ;;;
 ;;; Reset all namespace mappings for procedures defined by Gambit.
@@ -40,15 +40,15 @@
 ;;; \begin{code}
 (##include "~~lib/gambit#.scm")
 ;;;\end{code}
-
-
+;;;
+;;;
 ;;; \section{lang\#at-compile-time}
 ;;; ``at-compile-time'' macro is implemented by ``eval''ing code
 ;;; during macro-expansion. \cite{evalduringmacroexpansion}
 ;;;
 ;;; Evaling during macroexpansion is how we can augment the compiler with new procedures,
 ;;; thus treating the compiler as an interpreter.
-
+;;;
 ;;; \index{lang\#at-compile-time}
 ;;; \begin{code}
 {##namespace ("lang#" at-compile-time)}
@@ -57,14 +57,14 @@
    (eval form)
    `{quote noop}]}
 ;;; \end{code}
-
+;;;
 ;;; \begin{itemize}
 ;;;   \item On line 4, the unevaluated code which was passed to
 ;;;  ``at-compile-time'' is evaluated during macroexpansion, so it is evaluated
 ;;;  at compile-time.  The macroexpansion expands into ``(quote noop)'', so the
 ;;;  form will not evaluate at runtime.
 ;;; \end{itemize}
-
+;;;
 ;;; \section{lang\#at-both-times}
 ;;; \index{lang\#at-both-times}
 ;;; \begin{code}
@@ -74,12 +74,12 @@
    (eval form)
    form]}
 ;;; \end{code}
-
+;;;
 ;;; \begin{itemize}
 ;;; \item On line 4, evaluation in the compile-time environment
 ;;; \item On line 5, evaluation in the run-time environment
 ;;; \end{itemize}
-
+;;;
 ;;; Libbug is a collection of procedures and macros.  Building libbug results
 ;;; in a library (static or dynamic) and a "loadable" library (a .o1 file).
 ;;; Macro definitions and namespace declarations, however do not reside
@@ -94,31 +94,31 @@
 ;;;
 ;;; \section{lang\#at-compile-time-expand}
 ;;; \index{lang\#at-compile-time-expand}
-
+;;;
 ;;; ``at-compile-time-expand'' allows any procedure to act as a macro.
-
+;;;
 ;;; \begin{code}
 {##namespace ("lang#" at-compile-time-expand)}
 {##define-macro at-compile-time-expand
   [|form|
    (eval form)]}
 ;;; \end{code}
-
+;;;
 ;;; The previous three macros are also written to the libbug-macros.scm file,
 ;;; and a reference from libbug-macros.scm to libbug\#.scm is made, so
 ;;; a person can now assume that the files must be collocated.
 ;;;
-
-
-
+;;;
+;;;
+;;;
 ;;; \subsection{Create File for Macro Definitions}
-
+;;;
 ;;;
 ;;;  The previous three macros are currently available throughout libbug,
 ;;;  but not to programs which use libbug.  To rectify that, open a file
 ;;;  during compile-time, and manually write those macro definitions
 ;;;  to the file.
-
+;;;
 ;;; \begin{code}
 {at-compile-time
  {begin
@@ -145,7 +145,7 @@
      "
     libbug-macros-file)
 ;;; \end{code}
-
+;;;
 ;;; \subsection{Create File for Namespaces}
 ;;; \begin{code}
    {##define libbug-headers-file
@@ -164,11 +164,11 @@
     libbug-headers-file)
    }}
 ;;; \end{code}
-
+;;;
 ;;; The files are closed section~\ref{sec:closefiles}
-
+;;;
 ;;; \section{libbug\#write-and-eval}
-
+;;;
 ;;; Now that those files are open, I want to write to them.  Namespaces
 ;;; to libbug\#.scm, and macros to libbug-macros.scm.  However, I don't want
 ;;; to have to duplicate the code for each context, like I just did for
@@ -176,7 +176,7 @@
 ;;;
 ;;; So, write the unevaluated form plus a newline to the
 ;;; file, and the return the form so that the compiler actually processes it.
-
+;;;
 ;;; \index{libbug\#write-and-eval}
 ;;; \begin{code}
 {##define-macro libbug#write-and-eval
@@ -186,15 +186,15 @@
             (newline ,port)))
    form]}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \section{libbug\#namespace}
-
+;;;
 ;;; ``write-and-eval'' writes the form to a file, and evaluates the
 ;;; form in the run-time context.  For namespaces in libbug, that
 ;;; behavior is desired, but the namespaces should be valid at
 ;;; compile-time too.
-
+;;;
 ;;; \index{libbug\#namespace}
 ;;; \begin{code}
 {##define-macro libbug#namespace
@@ -206,16 +206,16 @@
          libbug-headers-file
          {##namespace ,namespace-name-pair})}}]}
 ;;; \end{code}
-
-
-
+;;;
+;;;
+;;;
 ;;; \section{lang\#if}
 ;;; \label{sec:langif}
 ;;; In the following, I define a new version of "if", which was first used
 ;;; in section ~\ref{sec:langiffirstuse}
 ;;;
 ;;;
-
+;;;
 ;;; \index{lang\#if}
 ;;; \begin{code}
 {libbug#namespace ("lang#" if)}
@@ -247,8 +247,8 @@
                            (caddr ifFalse)
                            `{begin ,@(cddr ifFalse)}}}})]}})
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;;
 ;;; \section{lang\#with-tests}
 ;;;
@@ -264,7 +264,7 @@
 ;;;         exit, or will evaluate to the unevaluated definition, thus allowing the
 ;;;         Gambit compiler to compile the form as usual.
 ;;; \end{itemize}
-
+;;;
 ;;;
 ;;; \begin{code}
 {libbug#namespace ("lang#" with-tests)}
@@ -282,8 +282,8 @@
                                 ',definition))
              (error "Tests Failed")])})]})
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \section{libbug\#define}
 ;;; Function definitions will all have a namespace, name, body,
 ;;; and an optional suite of tests
@@ -300,9 +300,9 @@
        {##define ,name ,body}
        ,@tests}}]}
 ;;; \end{code}
-
+;;;
 ;;; \section{libbug\#define-macro}
-
+;;;
 ;;; ``libbug\#define-macro'' acts just like ''\#\#define-macro'', but
 ;;; it also writes the macro definition to a file, and overrides
 ;;; ``\#\#gensym'' so that macroexpansions may be tested.
@@ -313,7 +313,7 @@
 ;;; Autoconf takes "config.scm.in" as input, and puts the
 ;;; relevant configuration/installation information (such as
 ;;; the installation prefix) into config.scm
-
+;;;
 ;;; \begin{code}
 {at-compile-time
  {begin
@@ -323,10 +323,10 @@
       bug-configuration#prefix
       "/include/bug/libbug#.scm")}}}
 ;;; \end{code}
-
-
-
-
+;;;
+;;;
+;;;
+;;;
 ;;; \label{sec:libbugdefinemacro}
 ;;;
 ;;; \index{libbug\#define-macro}
@@ -347,7 +347,7 @@
 ;;;   To ensure that the macro works correctly in other contexts, the
 ;;;   appropriate namespace
 ;;;   mappings must be loaded, but just for this macro definition.
-
+;;;
 ;;; \begin{code}
        {at-both-times
         {##define-macro
@@ -364,8 +364,8 @@
                            [(append (list 'unquote)
                                     (cddr lambda-value))])}))}}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \begin{itemize}
 ;;;   \item On line 1, the program which imports this macro shall define the
 ;;;         macro at both compile-time and run-time.
@@ -390,10 +390,10 @@
 ;;;   \item On line 12-13, since this is not a quasi-quoted form, just grab
 ;;;         the form, and ``unquote'' it.
 ;;; \end{itemize}
-
-
-
-
+;;;
+;;;
+;;;
+;;;
 ;;; \subsubsection{Procedure to expand macro invocations}
 ;;;
 ;;; In order to be able to test the macro transformation as unevaluated
@@ -427,20 +427,20 @@
 ;;; \subsection{Define Macro and Run Tests}
 ;;; Now that the macro has been exported to a file, now the macro must
 ;;; be defined within libbug itself.
-
+;;;
 ;;; \begin{code}
    {let ((gensym-count (gensym)))
      `{begin
 ;;; \end{code}
-
+;;;
 ;;; \noindent Namespace the procedure
-
+;;;
 ;;; \begin{code}
         {libbug#namespace (,namespace ,name)}
 ;;; \end{code}
-
+;;;
 ;;; \noindent Create the expander just like in the previous section.
-
+;;;
 ;;; \begin{code}
         {at-both-times
          ;; TODO - namespace this procedure
@@ -460,23 +460,23 @@
                            (number->string ,gensym-count)))}]))
                  (list 'quote ,@(cddr lambda-value))}})}}
 ;;; \end{code}
-
+;;;
 ;;; \noindent Now that the macroexpander procedure has been defined, define the macro
 ;;; and execute the compile-time tests.
-
+;;;
 ;;; \begin{code}
         {with-tests
          {##define-macro
            ,name
            ,lambda-value}
          ,@tests}}}]}
-
+;;;
 ;;; \end{code}
-
+;;;
 ;;; \section{lang\#macroexpand-1}
-
+;;;
 ;;; ``macroexpand-1'' allows the programmer to test macroexpansion by writing
-
+;;;
 ;;; \begin{examplecode}
 ;;;(equal? (macroexpand-1 (aif (+ 5 10)
 ;;;                            (* 2 it)))
@@ -485,9 +485,9 @@
 ;;;              [(* 2 it)]
 ;;;              [#f])})
 ;;; \end{examplecode}
-
+;;;
 ;;; \noindent instead of
-
+;;;
 ;;; \begin{examplecode}
 ;;;(equal? (aif-expand (+ 5 10)
 ;;;                    (* 2 it)))
@@ -496,7 +496,7 @@
 ;;;              [(* 2 it)]
 ;;;              [#f])})
 ;;; \end{examplecode}
-
+;;;
 ;;; \index{lang\#macroexpand-1}
 ;;; \begin{code}
 {libbug#define-macro
@@ -510,6 +510,6 @@
                                    "-expand"))))
     `(,new-name ,@(cdr form))}]}
 ;;; \end{code}
-
-
-
+;;;
+;;;
+;;;

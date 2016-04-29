@@ -49,7 +49,7 @@
 ;;;    \vspace{4 mm} \large{and the Implementation of Libbug}}
 ;;;
 ;;; \author{Bill Six}
-
+;;;
 ;;; \maketitle
 ;;; \null\vfill
 ;;; \noindent
@@ -60,7 +60,7 @@
 ;;; Book generated from Git commit ID - \input{version.tex}
 ;;; \newpage
 ;;; \break
-
+;;;
 ;;;  \noindent
 ;;;  EITHER
 ;;;
@@ -105,7 +105,7 @@
 ;;;    You should have received a copy of the GNU Lesser General Public
 ;;;    License along with this library; if not, write to the Free Software
 ;;;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
+;;;
 ;;; \newpage
 ;;; \thispagestyle{empty}
 ;;; \mbox{}
@@ -120,7 +120,7 @@
 ;;;  \end{center}
 ;;;  \vfill
 ;;;  \clearpage
-
+;;;
 ;;; \chapter*{Preface}
 ;;; This is a book about compiler design for people who have no interest
 ;;; in studying compiler design.  ...Umm, then who wants to read this book?
@@ -178,7 +178,7 @@
 ;;; is embedded into the source code of libbug; it is generated only upon successful
 ;;; compilation of libbug and couldn't exist if a single test
 ;;; failed.
-
+;;;
 ;;; So where are these tests then? The very alert reader may have noticed
 ;;; that the opening '\{' in the definition
 ;;; of ``permutations'' was not closed.  That is because we complete the definition
@@ -244,7 +244,7 @@
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
 ;;; style, so that a program, such as libbug, can be read linearly in a book form.
-
+;;;
 ;;; \section{Prerequisites}
 ;;;
 ;;; The reader is assumed to be somewhat familiar both with Scheme, with Common Lisp-style
@@ -275,10 +275,10 @@
 ;;; \begin{examplecode}
 ;;; (+ 1 ("This is NOT part of libbug"))
 ;;; \end{examplecode}
-
+;;;
 ;;; \noindent
 ;;; In libbug, the notation
-
+;;;
 ;;; \begin{examplecode}
 ;;; (fun arg1 arg2)
 ;;; \end{examplecode}
@@ -294,19 +294,19 @@
 ;;; The inability for the reader to reason about the evaluation semantics of arguments to a macro
 ;;; at the call site may cause confusion to the reader; as such,
 ;;; within libbug the notation
-
+;;;
 ;;; \begin{examplecode}
 ;;; {fun1 arg1 arg2}
 ;;; \end{examplecode}
-
+;;;
 ;;; \noindent
 ;;; is used to denote to
 ;;; the reader that the standard evaluation rules do not necessarily apply.  For instance, in
-
+;;;
 ;;; \begin{examplecode}
 ;;; {define x 5}
 ;;; \end{examplecode}
-
+;;;
 ;;; \noindent
 ;;; \{\} are used because ``x''
 ;;; may be a new variable.  As such, it cannot currently evaluate to anything.
@@ -359,7 +359,7 @@
 ;;; chapter is not required to understand the rest of the book and may be freely
 ;;; skipped, but it provides a baseline understanding of compile-time computation,
 ;;; so that the reader may contrast these languages' capabilities with libbug's.
-
+;;;
 ;;; First, let's discuss was is meant by the word ``language''.
 ;;; In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
 ;;; Motwani, and Ullman define language as ``A set of strings all of which are chosen
@@ -372,7 +372,7 @@
 ;;; The code is a valid string in the language, and passed any additional constraints
 ;;; (e.g. type-checking).  But does all of that language correspond to generated instructions
 ;;; in the machine code?  Turns out, no, it does not.
-
+;;;
 ;;; \section{C}
 ;;;Consider the following C code:
 ;;;
@@ -470,7 +470,7 @@
 ;;; /*Line18*/    return 0;
 ;;; /*Line19*/  }
 ;;; \end{examplecode}
-
+;;;
 ;;; \begin{itemize}
 ;;;  \item
 ;;;    Lines 10-13 are the run-time calculation of ``fact'', identical
@@ -517,7 +517,7 @@
 ;;; 400878: bf c0 0d 60 00   mov    $0x600dc0,%edi
 ;;; 40087d: e8 1e fe ff ff   callq  4006a0 <_ZNSolsEi@plt>
 ;;; \end{examplecode}
-
+;;;
 ;;; \begin{itemize}
 ;;;   \item
 ;;; The instructions at memory locations 400850 through 40085a correspond to the
@@ -534,7 +534,7 @@
 ;;;
 ;;; \end{itemize}
 ;;; The compile-time computation worked!
-
+;;;
 ;;; \section{libbug}
 ;;; With libbug, the following is how you'd define factorial, and the pretty-print
 ;;; the factorial of 3, both computed at compile-time and computed at run-time.
@@ -567,7 +567,7 @@
 ;;;
 ;;; By compiling the Scheme source to the ``gvm'' intermediate
 ;;; representation, we can verify the stated behavior.
-
+;;;
 ;;; \begin{examplecode}
 ;;;  ...
 ;;;  r1 = '6                                ;; Line 1
@@ -584,7 +584,7 @@
 ;;;  jump/safe fs=0 global[pp] nargs=1      ;; Line 12
 ;;;  ...
 ;;; \end{examplecode}
-
+;;;
 ;;; \begin{itemize}
 ;;;   \item
 ;;;      Lines 1-4 correspond to ``(pp (at-compile-time-expand (fact 3)))''.  The precomputed
@@ -594,8 +594,8 @@
 ;;;      Lines 5-12 correspond to ``(pp (fact 3))''.  3 is stored in a GVM regiister, ``fact''
 ;;;      is called, and then ``pp'' is called on the result.
 ;;; \end{itemize}
-
-
+;;;
+;;;
 ;;;
 ;;; So this has been an moderately interesting exercise, but why is
 ;;; this important?
@@ -610,7 +610,7 @@
 ;;; which lacks state and IO.
 ;;; In contrast, libbug enables compile-time computation using the same exact
 ;;; language as the run-time, complete with state and IO.
-
+;;;
 ;;;
 ;;; When I first started creating libbug, I only wanted to collocate
 ;;; tests with definitions, to evaluate the tests at compile time, and to error out
@@ -625,10 +625,10 @@
 ;;;
 ;;; I don't understand all of the implications of having a compiler augment itself
 ;;; with the code its currently compiling.   ``Come along and ride on a fantastic voyage.''
-
+;;;
 ;;; \chapter{General Procedures}
 ;;;  \label{sec:beginninglibbug}
-
+;;;
 ;;; Now begins the definition of a standard library of Scheme procedures and
 ;;; macros\footnote{The code within chapters~\ref{sec:beginninglibbug}
 ;;; to~\ref{sec:endinglibbug} is found in
@@ -653,13 +653,13 @@
 {##namespace ("libbug#" define)}
 {##namespace ("libbug#" define-macro)}
 ;;;\end{code}
-
+;;;
 ;;;
 ;;; \newpage
 ;;; \section{lang\#noop}
 ;;; The first definition is ``noop'', a procedure which takes no arguments and
 ;;; which evaluates to the symbol 'noop.
-
+;;;
 ;;; \index{lang\#noop}
 ;;; \begin{code}
 {define
@@ -667,7 +667,7 @@
   noop
   ['noop]
 ;;; \end{code}
-
+;;;
 ;;; \begin{itemize}
 ;;;   \item On line 1, the libbug\#define macro\footnote{defined in section ~\ref{sec:libbugdefine}}
 ;;; is invoked.
@@ -682,14 +682,14 @@
 ;;; \begin{examplecode}
 ;;; ['noop]
 ;;; \end{examplecode}
-
+;;;
 ;;; \noindent
 ;;; is expanded into
-
+;;;
 ;;; \begin{examplecode}
 ;;; (lambda () 'noop)
 ;;; \end{examplecode}
-
+;;;
 ;;; \end{itemize}
 ;;; \subsection*{Test}
 ;;; \begin{code}
@@ -726,7 +726,7 @@
 ;;; \end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 4, ``bug-gscpp'' expands
-
+;;;
 ;;; \begin{examplecode}
 ;;; [|x| x]
 ;;; \end{examplecode}
@@ -741,9 +741,9 @@
 ;;; the ``\textbar''s \footnote{Since ``bug-gscpp'' uses ``\textbar''s for lambda
 ;;; literals, Scheme's block comments are not allowed in libbug programs}.
 ;;; \end{itemize}
-
+;;;
 ;;; \subsection*{Tests}
-
+;;;
 ;;; libbug\#define can take more than one test as parameters.
 ;;;
 ;;; \begin{code}
@@ -753,7 +753,7 @@
 ;;; \end{code}
 ;;;
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{list\#all?}
 ;;; Like ``and'', but takes a list instead of a variable number of arguments.
@@ -776,7 +776,7 @@
 ;;;      defined in section~\ref{sec:langif} }, takes
 ;;;         lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
 ;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that lang\#if is just syntactic sugar:
-
+;;;
 ;;;
 ;;; \begin{examplecode}
 ;;;{define #t [|t f| (t)]}
@@ -811,7 +811,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{lang\#satisfies?}
-
+;;;
 ;;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
 ;;; with varying inputs and outputs, as was done for ``all''?  Instead, provide
 ;;; the procedure, and a list
@@ -846,10 +846,10 @@
      (2 3)
      ))}
 ;;; \end{code}
-
+;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
-
+;;;
 ;;; \section{lang\#while}
 ;;;
 ;;; \index{lang\#while}
@@ -871,14 +871,14 @@
            [(set! a (+ a 1))])
     (equal? a 5)}}
 ;;; \end{code}
-
+;;;
 ;;; Programmers who are new to the Scheme language  may be surprised that
 ;;; the language provides no built-in syntax for looping, such as ``for''
 ;;; or ``while''.  A better question though, is why don't other
 ;;; languages provide primitives from which you can create
 ;;; those looping constructs yourself?  Take the red pill.
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{lang\#numeric-if}
 ;;;   A conditional expression for numbers, based on their sign.
@@ -897,7 +897,7 @@
             [(ifZero)]
             [(ifNegative)])])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 150, called ``nif'']{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -914,8 +914,8 @@
      ))}
 ;;; \end{code}
 ;;;
-
-
+;;;
+;;;
 ;;;
 ;;; \newpage
 ;;; \section{lang\#atom?}
@@ -927,9 +927,9 @@
   [|x| {and (not (pair? x))
             (not (null? x))}]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 10]{littleschemer}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -943,7 +943,7 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{lang\#complement}
 ;;;
@@ -955,7 +955,7 @@
   [|f|
    [|#!rest args| (not (apply f args))]]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 63]{onlisp}
 ;;;
 ;;; \subsection*{Tests}
@@ -975,10 +975,10 @@
   }
 ;;; \end{code}
 ;;;
-
-
-
-
+;;;
+;;;
+;;;
+;;;
 ;;; \newpage
 ;;; \section{lang\#symbol-append}
 ;;;
@@ -990,7 +990,7 @@
   [|#!rest symlst|
    (string->symbol (apply string-append
                           (map symbol->string symlst)))]
-
+;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -998,9 +998,9 @@
   (equal? (symbol-append 'foo 'bar 'baz) 'foobarbaz)
   }
 ;;; \end{code}
-
-
-
+;;;
+;;;
+;;;
 ;;; \newpage
 ;;; \chapter{Lists}
 ;;; \section{list\#copy}
@@ -1021,9 +1021,9 @@
          (not (eq? a (copy a)))}}
   }
 ;;; \end{code}
-
+;;;
 ;;; For a thorough description of ``equal?'' vs ``eq?'', see \cite[p. 122-129]{schemeprogramminglanguage}.
-
+;;;
 ;;; \newpage
 ;;; \section{list\#proper?}
 ;;;   Will not terminate on a circular list.
@@ -1049,16 +1049,16 @@
      ((1 2 . 5) #f)
      ))}
 ;;; \end{code}
-
-
-
-
+;;;
+;;;
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#first}
 ;;;
 ;;; list\#first uses Gambit's keyword syntax.  ``onNull'' is
 ;;; an optional argument, with a default value of the value in the ``noop''
-;;; variable.  
+;;; variable.
 ;;;
 ;;; \index{list\#first}
 ;;; \begin{code}
@@ -1070,7 +1070,7 @@
        [(onNull)]
        [(car l)])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;;  The first test does not provide a value for ``onNull'',
@@ -1091,8 +1091,8 @@
      ))}
 ;;; \end{code}
 ;;;
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#but-first}
 ;;; \index{list\#but-first}
@@ -1105,7 +1105,7 @@
        [(onNull)]
        [(cdr l)])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
@@ -1123,7 +1123,7 @@
      ((1 2 3) (2 3))
      ))}
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#last}
 ;;; \index{list\#last}
@@ -1139,7 +1139,7 @@
               [(car l)]
               [(last (cdr l))])}])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
@@ -1176,7 +1176,7 @@
               [(cons (car l)
                      (but-last (cdr l)))])}])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
@@ -1198,7 +1198,7 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{list\#filter}
 ;;; \index{list\#filter}
@@ -1215,7 +1215,7 @@
                 [(cons first (filter (cdr l)))]
                 [(filter (cdr l))])}])}]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
 ;;; on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}}. \cite[p. 115]{sicp}.
 ;;; \subsection*{Tests}
@@ -1234,7 +1234,7 @@
 ;;;
 ;;;
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{list\#remove}
 ;;; \index{list\#remove}
@@ -1254,7 +1254,7 @@
      ((1 5 2 5 3 5 4 5 5) (1 2 3 4))
      ))}
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#fold-left}
 ;;;    Reduce the list to a scalar by applying the reducing function repeatedly,
@@ -1273,7 +1273,7 @@
                          (car l))
                      (cdr l))])}]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 121]{sicp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1301,7 +1301,7 @@
      ((1 2 3 4 5 6) -16)))}
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{list\#fold-right}
 ;;;    Reduces the list to a scalar by applying the reducing
@@ -1320,7 +1320,7 @@
          [(fn (car l)
               (fold-right acc (cdr l)))])}]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 116 (named ``accumulate'')]{sicp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1344,8 +1344,8 @@
   }
 ;;; \end{code}
 ;;;
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#scan-left}
 ;;;   Like fold-left, but every intermediate value
@@ -1405,7 +1405,7 @@
      ))
   }
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#append!}
 ;;;   Like append, but recycles the last cons cell, so it's
@@ -1439,8 +1439,8 @@
     (not (equal? '(1 2 3) a))}
   }
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#flatmap}
 ;;; \index{list\#flatmap}
@@ -1451,9 +1451,9 @@
   [|f l|
    (fold-left append! '() (map f l))]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 123]{sicp}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1471,7 +1471,7 @@
 ;;; Mutating cons cells which were created in this procedure still
 ;;; respects referential-transparency
 ;;; from the caller's point of view.
-
+;;;
 ;;; \newpage
 ;;; \section{list\#take}
 ;;; \index{list\#take}
@@ -1486,7 +1486,7 @@
               (take (- n 1)
                     (cdr l)))])]
 ;;; \end{code}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1498,8 +1498,8 @@
      (3 (a b))
      ))}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#take-while}
 ;;; \index{list\#take-while}
@@ -1514,7 +1514,7 @@
          [(cons (car l)
                 (take-while (cdr l)))])}]
 ;;; \end{code}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1527,8 +1527,8 @@
      (d (a b c))
      ))}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#drop}
 ;;; \index{list\#drop}
@@ -1542,7 +1542,7 @@
        [(drop (- n 1)
               (cdr l))])]
 ;;; \end{code}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1554,7 +1554,7 @@
      (3 ())
      ))}
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#drop-while}
 ;;; \index{list\#drop-while}
@@ -1570,7 +1570,7 @@
               [l]
               [(drop-while (cdr l))])])}]
 ;;; \end{code}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1584,8 +1584,8 @@
      (e ())
      ))}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#enumerate-interval}
 ;;; \index{list\#enumerate-interval}
@@ -1608,7 +1608,7 @@
   (equal? (enumerate-interval 1 10 step: 2)
           '(1 3 5 7 9))}
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#any?}
 ;;;
@@ -1637,7 +1637,7 @@
      ((#t #t #t #f) #t)))
   }
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#zip}
 ;;; \index{list\#zip}
@@ -1693,7 +1693,7 @@
             (3 6 9 12)))
   }
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#permutations}
 ;;; \index{list\#permutations}
@@ -1734,7 +1734,7 @@
 ;;;  their code.  Given their definition (permutations '()) evaluates to '(()), instead of '().
 ;;;
 ;;; See also \cite[p. 45]{taocp}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#sublists}
 ;;; \index{list\#sublists}
@@ -1758,7 +1758,7 @@
      ((1 2 3) ((1 2 3) (2 3) (3)))
      ))}
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#ref-of}
 ;;; The inverse of list-ref.
@@ -1811,9 +1811,9 @@
        ))}
   }
 ;;; \end{code}
-
-
-
+;;;
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#partition}
 ;;;  Partitions the input list into two lists, one list where
@@ -1851,7 +1851,7 @@
                    (4 5)))
      ))}
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{list\#sort}
 ;;; \index{list\#sort}
@@ -1883,8 +1883,8 @@
      ((1 3 2 5 4 0) (0 1 2 3 4 5))
      ))}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{list\#reverse!}
 ;;;   Reverses the list quickly by reusing cons cells
@@ -1916,13 +1916,13 @@
      ((3 2 1) (1 2 3))
      ))}
 ;;; \end{code}
-
-
-
-
+;;;
+;;;
+;;;
+;;;
 ;;; \newpage
 ;;; \chapter{Streams}
-
+;;;
 ;;; Streams are sequential collections like lists, but the
 ;;; ``cdr'' of each pair must be a zero-argument lambda value.  That lambda
 ;;; is automatically evaluated when ``(stream-cdr s)'' is applied,
@@ -1931,7 +1931,7 @@
 ;;; Interpretation of Computer Programs''\footnote{although, they
 ;;; define ``stream-cons'' as syntax, instead of passing a lambda
 ;;; to the second argument}.
-
+;;;
 ;;; \section{stream\#stream-cons}
 ;;;
 ;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
@@ -1951,7 +1951,7 @@
                 second arg")]
        [`(cons ,a {delay ,(caddr d)})])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1964,7 +1964,7 @@
                2)}}}}
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-car}
 ;;; Get the first element of the stream.
@@ -1976,7 +1976,7 @@
   stream-car
   car
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1985,7 +1985,7 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-cdr}
 ;;; Forces the evaluation of the next element of the stream.
@@ -1997,7 +1997,7 @@
   stream-cdr
   [|s| {force (cdr s)}]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2006,7 +2006,7 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-null}
 ;;;
@@ -2018,7 +2018,7 @@
   '()
   }
 ;;; \end{code}
-
+;;;
 ;;; \section{stream\#stream-null?}
 ;;;
 ;;; \index{stream\#stream-null?}
@@ -2028,7 +2028,7 @@
   stream-null?
   null?
 ;;; \end{code}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (stream-null?
@@ -2038,7 +2038,7 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#list-\textgreater stream}
 ;;; Converts a list into a stream
@@ -2071,7 +2071,7 @@
                         (stream-cdr
                          (stream-cdr foo))))}}}
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-\textgreater list}
 ;;; Converts a stream into a list
@@ -2093,8 +2093,8 @@
   (equal? '(1 2 3) (stream->list (list->stream '(1 2 3))))
   }
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-ref}
 ;;; The analogous procedure of list-ref
@@ -2114,7 +2114,7 @@
                    [(stream-ref (stream-cdr s) (- n 1))]
                    [(onOutOfBounds)])])}])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 319]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2133,7 +2133,7 @@
           'out)}
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-map}
 ;;; The analogous procedure of \#\#map.
@@ -2151,7 +2151,7 @@
                               (map stream-car list-of-streams))
                        [(stream-map (map stream-cdr list-of-streams))])])}]
 ;;; \end{code}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? '(6 5 4 3 2)
@@ -2164,10 +2164,10 @@
                        (list->stream '(5 4 3 2 1))
                        (list->stream '(1 1 1 1 1)))))
   }
-
+;;;
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-filter}
 ;;; The analogous procedure of list\#filter.
@@ -2188,7 +2188,7 @@
                   [(stream-filter (stream-cdr s))])]
                 [(stream-filter (stream-cdr s))])}])}]
 ;;; \end{code}
-
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? '(2 1)
@@ -2196,10 +2196,10 @@
            (stream-filter [|x| (not (= 4 x))]
                           (list->stream '(2 4 1 4)))))
   }
-
+;;;
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{stream\#stream-enumerate-interval}
 ;;; \index{stream\#stream-enumerate-interval}
@@ -2224,14 +2224,14 @@
            (stream-enumerate-interval 1 10 step: 2))
           '(1 3 5 7 9))}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \chapter{General Procedures Part 2}
-
-
+;;;
+;;;
 ;;; \section{lang\#compose}
-
+;;;
 ;;; Libbug is a library, meant to be used by other projects.  From libbug, these
 ;;; projects will require namespace definitions, as well as macro definitions.
 ;;; As such, besides defining the macro, libbug\#define-macro\footnote{
@@ -2239,7 +2239,7 @@
 ;;; also exports the
 ;;; namespace definition and the macro definitions to external files.
 ;;;
-
+;;;
 ;;; \index{lang\#compose}
 ;;; \begin{code}
 {define-macro
@@ -2257,7 +2257,7 @@
                    [`(,(car fs)
                       ,(compose (cdr fs)))])}]}])]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 66]{onlisp}
 ;;;
 ;;;
@@ -2308,10 +2308,10 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
 ;;; macro into the new form, which the compiler would have then compiled
-;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms'' 
+;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
 ;;; evaluate, since by definition it creates symbols which cannot be entered
 ;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
 ;;; is overridden into a procedure
@@ -2320,8 +2320,8 @@
 ;;; may clash with symbols in the expanded code, this is not a problem, as these
 ;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
 ;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \section{lang\#aif}
 ;;;
@@ -2336,7 +2336,7 @@
           [,body]
           [#f])}]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 191]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2350,11 +2350,11 @@
              (if it
                  [(* 2 it)]
                  [#f])})
-
+;;;
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{lang\#with-gensyms}
 ;;;   Utility for macros to minimize repetitive calls to ``gensym''.
@@ -2369,7 +2369,7 @@
                symbols)
       ,@body}]
 ;;; \end{code}
-
+;;;
 ;;; \noindent \cite[p. 145]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2388,7 +2388,7 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{lang\#Y}
 ;;; \index{lang\#Y}
@@ -2423,8 +2423,8 @@
      (4 24)
      ))}
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \newpage
 ;;; \chapter{Generalized Assignment}
 ;;;  \label{sec:endinglibbug}
@@ -2442,7 +2442,7 @@
 {at-compile-time
  {define-structure foo bar baz}}
 ;;; \end{code}
-
+;;;
 ;;; \index{lang\#setf"!}
 ;;; \begin{code}
 {define-macro
@@ -2649,10 +2649,10 @@
     (equal? (cddddr a) 10)}
   }
 ;;; \end{code}
-
+;;;
 ;;; \begin{code}
 (include "bug-language-end.scm")
 ;;; \end{code}
-
+;;;
 ;;; \footnote{defined in section ~\ref{sec:closefiles}}
 ;;;

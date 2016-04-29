@@ -2,14 +2,14 @@
 ;;; %All rights reserved
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;;
-
+;;;
 ;;; \section{Closing Generated Files}
 ;;;  \label{sec:closefiles}
-
+;;;
 ;;; The contents of this section are in ``src/bug-language-end.bug.scm''
-
+;;;
 ;;; \begin{code}
-
+;;;
 ;;;  ;;clear the namespace of the macro file
 (at-compile-time
  (begin
@@ -17,8 +17,8 @@
     "
      (##namespace (\"\"))"
     libbug-macros-file)))
-
-
+;;;
+;;;
 (at-compile-time
  (begin
    (force-output libbug-headers-file)
@@ -35,7 +35,7 @@
 ;;;  The MIT Press, Massachusetts,
 ;;;  Second Edition,
 ;;;  1996.
-
+;;;
 ;;;\bibitem[Church51]{calculi}
 ;;;  Church, Alonzo
 ;;;  \emph{The Calculi of Lambda-Conversion},
@@ -49,10 +49,10 @@
 ;;;  The MIT Press, Massachusetts,
 ;;;  Third Edition,
 ;;;  2003.
-
+;;;
 ;;;\bibitem[Feeley12]{evalduringmacroexpansion}
 ;;;  Feeley, Marc. https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html, 2012
-
+;;;
 ;;;\bibitem[Friedman96]{littleschemer}
 ;;;  Friedman, Daniel P., and Matthias Felleisen
 ;;;  \emph{The Scheme Programming Language},
@@ -112,8 +112,8 @@
 ;;;
 ;;;
 ;;;
-
+;;;
 ;;;\end{thebibliography}
 ;;; \printindex
-
+;;;
 ;;;\end{document}  %End of document.
