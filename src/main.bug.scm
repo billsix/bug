@@ -898,7 +898,7 @@
             [(ifNegative)])])]
 ;;; \end{code}
 
-;;; \cite[p. 150, called ``nif'']{onlisp}
+;;; \noindent \cite[p. 150, called ``nif'']{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -956,7 +956,7 @@
    [|#!rest args| (not (apply f args))]]
 ;;; \end{code}
 
-;;; \cite[p. 63]{onlisp}
+;;; \noindent \cite[p. 63]{onlisp}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1071,7 +1071,7 @@
        [(car l)])]
 ;;; \end{code}
 
-;;; \cite[p. 59]{ss}
+;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;;  The first test does not provide a value for ``onNull'',
 ;;; the second test does, which demonstrates the keyword syntax.
@@ -1106,7 +1106,7 @@
        [(cdr l)])]
 ;;; \end{code}
 
-;;; \cite[p. 59]{ss}
+;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1140,7 +1140,7 @@
               [(last (cdr l))])}])]
 ;;; \end{code}
 
-;;; \cite[p. 59]{ss}
+;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1177,7 +1177,7 @@
                      (but-last (cdr l)))])}])]
 ;;; \end{code}
 
-;;; \cite[p. 59]{ss}
+;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1216,7 +1216,7 @@
                 [(filter (cdr l))])}])}]
 ;;; \end{code}
 
-;;; \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
+;;; \noindent \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
 ;;; on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}}. \cite[p. 115]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1274,7 +1274,7 @@
                      (cdr l))])}]
 ;;; \end{code}
 
-;;; \cite[p. 121]{sicp}
+;;; \noindent \cite[p. 121]{sicp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1321,7 +1321,7 @@
               (fold-right acc (cdr l)))])}]
 ;;; \end{code}
 
-;;; \cite[p. 116 (named ``accumulate'')]{sicp}
+;;; \noindent \cite[p. 116 (named ``accumulate'')]{sicp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1452,7 +1452,7 @@
    (fold-left append! '() (map f l))]
 ;;; \end{code}
 
-;;; \cite[p. 123]{sicp}
+;;; \noindent \cite[p. 123]{sicp}
 
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1952,7 +1952,7 @@
        [`(cons ,a {delay ,(caddr d)})])]
 ;;; \end{code}
 
-;;; \cite[p. 321]{sicp}.
+;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {begin
@@ -1977,7 +1977,7 @@
   car
 ;;; \end{code}
 
-;;; \cite[p. 321]{sicp}.
+;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? (stream-car (stream-cons 1 [2]))
@@ -1998,7 +1998,7 @@
   [|s| {force (cdr s)}]
 ;;; \end{code}
 
-;;; \cite[p. 321]{sicp}.
+;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? (stream-cdr (stream-cons 1 [2]))
@@ -2115,7 +2115,7 @@
                    [(onOutOfBounds)])])}])]
 ;;; \end{code}
 
-;;; \cite[p. 319]{sicp}.
+;;; \noindent \cite[p. 319]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -2180,7 +2180,7 @@
   [|p? s|
    {let stream-filter ((s s))
      (if (stream-null? s)
-         ['()]
+         [stream-null]
          [{let ((first (stream-car s)))
             (if (p? first)
                 [(stream-cons
@@ -2245,20 +2245,20 @@
 {define-macro
   "lang#"
   compose
-  [|#!rest fns|
-   (if (null? fns)
+  [|#!rest fs|
+   (if (null? fs)
        ['identity]
        [{let ((args (gensym)))
           `[|#!rest ,args|
-            ,{let compose ((fns fns))
-               (if (null? (cdr fns))
-                   [`(apply ,(car fns)
+            ,{let compose ((fs fs))
+               (if (null? (cdr fs))
+                   [`(apply ,(car fs)
                             ,args)]
-                   [`(,(car fns)
-                      ,(compose (cdr fns)))])}]}])]
+                   [`(,(car fs)
+                      ,(compose (cdr fs)))])}]}])]
 ;;; \end{code}
 
-;;; \cite[p. 66]{onlisp}
+;;; \noindent \cite[p. 66]{onlisp}
 ;;;
 ;;;
 ;;; \subsection*{Tests}
@@ -2337,7 +2337,7 @@
           [#f])}]
 ;;; \end{code}
 
-;;; \cite[p. 191]{onlisp}
+;;; \noindent \cite[p. 191]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {aif (+ 5 10) (* 2 it)}
@@ -2370,7 +2370,7 @@
       ,@body}]
 ;;; \end{code}
 
-;;; \cite[p. 145]{onlisp}
+;;; \noindent \cite[p. 145]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? (macroexpand-1 (with-gensyms (foo bar baz)
