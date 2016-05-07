@@ -61,6 +61,10 @@
 ;;; \newpage
 ;;; \break
 ;;;
+;;; \vspace*{\fill}
+;;; \begin{center}
+;;;  \begin{minipage}{.9\textwidth}
+
 ;;;  \noindent
 ;;;  EITHER
 ;;;
@@ -106,6 +110,10 @@
 ;;;    License along with this library; if not, write to the Free Software
 ;;;    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ;;;
+;;;  \end{minipage}
+;;;  \end{center}
+;;;  \vfill
+;;;  \clearpage
 ;;; \newpage
 ;;; \thispagestyle{empty}
 ;;; \mbox{}
@@ -205,7 +213,7 @@
 ;;;
 ;;;
 ;;; Why does this matter?
-;;; Towards answering the questions ``so what does the code do?'' and ``how did the author
+;;; Towards answering the questions ``what does the code do?'' and ``how did the author
 ;;; intend for it to be used?'', there is no searching through files, no extrapolation
 ;;; of expected inputs and outputs required.
 ;;; The fact that the
