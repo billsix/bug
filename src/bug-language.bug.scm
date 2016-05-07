@@ -29,7 +29,7 @@
 ;;;
 ;;; So, what does libbug do that is novel?  It provides procedures to do arbitrary computation
 ;;; at compile-time, where the compile-time ``language'' is the same exact language which
-;;; the compiler compiles.  A programmer can write programs to run at compile time
+;;; the compiler compiles.  A programmer can write programs to run at compile-time
 ;;; in the same manner as he'd normally write them.
 ;;;
 ;;;
@@ -85,8 +85,8 @@
 ;;; Macro definitions and namespace declarations, however do not reside
 ;;; in such libraries.
 ;;;
-;;; ``at-compile-time'' allows us to execute arbitrary code at compile time,
-;;; so why not open files and write to them during compile time?
+;;; ``at-compile-time'' allows us to execute arbitrary code at compile-time,
+;;; so why not open files and write to them during compile-time?
 ;;; Open one file for the namespaces, ``libbug\#.scm'', and one for the macros,
 ;;; ``libbug-macros.scm''.  These files will be pure Gambit scheme code, no
 ;;; libbug-syntax enhancements, and they are not intended to be read by
@@ -254,7 +254,7 @@
 ;;;
 ;;; \index{lang\#with-tests}
 ;;;
-;;; Given that the reader now knows how to evaluate at compile time, implementing
+;;; Given that the reader now knows how to evaluate at compile-time, implementing
 ;;; a macro to execute tests at compile-time is trivial.
 ;;;
 ;;; \begin{itemize}

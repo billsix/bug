@@ -438,11 +438,11 @@
 ;;; \section{C++}
 ;;;
 ;;; C++ inherits C's macros, but with the additional introduction
-;;; of templates, C++'s compile time language
+;;; of templates, C++'s compile-time language
 ;;; incidentally became Turing complete.  This means that
 ;;; anything that can be
 ;;; calculated by a computer can be calculated using template expansion
-;;; at compile time.  Fun fact, but general purpose computation using template
+;;; at compile-time.  Fun fact, but general purpose computation using template
 ;;; metaprogramming is not useful in practice.
 ;;;
 ;;; The following is an example of calculating the factorial of
@@ -560,7 +560,7 @@
 ;;;   \item
 ;;;      On line 7, ``at-compile-time-expand'' is a macro which takes unevaluated code,
 ;;;      evaluates it to some result which is then compiled by the compiler.  So the code
-;;;      will expand at compile time to ``(pp 6)''.
+;;;      will expand at compile-time to ``(pp 6)''.
 ;;;   \item
 ;;;      On line 8, the run-time calculation of ``(fact 3)''.
 ;;; \end{itemize}
@@ -613,7 +613,7 @@
 ;;;
 ;;;
 ;;; When I first started creating libbug, I only wanted to collocate
-;;; tests with definitions, to evaluate the tests at compile time, and to error out
+;;; tests with definitions, to evaluate the tests at compile-time, and to error out
 ;;; of compilation
 ;;; if a test failed.  Only later did I realize that compile-time evaluation
 ;;; can execute full programs without limitations.  What else could be
