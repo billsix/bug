@@ -18,17 +18,17 @@
 ;;; a ``.h'' file,
 ;;; so that other files may type check against it at compile-time.
 ;;;
-;;; Libbug takes a novel approach; it generates this information at
+;;; Libbug takes a novel approach to solve that problem; it generates this information at
 ;;; compile-time.  At first glance, that sound simple enough.  But what types of computation
-;;; can be performed at compile-time, and how can a programmer program I/O to be evaluated
+;;; can be performed at compile-time, and can a programmer program I/O 
 ;;; at compile-time?
-;;; Programs written in C and C++ cannot do this, as C's macros only allow textual substitution
+;;; Programs written in C and C++ cannot, as C's macros only allow textual substitution
 ;;; and conditional compilation, is not Turing Complete,
-;;; and definitely doesn't do I/O.  C++'s template metaprogramming is Turing Complete, yet is
-;;; a drastically different language from ``run-time'' C++; and also lacks I/O capabilities.
+;;; and has no I/O capabilities.  C++'s template metaprogramming, althogh Turing Complete,
+;;; lacks state and I/O.
 ;;;
 ;;; So, what does libbug do that is novel?  It provides procedures to do arbitrary computation
-;;; at compile-time, where the compile-time ``language'' is the same exact language which
+;;; at compile-time, where the compile-time language is the same exact language which
 ;;; the compiler compiles.  A programmer can write programs to run at compile-time
 ;;; in the same manner as he'd normally write them.
 ;;;
