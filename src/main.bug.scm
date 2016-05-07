@@ -2538,9 +2538,16 @@
   }
 ;;; \end{code}
 ;;;
+;;; At the beginning of the code, in section~\ref{sec:beginninglibbug}, ``bug-language.scm''
+;;; was imported, so that we could use ``libbug\#define'', and ``libbug\#define-macro''.
+;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
+;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
+;;; and they must be closed, accomplished by importing ``bug-language-end.scm'',
+;;; defined in section ~\ref{sec:closefiles}.
+;;;
 ;;; \begin{code}
 (include "bug-language-end.scm")
 ;;; \end{code}
 ;;;
-;;; \footnote{defined in section ~\ref{sec:closefiles}}
+;;; 
 ;;;
