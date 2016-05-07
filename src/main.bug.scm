@@ -422,14 +422,14 @@
 ;;;
 ;;; \noindent before compilation.
 ;;;
-;;; The third line defines a function prototype, so that
-;;; the compiler knows the argument types and return type for a function not
+;;; The third line defines a procedure prototype, so that
+;;; the compiler knows the argument types and return type for a procedure not
 ;;; yet defined called ``fact''.
-;;; It is language interpreted by the compiler to determine the types for the function
+;;; It is language interpreted by the compiler to determine the types for the procedure
 ;;; call to ``fact'' on line 8, since ``fact'' has not yet been defined in this
 ;;; translation unit.
 ;;;
-;;; The fourth through tenth line is a function definition, which will be
+;;; The fourth through tenth line is a procedure definition, which will be
 ;;; translated into instructions in the generated machine code.  Line 5, however, is language
 ;;; to be interpreted by the compiler, referencing a variable which is defined
 ;;; only during compilation, to detemine whether or not line 6 should be
@@ -446,7 +446,7 @@
 ;;; metaprogramming is not useful in practice.
 ;;;
 ;;; The following is an example of calculating the factorial of
-;;; 3, using C++ functions for run-time calulation, and C++'s templates for compile-time
+;;; 3, using C++ procedures for run-time calulation, and C++'s templates for compile-time
 ;;; calculation.
 ;;;
 ;;; \begin{examplecode}
@@ -1257,7 +1257,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{list\#fold-left}
-;;;    Reduce the list to a scalar by applying the reducing function repeatedly,
+;;;    Reduce the list to a scalar by applying the reducing procedure repeatedly,
 ;;;    starting from the ``left'' side of the list
 ;;;
 ;;; \index{list\#fold-left}
@@ -1305,7 +1305,7 @@
 ;;; \newpage
 ;;; \section{list\#fold-right}
 ;;;    Reduces the list to a scalar by applying the reducing
-;;;    function repeatedly,
+;;;    procedure repeatedly,
 ;;;    starting from the ``right'' side of the list
 ;;;
 ;;; \index{list\#fold-right}

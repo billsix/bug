@@ -7,14 +7,14 @@
 ;;;  \label{sec:buglang}
 ;;;
 ;;; The most prevalent code which executed at compile-time in the previous chapter
-;;; was testing code, but many other computations occurred during compile-time,
+;;; was code for testing, but many other computations occurred during compile-time
 ;;; transparently to the reader.  These other computations produced output
 ;;; files for namespace mappings and for macro definitions, to be used by other
 ;;; programs which link against libbug.
 ;;;
-;;; Many languages, namely C and C++, also must deal with a similar issue with libraries
-;;; when dealing with function prototypes.  Whenever a C programmer
-;;; creates a new function, he must then copy the function name and parameter list into
+;;; Many languages, for example C and C++, also must deal with a similar issue with libraries
+;;; when dealing with procedure prototypes.  Whenever a C programmer
+;;; creates a new procedure, he must then copy the procedure name and parameter list into
 ;;; a ``.h'' file,
 ;;; so that other files may type check against it at compile-time.
 ;;;
@@ -285,7 +285,7 @@
 ;;;
 ;;;
 ;;; \section{libbug\#define}
-;;; Function definitions will all have a namespace, name, body,
+;;; Procedure definitions will all have a namespace, name, body,
 ;;; and an optional suite of tests
 ;;;
 ;;; \label{sec:libbugdefine}
