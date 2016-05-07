@@ -286,9 +286,7 @@
         ,definition
         (if (and ,@tests)
             [',definition]
-            [(for-each pp (list "Test Failed"
-                                ',tests
-                                ',definition))
+            [(for-each pp (list "Test Failed" ',tests ',definition))
              (error "Tests Failed")])})]})
 ;;; \end{code}
 ;;;

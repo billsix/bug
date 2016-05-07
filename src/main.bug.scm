@@ -148,16 +148,15 @@
 ;;;{define
 ;;; "list#"
 ;;; permutations
-;;; [|l|
-;;;  (if (null? l)
-;;;      ['()]
-;;;      [{let permutations ((l l))
-;;;        (if (null? l)
-;;;          [(list '())]
-;;;          [(flatmap [|x|
-;;;                     (map [|y| (cons x y)]
-;;;                          (permutations (remove x l)))]
-;;;                    l)])}])]
+;;; [|l| (if (null? l)
+;;;          ['()]
+;;;          [{let permutations ((l l))
+;;;            (if (null? l)
+;;;              [(list '())]
+;;;              [(flatmap [|x|
+;;;                         (map [|y| (cons x y)]
+;;;                              (permutations (remove x l)))]
+;;;                        l)])}])]
 ;;; \end{examplecode}
 ;;;
 ;;; So what does the code do?  How did the author intend for it to be used?
@@ -207,8 +206,7 @@
 ;;;           (2 1 3)
 ;;;           (2 3 1)
 ;;;           (3 1 2)
-;;;           (3 2 1)))
-;;; }
+;;;           (3 2 1)))}
 ;;; \end{examplecode}
 ;;;
 ;;;
@@ -247,7 +245,7 @@
 ;;; Libbug provides procedures for list processing, streams,
 ;;; control structures,
 ;;; general-purpose evaluation at compile-time, a
-;;; compile-time test framework (in only 11 lines of code!), and a Scheme preprocessor to
+;;; compile-time test framework (in only 9 lines of code!), and a Scheme preprocessor to
 ;;; provide a lambda literal syntax.  Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
@@ -298,7 +296,7 @@
 ;;; As macros transform source code into different source code before compilation, the generated
 ;;; code may not follow the standard order of evaluation;  for instance, an argument may be
 ;;; evaluated multiple
-;;; times in the generated code, causing an unintended side-effect.
+;;; times in the generated code.
 ;;; The inability for the reader to reason about the evaluation semantics of arguments to a macro
 ;;; at the call site may cause confusion to the reader; as such,
 ;;; within libbug the notation
@@ -332,7 +330,7 @@
 ;;;  Currently the code works on various distributions of Linux, and on
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
-;;; You will need a C compiler, such as GCC,
+;;; You will need a C compiler such as GCC,
 ;;; Autoconf, Automake, and Gambit
 ;;; Scheme\footnote{http://gambitscheme.org}, version 4.8 or newer.
 ;;;
@@ -645,7 +643,7 @@
 ;;; In contrast, the compile-time
 ;;; language in libbug is the same exact language as the one that the compiler
 ;;; is compiling, complete with state and I/O!  How can that power be used?
-;;; The rest of the book is the answer to that question.
+;;; The rest of the book the beginning of an answer.
 ;;;
 ;;;
 ;;; When I first started creating libbug, I only wanted to collocate
@@ -928,9 +926,7 @@
 {define
   "lang#"
   numeric-if
-  [|expr #!key (ifPositive noop)
-               (ifZero noop)
-               (ifNegative noop)|
+  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
    (if (> expr 0)
        [(ifPositive)]
        [(if (= expr 0)
@@ -1977,8 +1973,8 @@
            (not (equal? 'lambda (car d)))
            (null? (cdr d))
            (not (equal? '() (cadr d))))
-       [(error "stream#stream-cons requires a zero-argument lambda in it's \
-                second arg")]
+       [(error "stream#stream-cons requires a zero-argument \
+                lambda in it's second arg")]
        [`(cons ,a {delay ,(caddr d)})])]
 ;;; \end{code}
 ;;;
