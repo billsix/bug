@@ -2454,12 +2454,12 @@
        [{case (car exp)
           ((car) `{set-car! ,@(cdr exp) ,val})
           ((cdr) `{set-cdr! ,@(cdr exp) ,val})
-;;; \end{code}
-;;; \begin{code}
           ((caar) `{setf! (car (car ,@(cdr exp))) ,val})
           ((cadr) `{setf! (car (cdr ,@(cdr exp))) ,val})
           ((cdar) `{setf! (cdr (car ,@(cdr exp))) ,val})
           ((cddr) `{setf! (cdr (cdr ,@(cdr exp))) ,val})
+;;; \end{code}
+;;; \begin{code}
           ((caaar) `{setf! (car (caar ,@(cdr exp))) ,val})
           ((caadr) `{setf! (car (cadr ,@(cdr exp))) ,val})
           ((cadar) `{setf! (car (cdar ,@(cdr exp))) ,val})
@@ -2484,8 +2484,6 @@
           ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
           ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
           ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
-;;; \end{code}
-;;; \begin{code}
           ;; TODO - handle other atypical cases
           (else `(,(symbol-append (car exp) '-set!)
                   ,@(cdr exp)
@@ -2513,140 +2511,40 @@
     {setf! (cdr a) 10}
     (equal? (cdr a) 10)}
 ;;; \end{code}
+;;;
+;;; Testing all of the ``car'' through ``cddddr'' procedures will be highly
+;;; repetitive.  Instead, create a list which has an element at each of those
+;;; accessor procedures, and test each.
+;;;
 ;;; \begin{code}
-  {let ((a '((1 2) (3 4))))
-    {setf! (caar a) 10}
-    (equal? (caar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '((1 2) (3 4))))
-    {setf! (cadr a) 10}
-    (equal? (cadr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '((1 2) (3 4))))
-    {setf! (cdar a) 10}
-    (equal? (cdar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '((1 2) (3 4))))
-    {setf! (cddr a) 10}
-    (equal? (cddr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)))))
-    {setf! (caaar a) 10}
-    (equal? (caaar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)))))
-    {setf! (caadr a) 10}
-    (equal? (caadr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2) 5) ((3 4)))))
-    {setf! (cadar a) 10}
-    (equal? (cadar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)) (5))))
-    {setf! (caddr a) 10}
-    (equal? (caddr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)))))
-    {setf! (cdaar a) 10}
-    (equal? (cdaar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)))))
-    {setf! (cdadr a) 10}
-    (equal? (cdadr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)) (5 6))))
-    {setf! (cdddr a) 10}
-    (equal? (cdddr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '((((1 2))) ((3 4)) (5 6))))
-    {setf! (caaaar a) 10}
-    (equal? (caaaar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)) (5 6))))
-    {setf! (caaadr a) 10}
-    (equal? (caaadr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2) (7 8)) ((3 4)) (5 6))))
-    {setf! (caadar a) 10}
-    (equal? (caadar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)) (5 6))))
-    {setf! (caaddr a) 10}
-    (equal? (caaddr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)) (5 6))))
-    {setf! (cadaar a) 10}
-    (equal? (cadaar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4) (7 8)) (5 6))))
-    {setf! (cadadr a) 10}
-    (equal? (cadadr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2) () (7 8)) ((3 4)) (5 6))))
-    {setf! (caddar a) 10}
-    (equal? (caddar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(1 2 3 (x 5))))
-    {setf! (cadddr a) 10}
-    (equal? (cadddr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '((((1 x))))))
-    {setf! (cdaaar a) 10}
-    (equal? (cdaaar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) ((3 4)) (5 6))))
-    {setf! (cdaadr a) 10}
-    (equal? (cdaadr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '((1 ((2 x))))))
-    {setf! (cdadar a) 10}
-    (equal? (cdadar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(1 2 (3 x))))
-    {setf! (cdaddr a) 10}
-    (equal? (cdaddr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 (2 x))))))
-    {setf! (cddaar a) 10}
-    (equal? (cddaar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(((1 2)) (3 (4 x)))))
-    {setf! (cddadr a) 10}
-    (equal? (cddadr a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '((1 2 3 x))))
-    {setf! (cdddar a) 10}
-    (equal? (cdddar a) 10)}
-;;; \end{code}
-;;; \begin{code}
-  {let ((a '(1 2 3 4 x)))
-    {setf! (cddddr a) 10}
-    (equal? (cddddr a) 10)}
+  {eval
+   `{begin
+      ,@(map [|x| `{let ((a '(
+                              (
+                               (
+                                (1) 2)
+                               (3)
+                               ())
+                              (
+                               (4)
+                               5)
+                              (6)
+                              ()
+                              )))
+                     {setf! (,x a) 10}
+                     (equal? (,x a) 10)}]
+             '(car cdr
+
+               caar cadr cdar cddr
+
+               caaar caadr cadar caddr
+               cdaar cdadr cddar cdddr
+
+               caaaar caaadr caadar caaddr
+               cadaar cadadr caddar cadddr
+               cdaaar cdaadr cdadar cdaddr
+               cddaar cddadr cdddar cddddr
+               ))}}
   }
 ;;; \end{code}
 ;;;
