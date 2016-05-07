@@ -1332,8 +1332,6 @@
      ((1 2) 8)
      ((1 2 3 4 5 6) 26)
      ))
-;;; \end{code}
-;;; \begin{code}
   (satisfies?
    [|l| (fold-right - 5 l)]
    '(
@@ -1383,8 +1381,6 @@
      ((2 3 4) (1 2 6 24))
      ((2 3 4 5 ) (1 2 6 24 120))
      ))
-;;; \end{code}
-;;; \begin{code}
   (satisfies?
    [|l| (scan-left + 5 l)]
    '(
@@ -1393,8 +1389,6 @@
      ((1 2) (5 6 8))
      ((1 2 3 4 5 6) (5 6 8 11 15 20 26)
      )))
-;;; \end{code}
-;;; \begin{code}
   (satisfies?
    [|l| (scan-left - 5 l)]
    '(
@@ -1789,8 +1783,6 @@
      (b 1)
      (g 6)
      ))
-;;; \end{code}
-;;; \begin{code}
   (satisfies?
    [|x| (ref-of '(a b c d e f g)
                 x
@@ -1799,8 +1791,6 @@
      (z missing)
      (a 0)
      ))
-;;; \end{code}
-;;; \begin{code}
   {let ((l '(a b c d e f g)))
     (satisfies?
      [|x| (list-ref l (ref-of l x))]
