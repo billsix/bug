@@ -181,8 +181,8 @@
 ;;;
 ;;; So where are these tests then? The very alert reader may have noticed
 ;;; that the opening '\{' in the definition
-;;; of ``permutations'' was not closed.  That is because we complete the definition
-;;; of ``permutations'' by specifying tests
+;;; of ``permutations'' was not closed.  That is because the definition
+;;; of ``permutations'' is completed by specifying tests
 ;;; to be run at compile-time.
 ;;;
 ;;; \begin{examplecode}
@@ -528,8 +528,7 @@
 ;;; On line 17, a run-time call to ``fact'', defined on line 10, is declared.
 ;;; \end{itemize}
 ;;;
-;;; Using ``objdump -D'', we can
-;;; see the drastic difference in the generated code.
+;;; The drastic difference in the generated code can be observed by using ``objdump -D''.
 ;;;
 ;;; \begin{examplecode}
 ;;; 400850: be 06 00 00 00   mov    $0x6,%esi
@@ -1757,8 +1756,8 @@
 ;;; \end{code}
 ;;;
 ;;; Inspired by \cite[p. 124]{sicp}, although I think they have a slight
-;;; mistake in
-;;;  their code.  Given their definition (permutations '()) evaluates to '(()), instead of '().
+;;; mistake in their code.  Given their definition (permutations '())
+;;; evaluates to '(()), instead of '().
 ;;;
 ;;; See also \cite[p. 45]{taocp}
 ;;;
@@ -2572,7 +2571,7 @@
 ;;; \end{code}
 ;;;
 ;;; At the beginning of the code, in section~\ref{sec:beginninglibbug}, ``bug-language.scm''
-;;; was imported, so that we could use ``libbug\#define'', and ``libbug\#define-macro''.
+;;; was imported, so that ``libbug\#define'', and ``libbug\#define-macro'' can be used.
 ;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
 ;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
 ;;; and they must be closed, accomplished by importing ``bug-language-end.scm'',

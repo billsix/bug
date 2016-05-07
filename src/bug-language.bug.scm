@@ -220,7 +220,7 @@
 ;;;
 ;;; \section{lang\#if}
 ;;; \label{sec:langif}
-;;; In the following, I define a new version of "if", which was first used
+;;; In the following, a new version of "if" is defined, which was first used
 ;;; in section ~\ref{sec:langiffirstuse}
 ;;;
 ;;;
