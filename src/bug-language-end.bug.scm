@@ -35,6 +35,11 @@
 ;;;  The MIT Press, Massachusetts,
 ;;;  Second Edition,
 ;;;  1996.
+;;;\bibitem[Abrahams2004]{ctm}
+;;;  Abrahams, David and Aleksey Gurtovoy
+;;;  \emph{C++ Template Metaprogramming},
+;;;  Addison Wesley
+;;;  2004.
 ;;;
 ;;;\bibitem[Church51]{calculi}
 ;;;  Church, Alonzo

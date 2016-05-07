@@ -359,19 +359,36 @@
 ;;; chapter is not required to understand the rest of the book and may be freely
 ;;; skipped, but it provides a baseline understanding of compile-time computation,
 ;;; so that the reader may contrast these languages' capabilities with libbug's.
+;;; But first, let's discuss was is meant by the words ``language'',``compiler'', and
+;;; ``interpreter''.
 ;;;
-;;; First, let's discuss was is meant by the word ``language''.
 ;;; In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
 ;;; Motwani, and Ullman define language as ``A set of strings all of which are chosen
 ;;; from some $\Sigma^{\star}$, where $\Sigma$ is a particular alphabet, is called
 ;;; a language'' \cite[p. 30]{hmu2001}.
-;;;  They further state ``In automata theory, a problem is the question
-;;; of deciding whether a given string is a member of some particular language''. \cite[p. 31]{hmu2001}.
+;;; % They further state ``In automata theory, a problem is the question
+;;; % of deciding whether a given string is a member of some particular language''. \cite[p. 31]{hmu2001}.
+;;; Plainly, that means an ``alphabet'' is a set of characters (for instance, ASCII), and
+;;; that a computer ``language'' is defined as all of the possible sequences of characters
+;;; from that alphabet which match some criterion.
 ;;;
-;;; In practice, if your compiler successfully compiles your code, congratulations!
-;;; The code is a valid string in the language, and passed any additional constraints
-;;; (e.g. type-checking).  But does all of that language correspond to generated instructions
-;;; in the machine code?  Turns out, no, it does not.
+;;; An ``interpreter'' is a pre-existing computer program which takes a specific
+;;; computer language as input,
+;;; and does some action based on it.  A ``compiler'' is a pre-existing computer program
+;;; which takes computer language as input,
+;;; but rather than immediately doing the actions specified by the input, instead the compiler
+;;; translates the input language
+;;; into another computer language (typically machine code), which is then output to a file
+;;; for interpretation\footnote{the CPU can be viewed as an
+;;; interpreter which takes machine code as its' input} at a later time.
+;;;
+;;; In practice though, the distinction is not clear cut.  Most compilers do not exclusively
+;;; translate from an input language
+;;; to an output language; instead, they also interpret a subset of the input
+;;; language as part of the process of generating the output language.  Well, what
+;;; types of computations can be performed by this subset of language, and how do
+;;; they vary in expressive power?
+
 ;;;
 ;;; \section{C}
 ;;;Consider the following C code:
@@ -394,46 +411,56 @@
 ;;;/*Line15*/  }
 ;;; \end{examplecode}
 ;;;
-;;; On the first line, the \#include preprocessor command
-;;; is language that the compiler
-;;; is intended to interpret, instructing the compiler to
-;;; read the file ``stdio.h''
-;;; from the filesystem and to splice the content
-;;; into the current C file.  The include command
-;;; itself has no representation in the machine code, although the contents
-;;; of the included file may.
+;;; \begin{itemize}
+;;;  \item
+;;;     On the first line, the \#include preprocessor command
+;;;     is language that the compiler
+;;;     is intended to interpret, instructing the compiler to
+;;;     read the file ``stdio.h''
+;;;     from the filesystem and to splice the content
+;;;     into the current C file.  The include command
+;;;     itself has no representation in the generated machine code, although the contents
+;;;     of the included file may.
 ;;;
-;;; The second line defines a C macro. It is a procedure to be interpreted
-;;; at compile-time only, which takes a text
-;;; string as input and transforms it into a new text string as output.
-;;; This expansion happens before the compiler does much
-;;; else.  For example, using GCC as a compiler, if you run the C preprocessor
-;;; ``cpp'' on the above C code, you'll see that
+;;;  \item
+;;;     The second line defines a C macro. C macros are procedure definitions which
+;;;      are not to be translated into the output language, but instead it is a procedure
+;;;     to be interpreted by the compiler
+;;;     at compile-time only.  C macros take a text
+;;;     string as input and transforms it into a new text string as output.
+;;;     This expansion happens before the compiler does much
+;;;     else.  For example, using GCC as a compiler, if you run the C preprocessor
+;;;     ``cpp'' on the above C code, you'll see that
 ;;;
-;;; \begin{examplecode}
+;;;     \begin{examplecode}
 ;;;  printf("%d\n",square(fact(argc)));
-;;; \end{examplecode}
+;;;     \end{examplecode}
 ;;;
-;;; \noindent expands into
+;;;     \noindent expands into
 ;;;
-;;; \begin{examplecode}
+;;;     \begin{examplecode}
 ;;;  printf("%d\n",((fact(argc)) * (fact(argc))));
-;;; \end{examplecode}
+;;;     \end{examplecode}
 ;;;
-;;; \noindent before compilation.
+;;;     \noindent before compilation.
 ;;;
-;;; The third line defines a procedure prototype, so that
-;;; the compiler knows the argument types and return type for a procedure not
-;;; yet defined called ``fact''.
-;;; It is language interpreted by the compiler to determine the types for the procedure
-;;; call to ``fact'' on line 8, since ``fact'' has not yet been defined in this
-;;; translation unit.
-;;;
-;;; The fourth through tenth line is a procedure definition, which will be
-;;; translated into instructions in the generated machine code.  Line 5, however, is language
-;;; to be interpreted by the compiler, referencing a variable which is defined
-;;; only during compilation, to detemine whether or not line 6 should be
-;;; compiled.
+;;;  \item
+;;;     The third line defines a procedure prototype, so that
+;;;     the compiler knows the argument types and return type for a procedure not
+;;;     yet defined called ``fact''.
+;;;     It is language interpreted by the compiler to determine the types for the procedure
+;;;     call to ``fact'' on line 8, since ``fact'' has not yet been defined in this
+;;;     translation unit.
+;;;  \item
+;;;     The fourth through tenth line is a procedure definition, which will be
+;;;     translated into instructions in the generated machine code.  Line 5, however, is language
+;;;     to be interpreted by the compiler, referencing a variable which is defined
+;;;     only during compilation, to detemine whether or not line 6 should be
+;;;     compiled.
+;;; \end{itemize}
+
+
+
 ;;;
 ;;; \section{C++}
 ;;;
@@ -442,8 +469,8 @@
 ;;; incidentally became Turing complete.  This means that
 ;;; anything that can be
 ;;; calculated by a computer can be calculated using template expansion
-;;; at compile-time.  Fun fact, but general purpose computation using template
-;;; metaprogramming is not useful in practice.
+;;; at compile-time.  That's great!  So how does a programmer begin to use this new
+;;; expressive power?
 ;;;
 ;;; The following is an example of calculating the factorial of
 ;;; 3, using C++ procedures for run-time calulation, and C++'s templates for compile-time
@@ -480,14 +507,14 @@
 ;;;   template code for the compile-time calculation of ``factorial''.
 ;;;   \item
 ;;; On line 16, ``factorial\textless3\textgreater::value'' is an
-;;; instruction to be interpreted
+;;; language to be interpreted
 ;;; by the compiler via template expansions.  Template expansions
 ;;; conditionally match patterns based on types (or values in the case
 ;;; of integers).  For iteration, instead of loops, templates expand recursively.
 ;;; In this case, the expansion of
 ;;; ``factorial\textless3\textgreater::value'' in dependent upon
 ;;; ``factorial\textless n-1\textgreater::value''.  The compiler
-;;; does the subtraction at compile-time,
+;;; does the subtraction during compile-time,
 ;;; so ``factorial\textless3\textgreater::value'' is dependent on
 ;;; ``factorial\textless2\textgreater::value''.
 ;;; This recursion will terminate on ``factorial\textless0\textgreater::value''
@@ -536,8 +563,10 @@
 ;;; The compile-time computation worked!
 ;;;
 ;;; \section{libbug}
-;;; With libbug, the following is how you'd define factorial, and the pretty-print
-;;; the factorial of 3, both computed at compile-time and computed at run-time.
+;;; Like C++, Libbug's compile-time language is Turing complete.
+;;; With libbug, the following is how factorial is defined, and how
+;;; the factorial of 3 is printing to the screen, both computed at
+;;; compile-time and computed at run-time.
 ;;;
 ;;; \begin{examplecode}
 ;;; {at-both-times                           ;; Line 1
@@ -566,7 +595,7 @@
 ;;; \end{itemize}
 ;;;
 ;;; By compiling the Scheme source to the ``gvm'' intermediate
-;;; representation, we can verify the stated behavior.
+;;; representation, the stated behavior can be verified.
 ;;;
 ;;; \begin{examplecode}
 ;;;  ...
@@ -595,27 +624,27 @@
 ;;;      is called, and then ``pp'' is called on the result.
 ;;; \end{itemize}
 ;;;
+;;; \section{Comparison of Power}
 ;;;
+;;; Although C++'s and libbug's compile-time languages are both Turing complete,
+;;; they vary drastically in actual real-world programming power.  The language used
+;;; for compile-time calculation of ``fact'' in C++ is a drastically different language than
+;;; the one used for run-time.  Although not demonstrated in this book,
+;;; C++ template metaprogramming relies exclusively on recursion for repetition (it has no
+;;; looping construct), it has no mutable state, and it lacks the ability to do input/output
+;;; (I/O)\footnote{For the masochist who wants to know more about C++'s compile-time language,
+;;; I recommend \cite{ctm} }
 ;;;
-;;; So this has been an moderately interesting exercise, but why is
-;;; this important?
-;;; This chapter demonstrates that many compilers are also interpreters of
-;;; a limited langugage,
-;;; which is mostly taken for granted and not questioned.
-;;; C has two distinct sub-``languages'', one for compile-time and one
-;;; for run-time;
-;;; both of which have variables, conditionals, and procedure definitions.
-;;; As does C++, which also has compile-time Turing-completeness in an awkward
-;;; purely functional language
-;;; which lacks state and IO.
-;;; In contrast, libbug enables compile-time computation using the same exact
-;;; language as the run-time, complete with state and IO.
+;;; In contrast, the compile-time
+;;; language in libbug is the same exact language as the one that the compiler
+;;; is compiling, complete with state and I/O!  How can that power be used?
+;;; The rest of the book is the answer to that question.
 ;;;
 ;;;
 ;;; When I first started creating libbug, I only wanted to collocate
-;;; tests with definitions, to evaluate the tests at compile-time, and to error out
+;;; tests with definitions, to evaluate the tests at compile-time exclusively, and to error out
 ;;; of compilation
-;;; if a test failed.  Only later did I realize that compile-time evaluation
+;;; if any test failed.  Only later did I discover that compile-time evaluation
 ;;; can execute full programs without limitations.  What else could be
 ;;; calculated at compile-time?  In graphics, perhaps calculating normal vectors
 ;;; from a vertex mesh automatically; perhaps writing ``shaders'' as compile-time
@@ -623,10 +652,14 @@
 ;;; In database programming, perhaps fetching the table definitions at compile-time,
 ;;; and generating code for easy database access.
 ;;;
-;;; I don't understand all of the implications of having a compiler augment itself
-;;; with the code its currently compiling.   ``Come along and ride on a fantastic voyage.''
+;;; I don't yet understand much of the implications of having a compiler augment itself
+;;; with the code its currently compiling.  The only negative aspect which comes to mind
+;;; is that compile times are longer.  For me though, the improvement in
+;;; expressive power gained by using libbug,
+;;; as demonstrated in this book,
+;;; drastically outweighs the longer compile times.
 ;;;
-;;; \chapter{General Procedures}
+;;; \chapter{Introductory Procedures}
 ;;;  \label{sec:beginninglibbug}
 ;;;
 ;;; Now begins the definition of a standard library of Scheme procedures and
@@ -2217,7 +2250,7 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \chapter{General Procedures Part 2}
+;;; \chapter{General Procedures}
 ;;;
 ;;;
 ;;; \section{lang\#compose}
@@ -2306,7 +2339,7 @@
 ;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
 ;;; is overridden into a procedure
 ;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
-;;; call during a macroexpansion generates a new, unique symbol.  Although this symbol
+;;; call during a macro-expansion generates a new, unique symbol.  Although this symbol
 ;;; may clash with symbols in the expanded code, this is not a problem, as these
 ;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
 ;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
@@ -2549,5 +2582,5 @@
 (include "bug-language-end.scm")
 ;;; \end{code}
 ;;;
-;;; 
+;;;
 ;;;

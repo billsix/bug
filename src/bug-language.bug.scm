@@ -46,7 +46,7 @@
 ;;; ``at-compile-time'' macro is implemented by ``eval''ing code
 ;;; during macro-expansion. \cite{evalduringmacroexpansion}
 ;;;
-;;; Evaling during macroexpansion is how we can augment the compiler with new procedures,
+;;; Evaling during macro-expansion is how the compiler may be augmented with new procedures,
 ;;; thus treating the compiler as an interpreter.
 ;;;
 ;;; \index{lang\#at-compile-time}
@@ -60,8 +60,8 @@
 ;;;
 ;;; \begin{itemize}
 ;;;   \item On line 4, the unevaluated code which was passed to
-;;;  ``at-compile-time'' is evaluated during macroexpansion, so it is evaluated
-;;;  at compile-time.  The macroexpansion expands into ``(quote noop)'', so the
+;;;  ``at-compile-time'' is evaluated during macro-expansion, thus
+;;;  at compile-time.  The macro-expansion expands into ``(quote noop)'', so the
 ;;;  form will not evaluate at runtime.
 ;;; \end{itemize}
 ;;;
@@ -81,9 +81,9 @@
 ;;; \end{itemize}
 ;;;
 ;;; Libbug is a collection of procedures and macros.  Building libbug results
-;;; in a library (static or dynamic) and a "loadable" library (a .o1 file).
-;;; Macro definitions and namespace declarations, however do not reside
-;;; in such libraries.
+;;; in a library (static or dynamic) and a ``loadable'' library (a .o1 file).
+;;; Macro definitions and namespace declarations ae not compiled into such
+;;; libraries.
 ;;;
 ;;; ``at-compile-time'' allows us to execute arbitrary code at compile-time,
 ;;; so why not open files and write to them during compile-time?
@@ -104,29 +104,47 @@
    (eval form)]}
 ;;; \end{code}
 ;;;
-;;; The previous three macros are also written to the libbug-macros.scm file,
-;;; and a reference from libbug-macros.scm to libbug\#.scm is made, so
-;;; a person can now assume that the files must be collocated.
+;;; \subsection{Create File for Namespaces}
 ;;;
+;;;  The previous three macros are namespaced within libbug, but
+;;;  external projects which will use libbug may need these namespace
+;;;  mappings as well.  To rectify that, open a file
+;;;  during compile-time, and write those namespace mappings
+;;;  to the file.
 ;;;
-;;;
+;;; \begin{code}
+{at-compile-time
+ {begin
+   {##define libbug-headers-file
+     (open-output-file '(path:
+                         "libbug#.scm"
+                         append:
+                         #f))}
+   (display
+    ";;; Copyright 2014-2016 - William Emerison Six
+     ;;;  All rights reserved
+     ;;;  Distributed under LGPL 2.1 or Apache 2.0
+     {##namespace (\"lang#\" at-compile-time)}
+     {##namespace (\"lang#\" at-both-times)}
+     {##namespace (\"lang#\" at-compile-time-expand)}
+     "
+    libbug-headers-file)
+;;; \end{code}
 ;;;
 ;;; \subsection{Create File for Macro Definitions}
 ;;;
 ;;;
 ;;;  The previous three macros are currently available throughout libbug,
 ;;;  but not to programs which use libbug.  To rectify that, open a file
-;;;  during compile-time, and manually write those macro definitions
+;;;  during compile-time, and write those macro definitions
 ;;;  to the file.
 ;;;
 ;;; \begin{code}
-{at-compile-time
- {begin
    {##define libbug-macros-file
      (open-output-file '(path: "libbug-macros.scm"
                          append: #f))}
    (display
-    ";; Copyright 2014-2016 - William Emerison Six
+    ";;; Copyright 2014-2016 - William Emerison Six
      ;;;  All rights reserved
      ;;;  Distributed under LGPL 2.1 or Apache 2.0
      (##include \"~~lib/gambit#.scm\")
@@ -144,38 +162,29 @@
        (eval form)]}
      "
     libbug-macros-file)
-;;; \end{code}
-;;;
-;;; \subsection{Create File for Namespaces}
-;;; \begin{code}
-   {##define libbug-headers-file
-     (open-output-file '(path:
-                         "libbug#.scm"
-                         append:
-                         #f))}
-   (display
-    ";; Copyright 2014-2016 - William Emerison Six
-     ;;;  All rights reserved
-     ;;;  Distributed under LGPL 2.1 or Apache 2.0
-     {##namespace (\"lang#\" at-compile-time)}
-     {##namespace (\"lang#\" at-both-times)}
-     {##namespace (\"lang#\" at-compile-time-expand)}
-     "
-    libbug-headers-file)
    }}
 ;;; \end{code}
+;;;
+;;; \begin{itemize}
+;;;   \item On line 11, ``libbug\#.scm'' is imported, so that the generated macros are
+;;;         namespaced correctly in external projects which import libbug.  In the previous section,
+;;;         this file is created at compile-time.  Remember that when ``libbug-macros.scm'' will
+;;;         be imported by an external project, ``libbug\#.scm'' will exist with all
+;;;         of the namespaces defined in libbug.
+;;; \end{itemize}
 ;;;
 ;;; The files are closed section~\ref{sec:closefiles}
 ;;;
 ;;; \section{libbug\#write-and-eval}
 ;;;
-;;; Now that those files are open, I want to write to them.  Namespaces
-;;; to libbug\#.scm, and macros to libbug-macros.scm.  However, I don't want
-;;; to have to duplicate the code for each context, like I just did for
-;;; the previous two macros.
+;;; Now that those files are open, namespaces will be written 
+;;; to libbug\#.scm and macro definitions to libbug-macros.scm.  However, the
+;;; code shouldn't have be to duplicated for each context, like was done for
+;;; the previous three macros.
 ;;;
-;;; So, write the unevaluated form plus a newline to the
-;;; file, and the return the form so that the compiler actually processes it.
+;;; So, create a macro named ``write-and-eval'' which will write the
+;;; unevaluated form plus a newline to the
+;;; file, and the return the form so that the compiler actually evaluate it.
 ;;;
 ;;; \index{libbug\#write-and-eval}
 ;;; \begin{code}
@@ -305,7 +314,7 @@
 ;;;
 ;;; ``libbug\#define-macro'' acts just like ''\#\#define-macro'', but
 ;;; it also writes the macro definition to a file, and overrides
-;;; ``\#\#gensym'' so that macroexpansions may be tested.
+;;; ``\#\#gensym'' so that macro-expansions may be tested.
 ;;; But when the macros are loaded by an external project, how
 ;;; does it load the namespaces for them?  From the namespace file, which
 ;;; is installed as a relative path to the ``prefix'' argument passed to ``configure''.
@@ -366,6 +375,7 @@
 ;;; \end{code}
 ;;;
 ;;;
+;;;
 ;;; \begin{itemize}
 ;;;   \item On line 1, the program which imports this macro shall define the
 ;;;         macro at both compile-time and run-time.
@@ -393,7 +403,6 @@
 ;;;
 ;;;
 ;;;
-;;;
 ;;; \subsubsection{Procedure to expand macro invocations}
 ;;;
 ;;; In order to be able to test the macro transformation as unevaluated
@@ -402,7 +411,7 @@
 ;;; the ``lambda-value'''s body.  Override ``gensym'' in this generated
 ;;; procedure, so that tests may be written\footnote{``\#\#gensym'', by definition,
 ;;; creates a unique symbol which the programmer could never input, which is why it
-;;; needs to be overridden for testing macroexpansions. }.
+;;; needs to be overridden for testing macro-expansions. }.
 ;;;
 ;;; \begin{code}
        {at-both-times
@@ -475,7 +484,7 @@
 ;;;
 ;;; \section{lang\#macroexpand-1}
 ;;;
-;;; ``macroexpand-1'' allows the programmer to test macroexpansion by writing
+;;; ``macroexpand-1'' allows the programmer to test macro-expansion by writing
 ;;;
 ;;; \begin{examplecode}
 ;;;(equal? (macroexpand-1 (aif (+ 5 10)
