@@ -960,11 +960,10 @@
 {define
   "lang#"
   atom?
-  [|x| {and (not (pair? x))
-            (not (null? x))}]
+  [|x| {or (number? x)
+           (symbol? x)}]
 ;;; \end{code}
 ;;;
-;;; \noindent \cite[p. 10]{littleschemer}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1012,28 +1011,6 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;;
-;;;
-;;;
-;;; \newpage
-;;; \section{lang\#symbol-append}
-;;;
-;;; \index{lang\#symbol-append"}
-;;; \begin{code}
-{define
-  "lang#"
-  symbol-append
-  [|#!rest symlst|
-   (string->symbol (apply string-append
-                          (map symbol->string symlst)))]
-;;;
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? (symbol-append 'foo 'bar) 'foobar)
-  (equal? (symbol-append 'foo 'bar 'baz) 'foobarbaz)
-  }
-;;; \end{code}
 ;;;
 ;;;
 ;;;
@@ -1947,6 +1924,94 @@
 ;;;
 ;;;
 ;;; \newpage
+;;; \chapter{Strings}
+;;; \section{string\#string-liftList}
+;;;
+;;; Strings are sequences of characters, just as lists are
+;;; sequences of arbitrary Scheme objects. ``string-liftList''
+;;; takes a one-argument
+;;; list processing procedure, and evaluates to an
+;;; equivalent procedure for strings.
+;;;
+;;;
+;;; \index{string\#string-liftList"}
+;;; \begin{code}
+{define
+  "string#"
+  string-liftList
+  [|f|
+   [|#!rest s|
+    (list->string
+     (apply f
+            (map string->list s)))]]
+;;;
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   (string-liftList reverse)
+   '(
+     ("" "")
+     ("foo" "oof")
+     ("bar" "rab")
+     ))
+  (satisfies?
+   (string-liftList reverse!)
+   '(
+     ("" "")
+     ("foo" "oof")
+     ("bar" "rab")
+     ))
+  (satisfies?
+   (string-liftList [|l| (take 2 l)])
+   '(
+     ("" "")
+     ("foo" "fo")
+     ))
+  (equal? ((string-liftList append!) "foo" "bar")
+          "foobar")
+  }
+;;; \end{code}
+
+
+;;; \newpage
+;;; \chapter{Symbols}
+
+;;; \section{symbol\#symbol-liftList}
+;;;
+;;; Symbols are sequences of characters, just as lists are
+;;; sequences of arbitrary Scheme objects. ``symbol-liftList''
+;;; takes a one-argument
+;;; list processing procedure, and evaluates to an
+;;; equivalent procedure for symbols.
+;;;
+;;;
+;;; \index{symbol\#symbol-liftList"}
+;;; \begin{code}
+{define
+  "symbol#"
+  symbol-liftList
+  [|f|
+   [|#!rest s|
+    (string->symbol
+     (apply (string-liftList f)
+            (map symbol->string s)))]]
+;;;
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   (symbol-liftList reverse)
+   '(
+     (foo oof)
+     (bar rab)
+     ))
+  (equal? ((symbol-liftList append!) 'foo 'bar)
+          'foobar)
+  }
+;;; \end{code}
+
+;;; \newpage
 ;;; \chapter{Streams}
 ;;;
 ;;; Streams are sequential collections like lists, but the
@@ -2511,7 +2576,7 @@
           ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
           ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
           ;; TODO - handle other atypical cases
-          (else `(,(symbol-append (car exp) '-set!)
+          (else `(,((symbol-liftList append!) (car exp) '-set!)
                   ,@(cdr exp)
                   ,val))}])]
 ;;; \end{code}
