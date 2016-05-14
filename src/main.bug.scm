@@ -2575,8 +2575,19 @@
           ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
           ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
           ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
-          ;; TODO - handle other atypical cases
-          (else `(,((symbol-liftList append!) (car exp) '-set!)
+;;; \end{code}
+;;; \begin{code}
+          (else `(,((symbol-liftList
+                     [|l suffix| (append!
+                                  (if (equal? (reverse
+                                               '(#\- #\r #\e #\f))
+                                              (take 4 (reverse l)))
+                                      [(reverse (drop 4
+                                                      (reverse l)))]
+                                      [l])
+                                  suffix)])
+                    (car exp)
+                    '-set!)
                   ,@(cdr exp)
                   ,val))}])]
 ;;; \end{code}
@@ -2636,6 +2647,16 @@
                cdaaar cdaadr cdadar cdaddr
                cddaar cddadr cdddar cddddr
                ))}}
+;;; \end{code}
+;;; \begin{code}
+  {let ((s "foobar"))
+    (setf! (string-ref s 0) #\q)
+    (equal? s "qoobar")}
+  {let ((v (vector 1 2 '() "")))
+    (setf! (vector-ref v 2)
+           4)
+    (equal? v
+            (vector 1 2 4 ""))}
   }
 ;;; \end{code}
 ;;;
