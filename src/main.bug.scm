@@ -2592,29 +2592,41 @@
                   ,val))}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
+;;;
+;;; \noindent Test setting a varible.
+;;;
 ;;; \begin{code}
-  ;; test variable
+  (equal? {macroexpand-1
+           {setf! a 10}}
+          '(set! a 10))
   {let ((a 5))
     {setf! a 10}
     (equal? a 10)}
-  {begin
-    {let ((a (make-foo 1 2)))
-      {setf! (foo-bar a) 10}
-      (equal? (make-foo 10 2)
-              a)}}
 ;;; \end{code}
+;;;
+;;; \noindent Test setting ``car''.
+;;;
 ;;; \begin{code}
+  (equal? {macroexpand-1
+           {setf! (car a) 10}}
+          '(set-car! a 10))
   {let ((a '(1 2)))
     {setf! (car a) 10}
     (equal? (car a) 10)}
 ;;; \end{code}
+;;;
+;;; \noindent Test setting ``cdr''.
+;;;
 ;;; \begin{code}
+  (equal? {macroexpand-1
+           {setf! (cdr a) 10}}
+          '(set-cdr! a 10))
   {let ((a '(1 2)))
     {setf! (cdr a) 10}
     (equal? (cdr a) 10)}
 ;;; \end{code}
 ;;;
-;;; Testing all of the ``car'' through ``cddddr'' procedures will be highly
+;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures will be highly
 ;;; repetitive.  Instead, create a list which has an element at each of those
 ;;; accessor procedures, and test each.
 ;;;
@@ -2648,13 +2660,37 @@
                cddaar cddadr cdddar cddddr
                ))}}
 ;;; \end{code}
+;;;
+;;; \noindent Test setting procedures where the setting procedure is
+;;; the name of the getting procedure, suffixed by '-set!'.
+;;;
 ;;; \begin{code}
+  (equal? {macroexpand-1
+           {setf! (foo-bar a) 10}}
+          '(foo-bar-set! a 10))
+  {begin
+    {let ((a (make-foo 1 2)))
+      {setf! (foo-bar a) 10}
+      (equal? (make-foo 10 2)
+              a)}}
+;;; \end{code}
+;;;
+;;; \noindent Test setting procedures where the setting procedure is
+;;; the name of the getting procedure, removing the suffix of
+;;; '-ref', and adding a suffix of '-set!'.
+;;;
+;;; \begin{code}
+  (equal? {macroexpand-1
+           (setf! (string-ref s 0) #\q)}
+          '(string-set! s 0 #\q))
   {let ((s "foobar"))
     (setf! (string-ref s 0) #\q)
     (equal? s "qoobar")}
+  (equal? {macroexpand-1
+           (setf! (vector-ref v 2) 4)}
+          '(vector-set! v 2 4))
   {let ((v (vector 1 2 '() "")))
-    (setf! (vector-ref v 2)
-           4)
+    (setf! (vector-ref v 2) 4)
     (equal? v
             (vector 1 2 4 ""))}
   }
