@@ -20,7 +20,7 @@
 ;;;
 ;;; Libbug takes a novel approach to solve that problem; it generates this information at
 ;;; compile-time.  At first glance, that sound simple enough.  But what types of computation
-;;; can be performed at compile-time, and can a programmer program I/O 
+;;; can be performed at compile-time, and can a programmer program I/O
 ;;; at compile-time?
 ;;; Programs written in C and C++ cannot, as C's macros only allow textual substitution
 ;;; and conditional compilation, is not Turing Complete,
@@ -177,7 +177,7 @@
 ;;;
 ;;; \section{libbug\#write-and-eval}
 ;;;
-;;; Now that those files are open, namespaces will be written 
+;;; Now that those files are open, namespaces will be written
 ;;; to libbug\#.scm and macro definitions to libbug-macros.scm.  However, the
 ;;; code shouldn't have be to duplicated for each context, like was done for
 ;;; the previous three macros.
@@ -199,10 +199,9 @@
 ;;;
 ;;; \section{libbug\#namespace}
 ;;;
-;;; ``write-and-eval'' writes the form to a file, and evaluates the
-;;; form in the run-time context.  For namespaces in libbug, that
-;;; behavior is desired, but the namespaces should be valid at
-;;; compile-time too.
+;;; Namespaces for procedures in libbug need to be available at
+;;; compile-time, run-time, and in the namespace file
+;;; for inclusion in projects which link to libbug.
 ;;;
 ;;; \index{libbug\#namespace}
 ;;; \begin{code}
@@ -211,16 +210,22 @@
    {begin
      (eval `{##namespace ,namespace-name-pair})
      `{begin
-        (libbug#write-and-eval
+        {libbug#write-and-eval
          libbug-headers-file
-         {##namespace ,namespace-name-pair})}}]}
+         {##namespace ,namespace-name-pair}}}}]}
 ;;; \end{code}
 ;;;
+;;; ``write-and-eval'' writes the form to a file, and evaluates the
+;;; form in the run-time context.  For namespaces in libbug, that
+;;; behavior is desired, but the namespaces should be valid at
+;;; compile-time too.
 ;;;
 ;;;
 ;;; \section{lang\#if}
 ;;; \label{sec:langif}
-;;; In the following, a new version of "if" is defined, which was first used
+;;; In the following, a new version of "if" is defined, where
+;;; lang\#if takes two zero-argument procedures, treating them
+;;; as Church Booleans.  lang\#if was first used and described
 ;;; in section ~\ref{sec:langiffirstuse}
 ;;;
 ;;;
@@ -228,35 +233,40 @@
 ;;; \index{lang\#if}
 ;;; \begin{code}
 {libbug#namespace ("lang#" if)}
-(libbug#write-and-eval
+{libbug#write-and-eval
  libbug-macros-file
  {at-both-times
   {##define-macro if
     [|pred ifTrue ifFalse|
-     ;; check that the person is not using lang#if as if
-     ;; it were ##if
      (##if (or (not (list? ifTrue))
                (not (list? ifFalse))
                (not (equal? 'lambda (car ifTrue)))
                (not (equal? 'lambda (car ifFalse))))
            (error "lang#if requires two lambda expressions")
-           {let ((single-expression-in-lambda?
-                  [|lst| (equal? 3 (length lst))]))
-             ;; (single-expression-in-lambda? [5])
-             ;;   => true
-             ;; (single-expression-in-lambda? [(pp 4) 6])
-             ;;   => false
-             `{##if ,pred
-                    ,{##if (single-expression-in-lambda?
-                            ifTrue)
-                           (caddr ifTrue)
-                           `{begin ,@(cddr ifTrue)}}
-                    ,{##if (single-expression-in-lambda?
-                            ifFalse)
-                           (caddr ifFalse)
-                           `{begin ,@(cddr ifFalse)}}}})]}})
+           (list '##if pred
+                 `{begin ,@(cddr ifTrue)}
+                 `{begin ,@(cddr ifFalse)}))]}}}
 ;;; \end{code}
 ;;;
+;;; \begin{itemize}
+;;;  \item
+;;;     On line 7, \#\#if is called.  In Gambit's system of namespacing, ``\#\#'
+;;;     is prefixed to a variable name to specify to use the global namespace for
+;;;     that variable.
+;;;     ``lang\#if'' is built on Gambit's implementation of ``if'', but since
+;;;     line 1 set the namespace of ``if'' to ``lang\#if'', ``\#\#if must be
+;;;     used.
+;;;  \item
+;;;   On lines 7-10, check that the caller of ``lang\#if'' is passing
+;;;   lambdas, i.e. has not forgetten that ``if'' is namespaced to ``lang''.
+;;;  \item
+;;;    On line 11, if the caller of ``lang\#if'' has not passed lambdas,
+;;;    error at compile-time.
+;;;  \item
+;;;   On line 12-14, evaluate the body of the appropriate lambda, depending
+;;;   on whether the predicate is true or false.
+;;;
+;;; \end{itemize}
 ;;;
 ;;;
 ;;; \section{lang\#with-tests}
@@ -277,7 +287,7 @@
 ;;;
 ;;; \begin{code}
 {libbug#namespace ("lang#" with-tests)}
-(libbug#write-and-eval
+{libbug#write-and-eval
  libbug-macros-file
  {##define-macro with-tests
    [|definition #!rest tests|
@@ -287,13 +297,14 @@
         (if (and ,@tests)
             [',definition]
             [(for-each pp (list "Test Failed" ',tests ',definition))
-             (error "Tests Failed")])})]})
+             (error "Tests Failed")])})]}}
 ;;; \end{code}
 ;;;
 ;;;
 ;;; \section{libbug\#define}
-;;; Procedure definitions will all have a namespace, name, body,
-;;; and an optional suite of tests
+;;;  ``libbug\#define'' is the main procedure-defining procedure used
+;;;  throughout libbug.  ``libbug\#define'' takes a namespace, a variable name,
+;;;  a value to be stored in the variable, and an optional suite of tests.
 ;;;
 ;;; \label{sec:libbugdefine}
 ;;; \index{libbug\#define}
@@ -308,27 +319,38 @@
        ,@tests}}]}
 ;;; \end{code}
 ;;;
+;;; ``libbug\#define'' defines the procedure/data at compile-time
+;;; at run-time, and exports the namespace mapping to the appropriate file.
+;;;
+;;; ``libbug\#define'' itself is not exported to the macros file.
+;;;
 ;;; \section{libbug\#define-macro}
 ;;;
-;;; ``libbug\#define-macro'' acts just like ''\#\#define-macro'', but
-;;; it also writes the macro definition to a file, and overrides
-;;; ``\#\#gensym'' so that macro-expansions may be tested.
-;;; But when the macros are loaded by an external project, how
-;;; does it load the namespaces for them?  From the namespace file, which
-;;; is installed as a relative path to the ``prefix'' argument passed to ``configure''.
+;;; ``libbug\#define-macro'' evaluates similarly to ''\#\#define-macro'', with augmentations
+;;; for testing and for exporting.  For testing, it
+;;; creates a procedure with the same name as the macro, suffixed with ``--expand'',
+;;; which performs the source transformation but does not evaluate the resulting form.
+;;; It also overrides ``gensym'' at compile-time so that macroexpansions
+;;; may be tested.  Regarding exporting, macros aren't compiled into the library itself,
+;;; so these macros must be exported to the macros file for consumption by external
+;;; projects.
 ;;;
-;;; Autoconf takes "config.scm.in" as input, and puts the
+;;;
+;;;
+;;; But these exported macros, when they are ``include''-ed by an external project,
+;;; being dependent on namespaced procedures from libbug, how are the namespaces loaded?
+;;; From the namespace file of course, which
+;;; is installed as a relative path to the ``prefix'' argument passed to
+;;; ``configure''\footnote{Autoconf takes "config.scm.in" as input, and puts the
 ;;; relevant configuration/installation information (such as
-;;; the installation prefix) into config.scm
+;;; the installation prefix) into config.scm}.
 ;;;
 ;;; \begin{code}
 {at-compile-time
  {begin
    (##include "config.scm")
    {##define bug-configuration#libbugsharp
-     (string-append
-      bug-configuration#prefix
-      "/include/bug/libbug#.scm")}}}
+     (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}}}
 ;;; \end{code}
 ;;;
 ;;;
@@ -363,10 +385,10 @@
             ,(list 'quasiquote
                    `{##let ()
                       (##include "~~lib/gambit#.scm")
-                      (##include
-                       ,bug-configuration#libbugsharp)
-                      ,(if (equal? 'quasiquote
-                                   (caaddr lambda-value))
+                      (##include ,bug-configuration#libbugsharp)
+                      ,(if {and (pair? (caddr lambda-value))
+                                (equal? 'quasiquote
+                                        (caaddr lambda-value))}
                            [(car (cdaddr lambda-value))]
                            [(append (list 'unquote)
                                     (cddr lambda-value))])}))}}
@@ -379,6 +401,12 @@
 ;;;         macro at both compile-time and run-time.
 ;;;   \item On line 4, the written-to-file lambda value shall have the same
 ;;;         argument list as the argument list passed to ``libbug\#define-macro''
+;;;
+;;; \begin{examplecode}
+;;;    > (cadr '(lambda (foo bar) (quasiquote 5)))
+;;;    (foo bar)
+;;; \end{examplecode}
+;;;
 ;;;   \item On line 5, the unevaluated form in argument ``lambda-value'' may
 ;;;         or may not be quasiquoted.  Either way, write a quasiquoted form
 ;;;         to the file.  In the case that the ``lambda-value'' argument was not
@@ -392,11 +420,47 @@
 ;;;   \item On line 6-8, ensure that the currently unevaluated form will be
 ;;;         evaluated in a context in which the namespaces resolve consistently
 ;;;         as they were written in this book.
-;;;   \item On line 9-10, check to see if the unevaluated form is quasiquoted.
-;;;   \item On line 11, it is quasiquoted, as such, grab the content of the
+;;;   \item On line 9-11, check to see if the unevaluated form is quasiquoted.
+;;;
+;;; \begin{examplecode}
+;;;    > (caaddr '(lambda (foo bar) (quasiquote 5)))
+;;;    quasiquote
+;;; \end{examplecode}
+;;;
+;;;   \item On line 12, it is quasiquoted, as such, grab the content of the
 ;;;         list minus the quasiquoting.
-;;;   \item On line 12-13, since this is not a quasi-quoted form, just grab
+;;;
+;;; \begin{examplecode}
+;;;    > (car (cdaddr '(lambda (foo bar) (quasiquote 5 a))))
+;;;    5
+;;; \end{examplecode}
+;;;
+;;;  Remember, that this value gets wrapped in a quasiquote from line 5
+;;;
+;;; \begin{examplecode}
+;;;    > (list 'quasiquote (car (cdaddr '(lambda (foo bar)
+;;;                                         (quasiquote 5)))))
+;;;    `5
+;;; \end{examplecode}
+
+;;;   \item On line 13-14, since this is not a quasi-quoted form, just grab
 ;;;         the form, and ``unquote'' it.
+;;;
+;;; \begin{examplecode}
+;;;    > (append (list 'unquote ) (cddr '(lambda (foo bar) (+ 5 5))))
+;;;    ,(+ 5 5)
+;;; \end{examplecode}
+;;;
+;;;  Remember, that this value gets wrapped in a quasiquote from line 5
+;;;
+;;; \begin{examplecode}
+;;;    > (list 'quasiquote (append (list 'unquote )
+;;;                                (cddr '(lambda (foo bar)
+;;;                                          (+ 5 5)))))
+;;;    `,(+ 5 5)
+;;; \end{examplecode}
+
+
 ;;; \end{itemize}
 ;;;
 ;;;
@@ -413,7 +477,6 @@
 ;;;
 ;;; \begin{code}
        {at-both-times
-        ;; TODO - namespace this procedure
         {##define-macro
           ,(string->symbol (string-append (symbol->string name)
                                           "-expand"))
@@ -444,13 +507,16 @@
 ;;;
 ;;; \begin{code}
         {libbug#namespace (,namespace ,name)}
+        {libbug#namespace
+         (,namespace ,(string->symbol
+                       (string-append (symbol->string name)
+                                      "-expand")))}
 ;;; \end{code}
 ;;;
 ;;; \noindent Create the expander just like in the previous section.
 ;;;
 ;;; \begin{code}
         {at-both-times
-         ;; TODO - namespace this procedure
          {##define-macro
            ,(string->symbol
              (string-append (symbol->string name)
