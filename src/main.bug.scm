@@ -151,8 +151,8 @@
 ;;; [|l| (if (null? l)
 ;;;          ['()]
 ;;;          [{let permutations ((l l))
-;;;            (if (null? l)
-;;;              [(list '())]
+;;;            (if (null? (cdr l))
+;;;              [(list l)]
 ;;;              [(flatmap [|x|
 ;;;                         (map [|y| (cons x y)]
 ;;;                              (permutations (remove x l)))]
@@ -1712,8 +1712,8 @@
    (if (null? l)
        ['()]
        [{let permutations ((l l))
-          (if (null? l)
-              [(list '())]
+          (if (null? (cdr l))
+              [(list l)]
               [(flatmap [|x| (map [|y| (cons x y)]
                                   (permutations (remove x l)))]
                         l)])}])]
