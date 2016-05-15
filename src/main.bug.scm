@@ -327,7 +327,7 @@
 ;;; \section{Getting the Source Code}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug.
 ;;;  The Scheme files can produce the libbug library, as well as this book.
-;;;  Currently the code works on various distributions of Linux, and on
+;;;  Currently the code works on various distributions of Linux, on FreeBSD, and on Mac
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
 ;;; You will need a C compiler such as GCC,
