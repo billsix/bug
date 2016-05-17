@@ -151,8 +151,8 @@
 ;;; [|l| (if (null? l)
 ;;;          ['()]
 ;;;          [{let permutations ((l l))
-;;;            (if (null? l)
-;;;              [(list '())]
+;;;            (if (null? (cdr l))
+;;;              [(list l)]
 ;;;              [(flatmap [|x|
 ;;;                         (map [|y| (cons x y)]
 ;;;                              (permutations (remove x l)))]
@@ -690,6 +690,7 @@
 (include "bug-language.scm")
 {##namespace ("libbug#" define)}
 {##namespace ("libbug#" define-macro)}
+{##namespace ("lang#" define-structure)}
 ;;;\end{code}
 ;;;
 ;;;
@@ -1712,8 +1713,8 @@
    (if (null? l)
        ['()]
        [{let permutations ((l l))
-          (if (null? l)
-              [(list '())]
+          (if (null? (cdr l))
+              [(list l)]
               [(flatmap [|x| (map [|y| (cons x y)]
                                   (permutations (remove x l)))]
                         l)])}])]
@@ -2025,6 +2026,42 @@
 ;;;
 ;;; \section{stream\#stream-cons}
 ;;;
+;;; \begin{code}
+{define-structure
+  "lang#"
+  stream a d}
+;;; \end{code}
+;;;
+;;; \section{stream\#stream-car}
+;;; Get the first element of the stream.
+;;;
+;;; \index{stream\#stream-car}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-car
+  stream-a}
+;;; \end{code}
+;;;
+;;; \noindent \cite[p. 321]{sicp}.
+;;;
+;;; \newpage
+;;; \section{stream\#stream-cdr}
+;;; Forces the evaluation of the next element of the stream.
+;;;
+;;; \index{stream\#stream-cdr}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-cdr
+  [|s| {force (stream-d s)}]}
+;;; \end{code}
+;;;
+;;; \noindent \cite[p. 321]{sicp}.
+;;; \newpage
+;;;
+;;; \section{stream\#stream-cons}
+;;;
 ;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
 ;;; lambda value.
 ;;;
@@ -2040,7 +2077,7 @@
            (not (equal? '() (cadr d))))
        [(error "stream#stream-cons requires a zero-argument \
                 lambda in it's second arg")]
-       [`(cons ,a {delay ,(caddr d)})])]
+       [`(make-stream ,a {delay ,(caddr d)})])]
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
@@ -2049,52 +2086,10 @@
   {begin
     {let ((s (stream-cons 1 [2])))
       {and
-       (equal? (car s)
+       (equal? (stream-car s)
                1)
-       (equal? {force (cdr s)}
+       (equal? (stream-cdr s)
                2)}}}}
-;;; \end{code}
-;;;
-;;;
-;;; \newpage
-;;; \section{stream\#stream-car}
-;;; Get the first element of the stream.
-;;;
-;;; \index{stream\#stream-car}
-;;; \begin{code}
-{define
-  "stream#"
-  stream-car
-  car
-;;; \end{code}
-;;;
-;;; \noindent \cite[p. 321]{sicp}.
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? (stream-car (stream-cons 1 [2]))
-          1)
-  }
-;;; \end{code}
-;;;
-;;;
-;;; \newpage
-;;; \section{stream\#stream-cdr}
-;;; Forces the evaluation of the next element of the stream.
-;;;
-;;; \index{stream\#stream-cdr}
-;;; \begin{code}
-{define
-  "stream#"
-  stream-cdr
-  [|s| {force (cdr s)}]
-;;; \end{code}
-;;;
-;;; \noindent \cite[p. 321]{sicp}.
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? (stream-cdr (stream-cons 1 [2]))
-          2)
-  }
 ;;; \end{code}
 ;;;
 ;;;
@@ -2523,17 +2518,6 @@
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \cite{setf}.
 ;;;
-;;; Libbug includes a macro called ``at-compile-time''\footnote{defined
-;;; in chapter ~\ref{sec:buglang}}, which executes its' argument exclusively
-;;; at compile-time.  For the purpose of testing the ``setf!'' macro, a dummy
-;;; structure is created, for use in the test.  The structure is not present
-;;; in the produced library.
-;;;
-;;; \begin{code}
-{at-compile-time
- {define-structure foo bar baz}}
-;;; \end{code}
-;;;
 ;;; \index{lang\#setf"!}
 ;;; \begin{code}
 {define-macro
@@ -2666,12 +2650,12 @@
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
-           {setf! (foo-bar a) 10}}
-          '(foo-bar-set! a 10))
+           {setf! (stream-a s) 10}}
+          '(stream-a-set! s 10))
   {begin
-    {let ((a (make-foo 1 2)))
-      {setf! (foo-bar a) 10}
-      (equal? (make-foo 10 2)
+    {let ((a (make-stream 1 2)))
+      {setf! (stream-a a) 10}
+      (equal? (make-stream 10 2)
               a)}}
 ;;; \end{code}
 ;;;
