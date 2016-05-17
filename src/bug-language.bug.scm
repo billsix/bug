@@ -584,5 +584,36 @@
     `(,new-name ,@(cdr form))}]}
 ;;; \end{code}
 ;;;
+
+;;; \section{libbug\#define-structure}
+;;; \index{libbug\#define-structure}
+;;; \begin{code}
+{##define-macro
+  lang#define-structure
+  [|namespace name #!rest members|
+   `{begin
+      {libbug#namespace (,namespace
+                         ,(string->symbol
+                           (string-append "make-"
+                                          (symbol->string name))))}
+      {libbug#namespace (,namespace
+                         ,(string->symbol
+                           (string-append (symbol->string name)
+                                          "?")))}
+      {at-both-times
+       {begin
+       {##namespace (""
+                     define
+                     define-structure
+                     )}
+       {define-structure ,name ,@members}
+       {##namespace ("libbug#"
+                     define
+                     )}
+       {##namespace ("lang#"
+                     define-structure
+                     )}}
+      }}]}
+;;; \end{code}
 ;;;
 ;;;
