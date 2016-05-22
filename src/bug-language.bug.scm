@@ -600,6 +600,25 @@
                          ,(string->symbol
                            (string-append (symbol->string name)
                                           "?")))}
+      ,@(map [|m|
+              `{libbug#namespace (,namespace
+                                  ,(string->symbol
+                                    (string-append (symbol->string
+                                                    name)
+                                                   "-"
+                                                   (symbol->string
+                                                    m))))}]
+             members)
+      ,@(map [|m|
+              `{libbug#namespace (,namespace
+                                  ,(string->symbol
+                                    (string-append (symbol->string
+                                                    name)
+                                                   "-"
+                                                   (symbol->string
+                                                    m)
+                                                   "-set!")))}]
+             members)
       {at-both-times
        {begin
        {##namespace (""
@@ -615,5 +634,4 @@
                      )}}
       }}]}
 ;;; \end{code}
-;;;
 ;;;
