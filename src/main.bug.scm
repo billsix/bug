@@ -152,12 +152,12 @@
 ;;; [|l| (if (null? l)
 ;;;          ['()]
 ;;;          [{let permutations ((l l))
-;;;            (if (null? (cdr l))
-;;;              [(list l)]
-;;;              [(flatmap [|x|
-;;;                         (map [|y| (cons x y)]
-;;;                              (permutations (remove x l)))]
-;;;                        l)])}])]
+;;;             (if (null? (cdr l))
+;;;                 [(list l)]
+;;;                 [(flatmap [|x|
+;;;                            (map [|y| (cons x y)]
+;;;                                 (permutations (remove x l)))]
+;;;                           l)])}])]
 ;;; \end{examplecode}
 ;;;
 ;;; So what does the code do?  How did the author intend for it to be used?
@@ -176,9 +176,9 @@
 ;;; for other methods.  Frankly, it's too much work and it interrupts the flow
 ;;; of coding, at least for me.
 ;;;
-;;; But how else would a programmer organize tests?  Well, in this book, which is the
+;;; But how else would a programmer organize tests?  Well in this book, which is the
 ;;; implementation of a library called ``libbug''\footnote{Bill's Utilities
-;;; for Gambit}, tests are specified as part of the procedure's definition,
+;;; for Gambit}, tests are specified as part of the procedure's definition
 ;;; and they are executed at compile-time.  Should any test fail the compiler will
 ;;; exit in error, like a type error in a
 ;;; statically-typed language.  Furthermore,
@@ -213,20 +213,20 @@
 ;;;
 ;;; Why does this matter?
 ;;; Towards answering the questions ``what does the code do?'' and ``how did the author
-;;; intend for it to be used?'', there is no searching through files, no extrapolation
-;;; of expected inputs and outputs required.
+;;; intend for it to be used?'', there is neither searching through files nor guessing
+;;; how the code was originally intended to be used.
 ;;; The fact that the
 ;;; tests are collocated with the procedure definition means that the reader can
 ;;; read the tests without switching between files, perhaps reading the tests
 ;;; before reading the procedure definition.  And the reader
 ;;; may not even read the procedure at all if the tests gave him enough information
-;;; to use it successfully.  But should the reader want to understand the procedure, he
+;;; to use it successfully.  Should the reader want to understand the procedure, he
 ;;; can mentally apply the procedure to the tests to understand it.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
 ;;; be in the executable?  And won't they run every time I execute the program?
-;;; That would be unacceptable, as it would increase the size of the binary and
-;;; slow down the program at start up.  Fortunately, the
+;;; That would be unacceptable as it would both increase the size of the binary and
+;;; slow down the program at start up.  Fortunately the
 ;;; answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
 ;;; that certain code should be interpreted by the compiler instead of being
 ;;; compiled.  Lisp implementations such as Gambit are particularly well
@@ -258,9 +258,9 @@
 ;;; macros, and with recursive design.  If the book proves too difficult for you,
 ;;; read ``Simply Scheme''
 ;;; \cite{ss}\footnote{available on-line for no cost}
-;;; or ``The Little Schemer'' \cite{littleschemer}.  Reading ``On Lisp''
-;;; \cite{onlisp}\footnote{available on-line for no cost} is more than sufficient
-;;; to understand everything in this book.
+;;; or ``The Little Schemer'' \cite{littleschemer}.  Since libbug uses Gambit Scheme's
+;;; Common Lisp-style macros, the author recommends reading ``On Lisp''
+;;; \cite{onlisp}\footnote{available on-line for no cost}.
 ;;;
 ;;;
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
@@ -431,15 +431,15 @@
 ;;; \begin{itemize}
 ;;;  \item  On line 1, an expression which evaluates to a boolean is defined.
 ;;;  This is a
-;;; test which will be evaluated at compile-time, and should the test fail,
-;;; the build process will fail and no shared library, nor the document which
-;;; you are currently reading, will be created.  The
+;;; test which will be evaluated at compile-time.  Should the test fail,
+;;; the build process will fail and neither the shared library nor the document which
+;;; you are currently reading will be created.  The
 ;;; tests are not present in the resulting
 ;;; library.
 ;;; \end{itemize}
 ;;;
 ;;; ``noop'' does not look useful at first glance, but it is frequently used when
-;;;  you need to execute something, but you do not care about the resulting value.
+;;;  you need to execute a procedure but you do not care about the resulting value.
 ;;;  For instance, ``noop'' is used as a default ``exception-handler'' for many
 ;;;  procedures within libbug.
 ;;;
@@ -545,8 +545,8 @@
 ;;; \section{lang\#satisfies?}
 ;;;
 ;;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
-;;; with varying inputs and outputs, as was done for ``all''?  Instead, provide
-;;; the procedure, and a list
+;;; with varying inputs and outputs, as was done for ``all?''?  Instead, provide
+;;; the procedure and a list
 ;;; of input/output pairs.
 ;;;
 ;;; \index{lang\#satisfies?}
@@ -608,7 +608,7 @@
 ;;; the language provides no built-in syntax for looping, such as ``for''
 ;;; or ``while''.  A better question though, is why don't other
 ;;; languages provide primitives from which you can create
-;;; those looping constructs yourself?  Take the red pill.
+;;; those looping constructs yourself?  ``Take the red pill.''
 ;;;
 ;;;
 ;;; \newpage
