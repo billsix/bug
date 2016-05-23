@@ -1640,35 +1640,90 @@
             (map string->list s)))]]
 ;;;
 ;;; \end{code}
+;;; \newpage
+
+
+;;; \section{string\#string-reverse}
+;;;
+;;; \index{string\#string-reverse"}
+;;; \begin{code}
+{define
+  "string#"
+  string-reverse
+  (string-liftList reverse!)
+;;;
+;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
-   (string-liftList reverse)
+   string-reverse
    '(
      ("" "")
      ("foo" "oof")
      ("bar" "rab")
      ))
+  }
+;;; \end{code}
+;;; \newpage
+
+;;; \section{string\#string-take}
+;;;
+;;; \index{string\#string-take"}
+;;; \begin{code}
+{define
+  "string#"
+  string-take
+  [|n s| ((string-liftList [|l| (take n l)])
+          s)]
+;;;
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
   (satisfies?
-   (string-liftList reverse!)
-   '(
-     ("" "")
-     ("foo" "oof")
-     ("bar" "rab")
-     ))
-  (satisfies?
-   (string-liftList [|l| (take 2 l)])
+   [|s| (string-take 2 s)]
    '(
      ("" "")
      ("foo" "fo")
      ))
-  (equal? ((string-liftList append!) "foo" "bar")
-          "foobar")
   }
 ;;; \end{code}
-
-
 ;;; \newpage
+
+;;; \section{string\#string-map}
+;;;
+;;; \index{string\#string-map"}
+;;; \begin{code}
+{define
+  "string#"
+  string-map
+  [|f s| ((string-liftList [|l| (map f l)])
+          s)]
+;;;
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   [|s| (string-map [|c|
+                     (integer->char
+                      (+ (char->integer #\a)
+                         (modulo (+ (- (char->integer c)
+                                       (char->integer #\a))
+                                    13)
+                                 26)))]
+                      s)]
+
+   '(
+     ("" "")
+     ("abc" "nop")
+     ("nop" "abc")
+     ))
+
+  }
+;;; \end{code}
+;;; \newpage
+
+
+
 ;;; \chapter{Symbols}
 
 ;;; \section{symbol\#symbol-liftList}
