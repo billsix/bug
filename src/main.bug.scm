@@ -358,7 +358,7 @@
 ;;;
 ;;; \section{Comparison of Compile-Time Computations in Other Languages}
 ;;;
-;;; What exactly is comptutation at compile-time?  An introduction to the topic is provided
+;;; What exactly is computation at compile-time?  An introduction to the topic is provided
 ;;; in Appendix~\ref{sec:appendix1}, demonstrated
 ;;; in languages of more widespread use (C and C++). The appendix
 ;;; provides examples of compile-time computation in C, C++, and libbug, along with a comparison
