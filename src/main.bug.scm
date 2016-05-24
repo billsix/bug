@@ -1637,7 +1637,7 @@
    [|#!rest s|
     (list->string
      (apply f
-            (map string->list s)))]]
+            (map string->list s)))]]}
 ;;;
 ;;; \end{code}
 ;;; \newpage
