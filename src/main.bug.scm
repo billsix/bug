@@ -177,8 +177,8 @@
 ;;; of coding, at least for me.
 ;;;
 ;;; But how else would a programmer organize tests?  Well in this book, which is the
-;;; implementation of a library called ``libbug''\footnote{Bill's Utilities
-;;; for Gambit}, tests are specified as part of the procedure's definition
+;;; implementation of a library called ``libbug'',
+;;; tests are specified as part of the procedure's definition
 ;;; and they are executed at compile-time.  Should any test fail the compiler will
 ;;; exit in error, like a type error in a
 ;;; statically-typed language.  Furthermore,
@@ -245,9 +245,10 @@
 ;;; which augments Scheme's small set of built-in procedures and macros.
 ;;; Libbug provides procedures for list processing, streams,
 ;;; control structures,
-;;; general-purpose evaluation at compile-time, a
-;;; compile-time test framework (in only 9 lines of code!), and a Scheme preprocessor to
-;;; provide a lambda literal syntax.  Programs written using libbug optionally may be
+;;; general-purpose evaluation at compile-time,
+;;; and a
+;;; compile-time test framework written in only 9 lines of code!
+;;; Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
 ;;; style, so that a program, such as libbug, can be read linearly in a book form.
@@ -262,11 +263,11 @@
 ;;; Common Lisp-style macros, the author recommends reading ``On Lisp''
 ;;; \cite{onlisp}\footnote{available on-line for no cost}.
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
-;;; book, are all recommended reading, but are
+;;; book, are all recommended reading but are
 ;;; not necessary to understand the content of this book.
 ;;;
 ;;; \section{Conventions}
-;;; Code which is part of libbug will be outlined and
+;;; Code which is part of libbug will not be outlined and
 ;;; will have line numbers on the left.
 ;;;
 ;;; \begin{code}
@@ -291,14 +292,9 @@
 ;;; \noindent
 ;;;  means evaluate ``fun'', ``arg1''
 ;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2'';
-;;; standard Scheme semantics. But regular Scheme also uses this notation for macro applications.
-;;; Since macros transform source code into different source code before compilation, the evaluation
-;;; order of arguments to a macro may not be clear to the caller of the macro; for instance, an argument may be
-;;; evaluated multiple
-;;; times in the generated code.
-;;; The inability for the reader to reason about the evaluation semantics of arguments to a macro
-;;; at the call site may cause confusion to the reader; as such,
-;;; within libbug the notation
+;;; standard Scheme semantics for invoking a prodecure.  But since macros
+;;; are not normal procedures and do
+;;; not necessarily respect those semantics, in libbug, the notation
 ;;;
 ;;; \begin{examplecode}
 ;;; {fun1 arg1 arg2}
@@ -306,7 +302,7 @@
 ;;;
 ;;; \noindent
 ;;; is used to denote to
-;;; the reader that the standard evaluation rules do not necessarily apply.  For instance, in
+;;; the reader that the standard evaluation rules do not apply.  For instance, in
 ;;;
 ;;; \begin{examplecode}
 ;;; {define x 5}
@@ -314,7 +310,7 @@
 ;;;
 ;;; \noindent
 ;;; \{\} are used because ``x''
-;;; may be a new variable.  As such, it cannot currently evaluate to anything.
+;;; may be a new variable.  As such, ``x'' cannot currently evaluate to anything.
 ;;;
 ;;; Not all macro applications use \{\}.  If the macro respects Scheme's standard
 ;;; order of evaluation, macro application will use standard Scheme notation:
@@ -372,19 +368,22 @@
 ;;; macros\footnote{The code within chapters~\ref{sec:beginninglibbug}
 ;;; to~\ref{sec:endinglibbug} is found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
-;;; compilation process.  If any tests fails, the compiler will exit in error,
+;;; compilation process.  If any test fails, the compiler will exit in error,
 ;;; much like a type error in a statically-typed language.
 ;;;
 ;;; To gain such functionality libbug cannot be defined using Gambit Scheme's
 ;;; ``\#\#define'', ``\#\#define-macro'', and ``\#\#define-structure'', since
 ;;; they only define variables and
-;;; procedures for use at run-time.  Instead, definitions within
+;;; procedures for use at run-time\footnote{well... that statement is not true
+;;; for ``\#\#define-macro, but it makes for a simpler explanation upon first reading}.
+;;; Instead, definitions within
 ;;; libbug use ``libbug\#define'', ``libbug\#define-macro'', and
-;;; ``\#\#define-structure''\footnote{Per convention
+;;; ``libbug\#\#define-structure''\footnote{Per convention
 ;;; within libbug, procedures namespaced to ``libbug'' are not compiled into the library
 ;;; or other output files; such procedures are meant for private use within the implementation
 ;;; of libbug.}, which  are implemented in Chapter~\ref{sec:buglang}.
-;;;   How to use these procedure-defining procedures will be explained
+;;; How they are implemented is not relevant yet, since the use of these
+;;; procedure-defining procedures will be explained
 ;;; incrementally.
 ;;;
 ;;; \begin{code}
@@ -501,10 +500,10 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;;
 ;;; \newpage
 ;;; \section{list\#all?}
-;;; Like ``and'', but takes a list instead of a variable number of arguments.
+;;; Like ``and'', but takes a list instead of a variable number of arguments, and
+;;; all elements of the list are evaluated before ``and'' is applied.
 ;;;
 ;;; \label{sec:langiffirstuse}
 ;;; \index{list\#all?}
@@ -570,11 +569,15 @@
 {define
   "lang#"
   satisfies?
-  [|fn list-of-pairs|
-   (all? (map [|pair| (equal? (fn (car pair))
+  [|f list-of-pairs|
+   (all? (map [|pair| (equal? (f (car pair))
                               (cadr pair))]
               list-of-pairs))]
 ;;; \end{code}
+;;;
+;;; \footnote{Within libbug, a parameter named ``f'' usually means the parameter is
+;;;   a procedure.}
+
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -605,13 +608,17 @@
 {define
   "lang#"
   while
-  [|pred body|
+  [|pred? body|
    {let while ()
-     (if (pred)
+     (if (pred?)
          [(body)
           (while)]
          [(noop)])}]
 ;;; \end{code}
+;;;
+;;; \footnote{Within libbug, a parameter named ``pred?'' or ``p?'' usually means the parameter is
+;;;   is a predicate, meaning a procedure which returns true or false.}
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((a 0))
@@ -619,6 +626,7 @@
            [(set! a (+ a 1))])
     (equal? a 5)}}
 ;;; \end{code}
+;;;
 ;;;
 ;;; Programmers who are new to the Scheme language  may be surprised that
 ;;; the language provides no built-in syntax for looping, such as ``for''
@@ -636,10 +644,10 @@
 {define
   "lang#"
   numeric-if
-  [|expr #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
-   (if (> expr 0)
+  [|n #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
+   (if (> n 0)
        [(ifPositive)]
-       [(if (= expr 0)
+       [(if (= n 0)
             [(ifZero)]
             [(ifNegative)])])]
 ;;; \end{code}
@@ -673,6 +681,9 @@
   [|x| {or (number? x)
            (symbol? x)}]
 ;;; \end{code}
+;;;
+;;; \footnote{Within libbug, a parameter named ``x'' usually means the parameter can
+;;;   be of any type.}
 ;;;
 ;;;
 ;;; \subsection*{Tests}
@@ -737,6 +748,10 @@
   copy
   [|l| (map identity l)]
 ;;; \end{code}
+;;;
+;;; \footnote{Within libbug, a parameter named ``l'' usually means the parameter is
+;;;   is a list of something.}
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((a '(1 2 3 4 5)))
@@ -988,14 +1003,18 @@
 {define
   "list#"
   fold-left
-  [|fn acc l|
+  [|f acc l|
    {let fold-left ((acc acc) (l l))
      (if (null? l)
          [acc]
-         [(fold-left (fn acc
-                         (car l))
+         [(fold-left (f acc
+                        (car l))
                      (cdr l))])}]
 ;;; \end{code}
+;;;
+;;;
+;;; \footnote{Within libbug, a parameter named ``acc'' usually means the parameter is
+;;;   is an accumulated value}
 ;;;
 ;;; \noindent \cite[p. 121]{sicp}
 ;;; \subsection*{Tests}
@@ -1036,12 +1055,12 @@
 {define
   "list#"
   fold-right
-  [|fn acc l|
+  [|f acc l|
    {let fold-right ((acc acc) (l l))
      (if (null? l)
          [acc]
-         [(fn (car l)
-              (fold-right acc (cdr l)))])}]
+         [(f (car l)
+             (fold-right acc (cdr l)))])}]
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 116 (named ``accumulate'')]{sicp}
@@ -1077,15 +1096,15 @@
 {define
   "list#"
   scan-left
-  [|fn acc l|
+  [|f acc l|
    {let ((acc-list (list acc)))
      {let scan-left ((acc acc)
                      (last-cell acc-list)
                      (l l))
        (if (null? l)
            [acc-list]
-           [{let ((newacc (fn acc
-                              (car l))))
+           [{let ((newacc (f acc
+                             (car l))))
               (scan-left newacc
                          {begin
                            (set-cdr! last-cell (list newacc))
@@ -2236,42 +2255,6 @@
                 (pp ,bar)
                 (pp ,baz)}})
   }
-;;; \end{code}
-;;;
-;;;
-;;; \newpage
-;;; \section{lang\#Y}
-;;; \index{lang\#Y}
-;;;
-;;; The Y combinator allows a programmer to create a procedure which references
-;;; itself without needing to define a variable.  There is never an actual need
-;;; to use this in real code.  Read \cite[p. 149-172]{littleschemer} for an excellent
-;;; derivation of this combinator.
-;;;
-;;;
-;;; \begin{code}
-{define
-  "lang#"
-  Y
-  [|le|
-   ([|f| (f f)]
-    [|f| (le [|x| ((f f) x)])])]
-;;; \end{code}
-;;; \section*{Test}
-;;; \begin{code}
-  (satisfies?
-   (Y [|fact|
-       [|n|
-	(if (= n 0)
-	    [1]
-	    [(* n (fact (- n 1)))])]])
-   `(
-     (0 1)
-     (1 1)
-     (2 2)
-     (3 6)
-     (4 24)
-     ))}
 ;;; \end{code}
 ;;;
 ;;;
