@@ -275,7 +275,7 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent
-;;; Example code which is not part of libbug not be outlined nor will it have line
+;;; Example code which is not part of libbug will not be outlined nor will it have line
 ;;; numbers.
 ;;;
 ;;; \begin{examplecode}
@@ -328,7 +328,7 @@
 ;;;
 ;;; You will need a C compiler such as GCC,
 ;;; Autoconf, Automake, and Gambit
-;;; Scheme\footnote{http://gambitscheme.org}, version 4.8 or newer.
+;;; Scheme\footnote{http://gambitscheme.org} version 4.8 or newer.
 ;;;
 ;;; To compile the book and library, execute the following on the command line:
 ;;;
@@ -342,7 +342,9 @@
 ;;; \begin{itemize}
 ;;;   \item
 ;;;      The argument to ``prefix'' tells Autoconf the location into which libbug
-;;;      should be installed when ``make install'' is executed.
+;;;      should be installed when ``make install'' is executed. ``\$BUG\textunderscore HOME'' is an
+;;;      environment variable that I have not defined, so the reader should substitute
+;;;      ``\$BUG\textunderscore HOME'' with an actual filesystem path.
 ;;;   \item
 ;;;      Libbug can be compiled as a static library, or a dynamic library. ``--enable-shared''
 ;;;      configures the build so that a shared library is created.  If you desire to build
@@ -375,7 +377,7 @@
 ;;; ``\#\#define'', ``\#\#define-macro'', and ``\#\#define-structure'', since
 ;;; they only define variables and
 ;;; procedures for use at run-time\footnote{well... that statement is not true
-;;; for ``\#\#define-macro, but it makes for a simpler explanation upon first reading}.
+;;; for ``\#\#define-macro'', but it makes for a simpler explanation upon first reading}.
 ;;; Instead, definitions within
 ;;; libbug use ``libbug\#define'', ``libbug\#define-macro'', and
 ;;; ``libbug\#\#define-structure''\footnote{Per convention
