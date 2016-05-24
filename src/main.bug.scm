@@ -2098,8 +2098,101 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \chapter{General Procedures}
+;;; \chapter{Macros}
 ;;;
+;;; \section{Introduction to Macros}
+;;; Common Lisp-style macros are just procedures which take lists as input and output lists.
+;;; Simple enough. But what makes them special is that systems such as Gambit Scheme will evaluate
+;;; the macro at compile-time, taking uncompiled source code (which is a list) as input,
+;;; and outputs a list which will be compiled by Gambit.  Thus the programmer
+;;; may augment the compiler with new syntax without changing the source code of
+;;; the compiler itself.
+;;;
+;;; Why does this matter?  Well, why do organizations implement new versions of languages
+;;; such as C\#, Java,
+;;; and C++?  Because the syntax introduced in the new versions
+;;; provides abstractions which were not expressible, or at least not easily expressable,
+;;; in the constructs provided in previous versions of the language.  But with Common Lisp-style
+;;; macros, the programmer is not dependent upon external organizations and their
+;;; necessary multi-year cycle of
+;;; new language versions, he can implement the syntax when he wants.  That matters.
+;;;
+;;; \subsection{Quote and Eval}
+;;;   ``quote'' and ``eval'' are complementary procedures.
+;;;  ``quote'' tells the compiler to not evaluate the
+;;;    arguments, but instead create a list
+;;;   of unevaluated symbols.
+;;;
+;;; \begin{examplecode}
+;;;> (+ 1 2)
+;;;3
+;;;> {quote (+ 1 2)}
+;;;(+ 1 2)
+;;; \end{examplecode}
+
+;;; The symbol ' can be used instead of explicitly writing ``quote'', thus
+;;; omitting the brackets.
+
+;;; \begin{examplecode}
+;;;> '(+ 1 2)
+;;;(+ 1 2)
+;;; \end{examplecode}
+;;;
+;;;  ``eval'' takes an unevaluated list and forces the evaluation as if the
+;;;  code had been explicitly specified.
+;;;
+;;; \begin{examplecode}
+;;;> (eval '(+ 1 2))
+;;;3
+;;; \end{examplecode}
+;;;
+;;; Since lists of symbols may be manipulated, the programmer can ``quote'' code,
+;;; manipulate it as a list, and then ``eval'' it.
+;;;
+;;; \begin{examplecode}
+;;;> (append '(+ 1 2) '(3))
+;;;(+ 1 2 3)
+;;;> (eval (append '(+ 1 2) '(3)))
+;;;6
+;;; \end{examplecode}
+;;;
+;;;  Calling ``eval'' explicitly in a program is generally considered bad form,
+;;;  as the resulting code can become difficult to understand, and the compiler
+;;;  cannot optimize the expanded code at compile-time.  As such, in Gambit Scheme's
+;;; ``\#\#define-macro'' provides equivalent functionality without explicit ``eval''ing,
+;;;  by  accepting a list-transforming procedure as a parameter
+;;;  which is available for evaluation exclusively at compile-time.
+;;;
+;;;
+;;; \begin{examplecode}
+;;;> {##define-macro foo
+;;;    [|form|
+;;;     (append form '(3))]}
+;;;> (foo (+ 1 2))
+;;;6
+;;; \end{examplecode}
+;;;
+;;; Manual concatentation of lists becomes cumbersome.  The ``quasiquote'' procedure
+;;; acts like ``quote'', but quotes every sublist not prefaced with ``unquote''
+;;;
+;;; \begin{examplecode}
+;;;> (quasiquote (+ 1 2))
+;;;(+ 1 2)
+;;;> (quasiquote (+ 1 (+ 1 1)))
+;;;(+ 1 (+ 1 1))
+;;;> (quasiquote (+ 1 (unquote (+ 1 1))))
+;;;(+ 1 2)
+;;; \end{examplecode}
+
+;;; \begin{examplecode}
+;;;> `(+ 1 2)
+;;;(+ 1 2)
+;;;> `(+ 1 (+ 1 1))
+;;;(+ 1 (+ 1 1))
+;;;> `(+ 1 ,(+ 1 1))
+;;;(+ 1 2)
+;;; \end{examplecode}
+
 ;;;
 ;;; \section{lang\#compose}
 ;;;
