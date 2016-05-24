@@ -6,13 +6,12 @@
  \appendixpage
  \noappendicestocpagenum
  \chapter{Compile-Time Language}
-
- This chapter provides a quick tour of computer language which is interpreted
+  \label{sec:appendix1}
+ This appendix provides a quick tour of computer language which is interpreted
  by the compiler, but which is absent in the generated machine
  code.  Examples are provided in well-known languages to illustrate that
  many compilers are also interpreters for a subset of the language.  This
- chapter is not required to understand the rest of the book and may be freely
- skipped, but it provides a baseline understanding of compile-time computation,
+ appendex provides a baseline understanding of compile-time computation
  so that the reader may contrast these languages' capabilities with libbug's.
  But first, let's discuss was is meant by the words ``language'',``compiler'', and
  ``interpreter''.
@@ -288,7 +287,7 @@ Consider the following C code:
  In contrast, the compile-time
  language in libbug is the same exact language as the one that the compiler
  is compiling, complete with state and I/O!  How can that power be used?
- The rest of the book the beginning of an answer.
+ This book is the beginning of an answer.
 
 
  When I first started creating libbug, I only wanted to collocate
@@ -301,14 +300,6 @@ Consider the following C code:
  tested Scheme procedures which are translated into actual shaders at compile-time.
  In database programming, perhaps fetching the table definitions at compile-time,
  and generating code for easy database access.
-
- I don't yet understand much of the implications of having a compiler augment itself
- with the code its currently compiling.  The only negative aspect which comes to mind
- is that compile times are longer.  For me though, the improvement in
- expressive power gained by using libbug,
- as demonstrated in this book,
- drastically outweighs the longer compile times.
-
 
 
 

@@ -261,8 +261,6 @@
 ;;; or ``The Little Schemer'' \cite{littleschemer}.  Since libbug uses Gambit Scheme's
 ;;; Common Lisp-style macros, the author recommends reading ``On Lisp''
 ;;; \cite{onlisp}\footnote{available on-line for no cost}.
-;;;
-;;;
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
 ;;; book, are all recommended reading, but are
 ;;; not necessary to understand the content of this book.
@@ -293,9 +291,9 @@
 ;;; \noindent
 ;;;  means evaluate ``fun'', ``arg1''
 ;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2'';
-;;; standard Scheme semantics. But regular Scheme also uses this same notation for macro applications.
-;;; As macros transform source code into different source code before compilation, the generated
-;;; code may not follow the standard order of evaluation;  for instance, an argument may be
+;;; standard Scheme semantics. But regular Scheme also uses this notation for macro applications.
+;;; Since macros transform source code into different source code before compilation, the evaluation
+;;; order of arguments to a macro may not be clear to the caller of the macro; for instance, an argument may be
 ;;; evaluated multiple
 ;;; times in the generated code.
 ;;; The inability for the reader to reason about the evaluation semantics of arguments to a macro
@@ -327,7 +325,8 @@
 ;;;
 ;;; \section{Getting the Source Code}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug.
-;;;  The Scheme files can produce the libbug library, as well as this book.
+;;;  The Scheme files can produce the libbug library, as well as this book\footnote{the version
+;;;  of the code used to generate this book is listed on the copyright page}.
 ;;;  Currently the code works on various distributions of Linux, on FreeBSD, and on Mac
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
@@ -347,7 +346,7 @@
 ;;; \begin{itemize}
 ;;;   \item
 ;;;      The argument to ``prefix'' tells Autoconf the location into which libbug
-;;;      should be installed when ``make install'' is called.
+;;;      should be installed when ``make install'' is executed.
 ;;;   \item
 ;;;      Libbug can be compiled as a static library, or a dynamic library. ``--enable-shared''
 ;;;      configures the build so that a shared library is created.  If you desire to build
@@ -357,34 +356,51 @@
 ;;;      substitute ``--enable-pdf=no''.
 ;;; \end{itemize}
 ;;;
+;;; \section{Comparison of Compile-Time Computations in Other Languages}
+;;;
+;;; What exactly is comptutation at compile-time?  An introduction to the topic is provided
+;;; in Appendix~\ref{sec:appendix1}, demonstrated
+;;; in languages of more widespread use (C and C++). The appendix
+;;; provides examples of compile-time computation in C, C++, and libbug, along with a comparison
+;;; of their expressive power.
+;;;
+;;;
 ;;; \chapter{Introductory Procedures}
 ;;;  \label{sec:beginninglibbug}
 ;;;
-;;; Now begins the definition of a standard library of Scheme procedures and
+;;; This chapter begins the definition of libbug's standard library of Scheme procedures and
 ;;; macros\footnote{The code within chapters~\ref{sec:beginninglibbug}
 ;;; to~\ref{sec:endinglibbug} is found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
-;;; compilation process.
+;;; compilation process.  If any tests fails, the compiler will exit in error,
+;;; much like a type error in a statically-typed language.
 ;;;
-;;;
-;;; Libbug defines extensions to the Scheme language, implemented via
-;;; macros.  They are ``libbug\#define'', and ``libbug\#define-macro''.
-;;; As they are namespaced to ``libbug'', they are not compiled into the library
+;;; To gain such functionality libbug cannot be defined using Gambit Scheme's
+;;; ``\#\#define'', ``\#\#define-macro'', and ``\#\#define-structure'', since
+;;; they only define variables and
+;;; procedures for use at run-time.  Instead, definitions within
+;;; libbug use ``libbug\#define'', ``libbug\#define-macro'', and
+;;; ``\#\#define-structure''\footnote{Per convention
+;;; within libbug, procedures namespaced to ``libbug'' are not compiled into the library
 ;;; or other output files; such procedures are meant for private use within the implementation
-;;; of libbug.  They are implemented in Chapter~\ref{sec:buglang}, in file
-;;; ``bug-language.bug.scm''\footnote{Although
-;;; the filename is ``bug-language.bug.scm'', ``bug-language.scm'' is imported.  This
-;;; is because ``bug-gscpp'' preprocesses the bug file, and outputs a standard Gambit
-;;; Scheme file, with a different filename}, which will now
-;;; be imported.  How to use these procedure-defining procedures will be explained
+;;; of libbug.}, which  are implemented in Chapter~\ref{sec:buglang}.
+;;;   How to use these procedure-defining procedures will be explained
 ;;; incrementally.
 ;;;
 ;;; \begin{code}
 (include "bug-language.scm")
 {##namespace ("libbug#" define)}
 {##namespace ("libbug#" define-macro)}
-{##namespace ("lang#" define-structure)}
+{##namespace ("libbug#" define-structure)}
 ;;;\end{code}
+;;; \begin{itemize}
+;;;   \item On line 1, the code which makes computation at compile-time possible
+;;;     is imported. The contents of that file are in Chapter~\ref{sec:buglang}.
+;;;   \item On line 2-4, Gambit's ``\#\#namespace'' procedure is invoked, to
+;;;     tell the compiler that all subsequent uses of ``define'', ``define-macro'',
+;;;     and ``define-structure'' shall use libbug's version of those procedures
+;;;     instead of Gambit's.
+;;; \end{itemize}
 ;;;
 ;;;
 ;;; \newpage

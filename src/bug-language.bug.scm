@@ -589,7 +589,7 @@
 ;;; \index{libbug\#define-structure}
 ;;; \begin{code}
 {##define-macro
-  lang#define-structure
+  libbug#define-structure
   [|namespace name #!rest members|
    `{begin
       {libbug#namespace (,namespace
