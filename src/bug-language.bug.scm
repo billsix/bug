@@ -163,7 +163,7 @@
      ;;;  All rights reserved
      ;;;  Distributed under LGPL 2.1 or Apache 2.0
      (##include \"~~lib/gambit#.scm\")
-     (##include " bug-configuration#libbugsharp ")
+     (##include \"" bug-configuration#libbugsharp "\")
      {##define-macro at-compile-time
        [|form|
         (eval form)
