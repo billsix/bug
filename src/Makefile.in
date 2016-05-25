@@ -12,12 +12,11 @@ includedir=@includedir@
 datarootdir = @datarootdir@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
-SHARED_FLAGS = @SHARED_FLAGS@
 ENABLE_PDF = @ENABLE_PDF@
 docdir = @docdir@
 pdfdir = @pdfdir@
 
-OBJECTS_TO_BUILD =  libbug$(LIB_EXTENSION) libbug.o1
+OBJECTS_TO_BUILD =  libbug.so libbug.o1
 
 ifeq ($(ENABLE_PDF),yes)
   OBJECTS_TO_BUILD += bug.pdf
@@ -37,7 +36,7 @@ all: $(OBJECTS_TO_BUILD)
 	gsc -obj $<
 
 
-bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm bug-appedicies.tex
+bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm
 	../bug-gsc/bug2tex main.bug.scm bug.tex
 	../bug-gsc/bug2tex bug-language.bug.scm bug-language.tex
 	../bug-gsc/bug2tex bug-language-end.bug.scm bug-language-end.tex
@@ -45,7 +44,6 @@ bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm bug-appedici
 	rm bug-language.tex
 	cat bug-language-end.tex >> bug.tex
 	rm bug-language-end.tex
-	cat bug-appedicies.tex >> bug.tex
 	git log | head  -n 1 | cut -d ' ' -f 2   > version.tex
 
 bug.pdf: bug.tex
@@ -55,15 +53,15 @@ bug.pdf: bug.tex
 
 
 
-libbug$(LIB_EXTENSION): bug-language.scm bug-language-end.scm main.c
+libbug.so: bug-language.scm bug-language-end.scm main.c
 	gsc -link -o libbug.c main
-	gsc -obj $(SHARED_FLAGS) libbug.c main.c
+	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
 	$(CC) $(SHARED_LIB_FLAG) -lgambit  libbug.o main.o -o libbug$(LIB_EXTENSION)
 
 libbug.o1: bug-language.scm bug-language-end.scm main.c
 	gsc -link -flat -o libbug.o1.c main  > /dev/null
-	gsc -obj -cc-options -D___DYNAMIC libbug.o1.c main.c
-	$(CC) -shared -lgambit libbug.o1.o main.o -o libbug.o1
+	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c main.c
+	$(CC) $(SHARED_LIB_FLAG)  -lgambit libbug.o1.o main.o -o libbug.o1
 
 
 install:
