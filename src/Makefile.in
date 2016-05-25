@@ -36,7 +36,7 @@ all: $(OBJECTS_TO_BUILD)
 	gsc -obj $<
 
 
-bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm
+bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm bug-appedicies.tex
 	../bug-gsc/bug2tex main.bug.scm bug.tex
 	../bug-gsc/bug2tex bug-language.bug.scm bug-language.tex
 	../bug-gsc/bug2tex bug-language-end.bug.scm bug-language-end.tex
@@ -44,6 +44,7 @@ bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm
 	rm bug-language.tex
 	cat bug-language-end.tex >> bug.tex
 	rm bug-language-end.tex
+	cat bug-appedicies.tex >> bug.tex
 	git log | head  -n 1 | cut -d ' ' -f 2   > version.tex
 
 bug.pdf: bug.tex
