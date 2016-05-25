@@ -595,43 +595,36 @@
       {libbug#namespace (,namespace
                          ,(string->symbol
                            (string-append "make-"
-                                          (symbol->string name))))}
-      {libbug#namespace (,namespace
+                                          (symbol->string name)))
                          ,(string->symbol
                            (string-append (symbol->string name)
-                                          "?")))}
-      ,@(map [|m|
-              `{libbug#namespace (,namespace
-                                  ,(string->symbol
-                                    (string-append (symbol->string
-                                                    name)
-                                                   "-"
-                                                   (symbol->string
-                                                    m))))}]
-             members)
-      ,@(map [|m|
-              `{libbug#namespace (,namespace
-                                  ,(string->symbol
-                                    (string-append (symbol->string
-                                                    name)
-                                                   "-"
-                                                   (symbol->string
-                                                    m)
-                                                   "-set!")))}]
-             members)
+                                          "?"))
+                         ,@(map [|m|
+                                 (string->symbol
+                                  (string-append (symbol->string name)
+                                                 "-"
+                                                 (symbol->string m)))]
+                                members)
+                         ,@(map [|m|
+                                 (string->symbol
+                                  (string-append (symbol->string name)
+                                                 "-"
+                                                 (symbol->string m)
+                                                 "-set!"))]
+                                members))}
+
       {at-both-times
        {begin
-       {##namespace (""
-                     define
-                     define-structure
-                     )}
-       {define-structure ,name ,@members}
-       {##namespace ("libbug#"
-                     define
-                     )}
-       {##namespace ("lang#"
-                     define-structure
-                     )}}
-      }}]}
+         {##namespace (""
+                       define
+                       define-structure
+                       )}
+         {define-structure ,name ,@members}
+         {##namespace ("libbug#"
+                       define
+                       )}
+         {##namespace ("lang#"
+                       define-structure
+                       )}}}}]}
 ;;; \end{code}
 ;;;
