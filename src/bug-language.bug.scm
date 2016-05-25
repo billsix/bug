@@ -138,17 +138,32 @@
 ;;;  but not to programs which use libbug.  To rectify that, open a file
 ;;;  during compile-time, and write those macro definitions
 ;;;  to the file.
+
+;;; These exported macros, when they are ``include''-ed by an external project,
+;;; being dependent on namespaced procedures from libbug, how are the namespaces loaded?
+;;; From the namespace file of course, which
+;;; is installed as a relative path to the ``prefix'' argument passed to
+;;; ``configure''\footnote{Autoconf takes "config.scm.in" as input, and puts the
+;;; relevant configuration/installation information (such as
+;;; the installation prefix) into config.scm}.
+;;;
+
 ;;;
 ;;; \begin{code}
+   (##include "config.scm")
+   {##define bug-configuration#libbugsharp
+     (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}
+
    {##define libbug-macros-file
      (open-output-file '(path: "libbug-macros.scm"
                          append: #f))}
    (display
-    ";;; Copyright 2014-2016 - William Emerison Six
+    (string-append
+     ";;; Copyright 2014-2016 - William Emerison Six
      ;;;  All rights reserved
      ;;;  Distributed under LGPL 2.1 or Apache 2.0
      (##include \"~~lib/gambit#.scm\")
-     (##include \"libbug#.scm\")
+     (##include " bug-configuration#libbugsharp ")
      {##define-macro at-compile-time
        [|form|
         (eval form)
@@ -160,7 +175,7 @@
      {##define-macro at-compile-time-expand
        [|form|
        (eval form)]}
-     "
+     ")
     libbug-macros-file)
    }}
 ;;; \end{code}
@@ -336,22 +351,6 @@
 ;;; projects.
 ;;;
 ;;;
-;;;
-;;; But these exported macros, when they are ``include''-ed by an external project,
-;;; being dependent on namespaced procedures from libbug, how are the namespaces loaded?
-;;; From the namespace file of course, which
-;;; is installed as a relative path to the ``prefix'' argument passed to
-;;; ``configure''\footnote{Autoconf takes "config.scm.in" as input, and puts the
-;;; relevant configuration/installation information (such as
-;;; the installation prefix) into config.scm}.
-;;;
-;;; \begin{code}
-{at-compile-time
- {begin
-   (##include "config.scm")
-   {##define bug-configuration#libbugsharp
-     (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}}}
-;;; \end{code}
 ;;;
 ;;;
 ;;;
