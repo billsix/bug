@@ -23,7 +23,7 @@ case "$target_os" in
              ;;
     darwin*)
              LIB_EXTENSION=".dylib"
-             SHARED_LIB_FLAG="-dynamic"
+             SHARED_LIB_FLAG="-dynamiclib"
              ;;
           *)
              LIB_EXTENSION=".so"
