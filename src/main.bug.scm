@@ -2006,37 +2006,66 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{stream\#stream-map}
-;;; The analogous procedure of \#\#map.
-;;;
-;;; \index{stream\#stream-map}
+
+;;; \section{stream\#integers-from}
+;;; \index{stream\#integers-from}
 ;;; \begin{code}
 {define
   "stream#"
-  stream-map
-  [|f #!rest list-of-streams|
-   {let stream-map ((list-of-streams list-of-streams))
-     (if (any? (map stream-null? list-of-streams))
-         [stream-null]
-         [(stream-cons (apply f
-                              (map stream-car list-of-streams))
-                       [(stream-map (map stream-cdr list-of-streams))])])}]
+  integers-from
+  [|n|
+   (stream-cons n [(integers-from (+ n 1))])]
+;;; \end{code}
+;;;
+;;; \cite[p. 326]{sicp}.
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   [|n| (stream-ref (integers-from 0) n)]
+   '(
+     (0 0)
+     (1 1)
+     (2 2)
+     ))
+  (satisfies?
+   [|n| (stream-ref (integers-from 5) n)]
+   '(
+     (0 5)
+     (1 6)
+     (2 7)
+     ))
+  }
+;;; \end{code}
+;;;
+;;; \newpage
+;;; \section{stream\#stream-take}
+;;; \index{stream\#stream-take}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-take
+  [|n s|
+   (if (or (stream-null? s) (= n 0))
+       [stream-null]
+       [(stream-cons (stream-car s)
+                     [(stream-take (- n 1)
+                                   (stream-cdr s))])])]
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? '(6 5 4 3 2)
-          (stream->list
-           (stream-map [|x| (+ x 1)]
-                       (list->stream '(5 4 3 2 1)))))
-  (equal? '(6 5 4 3 2)
-          (stream->list
-           (stream-map [|x y| (+ x y)]
-                       (list->stream '(5 4 3 2 1))
-                       (list->stream '(1 1 1 1 1)))))
-  }
-;;;
+  (satisfies?
+   [|n| (stream->list
+         (stream-take n (integers-from 0)))]
+   '(
+     (0 ())
+     (1 (0))
+     (2 (0 1))
+     (6 (0 1 2 3 4 5))
+     ))}
 ;;; \end{code}
+;;; % TODO - stream-take-while, stream-drop, stream-dropwhile
 ;;;
 ;;;
 ;;; \newpage
@@ -2062,10 +2091,84 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? '(2 1)
+  (equal?  (stream->list
+            (stream-filter [|x| (not (= 4 x))]
+                           (list->stream '(1 4 2 4))))
+           '(1 2))
+  (equal? (stream->list
+           (stream-take
+            10
+            (stream-filter [|n|
+                            (not (equal? 0
+                                         (modulo n 2)))]
+                           (integers-from 2))))
+          '(3 5 7 9 11 13 15 17 19 21))
+  }
+;;;
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
+;;; \section{stream\#primes}
+;;; \index{stream\#primes}
+;;; \begin{code}
+{define
+  "stream#"
+  primes
+  {letrec ((sieve-of-eratosthenes
+            [|s| (stream-cons
+                  (stream-car s)
+                  [(sieve-of-eratosthenes
+                    (stream-filter
+                     [|n|
+                      (not (equal? 0
+                                   (modulo n (stream-car s))))]
+                     (stream-cdr s)))])]))
+    (sieve-of-eratosthenes (integers-from 2))}
+;;; \end{code}
+;;;
+;;; \cite[p. 327]{sicp}.
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? (stream->list
+           (stream-take
+            10
+            primes))
+          '(2 3 5 7 11 13 17 19 23 29))
+  }
+;;; \end{code}
+;;;
+;;; \newpage
+
+;;; \section{stream\#stream-map}
+;;; The analogous procedure of \#\#map.
+;;;
+;;; \index{stream\#stream-map}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-map
+  [|f #!rest list-of-streams|
+   {let stream-map ((list-of-streams list-of-streams))
+     (if (any? (map stream-null? list-of-streams))
+         [stream-null]
+         [(stream-cons (apply f
+                              (map stream-car list-of-streams))
+                       [(stream-map (map stream-cdr list-of-streams))])])}]
+;;; \end{code}
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? '(2 3 4 5 6)
           (stream->list
-           (stream-filter [|x| (not (= 4 x))]
-                          (list->stream '(2 4 1 4)))))
+           (stream-map [|x| (+ x 1)]
+                       (list->stream '(1 2 3 4 5)))))
+  (equal? '(2 3 4 5 6)
+          (stream->list
+           (stream-map [|x y| (+ x y)]
+                       (list->stream '(1 2 3 4 5))
+                       (list->stream '(1 1 1 1 1)))))
   }
 ;;;
 ;;; \end{code}
@@ -2095,87 +2198,6 @@
            (stream-enumerate-interval 1 10 step: 2))
           '(1 3 5 7 9))}
 ;;; \end{code}
-;;;
-;;; \newpage
-;;; \section{stream\#integers-from}
-;;; \index{stream\#integers-from}
-;;; \begin{code}
-{define
-  "stream#"
-  integers-from
-  [|n|
-   (stream-cons n [(integers-from (+ n 1))])]
-;;; \end{code}
-;;;
-;;; \cite[p. 326]{sicp}.
-;;;
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? (stream-ref (integers-from 0) 0) 0)
-  (equal? (stream-ref (integers-from 0) 1) 1)
-  (equal? (stream-ref (integers-from 0) 2) 2)
-  (equal? (stream-ref (integers-from 5) 2) 7)
-  }
-;;; \end{code}
-;;;
-;;; \newpage
-;;; \section{stream\#primes}
-;;; \index{stream\#primes}
-;;; \begin{code}
-{define
-  "stream#"
-  primes
-  {let ((sieve-of-eratosthenes
-	 [|s| (stream-cons
-	       (stream-car s)
-	       [(stream-filter
-		 [|n| (not (equal? 0
-				   (modulo n (stream-car s))))]
-			       (stream-cdr s)))])])
-  (sieve-of-eratosthenes (integers-from 2))}
-;;; \end{code}
-;;;
-;;; \cite[p. 327]{sicp}.
-;;;
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? (stream-ref primes 0) 2)
-  (equal? (stream-ref primes 1) 3)
-  (equal? (stream-ref primes 2) 5)
-  (equal? (stream-ref primes 3) 7)
-
-  }
-;;; \end{code}
-;;;
-;;; \newpage
-;;; \section{stream\#stream-take}
-;;; \index{stream\#stream-take}
-;;; \begin{code}
-{define
-  "stream#"
-  stream-take
-  [|n s|
-   (if (or (stream-null? s) (= n 0))
-       [stream-null]
-       [(stream-cons (stream-car s)
-		     [(stream-take (- n 1)
-				   (stream-cdr s))])])]
-;;; \end{code}
-;;;
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (satisfies?
-   [|n| (stream->list
-	 (stream-take n primes))]
-   '(
-     (0 ())
-     (1 (2))
-     (2 (2 3))
-     (6 (2 3 5 7 9 11))
-     ))}
-;;; \end{code}
-;;; % TODO - stream-take-while, stream-drop, stream-dropwhile
-;;;
 ;;;
 ;;; \newpage
 ;;; \chapter{Macros}
