@@ -1132,7 +1132,7 @@
      ((1) (5 6))
      ((1 2) (5 6 8))
      ((1 2 3 4 5 6) (5 6 8 11 15 20 26)
-     )))
+      )))
   (satisfies?
    [|l| (scan-left - 5 l)]
    '(
@@ -1747,7 +1747,7 @@
                                        (char->integer #\a))
                                     13)
                                  26)))]
-                      s)]
+                    s)]
 
    '(
      ("" "")
@@ -2561,27 +2561,19 @@
 ;;; \begin{code}
   {eval
    `{begin
-      ,@(map [|x| `{let ((a '(
-                              (
-                               (
-                                (1) 2)
-                               (3)
-                               ())
-                              (
-                               (4)
-                               5)
-                              (6)
+      ,@(map [|x| `{let ((a '((((the-caaaar)
+                                the-cadaar) (the-caadar) ())
+                              ((the-caaadr) the-cadadr)
+                              (the-caaddr)
                               ()
                               )))
                      {setf! (,x a) 10}
                      (equal? (,x a) 10)}]
-             '(car cdr
-
+             '(car
+               cdr
                caar cadr cdar cddr
-
                caaar caadr cadar caddr
                cdaar cdadr cddar cdddr
-
                caaaar caaadr caadar caaddr
                cadaar cadadr caddar cadddr
                cdaaar cdaadr cdadar cdaddr
