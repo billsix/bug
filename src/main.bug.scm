@@ -1814,7 +1814,7 @@
 ;;; ``lang\#define-structure'' takes a namespace, name of the constructor, and a variable
 ;;; number of fields.  A constructor named ``make-stream'' is created, as are accessor
 ;;; procedures ``stream-a'', ``stream-d'', and setter procedures ``stream-a-set!'' and
-;;; ``stream-d-set!''.  
+;;; ``stream-d-set!''.
 ;;;
 ;;; \begin{code}
 {define-structure
@@ -2214,26 +2214,13 @@
 ;;; \chapter{Macros}
 ;;;
 ;;; \section{Introduction to Macros}
-;;; Common Lisp-style macros are just procedures which take lists as input and output lists.
-;;; Simple enough. But what makes them special is that systems such as Gambit Scheme will evaluate
-;;; the macro at compile-time, taking uncompiled source code (which is a list) as input,
-;;; and outputs a list which will be compiled by Gambit.  Thus the programmer
-;;; may augment the compiler with new syntax without changing the source code of
-;;; the compiler itself.
 ;;;
-;;; Why does this matter?  Well, why do organizations implement new versions of languages
-;;; such as C\#, Java,
-;;; and C++?  Because the syntax introduced in the new versions
-;;; provides abstractions which were not expressible, or at least not easily expressable,
-;;; in the constructs provided in previous versions of the language.  But with Common Lisp-style
-;;; macros, the programmer is not dependent upon external organizations and their
-;;; necessary multi-year cycle of
-;;; new language versions, he can implement the syntax when he wants.  That matters.
 ;;;
 ;;; \subsection{Quote and Eval}
 ;;;   ``quote'' and ``eval'' are complementary procedures.
-;;;  ``quote'' tells the compiler to not evaluate the
-;;;    arguments, but instead create a list
+;;;  ``quote'' is a special procedure which does not follow standard evaluation
+;;;  semantics, which results in the compiler not evaluating the
+;;;    arguments;  instead create a list
 ;;;   of unevaluated symbols.
 ;;;
 ;;; \begin{examplecode}
@@ -2241,6 +2228,8 @@
 ;;;3
 ;;;> {quote (+ 1 2)}
 ;;;(+ 1 2)
+;;;> {quote {define a 5}}
+;;;(define a 5)
 ;;; \end{examplecode}
 
 ;;; The symbol ' can be used instead of explicitly writing ``quote'', thus
@@ -2251,12 +2240,17 @@
 ;;;(+ 1 2)
 ;;; \end{examplecode}
 ;;;
-;;;  ``eval'' takes an unevaluated list and forces the evaluation as if the
-;;;  code had been explicitly specified.
+;;;  ``eval'' is a special procedure which does not follow standard evaluation
+;;;  semantics, which takes an unevaluated list and forces the evaluation in
+;;;  the current environment as if the
+;;;  code had been explicitly written.
 ;;;
 ;;; \begin{examplecode}
-;;;> (eval '(+ 1 2))
+;;;> {eval '(+ 1 2)}
 ;;;3
+;;;> {eval '{define a 5}}
+;;;> a
+;;;5
 ;;; \end{examplecode}
 ;;;
 ;;; Since lists of symbols may be manipulated, the programmer can ``quote'' code,
@@ -2265,7 +2259,7 @@
 ;;; \begin{examplecode}
 ;;;> (append '(+ 1 2) '(3))
 ;;;(+ 1 2 3)
-;;;> (eval (append '(+ 1 2) '(3)))
+;;;> {eval (append '(+ 1 2) '(3))}
 ;;;6
 ;;; \end{examplecode}
 ;;;
@@ -2340,67 +2334,72 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (macroexpand-1 (compose))
+  (equal? {macroexpand-1 (compose)}
           'identity)
-  (equal? ((eval (macroexpand-1 (compose))) 5)
-          5)
-  (equal? ((compose) 5)
-          5)
-
-  (equal? (macroexpand-1 (compose [|x| (* x 2)]))
+  (equal? 5
+          ({eval {macroexpand-1 (compose)}} 5))
+  (equal? 5
+          ((compose) 5))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? {macroexpand-1 (compose [|x| (* x 2)])}
           '[|#!rest gensymed-var1|
             (apply [|x| (* x 2)]
                    gensymed-var1)])
-  (equal? ((eval (macroexpand-1 (compose [|x| (* x 2)])))
-           5)
-          10)
-  (equal? ((compose [|x| (* x 2)])
-           5)
-          10)
-
-  (equal? (macroexpand-1 (compose [|x| (+ x 1)]
-                                  [|x| (* x 2)]))
+  (equal? 10
+          ({eval {macroexpand-1 (compose [|x| (* x 2)])}}
+           5))
+  (equal? 10
+          ((compose [|x| (* x 2)])
+           5))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? {macroexpand-1 (compose [|x| (+ x 1)]
+                                  [|x| (* x 2)])}
           '[|#!rest gensymed-var1|
             ([|x| (+ x 1)]
              (apply [|x| (* x 2)]
                     gensymed-var1))])
-  (equal? ((eval (macroexpand-1 (compose [|x| (+ x 1)]
-                                         [|x| (* x 2)]))
+  (equal? 11
+          ({eval {macroexpand-1 (compose [|x| (+ x 1)]
+                                         [|x| (* x 2)])}
                  '[|#!rest gensymed-var1|
                    ([|x| (+ x 1)]
                     (apply [|x| (* x 2)]
-                           gensymed-var1))])
-           5)
-          11)
-  (equal? ((compose [|x| (+ x 1)]
+                           gensymed-var1))]}
+           5))
+  (equal? 11
+          ((compose [|x| (+ x 1)]
                     [|x| (* x 2)])
-           5)
-          11)
-
-  
-  (equal? (macroexpand-1 (compose [|x| (/ x 13)]
+           5))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? {macroexpand-1 (compose [|x| (/ x 13)]
                                   [|x| (+ x 1)]
-                                  [|x| (* x 2)]))
+                                  [|x| (* x 2)])}
           '[|#!rest gensymed-var1|
             ([|x| (/ x 13)]
              ([|x| (+ x 1)]
               (apply [|x| (* x 2)]
                      gensymed-var1)))])
-  (equal? ((eval (macroexpand-1 (compose [|x| (/ x 13)]
+  (equal? 11/13
+          ({eval {macroexpand-1 (compose [|x| (/ x 13)]
                                          [|x| (+ x 1)]
-                                         [|x| (* x 2)]))
+                                         [|x| (* x 2)])}
                  '[|#!rest gensymed-var1|
                    ([|x| (/ x 13)]
                     ([|x| (+ x 1)]
                      (apply [|x| (* x 2)]
-                            gensymed-var1)))])
-           5)
-          11/13)
-  (equal? ((compose [|x| (/ x 13)]
+                            gensymed-var1)))]}
+           5))
+  (equal? 11/13
+          ((compose [|x| (/ x 13)]
                     [|x| (+ x 1)]
                     [|x| (* x 2)])
-           5)
-          11/13)
+           5))
   }
 ;;; \end{code}
 ;;; \subsection*{Code Expansion Tests}
@@ -2445,8 +2444,8 @@
           30)
   (equal? {aif #f (* 2 it)}
           #f)
-  (equal? (macroexpand-1 {aif (+ 5 10)
-                              (* 2 it)})
+  (equal? {macroexpand-1 {aif (+ 5 10)
+                              (* 2 it)}}
           '{let ((it (+ 5 10)))
              (if it
                  [(* 2 it)]
@@ -2474,11 +2473,11 @@
 ;;; \noindent \cite[p. 145]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (macroexpand-1 (with-gensyms (foo bar baz)
+  (equal? {macroexpand-1 (with-gensyms (foo bar baz)
                                        `{begin
                                           (pp ,foo)
                                           (pp ,bar)
-                                          (pp ,baz)}))
+                                          (pp ,baz)})}
           '{let ((foo (gensym))
                  (bar (gensym))
                  (baz (gensym)))
