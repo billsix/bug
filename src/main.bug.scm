@@ -2213,37 +2213,58 @@
 ;;; \newpage
 ;;; \chapter{Macros}
 ;;;
+;;;  Although many concepts first implemented in Lisp (garbage collection, TODO - list them)
+;;;  have been appropriated into mainstream languages, the one feature of Lisp which
+;;;  remains difficult to copy is also one of Lisp's strongest:  macros.  Macros are a facility
+;;;  by which a programmer may augment the compiler with new functionality \emph{while
+;;;  the compiler is compiling.}
+;;;
 ;;; \section{Introduction to Macros}
+;;;  This chapter provides a brief description of macros\footnote{for
+;;;  a much more thorough treatment of the subject, read \cite{onlisp}}.  But before
+;;;  macros are introduced, the more general ``quote'' and ``eval'' will be.
 ;;;
+;;;  ``quote'' turns Scheme code into a data structure of the language (an atom or a list),
+;;;   and ``eval'' takes a data structure representing unevaluated Scheme code
+;;;   and evaluates it.
+;;;  
 ;;;
-;;; \subsection{Quote and Eval}
-;;;   ``quote'' and ``eval'' are complementary procedures.
+;;; \subsection{quote}
 ;;;  ``quote'' is a special procedure which does not follow standard evaluation
-;;;  semantics, which results in the compiler not evaluating the
-;;;    arguments;  instead create a list
-;;;   of unevaluated symbols.
+;;;  semantics. The argument passed to the ``quote'' procedure is not evaluated.
 ;;;
 ;;; \begin{examplecode}
+;;;> {quote foobar}
+;;;foobar
 ;;;> (+ 1 2)
 ;;;3
+;;;> (list {quote +} {quote 1} {quote 2})
+;;;(+ 1 2)
+;;;> (list {quote +} 1 2)
+;;;(+ 1 2)
 ;;;> {quote (+ 1 2)}
 ;;;(+ 1 2)
+;;;> (list {quote define} {quote a} 5)
+;;;(define a 5)
 ;;;> {quote {define a 5}}
 ;;;(define a 5)
 ;;; \end{examplecode}
-
-;;; The symbol ' can be used instead of explicitly writing ``quote'', thus
-;;; omitting the brackets.
+;;;
+;;; \noindent
+;;; The symbol ' can be used instead of explicitly writing ``quote'' and its
+;;; brackets.
 
 ;;; \begin{examplecode}
+;;;> 'foobar
+;;;foobar
 ;;;> '(+ 1 2)
 ;;;(+ 1 2)
 ;;; \end{examplecode}
 ;;;
-;;;  ``eval'' is a special procedure which does not follow standard evaluation
-;;;  semantics, which takes an unevaluated list and forces the evaluation in
-;;;  the current environment as if the
-;;;  code had been explicitly written.
+;;; \subsection{eval}
+;;;  ``eval'' is a special procedure which also does not follow standard evaluation
+;;;  semantics.   It takes an unevaluated list and forces the evaluation in
+;;;  the current environment as if the code had been explicitly written there.
 ;;;
 ;;; \begin{examplecode}
 ;;;> {eval '(+ 1 2)}
@@ -2263,12 +2284,9 @@
 ;;;6
 ;;; \end{examplecode}
 ;;;
-;;;  Calling ``eval'' explicitly in a program is generally considered bad form,
-;;;  as the resulting code can become difficult to understand, and the compiler
-;;;  cannot optimize the expanded code at compile-time.  As such, in Gambit Scheme's
-;;; ``\#\#define-macro'' provides equivalent functionality without explicit ``eval''ing,
-;;;  by  accepting a list-transforming procedure as a parameter
-;;;  which is available for evaluation exclusively at compile-time.
+;;;  Gambit provides a controlled method by which the programer may manipulate lists
+;;;  which are subsequently ``eval''ed, and that is using Common Lisp-style macros \footnote{
+;;;  TODO - mention explict evalling is bad}.
 ;;;
 ;;;
 ;;; \begin{examplecode}
@@ -2279,27 +2297,12 @@
 ;;;6
 ;;; \end{examplecode}
 ;;;
-;;; Manual concatentation of lists becomes cumbersome.  The ``quasiquote'' procedure
-;;; acts like ``quote'', but quotes every sublist not prefaced with ``unquote''
+;;; \noindent Notice in ``(foo (+ 1 2))'' that ``(+ 1 2)'' is not quoted.  That
+;;; is because the Gambit compiler/interpreter knows that ``foo'' is a macro,
+;;; so it automatically converts the arguments to foo into a list of unevaluated
+;;; symbols.
 ;;;
-;;; \begin{examplecode}
-;;;> (quasiquote (+ 1 2))
-;;;(+ 1 2)
-;;;> (quasiquote (+ 1 (+ 1 1)))
-;;;(+ 1 (+ 1 1))
-;;;> (quasiquote (+ 1 (unquote (+ 1 1))))
-;;;(+ 1 2)
-;;; \end{examplecode}
-
-;;; \begin{examplecode}
-;;;> `(+ 1 2)
-;;;(+ 1 2)
-;;;> `(+ 1 (+ 1 1))
-;;;(+ 1 (+ 1 1))
-;;;> `(+ 1 ,(+ 1 1))
-;;;(+ 1 2)
-;;; \end{examplecode}
-
+;;; \newpage
 ;;; \section{lang\#macro-identity}
 ;;;
 ;;;
@@ -2321,6 +2324,23 @@
           {macro-identity (+ 1 2)})
   }
 ;;; \end{code}
+;;;
+;;; Macro-expansions occur during compile-time, so how should a person
+;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
+;;; as a procedure which transforms lists, and as such is able to be tested.
+;;;
+;;;
+;;; ``macroexpand-1'' expands the unevaluated code passed to the
+;;; macro into the new form, which the compiler would have then compiled
+;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
+;;; evaluate, since by definition it creates symbols which cannot be entered
+;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
+;;; is overridden into a procedure
+;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
+;;; call during a macro-expansion generates a new, unique symbol.  Although this symbol
+;;; may clash with symbols in the expanded code, this is not a problem, as these
+;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
+;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
 
 ;;;
 ;;; \newpage
@@ -2332,20 +2352,73 @@
 {define-macro
   "lang#"
   macro-identity2
-  [|form| `{eval ,form}]
+  [|form| (list 'eval form)]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
+          (list 'eval (list '+ '1 '2)))
+  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
+          (list 'eval (list '+ 1 2)))
+  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
+          (list 'eval '(+ 1 2)))
+  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
           '(eval (+ 1 2)))
-  ;;(equal? 3
-  ;;        {eval {macroexpand-1 {macro-identity {+ 1 2}}}})
-  ;;(equal? 3
-  ;;        {macro-identity {+ 1 2}})
+  (equal? 3
+          {eval {macroexpand-1 {macro-identity2 (+ 1 2)}}})
+  (equal? 3
+          {macro-identity2 (+ 1 2)})
   }
 ;;; \end{code}
 
+;;;
+;;; \newpage
+;;; \section{lang\#macro-identity3}
+;;;
+;;;
+;;; \index{lang\#macro-identity3}
+;;;
+;;; Manual concatentation of lists becomes cumbersome.  The ``quasiquote'' procedure
+;;; acts like ``quote'', but quotes every sublist not prefaced with ``unquote''
+;;;
+;;; \begin{examplecode}
+;;;> (quasiquote (+ 1 2))
+;;;(+ 1 2)
+;;;> (quasiquote (+ 1 (+ 1 1)))
+;;;(+ 1 (+ 1 1))
+;;;> (quasiquote (+ 1 (unquote (+ 1 1))))
+;;;(+ 1 2)
+;;; \end{examplecode}
+;;;
+;;; \begin{examplecode}
+;;;> `(+ 1 2)
+;;;(+ 1 2)
+;;;> `(+ 1 (+ 1 1))
+;;;(+ 1 (+ 1 1))
+;;;> `(+ 1 ,(+ 1 1))
+;;;(+ 1 2)
+;;; \end{examplecode}
+;;;
+;;;
+;;; \begin{code}
+{define-macro
+  "lang#"
+  macro-identity3
+  [|form| `{eval ,form}]
+;;; \end{code}
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? {macroexpand-1 {macro-identity3 (+ 1 2)}}
+          '(eval (+ 1 2)))
+  (equal? 3
+          {eval {macroexpand-1 {macro-identity3 (+ 1 2)}}})
+  (equal? 3
+          {macro-identity3 (+ 1 2)})
+  }
+;;; \end{code}
+;;;
 ;;;
 ;;; \newpage
 ;;; \section{lang\#compose}
@@ -2449,25 +2522,6 @@
            5))
   }
 ;;; \end{code}
-;;; \subsection*{Code Expansion Tests}
-;;;
-;;; Macro-expansions occur during compile-time, so how should a person
-;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
-;;; as a procedure which transforms lists, and as such is able to be tested.
-;;;
-;;;
-;;; ``macroexpand-1'' expands the unevaluated code passed to the
-;;; macro into the new form, which the compiler would have then compiled
-;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
-;;; evaluate, since by definition it creates symbols which cannot be entered
-;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
-;;; is overridden into a procedure
-;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
-;;; call during a macro-expansion generates a new, unique symbol.  Although this symbol
-;;; may clash with symbols in the expanded code, this is not a problem, as these
-;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
-;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
-;;;
 ;;;
 ;;; \newpage
 ;;; \section{lang\#aif}
