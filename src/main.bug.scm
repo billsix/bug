@@ -2300,7 +2300,30 @@
 ;;;(+ 1 2)
 ;;; \end{examplecode}
 
+;;; \section{lang\#macro-identity}
 ;;;
+;;;
+;;; \index{lang\#macro-identity}
+;;; \begin{code}
+{define-macro
+  "lang#"
+  macro-identity
+  [|form| form]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? {macroexpand-1 {macro-identity {+ 1 2}}}
+          '{+ 1 2})
+  (equal? 3
+          {eval {macroexpand-1 {macro-identity {+ 1 2}}}})
+  (equal? 3
+          {macro-identity {+ 1 2}})
+  }
+;;; \end{code}
+
+;;;
+;;; \newpage
 ;;; \section{lang\#compose}
 ;;;
 ;;; Libbug is a library, meant to be used by other projects.  From libbug, these
