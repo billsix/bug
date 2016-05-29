@@ -2313,12 +2313,36 @@
 
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? {macroexpand-1 {macro-identity {+ 1 2}}}
-          '{+ 1 2})
+  (equal? {macroexpand-1 {macro-identity (+ 1 2)}}
+          '(+ 1 2))
   (equal? 3
-          {eval {macroexpand-1 {macro-identity {+ 1 2}}}})
+          {eval {macroexpand-1 {macro-identity (+ 1 2)}}})
   (equal? 3
-          {macro-identity {+ 1 2}})
+          {macro-identity (+ 1 2)})
+  }
+;;; \end{code}
+
+;;;
+;;; \newpage
+;;; \section{lang\#macro-identity2}
+;;;
+;;;
+;;; \index{lang\#macro-identity2}
+;;; \begin{code}
+{define-macro
+  "lang#"
+  macro-identity2
+  [|form| `{eval ,form}]
+;;; \end{code}
+
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
+          '(eval (+ 1 2)))
+  ;;(equal? 3
+  ;;        {eval {macroexpand-1 {macro-identity {+ 1 2}}}})
+  ;;(equal? 3
+  ;;        {macro-identity {+ 1 2}})
   }
 ;;; \end{code}
 
