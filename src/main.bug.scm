@@ -1809,13 +1809,24 @@
 ;;; define ``stream-cons'' as syntax, instead of passing a lambda
 ;;; to the second argument}.
 ;;;
-;;; \section{stream\#stream-cons}
+;;; \section{Stream structure}
+;;;
+;;; ``lang\#define-structure'' takes a namespace, name of the constructor, and a variable
+;;; number of fields.  A constructor named ``make-stream'' is created, as are accessor
+;;; procedures ``stream-a'', ``stream-d'', and setter procedures ``stream-a-set!'' and
+;;; ``stream-d-set!''.  
 ;;;
 ;;; \begin{code}
 {define-structure
   "stream#"
-  stream a d}
+  stream
+  a
+  d}
 ;;; \end{code}
+;;;
+;;;  For streams, none of the above procedures are intended to be
+;;; evaluated directly by the programmer, instead, the following
+;;; are to be used.
 ;;;
 ;;; \section{stream\#stream-car}
 ;;; Get the first element of the stream.
@@ -1830,7 +1841,6 @@
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;;
-;;; \newpage
 ;;; \section{stream\#stream-cdr}
 ;;; Forces the evaluation of the next element of the stream.
 ;;;
@@ -1844,7 +1854,6 @@
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \newpage
-;;;
 ;;; \section{stream\#stream-cons}
 ;;;
 ;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
@@ -1856,13 +1865,13 @@
   "stream#"
   stream-cons
   [|a d|
-   (if (or (not (list? d))
-           (not (equal? 'lambda (car d)))
-           (null? (cdr d))
-           (not (equal? '() (cadr d))))
+   (if {and (list? d)
+            (equal? 'lambda (car d))
+            (not (null? (cdr d)))
+            (equal? '() (cadr d))}
+       [`(make-stream ,a {delay ,(caddr d)})]
        [(error "stream#stream-cons requires a zero-argument \
-                lambda in it's second arg")]
-       [`(make-stream ,a {delay ,(caddr d)})])]
+                lambda in it's second arg")])]
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
@@ -1879,6 +1888,7 @@
 ;;;
 ;;;
 ;;; \newpage
+;;;
 ;;; \section{stream\#stream-null}
 ;;;
 ;;; \index{stream\#stream-null}
@@ -1961,7 +1971,9 @@
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? '(1 2 3) (stream->list (list->stream '(1 2 3))))
+  (equal? (stream->list
+           (list->stream '(1 2 3)))
+          '(1 2 3))
   }
 ;;; \end{code}
 ;;;
@@ -2115,16 +2127,15 @@
 {define
   "stream#"
   primes
-  {letrec ((sieve-of-eratosthenes
-            [|s| (stream-cons
-                  (stream-car s)
-                  [(sieve-of-eratosthenes
-                    (stream-filter
-                     [|n|
-                      (not (equal? 0
-                                   (modulo n (stream-car s))))]
-                     (stream-cdr s)))])]))
-    (sieve-of-eratosthenes (integers-from 2))}
+  {let sieve-of-eratosthenes ((s (integers-from 2)))
+    (stream-cons
+     (stream-car s)
+     [(sieve-of-eratosthenes (stream-filter
+                              [|n|
+                               (not (equal? 0
+                                            (modulo n (stream-car s))))]
+                              (stream-cdr s)))])}
+
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 327]{sicp}.
@@ -2160,15 +2171,15 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? '(2 3 4 5 6)
-          (stream->list
+  (equal? (stream->list
            (stream-map [|x| (+ x 1)]
-                       (list->stream '(1 2 3 4 5)))))
-  (equal? '(2 3 4 5 6)
-          (stream->list
+                       (list->stream '(1 2 3 4 5))))
+          '(2 3 4 5 6))
+  (equal? (stream->list
            (stream-map [|x y| (+ x y)]
                        (list->stream '(1 2 3 4 5))
-                       (list->stream '(1 1 1 1 1)))))
+                       (list->stream '(1 1 1 1 1))))
+          '(2 3 4 5 6))
   }
 ;;;
 ;;; \end{code}
@@ -2183,7 +2194,7 @@
   stream-enumerate-interval
   [|low high #!key (step 1)|
    (if (> low high)
-       ['()]
+       [stream-null]
        [(stream-cons low
                      [(stream-enumerate-interval (+ low step)
                                                  high
@@ -2329,11 +2340,24 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
+  (equal? (macroexpand-1 (compose))
+          'identity)
+  (equal? ((eval (macroexpand-1 (compose))) 5)
+          5)
   (equal? ((compose) 5)
           5)
+
+  (equal? (macroexpand-1 (compose [|x| (* x 2)]))
+          '[|#!rest gensymed-var1|
+            (apply [|x| (* x 2)]
+                   gensymed-var1)])
+  (equal? ((eval (macroexpand-1 (compose [|x| (* x 2)])))
+           5)
+          10)
   (equal? ((compose [|x| (* x 2)])
            5)
           10)
+
   (equal? ((compose [|x| (+ x 1)]
                     [|x| (* x 2)])
            5)
@@ -2351,12 +2375,6 @@
 ;;; as a procedure which transforms lists, and as such is able to be tested.
 ;;;
 ;;; \begin{code}
-  (equal? (macroexpand-1 (compose))
-          'identity)
-  (equal? (macroexpand-1 (compose [|x| (* x 2)]))
-          '[|#!rest gensymed-var1|
-            (apply [|x| (* x 2)]
-                   gensymed-var1)])
   (equal? (macroexpand-1 (compose [|x| (+ x 1)]
                                   [|x| (* x 2)]))
           '[|#!rest gensymed-var1|
