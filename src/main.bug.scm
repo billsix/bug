@@ -2358,29 +2358,26 @@
            5)
           10)
 
-  (equal? ((compose [|x| (+ x 1)]
-                    [|x| (* x 2)])
-           5)
-          11)
-  (equal? ((compose [|x| (/ x 13)]
-                    [|x| (+ x 1)]
-                    [|x| (* x 2)])
-           5)
-          11/13)
-;;; \end{code}
-;;; \subsection*{Code Expansion Tests}
-;;;
-;;; Macro-expansions occur during compile-time, so how should a person
-;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
-;;; as a procedure which transforms lists, and as such is able to be tested.
-;;;
-;;; \begin{code}
   (equal? (macroexpand-1 (compose [|x| (+ x 1)]
                                   [|x| (* x 2)]))
           '[|#!rest gensymed-var1|
             ([|x| (+ x 1)]
              (apply [|x| (* x 2)]
                     gensymed-var1))])
+  (equal? ((eval (macroexpand-1 (compose [|x| (+ x 1)]
+                                         [|x| (* x 2)]))
+                 '[|#!rest gensymed-var1|
+                   ([|x| (+ x 1)]
+                    (apply [|x| (* x 2)]
+                           gensymed-var1))])
+           5)
+          11)
+  (equal? ((compose [|x| (+ x 1)]
+                    [|x| (* x 2)])
+           5)
+          11)
+
+  
   (equal? (macroexpand-1 (compose [|x| (/ x 13)]
                                   [|x| (+ x 1)]
                                   [|x| (* x 2)]))
@@ -2389,8 +2386,28 @@
              ([|x| (+ x 1)]
               (apply [|x| (* x 2)]
                      gensymed-var1)))])
+  (equal? ((eval (macroexpand-1 (compose [|x| (/ x 13)]
+                                         [|x| (+ x 1)]
+                                         [|x| (* x 2)]))
+                 '[|#!rest gensymed-var1|
+                   ([|x| (/ x 13)]
+                    ([|x| (+ x 1)]
+                     (apply [|x| (* x 2)]
+                            gensymed-var1)))])
+           5)
+          11/13)
+  (equal? ((compose [|x| (/ x 13)]
+                    [|x| (+ x 1)]
+                    [|x| (* x 2)])
+           5)
+          11/13)
   }
 ;;; \end{code}
+;;; \subsection*{Code Expansion Tests}
+;;;
+;;; Macro-expansions occur during compile-time, so how should a person
+;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
+;;; as a procedure which transforms lists, and as such is able to be tested.
 ;;;
 ;;;
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
