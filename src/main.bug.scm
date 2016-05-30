@@ -2318,10 +2318,10 @@
 ;;; \begin{code}
   (equal? {macroexpand-1 {macro-identity (+ 1 2)}}
           '(+ 1 2))
-  (equal? 3
-          {eval {macroexpand-1 {macro-identity (+ 1 2)}}})
-  (equal? 3
-          {macro-identity (+ 1 2)})
+  (equal? {eval {macroexpand-1 {macro-identity (+ 1 2)}}}
+          3)
+  (equal? {macro-identity (+ 1 2)}
+          3)
   }
 ;;; \end{code}
 ;;;
@@ -2352,23 +2352,22 @@
 {define-macro
   "lang#"
   macro-identity2
-  [|form| (list 'eval form)]
+  [|form| (list 'eval (list (quote quote) form))]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          (list 'eval (list '+ '1 '2)))
+          (list 'eval {quote {quote (+ 1 2)}}))
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          (list 'eval (list '+ 1 2)))
+          (list 'eval ''(+ 1 2)))
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          (list 'eval '(+ 1 2)))
-  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          '(eval (+ 1 2)))
-  (equal? 3
-          {eval {macroexpand-1 {macro-identity2 (+ 1 2)}}})
-  (equal? 3
-          {macro-identity2 (+ 1 2)})
+          '(eval '(+ 1 2)))
+  (equal? (eval
+           {macroexpand-1 {macro-identity2 (+ 1 2)}})
+          3)
+  (equal? {macro-identity2 (+ 1 2)}
+          3)
   }
 ;;; \end{code}
 
@@ -2405,15 +2404,15 @@
 {define-macro
   "lang#"
   macro-identity3
-  [|form| `{eval ,form}]
+  [|form| `{eval ',form}]
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 {macro-identity3 (+ 1 2)}}
-          '(eval (+ 1 2)))
-  (equal? 3
-          {eval {macroexpand-1 {macro-identity3 (+ 1 2)}}})
+          '(eval '(+ 1 2)))
+  (equal? {eval {macroexpand-1 {macro-identity3 (+ 1 2)}}}
+          3)
   (equal? 3
           {macro-identity3 (+ 1 2)})
   }
