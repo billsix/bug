@@ -2484,11 +2484,7 @@
                     gensymed-var1))])
   (equal? 11
           ({eval {macroexpand-1 (compose [|x| (+ x 1)]
-                                         [|x| (* x 2)])}
-                 '[|#!rest gensymed-var1|
-                   ([|x| (+ x 1)]
-                    (apply [|x| (* x 2)]
-                           gensymed-var1))]}
+                                         [|x| (* x 2)])}}
            5))
   (equal? 11
           ((compose [|x| (+ x 1)]
@@ -2508,12 +2504,7 @@
   (equal? 11/13
           ({eval {macroexpand-1 (compose [|x| (/ x 13)]
                                          [|x| (+ x 1)]
-                                         [|x| (* x 2)])}
-                 '[|#!rest gensymed-var1|
-                   ([|x| (/ x 13)]
-                    ([|x| (+ x 1)]
-                     (apply [|x| (* x 2)]
-                            gensymed-var1)))]}
+                                         [|x| (* x 2)])}}
            5))
   (equal? 11/13
           ((compose [|x| (/ x 13)]
