@@ -283,6 +283,20 @@
 ;;; \end{examplecode}
 ;;;
 ;;; \noindent
+;;; Some examples within this book show sessions of the use of the Lisp Read-Evaluate-Print-Loop (REPL).
+;;; Such examples will look like the following:
+;;;
+;;; \begin{examplecode}
+;;;> (+ 1 2)
+;;;3
+;;; \end{examplecode}
+;;;
+;;; \noindent
+;;; The line on which the user entered text begins with a ``\textgreater''.  The result
+;;; of evaluating that line appears on the subsequent line. In this case, 1 added to 2
+;;; evaluates to 3.
+;;;
+;;; \subsection{Syntactic Conventions}
 ;;; In libbug, the notation
 ;;;
 ;;; \begin{examplecode}
@@ -390,14 +404,12 @@
 ;;;
 ;;; \begin{code}
 (include "bug-language.scm")
-{##namespace ("libbug#" define)}
-{##namespace ("libbug#" define-macro)}
-{##namespace ("libbug#" define-structure)}
+{##namespace ("libbug#" define define-macro define-structure)}
 ;;;\end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 1, the code which makes computation at compile-time possible
 ;;;     is imported. The contents of that file are in Chapter~\ref{sec:buglang}.
-;;;   \item On line 2-4, Gambit's ``\#\#namespace'' procedure is invoked, to
+;;;   \item On line 2, Gambit's ``\#\#namespace'' procedure is invoked, to
 ;;;     tell the compiler that all subsequent uses of ``define'', ``define-macro'',
 ;;;     and ``define-structure'' shall use libbug's version of those procedures
 ;;;     instead of Gambit's.
@@ -2217,26 +2229,39 @@
 ;;;  have been appropriated into mainstream languages, the one feature of Lisp which
 ;;;  remains difficult to copy is also one of Lisp's strongest:  macros.  Macros are a facility
 ;;;  by which a programmer may augment the compiler with new functionality \emph{while
-;;;  the compiler is compiling.}  Mastery of this chapter is required to understand all
-;;;  subsequent chapters.
+;;;  the compiler is compiling.}
+;;;
+;;;  Mastery of macros is required to understand all subsequent chapters of this book.
+;;;  This chapter contains a brief but sufficient introduction to macros, but should the
+;;;  reader seek a more thorough description of the topic, ``On Lisp'' by Paul Graham \cite{onlisp}
+;;;  is an excellent resource.
 ;;;
 ;;; \section{Introduction to Macros}
-;;;  This chapter provides a brief description of macros\footnote{for
-;;;  a much more thorough treatment of the subject, read \cite{onlisp}}.  But before
+;;;  Before
 ;;;  macros are introduced, the more general ``quote'' and ``eval'' will be.
 ;;;
-;;;  ``quote'' turns Scheme code into a data structure of the language (an atom or a list),
-;;;   and ``eval'' takes a data structure representing unevaluated Scheme code
+;;;  ``quote''\footnote{``quote'' is a special procedure which does not follow standard evaluation
+;;;  semantics. The argument passed to the ``quote'' procedure is not evaluated.}
+;;;   turns Scheme code into a data structure of the language (an atom or a list),
+;;;   and ``eval''\footnote{``eval'' is a special procedure which also does not follow standard evaluation
+;;;  semantics.   It takes an unevaluated Scheme code and forces the evaluation in
+;;;  the current environment as if the code had been explicitly written there.}
+;;;  takes a data structure representing unevaluated Scheme code
 ;;;   and evaluates it.
+
 ;;;  
 ;;;
-;;; \subsection{quote}
-;;;  ``quote'' is a special procedure which does not follow standard evaluation
-;;;  semantics. The argument passed to the ``quote'' procedure is not evaluated.
-;;;
 ;;; \begin{examplecode}
+;;;> {define foobar 5}
 ;;;> {quote foobar}
 ;;;foobar
+;;;> {eval {quote foobar}}
+;;;5
+;;; \end{examplecode}
+
+
+
+;;; \begin{examplecode}
 ;;;> (+ 1 2)
 ;;;3
 ;;;> (list {quote +} {quote 1} {quote 2})
@@ -2262,10 +2287,6 @@
 ;;;(+ 1 2)
 ;;; \end{examplecode}
 ;;;
-;;; \subsection{eval}
-;;;  ``eval'' is a special procedure which also does not follow standard evaluation
-;;;  semantics.   It takes an unevaluated list and forces the evaluation in
-;;;  the current environment as if the code had been explicitly written there.
 ;;;
 ;;; \begin{examplecode}
 ;;;> {eval '(+ 1 2)}
