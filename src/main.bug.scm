@@ -2252,7 +2252,40 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; % TODO - stream-take-while, stream-drop, stream-dropwhile
+
+;;; \section{stream\#stream-drop}
+;;; \index{stream\#stream-drop}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-drop
+  [|n s|
+   (if {or (stream-null? s)
+           (= n 0)}
+       [s]
+       [(stream-drop (- n 1)
+                     (stream-cdr s))])]
+;;; \end{code}
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   [|n|
+    (stream->list
+     (stream-drop n (list->stream '(a b))))]
+   '(
+     (0 (a b))
+     (1 (b))
+     (2 ())
+     (3 ())
+     ))}
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
+
+
+;;; % TODO - stream-drop, stream-dropwhile
 ;;;
 ;;; \chapter{Macros}
 ;;;
