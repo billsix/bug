@@ -253,14 +253,14 @@
  {at-both-times
   {##define-macro if
     [|pred ifTrue ifFalse|
-     (##if (or (not (list? ifTrue))
-               (not (list? ifFalse))
-               (not (equal? 'lambda (car ifTrue)))
-               (not (equal? 'lambda (car ifFalse))))
-           (error "lang#if requires two lambda expressions")
+     {##if {and (list? ifTrue)
+                (list? ifFalse)
+                (equal? 'lambda (car ifTrue))
+                (equal? 'lambda (car ifFalse))}
            (list '##if pred
                  `{begin ,@(cddr ifTrue)}
-                 `{begin ,@(cddr ifFalse)}))]}}}
+                 `{begin ,@(cddr ifFalse)})
+           (error "lang#if requires two lambda expressions")}]}}}
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
