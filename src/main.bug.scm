@@ -2088,7 +2088,6 @@
      (6 (0 1 2 3 4 5))
      ))}
 ;;; \end{code}
-;;; % TODO - stream-take-while, stream-drop, stream-dropwhile
 ;;;
 ;;;
 ;;; \newpage
@@ -2195,7 +2194,6 @@
 ;;;
 ;;; \end{code}
 ;;;
-;;;
 ;;; \newpage
 ;;; \section{stream\#stream-enumerate-interval}
 ;;; \index{stream\#stream-enumerate-interval}
@@ -2222,6 +2220,40 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
+;;; \section{stream\#stream-take-while}
+;;; \index{stream\#stream-take-while}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-take-while
+  [|p? s|
+   {let stream-take-while ((s s))
+     (if {or (stream-null? s)
+             ((complement p?) (stream-car s))}
+         [stream-null]
+         [(stream-cons (stream-car s)
+                       [(stream-take-while
+                         (stream-cdr s))])])}]
+;;; \end{code}
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   [|s|
+    (stream->list
+     (stream-take-while [|n| (< n 10)]
+                        s))]
+   (list (list (integers-from 0)
+               '(0 1 2 3 4 5 6 7 8 9))          
+         (list (stream-enumerate-interval 1 4)
+               '(1 2 3 4))))
+  }
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
+;;; % TODO - stream-take-while, stream-drop, stream-dropwhile
+;;;
 ;;; \chapter{Macros}
 ;;;
 ;;;  Although many concepts first implemented in Lisp (conditional expressions,
