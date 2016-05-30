@@ -2244,7 +2244,7 @@
      (stream-take-while [|n| (< n 10)]
                         s))]
    (list (list (integers-from 0)
-               '(0 1 2 3 4 5 6 7 8 9))          
+               '(0 1 2 3 4 5 6 7 8 9))
          (list (stream-enumerate-interval 1 4)
                '(1 2 3 4))))
   }
@@ -2284,8 +2284,40 @@
 ;;;
 ;;; \newpage
 
+;;; \section{stream\#stream-drop-while}
+;;; \index{stream\#stream-drop-while}
+;;; \begin{code}
+{define
+  "stream#"
+  stream-drop-while
+  [|p? s|
+   {let stream-drop-while ((s s))
+     (if {or (stream-null? s)
+             ((complement p?) (stream-car s))}
+       [s]
+       [(stream-drop-while (stream-cdr s))])}]
+;;; \end{code}
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   [|x|
+    (stream->list
+     (stream-drop-while [|y| (not (equal? x y))]
+                        (list->stream
+                         '(a b c))))]
+   '(
+     (a (a b c))
+     (b (b c))
+     (c (c))
+     (d ())
+     (e ())
+     ))}
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
 
-;;; % TODO - stream-drop, stream-dropwhile
 ;;;
 ;;; \chapter{Macros}
 ;;;
@@ -2314,7 +2346,7 @@
 ;;;  takes a data structure representing unevaluated Scheme code
 ;;;   and evaluates it.
 
-;;;  
+;;;
 ;;;
 ;;; \begin{examplecode}
 ;;;> {define foobar 5}
