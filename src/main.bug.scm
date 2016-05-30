@@ -1302,11 +1302,10 @@
   drop-while
   [|p? l|
    {let drop-while ((l l))
-     (if (null? l)
-         ['()]
-         [(if ((complement p?) (car l))
-              [l]
-              [(drop-while (cdr l))])])}]
+     (if {or (null? l)
+             ((complement p?) (car l))}
+         [l]
+         [(drop-while (cdr l))])}]
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
