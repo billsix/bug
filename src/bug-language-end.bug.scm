@@ -12,17 +12,17 @@
 ;;;
 ;;;  ;;clear the namespace of the macro file
 (at-compile-time
- (begin
+ {begin
    (display
     "
      (##namespace (\"\"))"
-    libbug-macros-file)))
+    libbug-macros-file)})
 ;;;
 ;;;
 (at-compile-time
- (begin
+ {begin
    (force-output libbug-headers-file)
    (close-output-port libbug-headers-file)
    (force-output libbug-macros-file)
-   (close-output-port libbug-macros-file)))
+   (close-output-port libbug-macros-file)})
 ;;;\end{code}

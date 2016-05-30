@@ -1230,7 +1230,8 @@
   "list#"
   take
   [|n l|
-   (if (or (null? l) (= n 0))
+   (if {or (null? l)
+           (= n 0)}
        ['()]
        [(cons (car l)
               (take (- n 1)
@@ -1259,7 +1260,8 @@
   take-while
   [|p? l|
    {let take-while ((l l))
-     (if (or (null? l) ((complement p?) (car l)))
+     (if {or (null? l)
+             ((complement p?) (car l))}
          ['()]
          [(cons (car l)
                 (take-while (cdr l)))])}]
@@ -1287,7 +1289,8 @@
   "list#"
   drop
   [|n l|
-   (if (or (null? l) (= n 0))
+   (if {or (null? l)
+           (= n 0)}
        [l]
        [(drop (- n 1)
               (cdr l))])]
@@ -2069,7 +2072,8 @@
   "stream#"
   stream-take
   [|n s|
-   (if (or (stream-null? s) (= n 0))
+   (if {or (stream-null? s)
+           (= n 0)}
        [stream-null]
        [(stream-cons (stream-car s)
                      [(stream-take (- n 1)
@@ -2471,7 +2475,7 @@
 {define-macro
   "lang#"
   macro-identity2
-  [|form| (list 'eval (list (quote quote) form))]
+  [|form| (list 'eval (list {quote quote} form))]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
@@ -2481,9 +2485,9 @@
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
           (list 'eval ''(+ 1 2)))
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          '(eval '(+ 1 2)))
-  (equal? (eval
-           {macroexpand-1 {macro-identity2 (+ 1 2)}})
+          '{eval '(+ 1 2)})
+  (equal? {eval
+           {macroexpand-1 {macro-identity2 (+ 1 2)}}}
           3)
   (equal? {macro-identity2 (+ 1 2)}
           3)
@@ -2529,7 +2533,7 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 {macro-identity3 (+ 1 2)}}
-          '(eval '(+ 1 2)))
+          '{eval '(+ 1 2)})
   (equal? {eval {macroexpand-1 {macro-identity3 (+ 1 2)}}}
           3)
   (equal? 3
