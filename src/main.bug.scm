@@ -2251,6 +2251,21 @@
                '(0 1 2 3 4 5 6 7 8 9))
          (list (stream-enumerate-interval 1 4)
                '(1 2 3 4))))
+;;; \end{code}
+;;;
+;;;  \noindent
+;;;  This next test is exactly the same as the previous, but done using ``quasiquote''
+;;;  and ``unquote''.  Those two special forms will be discussed in chapter ~\ref{sec:macros}.
+;;;
+;;; \begin{code}
+  (satisfies?
+   [|s|
+    (stream->list
+     (stream-take-while [|n| (< n 10)]
+                        s))]
+   `(
+     (,(integers-from 0) (0 1 2 3 4 5 6 7 8 9))
+     (,(stream-enumerate-interval 1 4) (1 2 3 4))))
   }
 ;;; \end{code}
 ;;;
@@ -2324,6 +2339,7 @@
 
 ;;;
 ;;; \chapter{Macros}
+;;;  \label{sec:macros}
 ;;;
 ;;;  Although many concepts first implemented in Lisp (conditional expressions,
 ;;;  garbage collection, procedures as first-class objects)
