@@ -267,7 +267,7 @@
 ;;; not necessary to understand the content of this book.
 ;;;
 ;;; \section{Conventions}
-;;; Code which is part of libbug will not be outlined and
+;;; Code which is part of libbug will be outlined and
 ;;; will have line numbers on the left.
 ;;;
 ;;; \begin{code}
@@ -292,7 +292,7 @@
 ;;; \noindent
 ;;;  means evaluate ``fun'', ``arg1''
 ;;; and ``arg2'' in any order, then apply ``fun'' to ``arg1'' and ``arg2'';
-;;; standard Scheme semantics for invoking a prodecure.  But since macros
+;;; standard Scheme semantics for invoking a procedure.  But since macros
 ;;; are not normal procedures and do
 ;;; not necessarily respect those semantics, in libbug, the notation
 ;;;
@@ -2212,11 +2212,13 @@
 ;;; \newpage
 ;;; \chapter{Macros}
 ;;;
-;;;  Although many concepts first implemented in Lisp (garbage collection, TODO - list them)
+;;;  Although many concepts first implemented in Lisp (conditional expressions,
+;;;  garbage collection, procedures as first-class objects)
 ;;;  have been appropriated into mainstream languages, the one feature of Lisp which
 ;;;  remains difficult to copy is also one of Lisp's strongest:  macros.  Macros are a facility
 ;;;  by which a programmer may augment the compiler with new functionality \emph{while
-;;;  the compiler is compiling.}
+;;;  the compiler is compiling.}  Mastery of this chapter is required to understand all
+;;;  subsequent chapters.
 ;;;
 ;;; \section{Introduction to Macros}
 ;;;  This chapter provides a brief description of macros\footnote{for
@@ -2695,7 +2697,9 @@
   {eval
    `{begin
       ,@(map [|x| `{let ((a '((((the-caaaar)
-                                the-cadaar) (the-caadar) ())
+                                the-cadaar)
+                               (the-caadar)
+                               ())
                               ((the-caaadr) the-cadadr)
                               (the-caaddr)
                               ()
