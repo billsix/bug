@@ -1873,6 +1873,11 @@
 ;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
 ;;; lambda value.
 ;;;
+;;; ``stream-cons'' is a macro, a topic which has not yet been covered, but will
+;;; be in chapter~\ref{sec:macros}.  For now, just know that ``stream-cons'' is
+;;; a constructor for creating streams, which verifies at compile-time that the
+;;; second argument is a zero-argument lambda.
+;;;
 ;;; \index{stream\#stream-cons}
 ;;; \begin{code}
 {define-macro
@@ -2255,7 +2260,7 @@
 ;;;
 ;;;  \noindent
 ;;;  This next test is exactly the same as the previous, but done using ``quasiquote''
-;;;  and ``unquote''.  Those two special forms will be discussed in chapter ~\ref{sec:macros}.
+;;;  and ``unquote''.  Those two special forms will be discussed in chapter~\ref{sec:macros}.
 ;;;
 ;;; \begin{code}
   (satisfies?
