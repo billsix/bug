@@ -2724,45 +2724,64 @@
 ;;;
 ;;; \newpage
 ;;; \section{lang\#once-only}
-;;;
+;;; % TODO - explain this section
 ;;; \index{lang\#once-only}
 ;;; \begin{code}
 {define-macro
   "lang#"
   once-only
   [|symbols #!rest body|
-   {let ((bindings (map [|s| `(,(gensym) ,s)]
+   {let ((gensyms (map [|s| (gensym)]
                         symbols)))
-     (list 'let
-           (map [|pair| (list (car pair)
-                              (list 'unquote (cadr pair)))]
-                bindings)
+     (list 'list
+           ''let
+           (cons 'list (map [|g s| (list 'list
+                                         (list 'quote g)
+                                         s)]
+                            gensyms
+                            symbols))
            (append (list 'let
-                         (map reverse bindings))
+                         (map [|s g| (list s
+                                           (list 'quote g))]
+                              symbols
+                              gensyms))
                    body))}]
-
 ;;; \end{code}
+;;;
+;;; \cite[p. 854]{paip}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 {once-only (x) `(+ ,x ,x)}}
-          '{let ((gensymed-var1 ,x))
-             {let ((x gensymed-var1))
-               `(+ ,x ,x)}})
-  (equal? {macroexpand-1 {once-only (x) (+ x x)}}
-          '{let ((gensymed-var1 ,x))
-             {let ((x gensymed-var1))
-               (+ x x)}})
-  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,x)}}
-          '(let ((gensymed-var1 ,x)
-                 (gensymed-var2 ,y))
-             (let ((x gensymed-var1)
-                   (y gensymed-var2))
-               `(+ ,x ,x))))
-  
+          '(list 'let
+                 (list (list 'gensymed-var1 x))
+                 (let ((x 'gensymed-var1))
+                   `(+ ,x ,x))))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (eval `(let ((x 'foo))
+                   ,(once-only-expand (x)
+                                      `(+ ,x ,x))))
+          '(let ((gensymed-var1 foo))
+             (+ gensymed-var1 gensymed-var1)))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (eval `(let ((foo 5))
+                   ,(eval `(let ((x 'foo))
+                             ,(once-only-expand (x)
+                                                `(+ ,x ,x))))))
+          10)
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (eval `(let ((foo 5))
+                   (let ((gensymed-var1 foo))
+                     (+ gensymed-var1 gensymed-var1))))
+          10)
 
   }
-;;; % TODO - explain why I'm using nested quasiquotes here, and what they are
 ;;;
 ;;; \end{code}
 ;;;
