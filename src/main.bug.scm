@@ -2829,7 +2829,7 @@
 ;;;
 ;;; \begin{code}
   {eval
-   `{begin
+   `{and
       ,@(map [|x| `{let ((a '((((the-caaaar)
                                 the-cadaar)
                                (the-caadar)
