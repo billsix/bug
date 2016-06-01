@@ -2733,29 +2733,34 @@
   [|symbols #!rest body|
    {let ((bindings (map [|s| `(,(gensym) ,s)]
                         symbols)))
-     (list 'quasiquote
-           `{let ,(map [|pair| (list (car pair)
-                                     (list 'unquote (cadr pair)))]
-                       bindings)
-              {let ,(map reverse bindings)
-                ,(if (equal? 'quasiquote
-                             (car body))
-                     [body]
-                     [(append (list 'unquote)
-                              body)])}})}]
+     (list 'let
+           (map [|pair| (list (car pair)
+                              (list 'unquote (cadr pair)))]
+                bindings)
+           (append (list 'let
+                         (map reverse bindings))
+                   body))}]
 
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 {once-only (x) `(+ ,x ,x)}}
-          ``{let ((gensymed-var1 ,x))
-              {let ((x gensymed-var1))
-                ,`(+ ,x ,x)}})
+          '{let ((gensymed-var1 ,x))
+             {let ((x gensymed-var1))
+               `(+ ,x ,x)}})
   (equal? {macroexpand-1 {once-only (x) (+ x x)}}
-          ``{let ((gensymed-var1 ,x))
-              {let ((x gensymed-var1))
-                ,(+ x x)}})
+          '{let ((gensymed-var1 ,x))
+             {let ((x gensymed-var1))
+               (+ x x)}})
+  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,x)}}
+          '(let ((gensymed-var1 ,x)
+                 (gensymed-var2 ,y))
+             (let ((x gensymed-var1)
+                   (y gensymed-var2))
+               `(+ ,x ,x))))
+  
+
   }
 ;;; % TODO - explain why I'm using nested quasiquotes here, and what they are
 ;;;
