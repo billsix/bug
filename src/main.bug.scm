@@ -2685,7 +2685,6 @@
              (if it
                  [(* 2 it)]
                  [#f])})
-;;;
   }
 ;;; \end{code}
 ;;;
@@ -2723,6 +2722,44 @@
   }
 ;;; \end{code}
 ;;;
+;;; \newpage
+;;; \section{lang\#once-only}
+;;;
+;;; \index{lang\#once-only}
+;;; \begin{code}
+{define-macro
+  "lang#"
+  once-only
+  [|symbols #!rest body|
+   {let ((bindings (map [|s| `(,(gensym) ,s)]
+                        symbols)))
+     (list 'quasiquote
+           `{let ,(map [|pair| (list (car pair)
+                                     (list 'unquote (cadr pair)))]
+                       bindings)
+              {let ,(map reverse bindings)
+                ,(if (equal? 'quasiquote
+                             (car body))
+                     [body]
+                     [(append (list 'unquote)
+                              body)])}})}]
+
+;;; \end{code}
+;;;
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? {macroexpand-1 {once-only (x) `(+ ,x ,x)}}
+          ``{let ((gensymed-var1 ,x))
+              {let ((x gensymed-var1))
+                ,`(+ ,x ,x)}})
+  (equal? {macroexpand-1 {once-only (x) (+ x x)}}
+          ``{let ((gensymed-var1 ,x))
+              {let ((x gensymed-var1))
+                ,(+ x x)}})
+  }
+;;; % TODO - explain why I'm using nested quasiquotes here, and what they are
+;;;
+;;; \end{code}
 ;;;
 ;;; \newpage
 ;;; \chapter{Generalized Assignment}
