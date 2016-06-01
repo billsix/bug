@@ -2377,7 +2377,7 @@
 ;;;> {define foobar 5}
 ;;;> {quote foobar}
 ;;;foobar
-;;;> {eval {quote foobar}}
+;;;> (eval {quote foobar})
 ;;;5
 ;;; \end{examplecode}
 
@@ -2411,9 +2411,9 @@
 ;;;
 ;;;
 ;;; \begin{examplecode}
-;;;> {eval '(+ 1 2)}
+;;;> (eval '(+ 1 2))
 ;;;3
-;;;> {eval '{define a 5}}
+;;;> (eval '{define a 5})
 ;;;> a
 ;;;5
 ;;; \end{examplecode}
@@ -2424,7 +2424,7 @@
 ;;; \begin{examplecode}
 ;;;> (append '(+ 1 2) '(3))
 ;;;(+ 1 2 3)
-;;;> {eval (append '(+ 1 2) '(3))}
+;;;> (eval (append '(+ 1 2) '(3)))
 ;;;6
 ;;; \end{examplecode}
 ;;;
@@ -2462,7 +2462,7 @@
 ;;; \begin{code}
   (equal? {macroexpand-1 {macro-identity (+ 1 2)}}
           '(+ 1 2))
-  (equal? {eval {macroexpand-1 {macro-identity (+ 1 2)}}}
+  (equal? (eval {macroexpand-1 {macro-identity (+ 1 2)}})
           3)
   (equal? {macro-identity (+ 1 2)}
           3)
@@ -2506,9 +2506,9 @@
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
           (list 'eval ''(+ 1 2)))
   (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          '{eval '(+ 1 2)})
-  (equal? {eval
-           {macroexpand-1 {macro-identity2 (+ 1 2)}}}
+          '(eval '(+ 1 2)))
+  (equal? (eval
+           {macroexpand-1 {macro-identity2 (+ 1 2)}})
           3)
   (equal? {macro-identity2 (+ 1 2)}
           3)
@@ -2548,14 +2548,14 @@
 {define-macro
   "lang#"
   macro-identity3
-  [|form| `{eval ',form}]
+  [|form| `(eval ',form)]
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 {macro-identity3 (+ 1 2)}}
-          '{eval '(+ 1 2)})
-  (equal? {eval {macroexpand-1 {macro-identity3 (+ 1 2)}}}
+          '(eval '(+ 1 2)))
+  (equal? (eval {macroexpand-1 {macro-identity3 (+ 1 2)}})
           3)
   (equal? 3
           {macro-identity3 (+ 1 2)})
@@ -2600,7 +2600,7 @@
   (equal? {macroexpand-1 (compose)}
           'identity)
   (equal? 5
-          ({eval {macroexpand-1 (compose)}} 5))
+          ((eval {macroexpand-1 (compose)}) 5))
   (equal? 5
           ((compose) 5))
 ;;; \end{code}
@@ -2611,7 +2611,7 @@
             (apply [|x| (* x 2)]
                    gensymed-var1)])
   (equal? 10
-          ({eval {macroexpand-1 (compose [|x| (* x 2)])}}
+          ((eval {macroexpand-1 (compose [|x| (* x 2)])})
            5))
   (equal? 10
           ((compose [|x| (* x 2)])
@@ -2626,8 +2626,8 @@
              (apply [|x| (* x 2)]
                     gensymed-var1))])
   (equal? 11
-          ({eval {macroexpand-1 (compose [|x| (+ x 1)]
-                                         [|x| (* x 2)])}}
+          ((eval {macroexpand-1 (compose [|x| (+ x 1)]
+                                         [|x| (* x 2)])})
            5))
   (equal? 11
           ((compose [|x| (+ x 1)]
@@ -2645,9 +2645,9 @@
               (apply [|x| (* x 2)]
                      gensymed-var1)))])
   (equal? 11/13
-          ({eval {macroexpand-1 (compose [|x| (/ x 13)]
+          ((eval {macroexpand-1 (compose [|x| (/ x 13)]
                                          [|x| (+ x 1)]
-                                         [|x| (* x 2)])}}
+                                         [|x| (* x 2)])})
            5))
   (equal? 11/13
           ((compose [|x| (/ x 13)]
@@ -2828,7 +2828,7 @@
 ;;; accessor procedures, and test each.
 ;;;
 ;;; \begin{code}
-  {eval
+  (eval
    `{and
       ,@(map [|x| `{let ((a '((((the-caaaar)
                                 the-cadaar)
@@ -2849,7 +2849,7 @@
                cadaar cadadr caddar cadddr
                cdaaar cdaadr cdadar cdaddr
                cddaar cddadr cdddar cddddr
-               ))}}
+               ))})
 ;;; \end{code}
 ;;;
 ;;; \noindent Test setting procedures where the setting procedure is

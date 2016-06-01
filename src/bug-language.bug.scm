@@ -54,7 +54,7 @@
 {##namespace ("lang#" at-compile-time)}
 {##define-macro at-compile-time
   [|form|
-   {eval form}
+   (eval form)
    `{quote noop}]}
 ;;; \end{code}
 ;;;
@@ -71,7 +71,7 @@
 {##namespace ("lang#" at-both-times)}
 {##define-macro at-both-times
   [|form|
-   {eval form}
+   (eval form)
    form]}
 ;;; \end{code}
 ;;;
@@ -101,7 +101,7 @@
 {##namespace ("lang#" at-compile-time-expand)}
 {##define-macro at-compile-time-expand
   [|form|
-   {eval form}]}
+   (eval form)]}
 ;;; \end{code}
 ;;;
 ;;; \subsection{Create File for Namespaces}
@@ -166,15 +166,15 @@
      (##include \"" bug-configuration#libbugsharp "\")
      {##define-macro at-compile-time
        [|form|
-        {eval form}
+        (eval form)
         `{quote noop}]}
      {##define-macro at-both-times
        [|form|
-        {eval form}
+        (eval form)
         form]}
      {##define-macro at-compile-time-expand
        [|form|
-       {eval form}]}
+       (eval form)]}
      ")
     libbug-macros-file)
    }}
@@ -205,9 +205,9 @@
 ;;; \begin{code}
 {##define-macro libbug#write-and-eval
   [|port form|
-   {eval `{begin
+   (eval `{begin
             (write ',form ,port)
-            (newline ,port)}}
+            (newline ,port)})
    form]}
 ;;; \end{code}
 ;;;
@@ -223,7 +223,7 @@
 {##define-macro libbug#namespace
   [|namespace-name-pair|
    {begin
-     {eval `{##namespace ,namespace-name-pair}}
+     (eval `{##namespace ,namespace-name-pair})
      `{begin
         {libbug#write-and-eval
          libbug-headers-file
@@ -306,13 +306,13 @@
  libbug-macros-file
  {##define-macro with-tests
    [|definition #!rest tests|
-    {eval
+    (eval
      `{begin
         ,definition
         (if {and ,@tests}
             [',definition]
             [(for-each pp (list "Test Failed" ',tests ',definition))
-             (error "Tests Failed")])}}]}}
+             (error "Tests Failed")])})]}}
 ;;; \end{code}
 ;;;
 ;;;
