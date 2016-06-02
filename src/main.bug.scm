@@ -2755,30 +2755,30 @@
   (equal? {macroexpand-1 {once-only (x) `(+ ,x ,x)}}
           '(list 'let
                  (list (list 'gensymed-var1 x))
-                 (let ((x 'gensymed-var1))
-                   `(+ ,x ,x))))
+                 {let ((x 'gensymed-var1))
+                   `(+ ,x ,x)}))
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? (eval `(let ((x 'foo))
+  (equal? (eval `{let ((x 'foo))
                    ,(once-only-expand (x)
-                                      `(+ ,x ,x))))
+                                      `(+ ,x ,x))})
           '(let ((gensymed-var1 foo))
              (+ gensymed-var1 gensymed-var1)))
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? (eval `(let ((foo 5))
-                   ,(eval `(let ((x 'foo))
+  (equal? (eval `{let ((foo 5))
+                   ,(eval `{let ((x 'foo))
                              ,(once-only-expand (x)
-                                                `(+ ,x ,x))))))
+                                                `(+ ,x ,x))})})
           10)
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? (eval `(let ((foo 5))
-                   (let ((gensymed-var1 foo))
-                     (+ gensymed-var1 gensymed-var1))))
+  (equal? (eval `{let ((foo 5))
+                   {let ((gensymed-var1 foo))
+                     (+ gensymed-var1 gensymed-var1)}})
           10)
 
   }
