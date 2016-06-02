@@ -51,7 +51,7 @@
 ;;;
 ;;; \index{lang\#at-compile-time}
 ;;; \begin{code}
-{##namespace ("lang#" at-compile-time)}
+{##namespace ("bug#" at-compile-time)}
 {##define-macro at-compile-time
   [|form|
    (eval form)
@@ -68,7 +68,7 @@
 ;;; \section{lang\#at-both-times}
 ;;; \index{lang\#at-both-times}
 ;;; \begin{code}
-{##namespace ("lang#" at-both-times)}
+{##namespace ("bug#" at-both-times)}
 {##define-macro at-both-times
   [|form|
    (eval form)
@@ -98,7 +98,7 @@
 ;;; ``at-compile-time-expand'' allows any procedure to act as a macro.
 ;;;
 ;;; \begin{code}
-{##namespace ("lang#" at-compile-time-expand)}
+{##namespace ("bug#" at-compile-time-expand)}
 {##define-macro at-compile-time-expand
   [|form|
    (eval form)]}
@@ -124,9 +124,9 @@
     ";;; Copyright 2014-2016 - William Emerison Six
      ;;;  All rights reserved
      ;;;  Distributed under LGPL 2.1 or Apache 2.0
-     {##namespace (\"lang#\" at-compile-time)}
-     {##namespace (\"lang#\" at-both-times)}
-     {##namespace (\"lang#\" at-compile-time-expand)}
+     {##namespace (\"bug#\" at-compile-time)}
+     {##namespace (\"bug#\" at-both-times)}
+     {##namespace (\"bug#\" at-compile-time-expand)}
      "
     libbug-headers-file)
 ;;; \end{code}
@@ -203,7 +203,7 @@
 ;;;
 ;;; \index{libbug\#write-and-eval}
 ;;; \begin{code}
-{##define-macro libbug#write-and-eval
+{##define-macro libbug-private#write-and-eval
   [|port form|
    (eval `{begin
             (write ',form ,port)
@@ -220,12 +220,12 @@
 ;;;
 ;;; \index{libbug\#namespace}
 ;;; \begin{code}
-{##define-macro libbug#namespace
+{##define-macro libbug-private#namespace
   [|namespace-name-pair|
    {begin
      (eval `{##namespace ,namespace-name-pair})
      `{begin
-        {libbug#write-and-eval
+        {libbug-private#write-and-eval
          libbug-headers-file
          {##namespace ,namespace-name-pair}}}}]}
 ;;; \end{code}
@@ -247,8 +247,8 @@
 ;;;
 ;;; \index{lang\#if}
 ;;; \begin{code}
-{libbug#namespace ("lang#" if)}
-{libbug#write-and-eval
+{libbug-private#namespace ("bug#" if)}
+{libbug-private#write-and-eval
  libbug-macros-file
  {at-both-times
   {##define-macro if
@@ -301,8 +301,8 @@
 ;;;
 ;;;
 ;;; \begin{code}
-{libbug#namespace ("lang#" with-tests)}
-{libbug#write-and-eval
+{libbug-private#namespace ("bug#" with-tests)}
+{libbug-private#write-and-eval
  libbug-macros-file
  {##define-macro with-tests
    [|definition #!rest tests|
@@ -325,10 +325,10 @@
 ;;; \index{libbug\#define}
 ;;; \begin{code}
 {##define-macro
-  libbug#define
+  libbug-private#define
   [|namespace name body #!rest tests|
    `{begin
-      {libbug#namespace (,namespace ,name)}
+      {libbug-private#namespace (,namespace ,name)}
       {with-tests
        {##define ,name ,body}
        ,@tests}}]}
@@ -359,7 +359,7 @@
 ;;;
 ;;; \index{libbug\#define-macro}
 ;;; \begin{code}
-{##define-macro libbug#define-macro
+{##define-macro libbug-private#define-macro
   [|namespace name lambda-value #!rest tests|
 ;;; \end{code}
 ;;; \subsection{Write Macro to File}
@@ -505,8 +505,8 @@
 ;;; \noindent Namespace the procedure
 ;;;
 ;;; \begin{code}
-        {libbug#namespace (,namespace ,name)}
-        {libbug#namespace
+        {libbug-private#namespace (,namespace ,name)}
+        {libbug-private#namespace
          (,namespace ,(string->symbol
                        (string-append (symbol->string name)
                                       "-expand")))}
@@ -571,8 +571,8 @@
 ;;;
 ;;; \index{lang\#macroexpand-1}
 ;;; \begin{code}
-{libbug#define-macro
- "lang#"
+{libbug-private#define-macro
+ "bug#"
  macroexpand-1
  [|form|
   ;; TODO -error check the list
@@ -588,10 +588,10 @@
 ;;; \index{libbug\#define-structure}
 ;;; \begin{code}
 {##define-macro
-  libbug#define-structure
+  libbug-private#define-structure
   [|namespace name #!rest members|
    `{begin
-      {libbug#namespace (,namespace
+      {libbug-private#namespace (,namespace
                          ,(string->symbol
                            (string-append "make-"
                                           (symbol->string name)))
@@ -619,10 +619,10 @@
                        define-structure
                        )}
          {define-structure ,name ,@members}
-         {##namespace ("libbug#"
+         {##namespace ("libbug-private#"
                        define
                        )}
-         {##namespace ("lang#"
+         {##namespace ("bug#"
                        define-structure
                        )}}}}]}
 ;;; \end{code}

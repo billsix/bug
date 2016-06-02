@@ -147,7 +147,7 @@
 ;;;
 ;;; \begin{examplecode}
 ;;;{define
-;;; "list#"
+;;; "bug#"
 ;;; permutations
 ;;; [|l| (if (null? l)
 ;;;          ['()]
@@ -404,7 +404,7 @@
 ;;;
 ;;; \begin{code}
 (include "bug-language.scm")
-{##namespace ("libbug#" define define-macro define-structure)}
+{##namespace ("libbug-private#" define define-macro define-structure)}
 ;;;\end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 1, the code which makes computation at compile-time possible
@@ -424,7 +424,7 @@
 ;;; \index{lang\#noop}
 ;;; \begin{code}
 {define
-  "lang#"
+  "bug#"
   noop
   ['noop]
 ;;; \end{code}
@@ -481,7 +481,7 @@
 ;;;
 ;;; \begin{code}
 {define
-  "lang#"
+  "bug#"
   identity
   [|x| x]
 ;;; \end{code}
@@ -523,7 +523,7 @@
 ;;; \index{list\#all?}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   all?
   [|l|
    (if (null? l)
@@ -542,7 +542,7 @@
 ;;; \begin{examplecode}
 ;;;{define #t [|t f| (t)]}
 ;;;{define #f [|t f| (f)]}
-;;;{define lang#if [|b t f| (b t f)]}
+;;;{define bug#if [|b t f| (b t f)]}
 ;;; \end{examplecode}
 ;;;
 ;;; \noindent As such, if would not be a special form, and is more consistent with the
@@ -581,7 +581,7 @@
 ;;; \index{lang\#satisfies?}
 ;;; \begin{code}
 {define
-  "lang#"
+  "bug#"
   satisfies?
   [|f list-of-pairs|
    (all? (map [|pair| (equal? (f (car pair))
@@ -620,7 +620,7 @@
 ;;; \index{lang\#while}
 ;;; \begin{code}
 {define
-  "lang#"
+  "bug#"
   while
   [|pred? body|
    {let while ()
@@ -656,7 +656,7 @@
 ;;; \index{lang\#numeric-if}
 ;;; \begin{code}
 {define
-  "lang#"
+  "bug#"
   numeric-if
   [|n #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
    (if (> n 0)
@@ -690,7 +690,7 @@
 ;;; \index{lang\#atom?}
 ;;; \begin{code}
 {define
-  "lang#"
+  "bug#"
   atom?
   [|x| {or (number? x)
            (symbol? x)}]
@@ -720,7 +720,7 @@
 ;;; \index{lang\#complement}
 ;;; \begin{code}
 {define
-  "lang#"
+  "bug#"
   complement
   [|f|
    [|#!rest args| (not (apply f args))]]
@@ -758,7 +758,7 @@
 ;;; \index{list\#copy}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   copy
   [|l| (map identity l)]
 ;;; \end{code}
@@ -783,7 +783,7 @@
 ;;; \index{list\#proper?}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   proper?
   [|l| (if (null? l)
            [#t]
@@ -815,7 +815,7 @@
 ;;; \index{list\#first}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   first
   [|l #!key (onNull noop)|
    (if (null? l)
@@ -850,7 +850,7 @@
 ;;; \index{list\#but-first}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   but-first
   [|l #!key (onNull noop)|
    (if (null? l)
@@ -881,7 +881,7 @@
 ;;; \index{list\#last}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   last
   [|l #!key (onNull noop)|
    (if (null? l)
@@ -917,7 +917,7 @@
 ;;; \index{list\#but-last}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   but-last
   [|l #!key (onNull noop)|
    (if (null? l)
@@ -956,7 +956,7 @@
 ;;; \index{list\#filter}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   filter
   [|p? l|
    {let filter ((l l))
@@ -992,7 +992,7 @@
 ;;; \index{list\#remove}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   remove
   [|x l|
    (filter [|y| (not (equal? x y))]
@@ -1015,7 +1015,7 @@
 ;;; \index{list\#fold-left}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   fold-left
   [|f acc l|
    {let fold-left ((acc acc) (l l))
@@ -1067,7 +1067,7 @@
 ;;; \index{list\#fold-right}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   fold-right
   [|f acc l|
    {let fold-right ((acc acc) (l l))
@@ -1108,7 +1108,7 @@
 ;;; \index{list\#scan-left}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   scan-left
   [|f acc l|
    {let ((acc-list (list acc)))
@@ -1164,7 +1164,7 @@
 ;;; \index{list\#append!}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   append!
   [|l x|
    (if (null? l)
@@ -1196,7 +1196,7 @@
 ;;; \index{list\#flatmap}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   flatmap
   [|f l|
    (fold-left append! '() (map f l))]
@@ -1227,7 +1227,7 @@
 ;;; \index{list\#take}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   take
   [|n l|
    (if {or (null? l)
@@ -1256,7 +1256,7 @@
 ;;; \index{list\#take-while}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   take-while
   [|p? l|
    {let take-while ((l l))
@@ -1286,7 +1286,7 @@
 ;;; \index{list\#drop}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   drop
   [|n l|
    (if {or (null? l)
@@ -1313,7 +1313,7 @@
 ;;; \index{list\#drop-while}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   drop-while
   [|p? l|
    {let drop-while ((l l))
@@ -1343,7 +1343,7 @@
 ;;; \index{list\#enumerate-interval}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   enumerate-interval
   [|low high #!key (step 1)|
    (if (> low high)
@@ -1367,7 +1367,7 @@
 ;;; \index{list\#any?}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   any?
   [|l|
    (if (null? l)
@@ -1395,7 +1395,7 @@
 ;;; \index{list\#zip}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   zip
   [|#!rest lsts|
    (if (any? (map null? lsts))
@@ -1451,7 +1451,7 @@
 ;;; \index{list\#permutations}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   permutations
   [|l|
    (if (null? l)
@@ -1492,7 +1492,7 @@
 ;;; \index{list\#sublists}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   sublists
   [|l|
    (if (null? l)
@@ -1518,7 +1518,7 @@
 ;;; \index{list\#ref-of}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   ref-of
   [|l x #!key (onMissing noop)|
    (if (null? l)
@@ -1572,7 +1572,7 @@
 ;;; \index{list\#partition}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   partition
   [|l p?|
    {let partition ((l l)
@@ -1605,7 +1605,7 @@
 ;;; \index{list\#sort}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   sort
   [|l comparison?|
    {let sort ((l l))
@@ -1640,7 +1640,7 @@
 ;;; \index{list\#reverse"!}
 ;;; \begin{code}
 {define
-  "list#"
+  "bug#"
   reverse!
   [|l|
    (if (null? l)
@@ -1682,7 +1682,7 @@
 ;;; \index{string\#string-liftList"}
 ;;; \begin{code}
 {define
-  "string#"
+  "bug#"
   string-liftList
   [|f|
    [|#!rest s|
@@ -1699,7 +1699,7 @@
 ;;; \index{string\#string-reverse"}
 ;;; \begin{code}
 {define
-  "string#"
+  "bug#"
   string-reverse
   (string-liftList reverse!)
 ;;;
@@ -1722,7 +1722,7 @@
 ;;; \index{string\#string-take"}
 ;;; \begin{code}
 {define
-  "string#"
+  "bug#"
   string-take
   [|n s| ((string-liftList [|l| (take n l)])
           s)]
@@ -1745,7 +1745,7 @@
 ;;; \index{string\#string-map"}
 ;;; \begin{code}
 {define
-  "string#"
+  "bug#"
   string-map
   [|f s| ((string-liftList [|l| (map f l)])
           s)]
@@ -1789,7 +1789,7 @@
 ;;; \index{symbol\#symbol-liftList"}
 ;;; \begin{code}
 {define
-  "symbol#"
+  "bug#"
   symbol-liftList
   [|f|
    [|#!rest s|
@@ -1832,7 +1832,7 @@
 ;;;
 ;;; \begin{code}
 {define-structure
-  "stream#"
+  "bug#"
   stream
   a
   d}
@@ -1848,7 +1848,7 @@
 ;;; \index{stream\#stream-car}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-car
   stream-a}
 ;;; \end{code}
@@ -1861,7 +1861,7 @@
 ;;; \index{stream\#stream-cdr}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-cdr
   [|s| {force (stream-d s)}]}
 ;;; \end{code}
@@ -1881,7 +1881,7 @@
 ;;; \index{stream\#stream-cons}
 ;;; \begin{code}
 {define-macro
-  "stream#"
+  "bug#"
   stream-cons
   [|a d|
    (if {and (list? d)
@@ -1889,7 +1889,7 @@
             (not (null? (cdr d)))
             (equal? '() (cadr d))}
        [`(make-stream ,a {delay ,(caddr d)})]
-       [(error "stream#stream-cons requires a zero-argument \
+       [(error "bug#stream-cons requires a zero-argument \
                 lambda in it's second arg")])]
 ;;; \end{code}
 ;;;
@@ -1913,7 +1913,7 @@
 ;;; \index{stream\#stream-null}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-null
   '()
   }
@@ -1924,7 +1924,7 @@
 ;;; \index{stream\#stream-null?}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-null?
   null?
 ;;; \end{code}
@@ -1946,7 +1946,7 @@
 ;;; \index{stream\#list-\textgreater stream}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   list->stream
   [|l| (if (null? l)
            [stream-null]
@@ -1979,7 +1979,7 @@
 ;;; \index{stream\#stream-\textgreater list}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream->list
   [|s|
    (if (stream-null? s)
@@ -2004,7 +2004,7 @@
 ;;; \index{stream\#stream-ref}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-ref
   [|s n #!key (onOutOfBounds noop)|
    (if (< n 0)
@@ -2042,7 +2042,7 @@
 ;;; \index{stream\#integers-from}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   integers-from
   [|n|
    (stream-cons n [(integers-from (+ n 1))])]
@@ -2074,7 +2074,7 @@
 ;;; \index{stream\#stream-take}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-take
   [|n s|
    (if {or (stream-null? s)
@@ -2106,7 +2106,7 @@
 ;;; \index{stream\#stream-filter}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-filter
   [|p? s|
    {let stream-filter ((s s))
@@ -2144,7 +2144,7 @@
 ;;; \index{stream\#primes}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   primes
   {let sieve-of-eratosthenes ((s (integers-from 2)))
     (stream-cons
@@ -2177,7 +2177,7 @@
 ;;; \index{stream\#stream-map}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-map
   [|f #!rest list-of-streams|
    {let stream-map ((list-of-streams list-of-streams))
@@ -2208,7 +2208,7 @@
 ;;; \index{stream\#stream-enumerate-interval}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-enumerate-interval
   [|low high #!key (step 1)|
    (if (> low high)
@@ -2233,7 +2233,7 @@
 ;;; \index{stream\#stream-take-while}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-take-while
   [|p? s|
    {let stream-take-while ((s s))
@@ -2281,7 +2281,7 @@
 ;;; \index{stream\#stream-drop}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-drop
   [|n s|
    (if {or (stream-null? s)
@@ -2312,7 +2312,7 @@
 ;;; \index{stream\#stream-drop-while}
 ;;; \begin{code}
 {define
-  "stream#"
+  "bug#"
   stream-drop-while
   [|p? s|
    {let stream-drop-while ((s s))
@@ -2453,7 +2453,7 @@
 ;;; \index{lang\#macro-identity}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   macro-identity
   [|form| form]
 ;;; \end{code}
@@ -2494,7 +2494,7 @@
 ;;; \index{lang\#macro-identity2}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   macro-identity2
   [|form| (list 'eval (list {quote quote} form))]
 ;;; \end{code}
@@ -2546,7 +2546,7 @@
 ;;;
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   macro-identity3
   [|form| `(eval ',form)]
 ;;; \end{code}
@@ -2577,7 +2577,7 @@
 ;;; \index{lang\#compose}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   compose
   [|#!rest fs|
    (if (null? fs)
@@ -2663,11 +2663,11 @@
 ;;; \index{lang\#aif}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   aif
   [|bool body|
-   `{let ((it ,bool))
-      (if it
+   `{let ((bug#it ,bool))
+      (if bug#it
           [,body]
           [#f])}]
 ;;; \end{code}
@@ -2675,15 +2675,15 @@
 ;;; \noindent \cite[p. 191]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? {aif (+ 5 10) (* 2 it)}
+  (equal? {aif (+ 5 10) (* 2 bug#it)}
           30)
-  (equal? {aif #f (* 2 it)}
+  (equal? {aif #f (* 2 bug#it)}
           #f)
   (equal? {macroexpand-1 {aif (+ 5 10)
-                              (* 2 it)}}
-          '{let ((it (+ 5 10)))
-             (if it
-                 [(* 2 it)]
+                              (* 2 bug#it)}}
+          '{let ((bug#it (+ 5 10)))
+             (if bug#it
+                 [(* 2 bug#it)]
                  [#f])})
   }
 ;;; \end{code}
@@ -2696,7 +2696,7 @@
 ;;; \index{lang\#with-gensyms"}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   with-gensyms
   [|symbols #!rest body|
    `{let ,(map [|symbol| `(,symbol {gensym})]
@@ -2728,7 +2728,7 @@
 ;;; \index{lang\#once-only}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   once-only
   [|symbols #!rest body|
    {let ((gensyms (map [|s| (gensym)]
@@ -2786,7 +2786,7 @@
 ;;; \index{lang\#setf!}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   setf!
   [|exp val|
    (if (not (pair? exp))
@@ -2947,7 +2947,7 @@
 ;;; \index{lang\#mutate!}
 ;;; \begin{code}
 {define-macro
-  "lang#"
+  "bug#"
   mutate!
   [|exp f|
    (if (symbol? exp)
