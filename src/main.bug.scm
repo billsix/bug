@@ -2763,8 +2763,8 @@
   (equal? (eval `{let ((x 'foo))
                    ,(once-only-expand (x)
                                       `(+ ,x ,x))})
-          '(let ((gensymed-var1 foo))
-             (+ gensymed-var1 gensymed-var1)))
+          '{let ((gensymed-var1 foo))
+             (+ gensymed-var1 gensymed-var1)})
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -2773,16 +2773,6 @@
                              ,(once-only-expand (x)
                                                 `(+ ,x ,x))})})
           10)
-;;; \end{code}
-;;;
-;;; \begin{code}
-  (equal? (eval `{let ((foo 5))
-                   {let ((gensymed-var1 foo))
-                     (+ gensymed-var1 gensymed-var1)}})
-          10)
-
-  }
-;;;
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2967,7 +2957,6 @@
                (params (zip syml args)))
           `{let ,params
              {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]
-;;; % TODO - make lets with brackets
 ;;; % TODO - add inc!
 ;;; % TODO - add test with inc!
 ;;; \end{code}
