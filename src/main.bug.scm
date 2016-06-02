@@ -2792,7 +2792,7 @@
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \cite{setf}.
 ;;;
-;;; \index{lang\#setf"!}
+;;; \index{lang\#setf!}
 ;;; \begin{code}
 {define-macro
   "lang#"
@@ -2933,19 +2933,60 @@
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
-           (setf! (string-ref s 0) #\q)}
+           {setf! (string-ref s 0) #\q}}
           '(string-set! s 0 #\q))
   {let ((s "foobar"))
-    (setf! (string-ref s 0) #\q)
+    {setf! (string-ref s 0) #\q}
     (equal? s "qoobar")}
   (equal? {macroexpand-1
-           (setf! (vector-ref v 2) 4)}
+           {setf! (vector-ref v 2) 4}}
           '(vector-set! v 2 4))
   {let ((v (vector 1 2 '() "")))
-    (setf! (vector-ref v 2) 4)
+    {setf! (vector-ref v 2) 4}
     (equal? v
             (vector 1 2 4 ""))}
   }
+;;; \end{code}
+
+;;; \newpage
+;;; \section{lang\#mutate!}
+;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
+;;; The implementation inspired by \cite{setf}.
+;;;
+;;; \index{lang\#mutate!}
+;;; \begin{code}
+{define-macro
+  "lang#"
+  mutate!
+  [|exp f|
+   (if (symbol? exp)
+       [`{setf! ,exp (,f ,exp)}]
+       [{let* ((args (cdr exp))
+               (syml (map [|s| (gensym)]
+                          args))
+               (params (zip syml args)))
+          `{let ,params
+             {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]
+;;; % TODO - make lets with brackets
+;;; % TODO - add inc!
+;;; % TODO - add test with inc!
+;;; \end{code}
+;;; \subsection*{Tests}
+;;;
+;;; \begin{code}
+  {let ((foo 1))
+    (mutate! foo [|n| (+ n 1)])
+    (equal? foo
+            2)}
+  {let ((foo (vector 0 0 0 0 0 0 0 0)))
+    (mutate! (vector-ref foo 0) [|n| (+ n 1)])
+    (equal? foo
+            (vector 1 0 0 0 0 0 0 0))}
+  {let ((foo (vector 0 0 0 0 0 0 0 0)))
+    (mutate! (vector-ref foo 2) [|n| (+ n 1)])
+    (equal? foo
+            (vector 0 0 1 0 0 0 0 0))}
+}
 ;;; \end{code}
 ;;;
 ;;; At the beginning of the code, in section~\ref{sec:beginninglibbug}, ``bug-language.scm''
