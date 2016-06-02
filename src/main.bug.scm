@@ -2773,6 +2773,7 @@
                              ,(once-only-expand (x)
                                                 `(+ ,x ,x))})})
           10)
+  }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2963,19 +2964,58 @@
 ;;; \subsection*{Tests}
 ;;;
 ;;; \begin{code}
+  (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
+          '{setf! foo ([|n| (+ n 1)] foo)})
   {let ((foo 1))
     (mutate! foo [|n| (+ n 1)])
     (equal? foo
             2)}
-  {let ((foo (vector 0 0 0 0 0 0 0 0)))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1 (mutate! (vector-ref foo 0) [|n| (+ n 1)]))
+          '{let ((gensymed-var1 foo)
+                 (gensymed-var2 0))
+             {setf! (vector-ref gensymed-var1
+                                gensymed-var2)
+                    ([|n| (+ n 1)] (vector-ref gensymed-var1
+                                               gensymed-var2))}})
+  {let ((foo (vector 0 0 0)))
     (mutate! (vector-ref foo 0) [|n| (+ n 1)])
     (equal? foo
-            (vector 1 0 0 0 0 0 0 0))}
-  {let ((foo (vector 0 0 0 0 0 0 0 0)))
+            (vector 1 0 0))}
+;;; \end{code}
+;;;
+;;; \begin{code}
+  {let ((foo (vector 0 0 0)))
     (mutate! (vector-ref foo 2) [|n| (+ n 1)])
     (equal? foo
-            (vector 0 0 1 0 0 0 0 0))}
-}
+            (vector 0 0 1))}
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1
+           (mutate! (vector-ref foo {begin
+                                      {set! index (+ 1 index)}
+                                      index})
+                    [|n| (+ n 1)]))
+          '(let ((gensymed-var1 foo)
+                 (gensymed-var2 (begin
+                                  (set! index (+ 1 index))
+                                  index)))
+             (setf! (vector-ref gensymed-var1
+                                gensymed-var2)
+                    ([|n| (+ n 1)] (vector-ref gensymed-var1
+                                               gensymed-var2)))))
+  {let ((foo (vector 0 0 0))
+        (index 1))
+    (mutate! (vector-ref foo {begin
+                               {set! index (+ 1 index)}
+                               index})
+             [|n| (+ n 1)])
+    (equal? foo
+            (vector 0 0 1))}
+  }
 ;;; \end{code}
 ;;;
 ;;; At the beginning of the code, in section~\ref{sec:beginninglibbug}, ``bug-language.scm''
