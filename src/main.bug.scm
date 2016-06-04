@@ -2959,8 +2959,27 @@
           `{let ,params
              {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]
 ;;; \end{code}
+;;;
+;;; \footnote{This procedure is used in similar contexts as Common Lisp's
+;;;   ``define-modify-macro'' would be, but is more general.  Oddly, when writing
+;;;   this procedure, the author remembered ``define-modify-macro'' and looked it
+;;;   up on \cite[p. 168]{onlisp}.  In this reference Paul Graham writes
+;;;   what it would need to do but then does not implement it.  His verbal description
+;;;   matched what I already did pretty much exactly.}
 ;;; \subsection*{Tests}
 ;;;
+;;; \begin{code}
+  (equal? {macroexpand-1 (mutate! foo not)}
+          '{setf! foo (not foo)})
+  {let ((foo #t))
+    {and
+     {begin
+       (mutate! foo not)
+       (equal? foo #f)}
+     {begin
+       (mutate! foo not)
+       (equal? foo #t)}}}
+;;; \end{code}
 ;;; \begin{code}
   (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
           '{setf! foo ([|n| (+ n 1)] foo)})
