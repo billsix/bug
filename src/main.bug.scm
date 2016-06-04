@@ -2429,8 +2429,7 @@
 ;;; \end{examplecode}
 ;;;
 ;;;  Gambit provides a controlled method by which the programer may manipulate lists
-;;;  which are subsequently ``eval''ed, and that is using Common Lisp-style macros \footnote{
-;;;  TODO - mention explict evalling is bad}.
+;;;  which are subsequently ``eval''ed, and that is using Common Lisp-style macros.
 ;;;
 ;;;
 ;;; \begin{examplecode}
@@ -2724,7 +2723,6 @@
 ;;;
 ;;; \newpage
 ;;; \section{lang\#once-only}
-;;; % TODO - explain this section
 ;;; \index{lang\#once-only}
 ;;; \begin{code}
 {define-macro

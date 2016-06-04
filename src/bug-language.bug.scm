@@ -575,7 +575,6 @@
  "bug#"
  macroexpand-1
  [|form|
-  ;; TODO -error check the list
   {let* ((m (car form))
          (new-name (string->symbol
                     (string-append (symbol->string m)
