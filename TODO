@@ -8,3 +8,4 @@
   invoking is cleaner.  main.bug.scm, line 2433
 - Explain once-only
 - Error check the input for macroexpand-1
+- In the test for mutate!, test that the index only incremented once
