@@ -42,14 +42,14 @@
 ;;;\end{code}
 ;;;
 ;;;
-;;; \section{lang\#at-compile-time}
+;;; \section{at-compile-time}
 ;;; ``at-compile-time'' macro is implemented by ``eval''ing code
 ;;; during macro-expansion. \cite{evalduringmacroexpansion}
 ;;;
 ;;; Evaling during macro-expansion is how the compiler may be augmented with new procedures,
 ;;; thus treating the compiler as an interpreter.
 ;;;
-;;; \index{lang\#at-compile-time}
+;;; \index{at-compile-time}
 ;;; \begin{code}
 {##namespace ("bug#" at-compile-time)}
 {##define-macro at-compile-time
@@ -65,8 +65,8 @@
 ;;;  form will not evaluate at runtime.
 ;;; \end{itemize}
 ;;;
-;;; \section{lang\#at-both-times}
-;;; \index{lang\#at-both-times}
+;;; \section{at-both-times}
+;;; \index{at-both-times}
 ;;; \begin{code}
 {##namespace ("bug#" at-both-times)}
 {##define-macro at-both-times
@@ -92,8 +92,8 @@
 ;;; libbug-syntax enhancements, and they are not intended to be read by
 ;;; a person.  Their documentation is in this file.
 ;;;
-;;; \section{lang\#at-compile-time-expand}
-;;; \index{lang\#at-compile-time-expand}
+;;; \section{at-compile-time-expand}
+;;; \index{at-compile-time-expand}
 ;;;
 ;;; ``at-compile-time-expand'' allows any procedure to act as a macro.
 ;;;
@@ -190,7 +190,7 @@
 ;;;
 ;;; The files are closed section~\ref{sec:closefiles}
 ;;;
-;;; \section{libbug\#write-and-eval}
+;;; \section{libbug-private\#write-and-eval}
 ;;;
 ;;; Now that those files are open, namespaces will be written
 ;;; to libbug\#.scm and macro definitions to libbug-macros.scm.  However, the
@@ -201,7 +201,7 @@
 ;;; unevaluated form plus a newline to the
 ;;; file, and the return the form so that the compiler actually evaluate it.
 ;;;
-;;; \index{libbug\#write-and-eval}
+;;; \index{libbug-private\#write-and-eval}
 ;;; \begin{code}
 {##define-macro libbug-private#write-and-eval
   [|port form|
@@ -212,13 +212,13 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;; \section{libbug\#namespace}
+;;; \section{libbug-private\#namespace}
 ;;;
 ;;; Namespaces for procedures in libbug need to be available at
 ;;; compile-time, run-time, and in the namespace file
 ;;; for inclusion in projects which link to libbug.
 ;;;
-;;; \index{libbug\#namespace}
+;;; \index{libbug-private\#namespace}
 ;;; \begin{code}
 {##define-macro libbug-private#namespace
   [|namespace-name-pair|
@@ -236,16 +236,16 @@
 ;;; compile-time too.
 ;;;
 ;;;
-;;; \section{lang\#if}
+;;; \section{if}
 ;;; \label{sec:langif}
 ;;; In the following, a new version of "if" is defined, where
-;;; lang\#if takes two zero-argument procedures, treating them
-;;; as Church Booleans.  lang\#if was first used and described
+;;; bug\#if takes two zero-argument procedures, treating them
+;;; as Church Booleans.  bug\#if was first used and described
 ;;; in section ~\ref{sec:langiffirstuse}
 ;;;
 ;;;
 ;;;
-;;; \index{lang\#if}
+;;; \index{if}
 ;;; \begin{code}
 {libbug-private#namespace ("bug#" if)}
 {libbug-private#write-and-eval
@@ -268,14 +268,14 @@
 ;;;     On line 7, \#\#if is called.  In Gambit's system of namespacing, ``\#\#'
 ;;;     is prefixed to a variable name to specify to use the global namespace for
 ;;;     that variable.
-;;;     ``lang\#if'' is built on Gambit's implementation of ``if'', but since
-;;;     line 1 set the namespace of ``if'' to ``lang\#if'', ``\#\#if must be
+;;;     ``bug\#if'' is built on Gambit's implementation of ``if'', but since
+;;;     line 1 set the namespace of ``if'' to ``bug\#if'', ``\#\#if must be
 ;;;     used.
 ;;;  \item
-;;;   On lines 7-10, check that the caller of ``lang\#if'' is passing
+;;;   On lines 7-10, check that the caller of ``bug\#if'' is passing
 ;;;   lambdas, i.e. has not forgetten that ``if'' is namespaced to ``lang''.
 ;;;  \item
-;;;    On line 11, if the caller of ``lang\#if'' has not passed lambdas,
+;;;    On line 11, if the caller of ``bug\#if'' has not passed lambdas,
 ;;;    error at compile-time.
 ;;;  \item
 ;;;   On line 12-14, evaluate the body of the appropriate lambda, depending
@@ -284,9 +284,9 @@
 ;;; \end{itemize}
 ;;;
 ;;;
-;;; \section{lang\#with-tests}
+;;; \section{with-tests}
 ;;;
-;;; \index{lang\#with-tests}
+;;; \index{with-tests}
 ;;;
 ;;; Given that the reader now knows how to evaluate at compile-time, implementing
 ;;; a macro to execute tests at compile-time is trivial.
@@ -316,13 +316,13 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;; \section{libbug\#define}
-;;;  ``libbug\#define'' is the main procedure-defining procedure used
-;;;  throughout libbug.  ``libbug\#define'' takes a namespace, a variable name,
+;;; \section{libbug-private\#define}
+;;;  ``libbug-private\#define'' is the main procedure-defining procedure used
+;;;  throughout libbug.  ``libbug-private\#define'' takes a namespace, a variable name,
 ;;;  a value to be stored in the variable, and an optional suite of tests.
 ;;;
 ;;; \label{sec:libbugdefine}
-;;; \index{libbug\#define}
+;;; \index{libbug-private\#define}
 ;;; \begin{code}
 {##define-macro
   libbug-private#define
@@ -334,14 +334,14 @@
        ,@tests}}]}
 ;;; \end{code}
 ;;;
-;;; ``libbug\#define'' defines the procedure/data at compile-time
+;;; ``libbug-private\#define'' defines the procedure/data at compile-time
 ;;; at run-time, and exports the namespace mapping to the appropriate file.
 ;;;
-;;; ``libbug\#define'' itself is not exported to the macros file.
+;;; ``libbug-private\#define'' itself is not exported to the macros file.
 ;;;
-;;; \section{libbug\#define-macro}
+;;; \section{libbug-private\#define-macro}
 ;;;
-;;; ``libbug\#define-macro'' evaluates similarly to ''\#\#define-macro'', with augmentations
+;;; ``libbug-private\#define-macro'' evaluates similarly to ''\#\#define-macro'', with augmentations
 ;;; for testing and for exporting.  For testing, it
 ;;; creates a procedure with the same name as the macro, suffixed with ``--expand'',
 ;;; which performs the source transformation but does not evaluate the resulting form.
@@ -357,7 +357,7 @@
 ;;;
 ;;; \label{sec:libbugdefinemacro}
 ;;;
-;;; \index{libbug\#define-macro}
+;;; \index{libbug-private\#define-macro}
 ;;; \begin{code}
 {##define-macro libbug-private#define-macro
   [|namespace name lambda-value #!rest tests|
@@ -399,7 +399,7 @@
 ;;;   \item On line 1, the program which imports this macro shall define the
 ;;;         macro at both compile-time and run-time.
 ;;;   \item On line 4, the written-to-file lambda value shall have the same
-;;;         argument list as the argument list passed to ``libbug\#define-macro''
+;;;         argument list as the argument list passed to ``libbug-private\#define-macro''
 ;;;
 ;;; \begin{examplecode}
 ;;;    > (cadr '(lambda (foo bar) (quasiquote 5)))
@@ -545,7 +545,7 @@
 ;;;
 ;;; \end{code}
 ;;;
-;;; \section{lang\#macroexpand-1}
+;;; \section{macroexpand-1}
 ;;;
 ;;; ``macroexpand-1'' allows the programmer to test macro-expansion by writing
 ;;;
@@ -569,7 +569,7 @@
 ;;;              [#f])})
 ;;; \end{examplecode}
 ;;;
-;;; \index{lang\#macroexpand-1}
+;;; \index{macroexpand-1}
 ;;; \begin{code}
 {libbug-private#define-macro
  "bug#"
@@ -583,8 +583,8 @@
 ;;; \end{code}
 ;;;
 
-;;; \section{libbug\#define-structure}
-;;; \index{libbug\#define-structure}
+;;; \section{libbug-private\#define-structure}
+;;; \index{libbug-private\#define-structure}
 ;;; \begin{code}
 {##define-macro
   libbug-private#define-structure

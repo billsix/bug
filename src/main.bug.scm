@@ -417,11 +417,11 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{lang\#noop}
+;;; \section{noop}
 ;;; The first definition is ``noop'', a procedure which takes no arguments and
 ;;; which evaluates to the symbol 'noop.
 ;;;
-;;; \index{lang\#noop}
+;;; \index{noop}
 ;;; \begin{code}
 {define
   "bug#"
@@ -473,11 +473,11 @@
 ;;;  procedures within libbug.
 ;;;
 ;;; \newpage
-;;; \section{lang\#identity}
-;;; lang\#identity is a procedure of one argument which evaluates to
+;;; \section{identity}
+;;; identity is a procedure of one argument which evaluates to
 ;;; its argument. \cite[p. 2]{calculi}
 ;;;
-;;; \index{lang\#identity}
+;;; \index{identity}
 ;;;
 ;;; \begin{code}
 {define
@@ -515,12 +515,12 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#all?}
+;;; \section{all?}
 ;;; Like ``and'', but takes a list instead of a variable number of arguments, and
 ;;; all elements of the list are evaluated before ``and'' is applied.
 ;;;
 ;;; \label{sec:langiffirstuse}
-;;; \index{list\#all?}
+;;; \index{all?}
 ;;; \begin{code}
 {define
   "bug#"
@@ -533,10 +533,10 @@
             [(all? (cdr l))])])]
 ;;; \end{code}
 ;;; \begin{itemize}
-;;;   \item On line 5, if, which is currently namespaced to lang\#if\footnote{
+;;;   \item On line 5, if, which is currently namespaced to bug\#if\footnote{
 ;;;      defined in section~\ref{sec:langif} }, takes
 ;;;         lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
-;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that lang\#if is just syntactic sugar:
+;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that bug\#if is just syntactic sugar:
 ;;;
 ;;;
 ;;; \begin{examplecode}
@@ -571,14 +571,14 @@
 ;;; specifically to guide the reader through the implementation.
 ;;;
 ;;; \newpage
-;;; \section{lang\#satisfies?}
+;;; \section{satisfies?}
 ;;;
 ;;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
 ;;; with varying inputs and outputs, as was done for ``all?''?  Instead, provide
 ;;; the procedure and a list
 ;;; of input/output pairs.
 ;;;
-;;; \index{lang\#satisfies?}
+;;; \index{satisfies?}
 ;;; \begin{code}
 {define
   "bug#"
@@ -615,9 +615,9 @@
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
 ;;;
-;;; \section{lang\#while}
+;;; \section{while}
 ;;;
-;;; \index{lang\#while}
+;;; \index{while}
 ;;; \begin{code}
 {define
   "bug#"
@@ -650,10 +650,10 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{lang\#numeric-if}
+;;; \section{numeric-if}
 ;;;   A conditional expression for numbers, based on their sign.
 ;;;
-;;; \index{lang\#numeric-if}
+;;; \index{numeric-if}
 ;;; \begin{code}
 {define
   "bug#"
@@ -686,8 +686,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{lang\#atom?}
-;;; \index{lang\#atom?}
+;;; \section{atom?}
+;;; \index{atom?}
 ;;; \begin{code}
 {define
   "bug#"
@@ -715,9 +715,9 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{lang\#complement}
+;;; \section{complement}
 ;;;
-;;; \index{lang\#complement}
+;;; \index{complement}
 ;;; \begin{code}
 {define
   "bug#"
@@ -751,11 +751,11 @@
 ;;;
 ;;; \newpage
 ;;; \chapter{Lists}
-;;; \section{list\#copy}
+;;; \section{copy}
 ;;;   Creates a copy of the list data structure.  Does not copy the contents
 ;;;   of the list.
 ;;;
-;;; \index{list\#copy}
+;;; \index{copy}
 ;;; \begin{code}
 {define
   "bug#"
@@ -777,10 +777,10 @@
 ;;; For a thorough description of ``equal?'' vs ``eq?'', see \cite[p. 122-129]{schemeprogramminglanguage}.
 ;;;
 ;;; \newpage
-;;; \section{list\#proper?}
+;;; \section{proper?}
 ;;;   Will not terminate on a circular list.
 ;;;
-;;; \index{list\#proper?}
+;;; \index{proper?}
 ;;; \begin{code}
 {define
   "bug#"
@@ -806,13 +806,13 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#first}
+;;; \section{first}
 ;;;
-;;; list\#first uses Gambit's keyword syntax.  ``onNull'' is
+;;; first uses Gambit's keyword syntax.  ``onNull'' is
 ;;; an optional argument, with a default value of the value in the ``noop''
 ;;; variable.
 ;;;
-;;; \index{list\#first}
+;;; \index{first}
 ;;; \begin{code}
 {define
   "bug#"
@@ -846,8 +846,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#but-first}
-;;; \index{list\#but-first}
+;;; \section{but-first}
+;;; \index{but-first}
 ;;; \begin{code}
 {define
   "bug#"
@@ -877,8 +877,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#last}
-;;; \index{list\#last}
+;;; \section{last}
+;;; \index{last}
 ;;; \begin{code}
 {define
   "bug#"
@@ -913,8 +913,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#but-last}
-;;; \index{list\#but-last}
+;;; \section{but-last}
+;;; \index{but-last}
 ;;; \begin{code}
 {define
   "bug#"
@@ -952,8 +952,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#filter}
-;;; \index{list\#filter}
+;;; \section{filter}
+;;; \index{filter}
 ;;; \begin{code}
 {define
   "bug#"
@@ -988,8 +988,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#remove}
-;;; \index{list\#remove}
+;;; \section{remove}
+;;; \index{remove}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1008,11 +1008,11 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#fold-left}
+;;; \section{fold-left}
 ;;;    Reduce the list to a scalar by applying the reducing procedure repeatedly,
 ;;;    starting from the ``left'' side of the list
 ;;;
-;;; \index{list\#fold-left}
+;;; \index{fold-left}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1059,12 +1059,12 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#fold-right}
+;;; \section{fold-right}
 ;;;    Reduces the list to a scalar by applying the reducing
 ;;;    procedure repeatedly,
 ;;;    starting from the ``right'' side of the list
 ;;;
-;;; \index{list\#fold-right}
+;;; \index{fold-right}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1101,11 +1101,11 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#scan-left}
+;;; \section{scan-left}
 ;;;   Like fold-left, but every intermediate value
 ;;;   of fold-left's accumulator is put onto the resulting list
 ;;;
-;;; \index{list\#scan-left}
+;;; \index{scan-left}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1157,11 +1157,11 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#append!}
+;;; \section{append!}
 ;;;   Like append, but recycles the last cons cell, so it's
 ;;;   faster, but mutates the input.
 ;;;
-;;; \index{list\#append!}
+;;; \index{append!}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1192,8 +1192,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#flatmap}
-;;; \index{list\#flatmap}
+;;; \section{flatmap}
+;;; \index{flatmap}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1223,8 +1223,8 @@
 ;;; from the caller's point of view.
 ;;;
 ;;; \newpage
-;;; \section{list\#take}
-;;; \index{list\#take}
+;;; \section{take}
+;;; \index{take}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1252,8 +1252,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#take-while}
-;;; \index{list\#take-while}
+;;; \section{take-while}
+;;; \index{take-while}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1282,8 +1282,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#drop}
-;;; \index{list\#drop}
+;;; \section{drop}
+;;; \index{drop}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1309,8 +1309,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#drop-while}
-;;; \index{list\#drop-while}
+;;; \section{drop-while}
+;;; \index{drop-while}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1339,8 +1339,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#enumerate-interval}
-;;; \index{list\#enumerate-interval}
+;;; \section{enumerate-interval}
+;;; \index{enumerate-interval}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1362,9 +1362,9 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#any?}
+;;; \section{any?}
 ;;;
-;;; \index{list\#any?}
+;;; \index{any?}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1391,8 +1391,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#zip}
-;;; \index{list\#zip}
+;;; \section{zip}
+;;; \index{zip}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1447,8 +1447,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#permutations}
-;;; \index{list\#permutations}
+;;; \section{permutations}
+;;; \index{permutations}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1488,8 +1488,8 @@
 ;;; See also \cite[p. 45]{taocp}
 ;;;
 ;;; \newpage
-;;; \section{list\#sublists}
-;;; \index{list\#sublists}
+;;; \section{sublists}
+;;; \index{sublists}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1512,10 +1512,10 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#ref-of}
+;;; \section{ref-of}
 ;;; The inverse of list-ref.
 ;;;
-;;; \index{list\#ref-of}
+;;; \index{ref-of}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1563,13 +1563,13 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#partition}
+;;; \section{partition}
 ;;;  Partitions the input list into two lists, one list where
 ;;;  the predicate matched the element of the input list, the second list
 ;;;  where the predicate did not match the element of the input list.
 ;;;
 ;;;
-;;; \index{list\#partition}
+;;; \index{partition}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1601,8 +1601,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{list\#sort}
-;;; \index{list\#sort}
+;;; \section{sort}
+;;; \index{sort}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1634,10 +1634,10 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{list\#reverse!}
+;;; \section{reverse!}
 ;;;   Reverses the list quickly by reusing cons cells
 ;;;
-;;; \index{list\#reverse"!}
+;;; \index{reverse"!}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1670,7 +1670,7 @@
 ;;;
 ;;; \newpage
 ;;; \chapter{Strings}
-;;; \section{string\#string-liftList}
+;;; \section{string-liftList}
 ;;;
 ;;; Strings are sequences of characters, just as lists are
 ;;; sequences of arbitrary Scheme objects. ``string-liftList''
@@ -1679,7 +1679,7 @@
 ;;; equivalent procedure for strings.
 ;;;
 ;;;
-;;; \index{string\#string-liftList"}
+;;; \index{string-liftList"}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1694,9 +1694,9 @@
 ;;; \newpage
 
 
-;;; \section{string\#string-reverse}
+;;; \section{string-reverse}
 ;;;
-;;; \index{string\#string-reverse"}
+;;; \index{string-reverse"}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1717,9 +1717,9 @@
 ;;; \end{code}
 ;;; \newpage
 
-;;; \section{string\#string-take}
+;;; \section{string-take}
 ;;;
-;;; \index{string\#string-take"}
+;;; \index{string-take"}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1740,9 +1740,9 @@
 ;;; \end{code}
 ;;; \newpage
 
-;;; \section{string\#string-map}
+;;; \section{string-map}
 ;;;
-;;; \index{string\#string-map"}
+;;; \index{string-map"}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1777,7 +1777,7 @@
 
 ;;; \chapter{Symbols}
 
-;;; \section{symbol\#symbol-liftList}
+;;; \section{symbol-liftList}
 ;;;
 ;;; Symbols are sequences of characters, just as lists are
 ;;; sequences of arbitrary Scheme objects. ``symbol-liftList''
@@ -1786,7 +1786,7 @@
 ;;; equivalent procedure for symbols.
 ;;;
 ;;;
-;;; \index{symbol\#symbol-liftList"}
+;;; \index{symbol-liftList}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1825,7 +1825,7 @@
 ;;;
 ;;; \section{Stream structure}
 ;;;
-;;; ``lang\#define-structure'' takes a namespace, name of the constructor, and a variable
+;;; ``bug\#define-structure'' takes a namespace, name of the constructor, and a variable
 ;;; number of fields.  A constructor named ``make-stream'' is created, as are accessor
 ;;; procedures ``stream-a'', ``stream-d'', and setter procedures ``stream-a-set!'' and
 ;;; ``stream-d-set!''.
@@ -1842,10 +1842,10 @@
 ;;; evaluated directly by the programmer, instead, the following
 ;;; are to be used.
 ;;;
-;;; \section{stream\#stream-car}
+;;; \section{stream-car}
 ;;; Get the first element of the stream.
 ;;;
-;;; \index{stream\#stream-car}
+;;; \index{stream-car}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1855,10 +1855,10 @@
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;;
-;;; \section{stream\#stream-cdr}
+;;; \section{stream-cdr}
 ;;; Forces the evaluation of the next element of the stream.
 ;;;
-;;; \index{stream\#stream-cdr}
+;;; \index{stream-cdr}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1868,7 +1868,7 @@
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \newpage
-;;; \section{stream\#stream-cons}
+;;; \section{stream-cons}
 ;;;
 ;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
 ;;; lambda value.
@@ -1878,7 +1878,7 @@
 ;;; a constructor for creating streams, which verifies at compile-time that the
 ;;; second argument is a zero-argument lambda.
 ;;;
-;;; \index{stream\#stream-cons}
+;;; \index{stream-cons}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -1908,9 +1908,9 @@
 ;;;
 ;;; \newpage
 ;;;
-;;; \section{stream\#stream-null}
+;;; \section{stream-null}
 ;;;
-;;; \index{stream\#stream-null}
+;;; \index{stream-null}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1919,9 +1919,9 @@
   }
 ;;; \end{code}
 ;;;
-;;; \section{stream\#stream-null?}
+;;; \section{stream-null?}
 ;;;
-;;; \index{stream\#stream-null?}
+;;; \index{stream-null?}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1940,10 +1940,10 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{stream\#list-\textgreater stream}
+;;; \section{list-\textgreater stream}
 ;;; Converts a list into a stream
 ;;;
-;;; \index{stream\#list-\textgreater stream}
+;;; \index{list-\textgreater stream}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1973,10 +1973,10 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{stream\#stream-\textgreater list}
+;;; \section{stream-\textgreater list}
 ;;; Converts a stream into a list
 ;;;
-;;; \index{stream\#stream-\textgreater list}
+;;; \index{stream-\textgreater list}
 ;;; \begin{code}
 {define
   "bug#"
@@ -1998,10 +1998,10 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{stream\#stream-ref}
+;;; \section{stream-ref}
 ;;; The analogous procedure of list-ref
 ;;;
-;;; \index{stream\#stream-ref}
+;;; \index{stream-ref}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2038,8 +2038,8 @@
 ;;;
 ;;; \newpage
 
-;;; \section{stream\#integers-from}
-;;; \index{stream\#integers-from}
+;;; \section{integers-from}
+;;; \index{integers-from}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2070,8 +2070,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{stream\#stream-take}
-;;; \index{stream\#stream-take}
+;;; \section{stream-take}
+;;; \index{stream-take}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2100,10 +2100,10 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{stream\#stream-filter}
-;;; The analogous procedure of list\#filter.
+;;; \section{stream-filter}
+;;; The analogous procedure of filter.
 ;;;
-;;; \index{stream\#stream-filter}
+;;; \index{stream-filter}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2140,8 +2140,8 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{stream\#primes}
-;;; \index{stream\#primes}
+;;; \section{primes}
+;;; \index{primes}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2171,10 +2171,10 @@
 ;;;
 ;;; \newpage
 
-;;; \section{stream\#stream-map}
+;;; \section{stream-map}
 ;;; The analogous procedure of \#\#map.
 ;;;
-;;; \index{stream\#stream-map}
+;;; \index{stream-map}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2204,8 +2204,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{stream\#stream-enumerate-interval}
-;;; \index{stream\#stream-enumerate-interval}
+;;; \section{stream-enumerate-interval}
+;;; \index{stream-enumerate-interval}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2229,8 +2229,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{stream\#stream-take-while}
-;;; \index{stream\#stream-take-while}
+;;; \section{stream-take-while}
+;;; \index{stream-take-while}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2277,8 +2277,8 @@
 ;;;
 ;;; \newpage
 
-;;; \section{stream\#stream-drop}
-;;; \index{stream\#stream-drop}
+;;; \section{stream-drop}
+;;; \index{stream-drop}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2308,8 +2308,8 @@
 ;;;
 ;;; \newpage
 
-;;; \section{stream\#stream-drop-while}
-;;; \index{stream\#stream-drop-while}
+;;; \section{stream-drop-while}
+;;; \index{stream-drop-while}
 ;;; \begin{code}
 {define
   "bug#"
@@ -2446,10 +2446,10 @@
 ;;; symbols.
 ;;;
 ;;; \newpage
-;;; \section{lang\#macro-identity}
+;;; \section{macro-identity}
 ;;;
 ;;;
-;;; \index{lang\#macro-identity}
+;;; \index{macro-identity}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -2487,10 +2487,10 @@
 
 ;;;
 ;;; \newpage
-;;; \section{lang\#macro-identity2}
+;;; \section{macro-identity2}
 ;;;
 ;;;
-;;; \index{lang\#macro-identity2}
+;;; \index{macro-identity2}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -2516,10 +2516,10 @@
 
 ;;;
 ;;; \newpage
-;;; \section{lang\#macro-identity3}
+;;; \section{macro-identity3}
 ;;;
 ;;;
-;;; \index{lang\#macro-identity3}
+;;; \index{macro-identity3}
 ;;;
 ;;; Manual concatentation of lists becomes cumbersome.  The ``quasiquote'' procedure
 ;;; acts like ``quote'', but quotes every sublist not prefaced with ``unquote''
@@ -2563,7 +2563,7 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{lang\#compose}
+;;; \section{compose}
 ;;;
 ;;; Libbug is a library, meant to be used by other projects.  From libbug, these
 ;;; projects will require namespace definitions, as well as macro definitions.
@@ -2573,7 +2573,7 @@
 ;;; namespace definition and the macro definitions to external files.
 ;;;
 ;;;
-;;; \index{lang\#compose}
+;;; \index{compose}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -2657,9 +2657,9 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{lang\#aif}
+;;; \section{aif}
 ;;;
-;;; \index{lang\#aif}
+;;; \index{aif}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -2689,10 +2689,10 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \section{lang\#with-gensyms}
+;;; \section{with-gensyms}
 ;;;   Utility for macros to minimize repetitive calls to ``gensym''.
 ;;;
-;;; \index{lang\#with-gensyms"}
+;;; \index{with-gensyms"}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -2722,8 +2722,8 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \section{lang\#once-only}
-;;; \index{lang\#once-only}
+;;; \section{once-only}
+;;; \index{once-only}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -2777,11 +2777,11 @@
 ;;; \newpage
 ;;; \chapter{Generalized Assignment}
 ;;;  \label{sec:endinglibbug}
-;;; \section{lang\#setf!}
+;;; \section{setf!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \cite{setf}.
 ;;;
-;;; \index{lang\#setf!}
+;;; \index{setf!}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -2938,11 +2938,11 @@
 ;;; \end{code}
 
 ;;; \newpage
-;;; \section{lang\#mutate!}
+;;; \section{mutate!}
 ;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
 ;;; The implementation inspired by \cite{setf}.
 ;;;
-;;; \index{lang\#mutate!}
+;;; \index{mutate!}
 ;;; \begin{code}
 {define-macro
   "bug#"
@@ -3035,9 +3035,9 @@
 ;;;
 
 ;;; \newpage
-;;; \section{lang\#destructuring-bind}
+;;; \section{destructuring-bind}
 ;;;
-;;; \index{lang\#destructuring-bind}
+;;; \index{destructuring-bind}
 ;;; \begin{code}
 {define-macro
   "bug#"
