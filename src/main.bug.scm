@@ -2958,8 +2958,6 @@
                (params (zip syml args)))
           `{let ,params
              {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]
-;;; % TODO - add inc!
-;;; % TODO - add test with inc!
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;;
@@ -2999,14 +2997,14 @@
                                       {set! index (+ 1 index)}
                                       index})
                     [|n| (+ n 1)]))
-          '(let ((gensymed-var1 foo)
-                 (gensymed-var2 (begin
+          '{let ((gensymed-var1 foo)
+                 (gensymed-var2 {begin
                                   (set! index (+ 1 index))
-                                  index)))
+                                  index}))
              (setf! (vector-ref gensymed-var1
                                 gensymed-var2)
                     ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                               gensymed-var2)))))
+                                               gensymed-var2)))})
   {let ((foo (vector 0 0 0))
         (index 1))
     (mutate! (vector-ref foo {begin
@@ -3018,6 +3016,148 @@
   }
 ;;; \end{code}
 ;;;
+
+;;; \newpage
+;;; \section{lang\#destructuring-bind}
+;;;
+;;; \index{lang\#destructuring-bind}
+;;; \begin{code}
+{define-macro
+  "bug#"
+  destructuring-bind
+  [|pat lst #!rest body|
+   {letrec
+       ((destruc
+         [|pat lst #!key (n 0)|
+          {cond ((null? pat)                '())
+                ((symbol? pat)              `((,pat (drop ,n ,lst))))
+                ((equal? (car pat) '#!rest) `((,(cadr pat) (drop ,n
+                                                                 ,lst))))
+                (else
+                 (cons {let ((p (car pat)))
+                         (if (symbol? p)
+                             [`(,p (list-ref ,lst ,n))]
+                             [{let ((var (gensym)))
+                                (cons `(,var (list-ref ,lst ,n))
+                                      (destruc p var n: 0))}])}
+                       (destruc (cdr pat) lst n: (+ 1 n))))}]))
+;;; \end{code}
+;;;
+;;; \begin{code}
+     {let ((glst (gensym)))
+       `{let ((,glst ,lst))
+          ,{let bindings-expand ((bindings (destruc pat glst))
+                                 (body body))
+             (if (null? bindings)
+                 [`{begin ,@body}]
+                 [`{let ,(map [|b| (if (pair? (car b))
+                                       [(car b)]
+                                       [b])]
+                              bindings)
+                     ,(bindings-expand (flatmap [|b| (if (pair? (car b))
+                                                         [(cdr b)]
+                                                         ['()])]
+                                                bindings)
+                                       body)}])}}}}]
+;;; \end{code}
+;;;
+;;; \cite[p. 232]{onlisp}
+;;;
+;;; \subsection*{Tests}
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1
+           (destructuring-bind a
+                               '(1 (2 3) 4 5)
+                               a))
+          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
+             {let ((a (drop 0 gensymed-var1)))
+               {begin a}}})
+  (equal? (eval
+           (macroexpand-1
+            (destructuring-bind a
+                                '(1 (2 3) 4 5)
+                                a)))
+          '(1 (2 3) 4 5))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1
+           (destructuring-bind (b . a)
+                               '(1 (2 3) 4 5)
+                               (list a b)))
+          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
+             {let ((b (list-ref gensymed-var1 0))
+                   (a (drop 1 gensymed-var1)))
+               {begin (list a b)}}})
+  (equal? (eval
+           (macroexpand-1
+            (destructuring-bind (b . a)
+                                '(1 (2 3) 4 5)
+                                (list a b))))
+          '(((2 3) 4 5) 1))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1
+           (destructuring-bind (b #!rest a)
+                               '(1 (2 3) 4 5)
+                               (list a b)))
+          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
+             {let ((b (list-ref gensymed-var1 0))
+                   (a (drop 1 gensymed-var1)))
+               {begin (list a b)}}})
+  (equal? (eval
+           (macroexpand-1
+            (destructuring-bind (b #!rest a)
+                                '(1 (2 3) 4 5)
+                                (list a b))))
+          '(((2 3) 4 5) 1))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1
+           (destructuring-bind (d (b c) . a)
+                               '(1 (2 3) 4 5)
+                               (list a b c d)))
+          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
+             {let ((d (list-ref gensymed-var1 0))
+                   (gensymed-var2 (list-ref gensymed-var1 1))
+                   (a (drop 2 gensymed-var1)))
+               {let ((b (list-ref gensymed-var2 0))
+                     (c (list-ref gensymed-var2 1)))
+                 {begin (list a b c d)}}}})
+  (equal? (eval
+           (macroexpand-1
+            (destructuring-bind (d (b c) . a)
+                                '(1 (2 3) 4 5)
+                                (list a b c d))))
+          '((4 5) 2 3 1))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (macroexpand-1
+           (destructuring-bind (a (b . c) #!rest d)
+                               '(1 (2 3) 4 5)
+                               (list a b c d)))
+          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
+             {let ((a (list-ref gensymed-var1 0))
+                   (gensymed-var2 (list-ref gensymed-var1 1))
+                   (d (drop 2 gensymed-var1)))
+               {let ((b (list-ref gensymed-var2 0))
+                     (c (drop 1 gensymed-var2)))
+                 {begin (list a b c d)}}}})
+  (equal? (eval
+           (macroexpand-1
+            (destructuring-bind (a (b . c) #!rest d)
+                                '(1 (2 3) 4 5)
+                                (list a b c d))))
+          '(1 2 (3) (4 5)))
+  }
+;;; \end{code}
+
+
+
 ;;; At the beginning of the code, in section~\ref{sec:beginninglibbug}, ``bug-language.scm''
 ;;; was imported, so that ``libbug\#define'', and ``libbug\#define-macro'' can be used.
 ;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
