@@ -1,0 +1,7 @@
+- Find TODO's in the text of the book.  Either solve them or move them to this file.
+- Rework the namespace code.  I realized that the namespace should reflect the library
+  from which the code came.  What's the point of making stream-cons namespaced to stream?
+  And what's would be the point of making stream#cons when that would override good old cons?
+- Remove cases where I write "(eval (macroexpand-1..." when just invoking the macro would suffice
+- Edit the text of the generalized assignment chapter
+- Edit the text of the chapter on computation at compile time
