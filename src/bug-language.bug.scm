@@ -221,13 +221,13 @@
 ;;; \index{libbug-private\#namespace}
 ;;; \begin{code}
 {##define-macro libbug-private#namespace
-  [|namespace-name-pair|
+  [|#!rest to-namespace|
    {begin
-     (eval `{##namespace ,namespace-name-pair})
+     (eval `{##namespace ("bug#" ,@to-namespace)})
      `{begin
         {libbug-private#write-and-eval
          libbug-headers-file
-         {##namespace ,namespace-name-pair}}}}]}
+         {##namespace ("bug#" ,@to-namespace)}}}}]}
 ;;; \end{code}
 ;;;
 ;;; ``write-and-eval'' writes the form to a file, and evaluates the
@@ -247,7 +247,7 @@
 ;;;
 ;;; \index{if}
 ;;; \begin{code}
-{libbug-private#namespace ("bug#" if)}
+{libbug-private#namespace if}
 {libbug-private#write-and-eval
  libbug-macros-file
  {at-both-times
@@ -301,7 +301,7 @@
 ;;;
 ;;;
 ;;; \begin{code}
-{libbug-private#namespace ("bug#" with-tests)}
+{libbug-private#namespace with-tests}
 {libbug-private#write-and-eval
  libbug-macros-file
  {##define-macro with-tests
@@ -326,9 +326,9 @@
 ;;; \begin{code}
 {##define-macro
   libbug-private#define
-  [|namespace name body #!rest tests|
+  [|name body #!rest tests|
    `{begin
-      {libbug-private#namespace (,namespace ,name)}
+      {libbug-private#namespace ,name}
       {with-tests
        {##define ,name ,body}
        ,@tests}}]}
@@ -360,7 +360,7 @@
 ;;; \index{libbug-private\#define-macro}
 ;;; \begin{code}
 {##define-macro libbug-private#define-macro
-  [|namespace name lambda-value #!rest tests|
+  [|name lambda-value #!rest tests|
 ;;; \end{code}
 ;;; \subsection{Write Macro to File}
 ;;;
@@ -505,11 +505,11 @@
 ;;; \noindent Namespace the procedure
 ;;;
 ;;; \begin{code}
-        {libbug-private#namespace (,namespace ,name)}
+        {libbug-private#namespace ,name}
         {libbug-private#namespace
-         (,namespace ,(string->symbol
-                       (string-append (symbol->string name)
-                                      "-expand")))}
+         ,(string->symbol
+           (string-append (symbol->string name)
+                          "-expand"))}
 ;;; \end{code}
 ;;;
 ;;; \noindent Create the expander just like in the previous section.
@@ -572,7 +572,6 @@
 ;;; \index{macroexpand-1}
 ;;; \begin{code}
 {libbug-private#define-macro
- "bug#"
  macroexpand-1
  [|form|
   {let* ((m (car form))
@@ -588,28 +587,28 @@
 ;;; \begin{code}
 {##define-macro
   libbug-private#define-structure
-  [|namespace name #!rest members|
+  [|name #!rest members|
    `{begin
-      {libbug-private#namespace (,namespace
-                         ,(string->symbol
-                           (string-append "make-"
-                                          (symbol->string name)))
-                         ,(string->symbol
-                           (string-append (symbol->string name)
-                                          "?"))
-                         ,@(map [|m|
-                                 (string->symbol
-                                  (string-append (symbol->string name)
-                                                 "-"
-                                                 (symbol->string m)))]
-                                members)
-                         ,@(map [|m|
-                                 (string->symbol
-                                  (string-append (symbol->string name)
-                                                 "-"
-                                                 (symbol->string m)
-                                                 "-set!"))]
-                                members))}
+      {libbug-private#namespace
+       ,(string->symbol
+         (string-append "make-"
+                        (symbol->string name)))
+       ,(string->symbol
+         (string-append (symbol->string name)
+                        "?"))
+       ,@(map [|m|
+               (string->symbol
+                (string-append (symbol->string name)
+                               "-"
+                               (symbol->string m)))]
+              members)
+       ,@(map [|m|
+               (string->symbol
+                (string-append (symbol->string name)
+                               "-"
+                               (symbol->string m)
+                               "-set!"))]
+              members)}
 
       {at-both-times
        {begin

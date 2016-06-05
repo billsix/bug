@@ -1,6 +1,4 @@
-- Rework the namespace code.  I realized that the namespace should reflect the library
-  from which the code came.  What's the point of making stream-cons namespaced to stream?
-  And what's would be the point of making stream#cons when that would override good old cons?
+- Ensure that the descriptions of the namespace stuff matches the changes I just made.
 - Remove cases where I write "(eval (macroexpand-1..." when just invoking the macro would suffice
 - Edit the text of the generalized assignment chapter
 - Edit the text of the chapter on computation at compile time
@@ -9,3 +7,4 @@
 - Explain once-only
 - Error check the input for macroexpand-1
 - In the test for mutate!, test that the index only incremented once
+- Determine if macroexpand-1 should be exported

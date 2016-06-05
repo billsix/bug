@@ -146,9 +146,7 @@
 ;;; you are unfamiliar, such as the following:
 ;;;
 ;;; \begin{examplecode}
-;;;{define
-;;; "bug#"
-;;; permutations
+;;;{define permutations
 ;;; [|l| (if (null? l)
 ;;;          ['()]
 ;;;          [{let permutations ((l l))
@@ -423,9 +421,7 @@
 ;;;
 ;;; \index{noop}
 ;;; \begin{code}
-{define
-  "bug#"
-  noop
+{define noop
   ['noop]
 ;;; \end{code}
 ;;;
@@ -480,9 +476,7 @@
 ;;; \index{identity}
 ;;;
 ;;; \begin{code}
-{define
-  "bug#"
-  identity
+{define identity
   [|x| x]
 ;;; \end{code}
 ;;; \begin{itemize}
@@ -522,9 +516,7 @@
 ;;; \label{sec:langiffirstuse}
 ;;; \index{all?}
 ;;; \begin{code}
-{define
-  "bug#"
-  all?
+{define all?
   [|l|
    (if (null? l)
        [#t]
@@ -580,9 +572,7 @@
 ;;;
 ;;; \index{satisfies?}
 ;;; \begin{code}
-{define
-  "bug#"
-  satisfies?
+{define satisfies?
   [|f list-of-pairs|
    (all? (map [|pair| (equal? (f (car pair))
                               (cadr pair))]
@@ -619,9 +609,7 @@
 ;;;
 ;;; \index{while}
 ;;; \begin{code}
-{define
-  "bug#"
-  while
+{define while
   [|pred? body|
    {let while ()
      (if (pred?)
@@ -655,9 +643,7 @@
 ;;;
 ;;; \index{numeric-if}
 ;;; \begin{code}
-{define
-  "bug#"
-  numeric-if
+{define numeric-if
   [|n #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
    (if (> n 0)
        [(ifPositive)]
@@ -689,9 +675,7 @@
 ;;; \section{atom?}
 ;;; \index{atom?}
 ;;; \begin{code}
-{define
-  "bug#"
-  atom?
+{define atom?
   [|x| {or (number? x)
            (symbol? x)}]
 ;;; \end{code}
@@ -719,9 +703,7 @@
 ;;;
 ;;; \index{complement}
 ;;; \begin{code}
-{define
-  "bug#"
-  complement
+{define complement
   [|f|
    [|#!rest args| (not (apply f args))]]
 ;;; \end{code}
@@ -757,9 +739,7 @@
 ;;;
 ;;; \index{copy}
 ;;; \begin{code}
-{define
-  "bug#"
-  copy
+{define copy
   [|l| (map identity l)]
 ;;; \end{code}
 ;;;
@@ -782,9 +762,7 @@
 ;;;
 ;;; \index{proper?}
 ;;; \begin{code}
-{define
-  "bug#"
-  proper?
+{define proper?
   [|l| (if (null? l)
            [#t]
            [(if (pair? l)
@@ -814,9 +792,7 @@
 ;;;
 ;;; \index{first}
 ;;; \begin{code}
-{define
-  "bug#"
-  first
+{define first
   [|l #!key (onNull noop)|
    (if (null? l)
        [(onNull)]
@@ -849,9 +825,7 @@
 ;;; \section{but-first}
 ;;; \index{but-first}
 ;;; \begin{code}
-{define
-  "bug#"
-  but-first
+{define but-first
   [|l #!key (onNull noop)|
    (if (null? l)
        [(onNull)]
@@ -880,9 +854,7 @@
 ;;; \section{last}
 ;;; \index{last}
 ;;; \begin{code}
-{define
-  "bug#"
-  last
+{define last
   [|l #!key (onNull noop)|
    (if (null? l)
        [(onNull)]
@@ -916,9 +888,7 @@
 ;;; \section{but-last}
 ;;; \index{but-last}
 ;;; \begin{code}
-{define
-  "bug#"
-  but-last
+{define but-last
   [|l #!key (onNull noop)|
    (if (null? l)
        [(onNull)]
@@ -955,9 +925,7 @@
 ;;; \section{filter}
 ;;; \index{filter}
 ;;; \begin{code}
-{define
-  "bug#"
-  filter
+{define filter
   [|p? l|
    {let filter ((l l))
      (if (null? l)
@@ -991,9 +959,7 @@
 ;;; \section{remove}
 ;;; \index{remove}
 ;;; \begin{code}
-{define
-  "bug#"
-  remove
+{define remove
   [|x l|
    (filter [|y| (not (equal? x y))]
            l)]
@@ -1014,9 +980,7 @@
 ;;;
 ;;; \index{fold-left}
 ;;; \begin{code}
-{define
-  "bug#"
-  fold-left
+{define fold-left
   [|f acc l|
    {let fold-left ((acc acc) (l l))
      (if (null? l)
@@ -1066,9 +1030,7 @@
 ;;;
 ;;; \index{fold-right}
 ;;; \begin{code}
-{define
-  "bug#"
-  fold-right
+{define fold-right
   [|f acc l|
    {let fold-right ((acc acc) (l l))
      (if (null? l)
@@ -1107,9 +1069,7 @@
 ;;;
 ;;; \index{scan-left}
 ;;; \begin{code}
-{define
-  "bug#"
-  scan-left
+{define scan-left
   [|f acc l|
    {let ((acc-list (list acc)))
      {let scan-left ((acc acc)
@@ -1163,9 +1123,7 @@
 ;;;
 ;;; \index{append!}
 ;;; \begin{code}
-{define
-  "bug#"
-  append!
+{define append!
   [|l x|
    (if (null? l)
        [x]
@@ -1195,9 +1153,7 @@
 ;;; \section{flatmap}
 ;;; \index{flatmap}
 ;;; \begin{code}
-{define
-  "bug#"
-  flatmap
+{define flatmap
   [|f l|
    (fold-left append! '() (map f l))]
 ;;; \end{code}
@@ -1226,9 +1182,7 @@
 ;;; \section{take}
 ;;; \index{take}
 ;;; \begin{code}
-{define
-  "bug#"
-  take
+{define take
   [|n l|
    (if {or (null? l)
            (= n 0)}
@@ -1255,9 +1209,7 @@
 ;;; \section{take-while}
 ;;; \index{take-while}
 ;;; \begin{code}
-{define
-  "bug#"
-  take-while
+{define take-while
   [|p? l|
    {let take-while ((l l))
      (if {or (null? l)
@@ -1285,9 +1237,7 @@
 ;;; \section{drop}
 ;;; \index{drop}
 ;;; \begin{code}
-{define
-  "bug#"
-  drop
+{define drop
   [|n l|
    (if {or (null? l)
            (= n 0)}
@@ -1312,9 +1262,7 @@
 ;;; \section{drop-while}
 ;;; \index{drop-while}
 ;;; \begin{code}
-{define
-  "bug#"
-  drop-while
+{define drop-while
   [|p? l|
    {let drop-while ((l l))
      (if {or (null? l)
@@ -1342,9 +1290,7 @@
 ;;; \section{enumerate-interval}
 ;;; \index{enumerate-interval}
 ;;; \begin{code}
-{define
-  "bug#"
-  enumerate-interval
+{define enumerate-interval
   [|low high #!key (step 1)|
    (if (> low high)
        ['()]
@@ -1366,9 +1312,7 @@
 ;;;
 ;;; \index{any?}
 ;;; \begin{code}
-{define
-  "bug#"
-  any?
+{define any?
   [|l|
    (if (null? l)
        [#f]
@@ -1394,9 +1338,7 @@
 ;;; \section{zip}
 ;;; \index{zip}
 ;;; \begin{code}
-{define
-  "bug#"
-  zip
+{define zip
   [|#!rest lsts|
    (if (any? (map null? lsts))
        ['()]
@@ -1450,9 +1392,7 @@
 ;;; \section{permutations}
 ;;; \index{permutations}
 ;;; \begin{code}
-{define
-  "bug#"
-  permutations
+{define permutations
   [|l|
    (if (null? l)
        ['()]
@@ -1491,9 +1431,7 @@
 ;;; \section{sublists}
 ;;; \index{sublists}
 ;;; \begin{code}
-{define
-  "bug#"
-  sublists
+{define sublists
   [|l|
    (if (null? l)
        ['()]
@@ -1517,9 +1455,7 @@
 ;;;
 ;;; \index{ref-of}
 ;;; \begin{code}
-{define
-  "bug#"
-  ref-of
+{define ref-of
   [|l x #!key (onMissing noop)|
    (if (null? l)
        [(onMissing)]
@@ -1571,9 +1507,7 @@
 ;;;
 ;;; \index{partition}
 ;;; \begin{code}
-{define
-  "bug#"
-  partition
+{define partition
   [|l p?|
    {let partition ((l l)
                    (trueList '())
@@ -1604,9 +1538,7 @@
 ;;; \section{sort}
 ;;; \index{sort}
 ;;; \begin{code}
-{define
-  "bug#"
-  sort
+{define sort
   [|l comparison?|
    {let sort ((l l))
      (if (null? l)
@@ -1639,9 +1571,7 @@
 ;;;
 ;;; \index{reverse"!}
 ;;; \begin{code}
-{define
-  "bug#"
-  reverse!
+{define reverse!
   [|l|
    (if (null? l)
        ['()]
@@ -1681,9 +1611,7 @@
 ;;;
 ;;; \index{string-liftList"}
 ;;; \begin{code}
-{define
-  "bug#"
-  string-liftList
+{define string-liftList
   [|f|
    [|#!rest s|
     (list->string
@@ -1698,9 +1626,7 @@
 ;;;
 ;;; \index{string-reverse"}
 ;;; \begin{code}
-{define
-  "bug#"
-  string-reverse
+{define string-reverse
   (string-liftList reverse!)
 ;;;
 ;;; \end{code}
@@ -1721,9 +1647,7 @@
 ;;;
 ;;; \index{string-take"}
 ;;; \begin{code}
-{define
-  "bug#"
-  string-take
+{define string-take
   [|n s| ((string-liftList [|l| (take n l)])
           s)]
 ;;;
@@ -1744,9 +1668,7 @@
 ;;;
 ;;; \index{string-map"}
 ;;; \begin{code}
-{define
-  "bug#"
-  string-map
+{define string-map
   [|f s| ((string-liftList [|l| (map f l)])
           s)]
 ;;;
@@ -1788,9 +1710,7 @@
 ;;;
 ;;; \index{symbol-liftList}
 ;;; \begin{code}
-{define
-  "bug#"
-  symbol-liftList
+{define symbol-liftList
   [|f|
    [|#!rest s|
     (string->symbol
@@ -1831,9 +1751,7 @@
 ;;; ``stream-d-set!''.
 ;;;
 ;;; \begin{code}
-{define-structure
-  "bug#"
-  stream
+{define-structure stream
   a
   d}
 ;;; \end{code}
@@ -1847,9 +1765,7 @@
 ;;;
 ;;; \index{stream-car}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-car
+{define stream-car
   stream-a}
 ;;; \end{code}
 ;;;
@@ -1860,9 +1776,7 @@
 ;;;
 ;;; \index{stream-cdr}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-cdr
+{define stream-cdr
   [|s| {force (stream-d s)}]}
 ;;; \end{code}
 ;;;
@@ -1880,9 +1794,7 @@
 ;;;
 ;;; \index{stream-cons}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  stream-cons
+{define-macro stream-cons
   [|a d|
    (if {and (list? d)
             (equal? 'lambda (car d))
@@ -1912,9 +1824,7 @@
 ;;;
 ;;; \index{stream-null}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-null
+{define stream-null
   '()
   }
 ;;; \end{code}
@@ -1923,9 +1833,7 @@
 ;;;
 ;;; \index{stream-null?}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-null?
+{define stream-null?
   null?
 ;;; \end{code}
 ;;;
@@ -1945,9 +1853,7 @@
 ;;;
 ;;; \index{list-\textgreater stream}
 ;;; \begin{code}
-{define
-  "bug#"
-  list->stream
+{define list->stream
   [|l| (if (null? l)
            [stream-null]
            [(stream-cons (car l)
@@ -1978,9 +1884,7 @@
 ;;;
 ;;; \index{stream-\textgreater list}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream->list
+{define stream->list
   [|s|
    (if (stream-null? s)
        ['()]
@@ -2003,9 +1907,7 @@
 ;;;
 ;;; \index{stream-ref}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-ref
+{define stream-ref
   [|s n #!key (onOutOfBounds noop)|
    (if (< n 0)
        [(onOutOfBounds)]
@@ -2041,9 +1943,7 @@
 ;;; \section{integers-from}
 ;;; \index{integers-from}
 ;;; \begin{code}
-{define
-  "bug#"
-  integers-from
+{define integers-from
   [|n|
    (stream-cons n [(integers-from (+ n 1))])]
 ;;; \end{code}
@@ -2073,9 +1973,7 @@
 ;;; \section{stream-take}
 ;;; \index{stream-take}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-take
+{define stream-take
   [|n s|
    (if {or (stream-null? s)
            (= n 0)}
@@ -2105,9 +2003,7 @@
 ;;;
 ;;; \index{stream-filter}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-filter
+{define stream-filter
   [|p? s|
    {let stream-filter ((s s))
      (if (stream-null? s)
@@ -2143,9 +2039,7 @@
 ;;; \section{primes}
 ;;; \index{primes}
 ;;; \begin{code}
-{define
-  "bug#"
-  primes
+{define primes
   {let sieve-of-eratosthenes ((s (integers-from 2)))
     (stream-cons
      (stream-car s)
@@ -2176,9 +2070,7 @@
 ;;;
 ;;; \index{stream-map}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-map
+{define stream-map
   [|f #!rest list-of-streams|
    {let stream-map ((list-of-streams list-of-streams))
      (if (any? (map stream-null? list-of-streams))
@@ -2207,9 +2099,7 @@
 ;;; \section{stream-enumerate-interval}
 ;;; \index{stream-enumerate-interval}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-enumerate-interval
+{define stream-enumerate-interval
   [|low high #!key (step 1)|
    (if (> low high)
        [stream-null]
@@ -2232,9 +2122,7 @@
 ;;; \section{stream-take-while}
 ;;; \index{stream-take-while}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-take-while
+{define stream-take-while
   [|p? s|
    {let stream-take-while ((s s))
      (if {or (stream-null? s)
@@ -2280,9 +2168,7 @@
 ;;; \section{stream-drop}
 ;;; \index{stream-drop}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-drop
+{define stream-drop
   [|n s|
    (if {or (stream-null? s)
            (= n 0)}
@@ -2311,9 +2197,7 @@
 ;;; \section{stream-drop-while}
 ;;; \index{stream-drop-while}
 ;;; \begin{code}
-{define
-  "bug#"
-  stream-drop-while
+{define stream-drop-while
   [|p? s|
    {let stream-drop-while ((s s))
      (if {or (stream-null? s)
@@ -2451,9 +2335,7 @@
 ;;;
 ;;; \index{macro-identity}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  macro-identity
+{define-macro macro-identity
   [|form| form]
 ;;; \end{code}
 
@@ -2492,9 +2374,7 @@
 ;;;
 ;;; \index{macro-identity2}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  macro-identity2
+{define-macro macro-identity2
   [|form| (list 'eval (list {quote quote} form))]
 ;;; \end{code}
 
@@ -2544,9 +2424,7 @@
 ;;;
 ;;;
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  macro-identity3
+{define-macro macro-identity3
   [|form| `(eval ',form)]
 ;;; \end{code}
 ;;;
@@ -2575,9 +2453,7 @@
 ;;;
 ;;; \index{compose}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  compose
+{define-macro compose
   [|#!rest fs|
    (if (null? fs)
        ['identity]
@@ -2661,9 +2537,7 @@
 ;;;
 ;;; \index{aif}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  aif
+{define-macro aif
   [|bool body|
    `{let ((bug#it ,bool))
       (if bug#it
@@ -2694,9 +2568,7 @@
 ;;;
 ;;; \index{with-gensyms"}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  with-gensyms
+{define-macro with-gensyms
   [|symbols #!rest body|
    `{let ,(map [|symbol| `(,symbol {gensym})]
                symbols)
@@ -2725,9 +2597,7 @@
 ;;; \section{once-only}
 ;;; \index{once-only}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  once-only
+{define-macro once-only
   [|symbols #!rest body|
    {let ((gensyms (map [|s| (gensym)]
                         symbols)))
@@ -2783,9 +2653,7 @@
 ;;;
 ;;; \index{setf!}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  setf!
+{define-macro setf!
   [|exp val|
    (if (not (pair? exp))
        [`{set! ,exp ,val}]
@@ -2944,9 +2812,7 @@
 ;;;
 ;;; \index{mutate!}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  mutate!
+{define-macro mutate!
   [|exp f|
    (if (symbol? exp)
        [`{setf! ,exp (,f ,exp)}]
@@ -3039,9 +2905,7 @@
 ;;;
 ;;; \index{destructuring-bind}
 ;;; \begin{code}
-{define-macro
-  "bug#"
-  destructuring-bind
+{define-macro destructuring-bind
   [|pat lst #!rest body|
    {letrec
        ((destruc
