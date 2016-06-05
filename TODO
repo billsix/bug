@@ -14,3 +14,6 @@
   --enable-shared
 - Add appendix on why lambda literals are important
 - Move the description of keyword arguments to the first instance of use, numeric if
+- Make lambda literals have their definition be a line below the parameter list for
+  visual consistency
+  

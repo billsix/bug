@@ -1087,7 +1087,6 @@
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  ;; (calulating factorials via scan-left
   (satisfies?
    [|l| (scan-left * 1 l)]
    '(
@@ -1097,6 +1096,9 @@
      ((2 3 4) (1 2 6 24))
      ((2 3 4 5 ) (1 2 6 24 120))
      ))
+;;; \end{code}
+;;;
+;;; \begin{code}
   (satisfies?
    [|l| (scan-left + 5 l)]
    '(
@@ -1105,6 +1107,9 @@
      ((1 2) (5 6 8))
      ((1 2 3 4 5 6) (5 6 8 11 15 20 26)
       )))
+;;; \end{code}
+;;;
+;;; \begin{code}
   (satisfies?
    [|l| (scan-left - 5 l)]
    '(
@@ -1427,29 +1432,6 @@
 ;;;
 ;;; See also \cite[p. 45]{taocp}
 ;;;
-;;; \newpage
-;;; \section{sublists}
-;;; \index{sublists}
-;;; \begin{code}
-{define sublists
-  [|l|
-   (if (null? l)
-       ['()]
-       [(cons l (sublists (cdr l)))])]
-;;; \end{code}
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (satisfies?
-   sublists
-   '(
-     (() ())
-     ((3) ((3)))
-     ((2 3) ((2 3) (3)))
-     ((1 2 3) ((1 2 3) (2 3) (3)))
-     ))}
-;;; \end{code}
-;;;
-;;; \newpage
 ;;; \section{ref-of}
 ;;; The inverse of list-ref.
 ;;;
@@ -1477,6 +1459,9 @@
      (b 1)
      (g 6)
      ))
+;;; \end{code}
+;;;
+;;; \begin{code}
   (satisfies?
    [|x| (ref-of '(a b c d e f g)
                 x
@@ -1485,6 +1470,9 @@
      (z missing)
      (a 0)
      ))
+;;; \end{code}
+;;;
+;;; \begin{code}
   {let ((l '(a b c d e f g)))
     (satisfies?
      [|x| (list-ref l (ref-of l x))]
