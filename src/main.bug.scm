@@ -676,8 +676,9 @@
 ;;; \index{atom?}
 ;;; \begin{code}
 {define atom?
-  [|x| {or (number? x)
-           (symbol? x)}]
+  [|x|
+   {or (number? x)
+       (symbol? x)}]
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``x'' usually means the parameter can
@@ -740,7 +741,8 @@
 ;;; \index{copy}
 ;;; \begin{code}
 {define copy
-  [|l| (map identity l)]
+  [|l|
+   (map identity l)]
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``l'' usually means the parameter is
@@ -763,11 +765,12 @@
 ;;; \index{proper?}
 ;;; \begin{code}
 {define proper?
-  [|l| (if (null? l)
-           [#t]
-           [(if (pair? l)
-                [(proper? (cdr l))]
-                [#f])])]
+  [|l|
+   (if (null? l)
+       [#t]
+       [(if (pair? l)
+            [(proper? (cdr l))]
+            [#f])])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1636,8 +1639,9 @@
 ;;; \index{string-take"}
 ;;; \begin{code}
 {define string-take
-  [|n s| ((string-liftList [|l| (take n l)])
-          s)]
+  [|n s|
+   ((string-liftList [|l| (take n l)])
+    s)]
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
@@ -1657,8 +1661,9 @@
 ;;; \index{string-map"}
 ;;; \begin{code}
 {define string-map
-  [|f s| ((string-liftList [|l| (map f l)])
-          s)]
+  [|f s|
+   ((string-liftList [|l| (map f l)])
+    s)]
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
@@ -1765,7 +1770,8 @@
 ;;; \index{stream-cdr}
 ;;; \begin{code}
 {define stream-cdr
-  [|s| {force (stream-d s)}]}
+  [|s|
+   {force (stream-d s)}]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
@@ -1842,15 +1848,16 @@
 ;;; \index{list-\textgreater stream}
 ;;; \begin{code}
 {define list->stream
-  [|l| (if (null? l)
-           [stream-null]
-           [(stream-cons (car l)
-                         [{let list->stream ((l (cdr l)))
-                            (if (null? l)
-                                ['()]
-                                [(stream-cons (car l)
-                                              [(list->stream
-                                                (cdr l))])])}])])]
+  [|l|
+   (if (null? l)
+       [stream-null]
+       [(stream-cons (car l)
+                     [{let list->stream ((l (cdr l)))
+                        (if (null? l)
+                            ['()]
+                            [(stream-cons (car l)
+                                          [(list->stream
+                                            (cdr l))])])}])])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -2363,7 +2370,8 @@
 ;;; \index{macro-identity2}
 ;;; \begin{code}
 {define-macro macro-identity2
-  [|form| (list 'eval (list {quote quote} form))]
+  [|form|
+   (list 'eval (list {quote quote} form))]
 ;;; \end{code}
 
 ;;; \subsection*{Tests}
