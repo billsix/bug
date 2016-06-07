@@ -2803,8 +2803,10 @@
 
 ;;; \newpage
 ;;; \section{mutate!}
-;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
-;;; The implementation inspired by \cite{setf}.
+;;;  Like ``setf!'' ``mutate'' takes a generalized variable
+;;;  as input, and a procedure.  The procedure is applied
+;;;  to the value at that generalized procedure, and is then
+;;;  stored back into it.
 ;;;
 ;;; \index{mutate!}
 ;;; \begin{code}
@@ -2895,7 +2897,7 @@
   }
 ;;; \end{code}
 ;;;
-
+;;;
 ;;; \newpage
 ;;; \section{destructuring-bind}
 ;;;
@@ -2916,15 +2918,40 @@
                          (cons `(,var (list-ref ,lst ,n))
                                (destruc p var gensym: gensym n: 0))}])}
                 (destruc (cdr pat) lst gensym: gensym n: (+ 1 n))))}]
-  #t}
-
-
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (equal? (destruc '() '(1 2))
+          '())
+  (equal? (destruc 'a '(1 2))
+          '((a (drop 0 (1 2)))))
+  (equal? (destruc '(#!rest d) '(1 2))
+          '((d (drop 0 (1 2)))))
+  (equal? (destruc '(a) '(1 2))
+          '((a (list-ref (1 2) 0))))
+  (equal? (destruc '(a . b) '(1 2))
+          '((a (list-ref (1 2) 0))
+            (b (drop 1 (1 2)))))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (equal? (destruc '(a (b c))
+                   '(1 (2 3))
+                   gensym: ['gensymed-var1])
+          '((a (list-ref (1 (2 3)) 0))
+            ((gensymed-var1 (list-ref (1 (2 3)) 1))
+             (b (list-ref gensymed-var1 0))
+             (c (list-ref gensymed-var1 1)))))
+  }
+;;; \end{code}
+;;;
+;;; \begin{code}
 {define-macro destructuring-bind
   [|pat lst #!rest body|
      {let ((glst (gensym)))
        `{let ((,glst ,lst))
-          ,{let bindings-expand ((bindings (destruc pat glst gensym: gensym))
-                                 (body body))
+          ,{let bindings-expand ((bindings
+                                  (destruc pat glst gensym: gensym)))
              (if (null? bindings)
                  [`{begin ,@body}]
                  [`{let ,(map [|b| (if (pair? (car b))
@@ -2934,83 +2961,12 @@
                      ,(bindings-expand (flatmap [|b| (if (pair? (car b))
                                                          [(cdr b)]
                                                          ['()])]
-                                                bindings)
-                                       body)}])}}}]
+                                                bindings))}])}}}]
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 232]{onlisp}
 ;;;
 ;;; \subsection*{Tests}
-;;;
-;;; \begin{code}
-  (equal? (macroexpand-1
-           (destructuring-bind a
-                               '(1 (2 3) 4 5)
-                               a))
-          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
-             {let ((a (drop 0 gensymed-var1)))
-               {begin a}}})
-  (equal? (eval
-           (macroexpand-1
-            (destructuring-bind a
-                                '(1 (2 3) 4 5)
-                                a)))
-          '(1 (2 3) 4 5))
-;;; \end{code}
-;;;
-;;; \begin{code}
-  (equal? (macroexpand-1
-           (destructuring-bind (b . a)
-                               '(1 (2 3) 4 5)
-                               (list a b)))
-          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
-             {let ((b (list-ref gensymed-var1 0))
-                   (a (drop 1 gensymed-var1)))
-               {begin (list a b)}}})
-  (equal? (eval
-           (macroexpand-1
-            (destructuring-bind (b . a)
-                                '(1 (2 3) 4 5)
-                                (list a b))))
-          '(((2 3) 4 5) 1))
-;;; \end{code}
-;;;
-;;; \begin{code}
-  (equal? (macroexpand-1
-           (destructuring-bind (b #!rest a)
-                               '(1 (2 3) 4 5)
-                               (list a b)))
-          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
-             {let ((b (list-ref gensymed-var1 0))
-                   (a (drop 1 gensymed-var1)))
-               {begin (list a b)}}})
-  (equal? (eval
-           (macroexpand-1
-            (destructuring-bind (b #!rest a)
-                                '(1 (2 3) 4 5)
-                                (list a b))))
-          '(((2 3) 4 5) 1))
-;;; \end{code}
-;;;
-;;; \begin{code}
-  (equal? (macroexpand-1
-           (destructuring-bind (d (b c) . a)
-                               '(1 (2 3) 4 5)
-                               (list a b c d)))
-          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
-             {let ((d (list-ref gensymed-var1 0))
-                   (gensymed-var2 (list-ref gensymed-var1 1))
-                   (a (drop 2 gensymed-var1)))
-               {let ((b (list-ref gensymed-var2 0))
-                     (c (list-ref gensymed-var2 1)))
-                 {begin (list a b c d)}}}})
-  (equal? (eval
-           (macroexpand-1
-            (destructuring-bind (d (b c) . a)
-                                '(1 (2 3) 4 5)
-                                (list a b c d))))
-          '((4 5) 2 3 1))
-;;; \end{code}
 ;;;
 ;;; \begin{code}
   (equal? (macroexpand-1
