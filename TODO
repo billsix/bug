@@ -1,6 +1,4 @@
 - Ensure that the descriptions of the namespace stuff matches the changes I just made.
-- Update descriptions of code  as line numbers have gotten way off.  Most will
-  involve just subtracting 2 from each description.
 - Remove cases where I write "(eval (macroexpand-1..." when just invoking the macro would suffice
 - Edit the text of the generalized assignment chapter
 - Edit the text of the chapter on computation at compile time

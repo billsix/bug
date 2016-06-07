@@ -424,10 +424,8 @@
 ;;; \begin{itemize}
 ;;;   \item On line 1, the libbug\#define macro\footnote{defined in section ~\ref{sec:libbugdefine}}
 ;;; is invoked.
-;;;   \item On line 2, a namespace
-;;;   \item On line 3, the variable name, which will be declared in the
-;;;         namespace defined on line 2.
-;;;   \item On line 4, the lambda literal to be stored into the variable.
+;;;   \item On line 1, the variable name ``noop''.
+;;;   \item On line 2, the lambda literal to be stored into the variable.
 ;;;         Libbug includes a Scheme preprocessor ``bug-gscpp'',
 ;;;         which expands lambda literals
 ;;;         into lambdas.  In this case
@@ -476,7 +474,7 @@
   [|x| x]
 ;;; \end{code}
 ;;; \begin{itemize}
-;;;   \item On line 4, ``bug-gscpp'' expands
+;;;   \item On line 2, ``bug-gscpp'' expands
 ;;;
 ;;; \begin{examplecode}
 ;;; [|x| x]
@@ -521,7 +519,7 @@
             [(all? (cdr l))])])]
 ;;; \end{code}
 ;;; \begin{itemize}
-;;;   \item On line 5, if, which is currently namespaced to bug\#if\footnote{
+;;;   \item On line 3, if, which is currently namespaced to bug\#if\footnote{
 ;;;      defined in section~\ref{sec:langif} }, takes
 ;;;         lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
 ;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that bug\#if is just syntactic sugar:
@@ -1431,6 +1429,7 @@
 ;;;
 ;;; See also \cite[p. 45]{taocp}
 ;;;
+;;; \newpage
 ;;; \section{ref-of}
 ;;; The inverse of list-ref.
 ;;;
