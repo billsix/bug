@@ -10,8 +10,6 @@
 - Error check the input for macroexpand-1
 - In the test for mutate!, test that the index only incremented once
 - Determine if macroexpand-1 should be exported
-- Either update the makefile to allow static libraries or remove the section regarding
-  --enable-shared
 - Add appendix on why lambda literals are important
 - Move the description of keyword arguments to the first instance of use, numeric if
 - Make chapter of lifting, condense string and symbol chapters.  Also add char->int lifting

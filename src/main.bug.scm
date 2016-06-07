@@ -346,7 +346,7 @@
 ;;;
 ;;; \begin{examplecode}
 ;;; $ ./autogen.sh
-;;; $ ./configure --prefix=$BUG_HOME --enable-shared --enable-pdf
+;;; $ ./configure --prefix=$BUG_HOME --enable-pdf
 ;;; $ make
 ;;; $ make install
 ;;; \end{examplecode}
@@ -357,10 +357,6 @@
 ;;;      should be installed when ``make install'' is executed. ``\$BUG\textunderscore HOME'' is an
 ;;;      environment variable that I have not defined, so the reader should substitute
 ;;;      ``\$BUG\textunderscore HOME'' with an actual filesystem path.
-;;;   \item
-;;;      Libbug can be compiled as a static library, or a dynamic library. ``--enable-shared''
-;;;      configures the build so that a shared library is created.  If you desire to build
-;;;      libbug as a static library, substitute ``--disable-shared''.
 ;;;   \item
 ;;;      ``--enable-pdf'' means to build this book as a PDF.  To disable the creation of the PDF,
 ;;;      substitute ``--enable-pdf=no''.
