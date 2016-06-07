@@ -2901,29 +2901,29 @@
 ;;;
 ;;; \index{destructuring-bind}
 ;;; \begin{code}
+
+{define destruc
+  [|pat lst #!key (gensym gensym) (n 0)|
+   {cond ((null? pat)                '())
+         ((symbol? pat)              `((,pat (drop ,n ,lst))))
+         ((equal? (car pat) '#!rest) `((,(cadr pat) (drop ,n
+                                                          ,lst))))
+         (else
+          (cons {let ((p (car pat)))
+                  (if (symbol? p)
+                      [`(,p (list-ref ,lst ,n))]
+                      [{let ((var (gensym)))
+                         (cons `(,var (list-ref ,lst ,n))
+                               (destruc p var gensym: gensym n: 0))}])}
+                (destruc (cdr pat) lst gensym: gensym n: (+ 1 n))))}]
+  #t}
+
+
 {define-macro destructuring-bind
   [|pat lst #!rest body|
-   {letrec
-       ((destruc
-         [|pat lst #!key (n 0)|
-          {cond ((null? pat)                '())
-                ((symbol? pat)              `((,pat (drop ,n ,lst))))
-                ((equal? (car pat) '#!rest) `((,(cadr pat) (drop ,n
-                                                                 ,lst))))
-                (else
-                 (cons {let ((p (car pat)))
-                         (if (symbol? p)
-                             [`(,p (list-ref ,lst ,n))]
-                             [{let ((var (gensym)))
-                                (cons `(,var (list-ref ,lst ,n))
-                                      (destruc p var n: 0))}])}
-                       (destruc (cdr pat) lst n: (+ 1 n))))}]))
-;;; \end{code}
-;;;
-;;; \begin{code}
      {let ((glst (gensym)))
        `{let ((,glst ,lst))
-          ,{let bindings-expand ((bindings (destruc pat glst))
+          ,{let bindings-expand ((bindings (destruc pat glst gensym: gensym))
                                  (body body))
              (if (null? bindings)
                  [`{begin ,@body}]
@@ -2935,7 +2935,7 @@
                                                          [(cdr b)]
                                                          ['()])]
                                                 bindings)
-                                       body)}])}}}}]
+                                       body)}])}}}]
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 232]{onlisp}
