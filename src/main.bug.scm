@@ -147,18 +147,19 @@
 ;;;
 ;;; \begin{examplecode}
 ;;;{define permutations
-;;; [|l| (if (null? l)
-;;;          ['()]
-;;;          [{let permutations ((l l))
-;;;             (if (null? (cdr l))
-;;;                 [(list l)]
-;;;                 [(flatmap [|x|
-;;;                            (map [|y| (cons x y)]
-;;;                                 (permutations (remove x l)))]
-;;;                           l)])}])]
+;;; [|l|
+;;;   (if (null? l)
+;;;       ['()]
+;;;       [{let permutations ((l l))
+;;;          (if (null? (cdr l))
+;;;              [(list l)]
+;;;              [(flatmap [|x|
+;;;                         (map [|y| (cons x y)]
+;;;                              (permutations (remove x l)))]
+;;;                        l)])}])]
 ;;; \end{examplecode}
 ;;;
-;;; So what does the code do?  How did the author intend for it to be used?
+;;; What does the code do?  How did the author intend for it to be used?
 ;;; In trying to answer those questions, fans of statically-typed programming
 ;;; languages might lament the lack of types, as types help them to reason about
 ;;; programs and help them to deduce where to look to find more information.
@@ -167,8 +168,8 @@
 ;;; as tests ensure the code functions in a user-specified way and
 ;;; they serve as a form of documentation.  But
 ;;; where are those tests?  Probably in some other file whose filesystem path is
-;;; similar to the current file's path, (e.g., src/com/BigCorp/HugeProject/Foo.java
-;;; is tested by test/com/BigCorp/HugeProject/FooTest.java)
+;;; similar to the current file's path (e.g., src/com/BigCorp/HugeProject/Foo.java
+;;; is tested by test/com/BigCorp/HugeProject/FooTest.java).
 ;;; Then you'd have to find the file, open the file, look through it
 ;;; while ignoring tests which are
 ;;; for other methods.  Frankly, it's too much work and it interrupts the flow
@@ -182,7 +183,7 @@
 ;;; statically-typed language.  Furthermore,
 ;;; the book you are currently reading
 ;;; is embedded into the source code of libbug; it is generated only upon successful
-;;; compilation of libbug and couldn't exist if a single test
+;;; compilation of libbug and it couldn't exist if a single test
 ;;; failed.
 ;;;
 ;;; So where are these tests then? The very alert reader may have noticed
@@ -215,8 +216,8 @@
 ;;; how the code was originally intended to be used.
 ;;; The fact that the
 ;;; tests are collocated with the procedure definition means that the reader can
-;;; read the tests without switching between files, perhaps reading the tests
-;;; before reading the procedure definition.  And the reader
+;;; read the tests without switching between files, perhaps
+;;; before reading the procedure's definition.  And the reader
 ;;; may not even read the procedure at all if the tests gave him enough information
 ;;; to use it successfully.  Should the reader want to understand the procedure, he
 ;;; can mentally apply the procedure to the tests to understand it.
@@ -240,7 +241,7 @@
 ;;; \chapter{Introduction}
 ;;; \pagenumbering{arabic}
 ;;; Libbug is Bill's Utilities for Gambit Scheme:  a ``standard library'' of procedures
-;;; which augments Scheme's small set of built-in procedures and macros.
+;;; which augments Scheme's small set of built-in procedures.
 ;;; Libbug provides procedures for list processing, streams,
 ;;; control structures,
 ;;; general-purpose evaluation at compile-time,
@@ -249,7 +250,7 @@
 ;;; Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
-;;; style, so that a program, such as libbug, can be read linearly in a book form.
+;;; style, so that a program can be read linearly in a book form.
 ;;;
 ;;; \section{Prerequisites}
 ;;;
@@ -332,9 +333,9 @@
 ;;; \end{examplecode}
 ;;;
 ;;; \section{Getting the Source Code}
-;;;  The Scheme source code is located at http://github.com/billsix/bug.
-;;;  The Scheme files can produce the libbug library, as well as this book\footnote{the version
-;;;  of the code used to generate this book is listed on the copyright page}.
+;;;  The Scheme source code is located at http://github.com/billsix/bug\footnote{
+;;;  This book was generated from git commit \input{version.tex}}.
+;;;  The Scheme files produce the libbug library, as well as this book.
 ;;;  Currently the code works on various distributions of Linux, on FreeBSD, and on Mac
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
@@ -366,8 +367,8 @@
 ;;;
 ;;; What exactly is computation at compile-time?  An introduction to the topic is provided
 ;;; in Appendix~\ref{sec:appendix1}, demonstrated
-;;; in languages of more widespread use (C and C++). The appendix
-;;; provides examples of compile-time computation in C, C++, and libbug, along with a comparison
+;;; in languages of more widespread use (C and C++),
+;;; along with a comparison
 ;;; of their expressive power.
 ;;;
 ;;;
@@ -376,7 +377,7 @@
 ;;;
 ;;; This chapter begins the definition of libbug's standard library of Scheme procedures and
 ;;; macros\footnote{The code within chapters~\ref{sec:beginninglibbug}
-;;; to~\ref{sec:endinglibbug} is found in
+;;; through ~\ref{sec:endinglibbug} inclusive is found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.  If any test fails, the compiler will exit in error,
 ;;; much like a type error in a statically-typed language.
@@ -399,6 +400,7 @@
 ;;; \begin{code}
 (include "bug-language.scm")
 {##namespace ("libbug-private#" define define-macro define-structure)}
+{##namespace ("bug#" if)}
 ;;;\end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 1, the code which makes computation at compile-time possible
@@ -407,6 +409,7 @@
 ;;;     tell the compiler that all subsequent uses of ``define'', ``define-macro'',
 ;;;     and ``define-structure'' shall use libbug's version of those procedures
 ;;;     instead of Gambit's.
+;;;   \item On line 3, all subsequent uses of ``if'' shall use libbug's version.
 ;;; \end{itemize}
 ;;;
 ;;;
@@ -425,7 +428,8 @@
 ;;;   \item On line 1, the libbug\#define macro\footnote{defined in section ~\ref{sec:libbugdefine}}
 ;;; is invoked.
 ;;;   \item On line 1, the variable name ``noop''.
-;;;   \item On line 2, the lambda literal to be stored into the variable.
+;;;   \item On line 2, the lambda literal\footnote{See Appendix~\ref{sec:appendixliteral} for why Lisp needs
+;;;         lambda literals} to be stored into the variable.
 ;;;         Libbug includes a Scheme preprocessor ``bug-gscpp'',
 ;;;         which expands lambda literals
 ;;;         into lambdas.  In this case
@@ -452,13 +456,13 @@
 ;;;  This is a
 ;;; test which will be evaluated at compile-time.  Should the test fail,
 ;;; the build process will fail and neither the shared library nor the document which
-;;; you are currently reading will be created.  The
-;;; tests are not present in the resulting
+;;; you are currently reading will be created.
+;;; Tests are not present in the created
 ;;; library.
 ;;; \end{itemize}
 ;;;
 ;;; ``noop'' does not look useful at first glance, but it is frequently used when
-;;;  you need to execute a procedure but you do not care about the resulting value.
+;;;  a procedure is required but the resulting value of it is not.
 ;;;  For instance, ``noop'' is used as a default ``exception-handler'' for many
 ;;;  procedures within libbug.
 ;;;
@@ -504,7 +508,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{all?}
-;;; Like ``and'', but takes a list instead of a variable number of arguments, and
+;;; Like regular Scheme's ``and'', but takes a list instead of a variable number of arguments, and
 ;;; all elements of the list are evaluated before ``and'' is applied.
 ;;;
 ;;; \label{sec:langiffirstuse}
@@ -531,7 +535,7 @@
 ;;;{define bug#if [|b t f| (b t f)]}
 ;;; \end{examplecode}
 ;;;
-;;; \noindent As such, if would not be a special form, and is more consistent with the
+;;; \noindent As such, bug\#if would not be a special form, and is more consistent with the
 ;;; rest of libbug.
 ;;;
 ;;; \end{itemize}
@@ -559,7 +563,7 @@
 ;;; \newpage
 ;;; \section{satisfies?}
 ;;;
-;;; When writing multiple tests, why explicitly invoke the procedure repeatedly,
+;;; When writing multiple tests, why explicitly invoke the procedure repeatedly
 ;;; with varying inputs and outputs, as was done for ``all?''?  Instead, provide
 ;;; the procedure and a list
 ;;; of input/output pairs.
@@ -579,6 +583,13 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
+   [|x| (+ x 1)]
+   '(
+     (0 1)
+     (1 2)
+     (2 3)
+     ))
+  (satisfies?
    all?
    '(
      (() #t)
@@ -587,13 +598,7 @@
      ((#t #t) #t)
      ((#f) #f)
      ((#t #t #t #f) #f)))
-  (satisfies?
-   [|x| (+ x 1)]
-   '(
-     (0 1)
-     (1 2)
-     (2 3)
-     ))}
+  }
 ;;; \end{code}
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
@@ -602,6 +607,14 @@
 ;;; \section{while}
 ;;;
 ;;; \index{while}
+;;;
+;;; Programmers who are new to the Scheme language  may be surprised that
+;;; the language provides no built-in syntax for looping, such as ``for''
+;;; or ``while''.  A better question though, is why don't other
+;;; languages provide primitives from which you can create
+;;; those looping constructs yourself?  ``Take the red pill.''
+;;;
+;;;
 ;;; \begin{code}
 {define while
   [|pred? body|
@@ -619,21 +632,19 @@
 ;;; \begin{code}
   {let ((a 0))
     (while [(< a 5)]
-           [(set! a (+ a 1))])
+           [{set! a (+ a 1)}])
     (equal? a 5)}}
 ;;; \end{code}
 ;;;
 ;;;
-;;; Programmers who are new to the Scheme language  may be surprised that
-;;; the language provides no built-in syntax for looping, such as ``for''
-;;; or ``while''.  A better question though, is why don't other
-;;; languages provide primitives from which you can create
-;;; those looping constructs yourself?  ``Take the red pill.''
-;;;
 ;;;
 ;;; \newpage
 ;;; \section{numeric-if}
-;;;   A conditional expression for numbers, based on their sign.
+;;;   A conditional expression for numbers, based on their sign. ``numeric-if''
+;;;   uses Gambit's keyword syntax.  ``ifPositive'', ``ifZero'', and ``ifNegative'' are
+;;;   an optionals argument, each with their default value as the value in the ``noop''
+;;;   variable.
+;;;
 ;;;
 ;;; \index{numeric-if}
 ;;; \begin{code}
@@ -648,6 +659,8 @@
 ;;;
 ;;; \noindent \cite[p. 150, called ``nif'']{onlisp}
 ;;; \subsection*{Tests}
+;;; Keyword arguments are optionally defined, and use the following syntax.
+;;;
 ;;; \begin{code}
   (satisfies?
    [|n|
@@ -684,8 +697,10 @@
   (satisfies?
    atom?
    '(
-     (a #t)
      (1 #t)
+     (1/3 #t)
+     (a #t)
+     ((make-vector 3) #f)
      (() #f)
      ((a) #f)
      ))
@@ -700,7 +715,8 @@
 ;;; \begin{code}
 {define complement
   [|f|
-   [|#!rest args| (not (apply f args))]]
+   [|#!rest args|
+    (not (apply f args))]]
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 63]{onlisp}
@@ -729,8 +745,7 @@
 ;;; \newpage
 ;;; \chapter{Lists}
 ;;; \section{copy}
-;;;   Creates a copy of the list data structure.  Does not copy the contents
-;;;   of the list.
+;;;   Creates a shallow copy of the list.
 ;;;
 ;;; \index{copy}
 ;;; \begin{code}
@@ -740,7 +755,7 @@
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``l'' usually means the parameter is
-;;;   is a list of something.}
+;;;   is a list.}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -754,6 +769,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{proper?}
+;;;   Tests that the last element of the list is the sentinel value ``'()''.
 ;;;   Will not terminate on a circular list.
 ;;;
 ;;; \index{proper?}
@@ -771,8 +787,10 @@
   (satisfies?
    proper?
    '(
-     (4 #f)
+     (() #t)
+     ((4) #t)
      ((1 2) #t)
+     (4 #f)
      ((1 2 . 5) #f)
      ))}
 ;;; \end{code}
@@ -783,9 +801,6 @@
 ;;; \newpage
 ;;; \section{first}
 ;;;
-;;; first uses Gambit's keyword syntax.  ``onNull'' is
-;;; an optional argument, with a default value of the value in the ``noop''
-;;; variable.
 ;;;
 ;;; \index{first}
 ;;; \begin{code}
@@ -1029,11 +1044,11 @@
 ;;; \begin{code}
 {define fold-right
   [|f acc l|
-   {let fold-right ((acc acc) (l l))
+   {let fold-right ((l l))
      (if (null? l)
          [acc]
          [(f (car l)
-             (fold-right acc (cdr l)))])}]
+             (fold-right (cdr l)))])}]
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 116 (named ``accumulate'')]{sicp}
@@ -1078,7 +1093,7 @@
                              (car l))))
               (scan-left newacc
                          {begin
-                           (set-cdr! last-cell (list newacc))
+                           {set-cdr! last-cell (list newacc)}
                            (cdr last-cell)}
                          (cdr l))}])}}]
 ;;; \end{code}
@@ -1093,48 +1108,29 @@
      ((2 3 4) (1 2 6 24))
      ((2 3 4 5 ) (1 2 6 24 120))
      ))
-;;; \end{code}
-;;;
-;;; \begin{code}
-  (satisfies?
-   [|l| (scan-left + 5 l)]
-   '(
-     (() (5))
-     ((1) (5 6))
-     ((1 2) (5 6 8))
-     ((1 2 3 4 5 6) (5 6 8 11 15 20 26)
-      )))
-;;; \end{code}
-;;;
-;;; \begin{code}
-  (satisfies?
-   [|l| (scan-left - 5 l)]
-   '(
-     (() (5))
-     ((1) (5 4))
-     ((1 2) (5 4 2))
-     ((1 2 3 4 5 6) (5 4 2 -1 -5 -10 -16))
-     ))
   }
 ;;; \end{code}
 ;;;
 ;;; \newpage
 ;;; \section{append!}
-;;;   Like append, but recycles the last cons cell, so it's
-;;;   faster, but mutates the input.
+;;;   Like Scheme's ``append'', but recycles the last cons cell, so it's
+;;;   faster but it mutates the input.
 ;;;
 ;;; \index{append!}
 ;;; \begin{code}
 {define append!
-  [|l x|
-   (if (null? l)
-       [x]
-       [{let ((head l))
-          {let append! ((l l))
-            (if (null? (cdr l))
-                [(set-cdr! l x)]
-                [(append! (cdr l))])}
-          head}])]
+  [|l #!rest x|
+   {##define append!
+     [|l x|
+      (if (null? l)
+          [x]
+          [{let ((head l))
+             {let append! ((l l))
+               (if (null? (cdr l))
+                   [{set-cdr! l x}]
+                   [(append! (cdr l))])}
+             head}])]}
+   (append! l (car x))]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1164,6 +1160,14 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
+  (satisfies?
+   [|l| (map [|x| (list x
+                        (+ x 1)
+                        (+ x 2))]
+             l)]
+   '(
+     ((10 20) ((10 11 12) (20 21 22)))
+     ))
   (satisfies?
    [|l| (flatmap [|x| (list x
                             (+ x 1)
@@ -1450,6 +1454,17 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
+   [|x| (ref-of '() x)]
+   '(
+     (z noop)
+     (a noop)
+     (b noop)
+     (g noop)
+     ))
+;;; \end{code}
+;;;
+;;; \begin{code}
+  (satisfies?
    [|x| (ref-of '(a b c d e f g) x)]
    '(
      (z noop)
@@ -1486,9 +1501,9 @@
 ;;;
 ;;; \newpage
 ;;; \section{partition}
-;;;  Partitions the input list into two lists, one list where
-;;;  the predicate matched the element of the input list, the second list
-;;;  where the predicate did not match the element of the input list.
+;;;  Partitions the input list into two lists, with the criterion being whether or not
+;;;  the application of the  procedure ``p?'' to each element of the input list evaluated
+;;;  to true or false.
 ;;;
 ;;;
 ;;; \index{partition}
@@ -1519,6 +1534,22 @@
                    (4 5)))
      ))}
 ;;; \end{code}
+;;;
+;;; In section~\ref{sec:dbind}, ``destructuring-bind'' allows for a more convenient syntax when
+;;; using ``partition''.
+;;;
+;;; \begin{examplecode}
+> (destructuring-bind (trueList falseList)
+                      (partition '(3 2 5 4 1)
+                                 [|x| (<= x 3)])
+                      trueList)
+(1 2 3)
+> (destructuring-bind (trueList falseList)
+                      (partition '(3 2 5 4 1)
+                                 [|x| (<= x 3)])
+                      falseList)
+(4 5)
+;;; \end{examplecode}
 ;;;
 ;;; \newpage
 ;;; \section{sort}
@@ -1563,10 +1594,10 @@
        ['()]
        [{let reverse! ((cons-cell l) (reversed-list '()))
           (if (null? (cdr cons-cell))
-              [(set-cdr! cons-cell reversed-list)
+              [{set-cdr! cons-cell reversed-list}
                cons-cell]
               [{let ((rest (cdr cons-cell)))
-                 (set-cdr! cons-cell reversed-list)
+                 {set-cdr! cons-cell reversed-list}
                  (reverse! rest cons-cell)}])}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
@@ -2704,7 +2735,7 @@
 ;;; \begin{code}
   (equal? {macroexpand-1
            {setf! a 10}}
-          '(set! a 10))
+          '{set! a 10})
   {let ((a 5))
     {setf! a 10}
     (equal? a 10)}
@@ -2715,7 +2746,7 @@
 ;;; \begin{code}
   (equal? {macroexpand-1
            {setf! (car a) 10}}
-          '(set-car! a 10))
+          '{set-car! a 10})
   {let ((a '(1 2)))
     {setf! (car a) 10}
     (equal? (car a) 10)}
@@ -2726,7 +2757,7 @@
 ;;; \begin{code}
   (equal? {macroexpand-1
            {setf! (cdr a) 10}}
-          '(set-cdr! a 10))
+          '{set-cdr! a 10})
   {let ((a '(1 2)))
     {setf! (cdr a) 10}
     (equal? (cdr a) 10)}
@@ -2875,12 +2906,12 @@
                     [|n| (+ n 1)]))
           '{let ((gensymed-var1 foo)
                  (gensymed-var2 {begin
-                                  (set! index (+ 1 index))
+                                  {set! index (+ 1 index)}
                                   index}))
-             (setf! (vector-ref gensymed-var1
+             {setf! (vector-ref gensymed-var1
                                 gensymed-var2)
                     ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                               gensymed-var2)))})
+                                               gensymed-var2))}})
   {let ((foo (vector 0 0 0))
         (index 1))
     (mutate! (vector-ref foo {begin
@@ -2896,6 +2927,7 @@
 ;;; \newpage
 ;;; \section{destructuring-bind}
 ;;;
+;;;  \label{sec:dbind}
 ;;; \index{destructuring-bind}
 ;;; \begin{code}
 
