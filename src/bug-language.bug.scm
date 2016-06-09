@@ -583,6 +583,7 @@
 ;;;
 
 ;;; \section{libbug-private\#define-structure}
+;;;  \label{sec:definestructure}
 ;;; \index{libbug-private\#define-structure}
 ;;; \begin{code}
 {##define-macro

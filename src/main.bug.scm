@@ -1755,19 +1755,17 @@
 ;;;
 ;;; Streams are sequential collections like lists, but the
 ;;; ``cdr'' of each pair must be a zero-argument lambda value.  That lambda
-;;; is automatically evaluated when ``(stream-cdr s)'' is applied,
-;;; where s is a stream created by ``stream-cons''.
+;;; is automatically evaluated when ``(stream-cdr s)'' is evaluated.
 ;;; For more information, consult ``The Structure and
 ;;; Interpretation of Computer Programs''\footnote{although, they
-;;; define ``stream-cons'' as syntax, instead of passing a lambda
+;;; define ``stream-cons'' as syntax instead of passing a lambda
 ;;; to the second argument}.
 ;;;
 ;;; \section{Stream structure}
 ;;;
-;;; ``bug\#define-structure'' takes a namespace, name of the constructor, and a variable
-;;; number of fields.  A constructor named ``make-stream'' is created, as are accessor
-;;; procedures ``stream-a'', ``stream-d'', and setter procedures ``stream-a-set!'' and
-;;; ``stream-d-set!''.
+;;; ``bug\#define-structure''\footnote{defined in section~\ref{sec:definestructure}}
+;;;  takes as parameters the name of the datatype, and a variable
+;;; number of fields.
 ;;;
 ;;; \begin{code}
 {define-structure stream
@@ -1775,8 +1773,11 @@
   d}
 ;;; \end{code}
 ;;;
-;;;  For streams, none of the above procedures are intended to be
-;;; evaluated directly by the programmer, instead, the following
+;;; ``bug\#define-structure'' will create a constructor procedure named ``make-stream'',
+;;;  accessor procedures ``stream-a'', ``stream-d'', and setting procedures ``stream-a-set!'' and
+;;; ``stream-d-set!''.
+;;;  For streams, none of these generated procedures are intended to be
+;;; evaluated directly by the programmer. Instead, the following
 ;;; are to be used.
 ;;;
 ;;; \section{stream-car}
@@ -1809,7 +1810,7 @@
 ;;;
 ;;; ``stream-cons'' is a macro, a topic which has not yet been covered, but will
 ;;; be in chapter~\ref{sec:macros}.  For now, just know that ``stream-cons'' is
-;;; a constructor for creating streams, which verifies at compile-time that the
+;;; a constructor for creating streams which verifies at compile-time that the
 ;;; second argument is a zero-argument lambda.
 ;;;
 ;;; \index{stream-cons}
@@ -1828,13 +1829,13 @@
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {begin
     {let ((s (stream-cons 1 [2])))
       {and
        (equal? (stream-car s)
                1)
        (equal? (stream-cdr s)
-               2)}}}}
+               2)}}
+    }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1880,7 +1881,7 @@
        [(stream-cons (car l)
                      [{let list->stream ((l (cdr l)))
                         (if (null? l)
-                            ['()]
+                            [stream-null]
                             [(stream-cons (car l)
                                           [(list->stream
                                             (cdr l))])])}])])]
@@ -1924,7 +1925,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{stream-ref}
-;;; The analogous procedure of list-ref
+;;; The analogous procedure of ``list-ref''
 ;;;
 ;;; \index{stream-ref}
 ;;; \begin{code}
@@ -1944,15 +1945,15 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
-   [|i| (stream-ref (list->stream '(5 4 3 2 1)) i)]
+   [|i| (stream-ref (list->stream '(a b c d e)) i)]
    '(
      (-1 noop)
-     (0 5)
-     (4 1)
+     (0 a)
+     (4 e)
      (5 noop)
      )
    )
-  (equal? (stream-ref (list->stream '(5 4 3 2 1))
+  (equal? (stream-ref (list->stream '(a b c d e))
                       5
                       onOutOfBounds: ['out])
           'out)}
@@ -1963,6 +1964,9 @@
 
 ;;; \section{integers-from}
 ;;; \index{integers-from}
+;;;
+;;; Creates an ``infinite'' list of integers.
+;;;
 ;;; \begin{code}
 {define integers-from
   [|n|
@@ -2087,7 +2091,7 @@
 ;;; \newpage
 
 ;;; \section{stream-map}
-;;; The analogous procedure of \#\#map.
+;;; The analogous procedure of ``map''.
 ;;;
 ;;; \index{stream-map}
 ;;; \begin{code}
@@ -2161,28 +2165,10 @@
     (stream->list
      (stream-take-while [|n| (< n 10)]
                         s))]
-   (list (list (integers-from 0)
-               '(0 1 2 3 4 5 6 7 8 9))
-         (list (stream-enumerate-interval 1 4)
-               '(1 2 3 4))))
-;;; \end{code}
-;;;
-;;;  \noindent
-;;;  This next test is exactly the same as the previous, but done using ``quasiquote''
-;;;  and ``unquote''.  Those two special forms will be discussed in chapter~\ref{sec:macros}.
-;;;
-;;; \begin{code}
-  (satisfies?
-   [|s|
-    (stream->list
-     (stream-take-while [|n| (< n 10)]
-                        s))]
-   `(
-     (,(integers-from 0) (0 1 2 3 4 5 6 7 8 9))
+   `((,(integers-from 0)               (0 1 2 3 4 5 6 7 8 9))
      (,(stream-enumerate-interval 1 4) (1 2 3 4))))
   }
 ;;; \end{code}
-;;;
 ;;;
 ;;; \newpage
 
@@ -2209,7 +2195,12 @@
      (1 (b))
      (2 ())
      (3 ())
-     ))}
+     ))
+  (equal? (stream->list
+           (stream-take 10 (stream-drop 10
+                                        primes)))
+          '(31 37 41 43 47 53 59 61 67 71))
+  }
 ;;; \end{code}
 ;;;
 ;;;
@@ -2263,113 +2254,8 @@
 ;;;  reader seek a more thorough description of the topic, ``On Lisp'' by Paul Graham \cite{onlisp}
 ;;;  is an excellent resource.
 ;;;
-;;; \section{Introduction to Macros}
-;;;  Before
-;;;  macros are introduced, the more general ``quote'' and ``eval'' will be.
-;;;
-;;;  ``quote''\footnote{``quote'' is a special procedure which does not follow standard evaluation
-;;;  semantics. The argument passed to the ``quote'' procedure is not evaluated.}
-;;;   turns Scheme code into a data structure of the language (an atom or a list),
-;;;   and ``eval''\footnote{``eval'' is a special procedure which also does not follow standard evaluation
-;;;  semantics.   It takes an unevaluated Scheme code and forces the evaluation in
-;;;  the current environment as if the code had been explicitly written there.}
-;;;  takes a data structure representing unevaluated Scheme code
-;;;   and evaluates it.
-
-;;;
-;;;
-;;; \begin{examplecode}
-;;;> {define foobar 5}
-;;;> {quote foobar}
-;;;foobar
-;;;> (eval {quote foobar})
-;;;5
-;;; \end{examplecode}
-
-
-
-;;; \begin{examplecode}
-;;;> (+ 1 2)
-;;;3
-;;;> (list {quote +} {quote 1} {quote 2})
-;;;(+ 1 2)
-;;;> (list {quote +} 1 2)
-;;;(+ 1 2)
-;;;> {quote (+ 1 2)}
-;;;(+ 1 2)
-;;;> (list {quote define} {quote a} 5)
-;;;(define a 5)
-;;;> {quote {define a 5}}
-;;;(define a 5)
-;;; \end{examplecode}
-;;;
-;;; \noindent
-;;; The symbol ' can be used instead of explicitly writing ``quote'' and its
-;;; brackets.
-
-;;; \begin{examplecode}
-;;;> 'foobar
-;;;foobar
-;;;> '(+ 1 2)
-;;;(+ 1 2)
-;;; \end{examplecode}
-;;;
-;;;
-;;; \begin{examplecode}
-;;;> (eval '(+ 1 2))
-;;;3
-;;;> (eval '{define a 5})
-;;;> a
-;;;5
-;;; \end{examplecode}
-;;;
-;;; Since lists of symbols may be manipulated, the programmer can ``quote'' code,
-;;; manipulate it as a list, and then ``eval'' it.
-;;;
-;;; \begin{examplecode}
-;;;> (append '(+ 1 2) '(3))
-;;;(+ 1 2 3)
-;;;> (eval (append '(+ 1 2) '(3)))
-;;;6
-;;; \end{examplecode}
-;;;
-;;;  Gambit provides a controlled method by which the programer may manipulate lists
-;;;  which are subsequently ``eval''ed, and that is using Common Lisp-style macros.
-;;;
-;;;
-;;; \begin{examplecode}
-;;;> {##define-macro foo
-;;;    [|form|
-;;;     (append form '(3))]}
-;;;> (foo (+ 1 2))
-;;;6
-;;; \end{examplecode}
-;;;
-;;; \noindent Notice in ``(foo (+ 1 2))'' that ``(+ 1 2)'' is not quoted.  That
-;;; is because the Gambit compiler/interpreter knows that ``foo'' is a macro,
-;;; so it automatically converts the arguments to foo into a list of unevaluated
-;;; symbols.
-;;;
 ;;; \newpage
-;;; \section{macro-identity}
-;;;
-;;;
-;;; \index{macro-identity}
-;;; \begin{code}
-{define-macro macro-identity
-  [|form| form]
-;;; \end{code}
-
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? {macroexpand-1 {macro-identity (+ 1 2)}}
-          '(+ 1 2))
-  (equal? (eval {macroexpand-1 {macro-identity (+ 1 2)}})
-          3)
-  (equal? {macro-identity (+ 1 2)}
-          3)
-  }
-;;; \end{code}
+;;; \section{compose}
 ;;;
 ;;; Macro-expansions occur during compile-time, so how should a person
 ;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
@@ -2387,83 +2273,6 @@
 ;;; may clash with symbols in the expanded code, this is not a problem, as these
 ;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
 ;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
-
-;;;
-;;; \newpage
-;;; \section{macro-identity2}
-;;;
-;;;
-;;; \index{macro-identity2}
-;;; \begin{code}
-{define-macro macro-identity2
-  [|form|
-   (list 'eval (list {quote quote} form))]
-;;; \end{code}
-
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          (list 'eval {quote {quote (+ 1 2)}}))
-  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          (list 'eval ''(+ 1 2)))
-  (equal? {macroexpand-1 {macro-identity2 (+ 1 2)}}
-          '(eval '(+ 1 2)))
-  (equal? (eval
-           {macroexpand-1 {macro-identity2 (+ 1 2)}})
-          3)
-  (equal? {macro-identity2 (+ 1 2)}
-          3)
-  }
-;;; \end{code}
-
-;;;
-;;; \newpage
-;;; \section{macro-identity3}
-;;;
-;;;
-;;; \index{macro-identity3}
-;;;
-;;; Manual concatentation of lists becomes cumbersome.  The ``quasiquote'' procedure
-;;; acts like ``quote'', but quotes every sublist not prefaced with ``unquote''
-;;;
-;;; \begin{examplecode}
-;;;> (quasiquote (+ 1 2))
-;;;(+ 1 2)
-;;;> (quasiquote (+ 1 (+ 1 1)))
-;;;(+ 1 (+ 1 1))
-;;;> (quasiquote (+ 1 (unquote (+ 1 1))))
-;;;(+ 1 2)
-;;; \end{examplecode}
-;;;
-;;; \begin{examplecode}
-;;;> `(+ 1 2)
-;;;(+ 1 2)
-;;;> `(+ 1 (+ 1 1))
-;;;(+ 1 (+ 1 1))
-;;;> `(+ 1 ,(+ 1 1))
-;;;(+ 1 2)
-;;; \end{examplecode}
-;;;
-;;;
-;;; \begin{code}
-{define-macro macro-identity3
-  [|form| `(eval ',form)]
-;;; \end{code}
-;;;
-;;; \subsection*{Tests}
-;;; \begin{code}
-  (equal? {macroexpand-1 {macro-identity3 (+ 1 2)}}
-          '(eval '(+ 1 2)))
-  (equal? (eval {macroexpand-1 {macro-identity3 (+ 1 2)}})
-          3)
-  (equal? 3
-          {macro-identity3 (+ 1 2)})
-  }
-;;; \end{code}
-;;;
-;;;
-;;; \newpage
-;;; \section{compose}
 ;;;
 ;;; Libbug is a library, meant to be used by other projects.  From libbug, these
 ;;; projects will require namespace definitions, as well as macro definitions.
