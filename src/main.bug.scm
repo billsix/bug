@@ -388,9 +388,9 @@
 ;;; procedures for use at run-time\footnote{well... that statement is not true
 ;;; for ``\#\#define-macro'', but it makes for a simpler explanation upon first reading}.
 ;;; Instead, definitions within
-;;; libbug use ``libbug\#define'', ``libbug\#define-macro'', and
-;;; ``libbug\#\#define-structure''\footnote{Per convention
-;;; within libbug, procedures namespaced to ``libbug'' are not compiled into the library
+;;; libbug use ``libbug-private\#define'', ``libbug-private\#define-macro'', and
+;;; ``libbug-private\#\#define-structure''\footnote{Per convention
+;;; within libbug, procedures namespaced to ``libbug-private'' are not compiled into the library
 ;;; or other output files; such procedures are meant for private use within the implementation
 ;;; of libbug.}, which  are implemented in Chapter~\ref{sec:buglang}.
 ;;; How they are implemented is not relevant yet, since the use of these
@@ -425,7 +425,7 @@
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 1, the libbug\#define macro\footnote{defined in section ~\ref{sec:libbugdefine}}
+;;;   \item On line 1, the libbug-private\#define macro\footnote{defined in section ~\ref{sec:libbugdefine}}
 ;;; is invoked.
 ;;;   \item On line 1, the variable name ``noop''.
 ;;;   \item On line 2, the lambda literal\footnote{See Appendix~\ref{sec:appendixliteral} for why Lisp needs
@@ -497,7 +497,7 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;;
-;;; libbug\#define can take more than one test as parameters.
+;;; libbug-private\#define can take more than one test as parameters.
 ;;;
 ;;; \begin{code}
   (equal? "foo" (identity "foo"))
@@ -523,7 +523,7 @@
             [(all? (cdr l))])])]
 ;;; \end{code}
 ;;; \begin{itemize}
-;;;   \item On line 3, if, which is currently namespaced to bug\#if\footnote{
+;;;   \item On line 3, ``if'', which is currently namespaced to bug\#if\footnote{
 ;;;      defined in section~\ref{sec:langif} }, takes
 ;;;         lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
 ;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that bug\#if is just syntactic sugar:
@@ -625,7 +625,7 @@
          [(noop)])}]
 ;;; \end{code}
 ;;;
-;;; \footnote{Within libbug, a parameter named ``pred?'' or ``p?'' usually means the parameter is
+;;; \footnote{Within libbug, a parameter named ``pred?'' or ``p?'' usually means the parameter
 ;;;   is a predicate, meaning a procedure which returns true or false.}
 ;;;
 ;;; \subsection*{Tests}
@@ -1119,18 +1119,18 @@
 ;;; \index{append!}
 ;;; \begin{code}
 {define append!
-  [|l #!rest x|
+  [|#!rest ls|
    {##define append!
-     [|l x|
-      (if (null? l)
-          [x]
-          [{let ((head l))
-             {let append! ((l l))
-               (if (null? (cdr l))
-                   [{set-cdr! l x}]
-                   [(append! (cdr l))])}
+     [|l1 l2|
+      (if (null? l1)
+          [l2]
+          [{let ((head l1))
+             {let append! ((l1 l1))
+               (if (null? (cdr l1))
+                   [{set-cdr! l1 l2}]
+                   [(append! (cdr l1))])}
              head}])]}
-   (append! l (car x))]
+   (fold-right append! '() ls)]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
@@ -1143,6 +1143,10 @@
   {let ((a '(1 2 3)))
     (append! a '(5))
     (not (equal? '(1 2 3) a))}
+  {let ((a '(1 2 3))
+        (b '(4 5 6)))
+    (append! a b '(7))
+    (equal? a '(1 2 3 4 5 6 7))}
   }
 ;;; \end{code}
 ;;;
@@ -2276,7 +2280,7 @@
 ;;;
 ;;; Libbug is a library, meant to be used by other projects.  From libbug, these
 ;;; projects will require namespace definitions, as well as macro definitions.
-;;; As such, besides defining the macro, libbug\#define-macro\footnote{
+;;; As such, besides defining the macro, libbug-private\#define-macro\footnote{
 ;;; defined in section ~\ref{sec:libbugdefinemacro}}
 ;;; also exports the
 ;;; namespace definition and the macro definitions to external files.
@@ -2828,7 +2832,7 @@
 
 
 ;;; At the beginning of the code, in section~\ref{sec:beginninglibbug}, ``bug-language.scm''
-;;; was imported, so that ``libbug\#define'', and ``libbug\#define-macro'' can be used.
+;;; was imported, so that ``libbug-private\#define'', and ``libbug-define\#define-macro'' can be used.
 ;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
 ;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
 ;;; and they must be closed, accomplished by importing ``bug-language-end.scm'',
