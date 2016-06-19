@@ -2302,9 +2302,9 @@
 ;;;  the compiler is compiling.}
 ;;;
 ;;;  Mastery of macros is required to understand all subsequent chapters of this book.
-;;;  This chapter contains a brief but sufficient introduction to macros, but should the
-;;;  reader seek a more thorough description of the topic, ``On Lisp'' by Paul Graham \cite{onlisp}
-;;;  is an excellent resource.
+;;;  Should the reader have difficulty with this chapter, the author recommends reading
+;;;  ``On Lisp'' by Paul Graham \cite{onlisp}.
+
 ;;;
 ;;; \newpage
 ;;; \section{compose}
