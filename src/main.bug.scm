@@ -1543,16 +1543,16 @@
 ;;; using ``partition''.
 ;;;
 ;;; \begin{examplecode}
-> (destructuring-bind (trueList falseList)
-                      (partition '(3 2 5 4 1)
-                                 [|x| (<= x 3)])
-                      trueList)
-(1 2 3)
-> (destructuring-bind (trueList falseList)
-                      (partition '(3 2 5 4 1)
-                                 [|x| (<= x 3)])
-                      falseList)
-(4 5)
+;;;> (destructuring-bind (trueList falseList)
+;;;                      (partition '(3 2 5 4 1)
+;;;                                 [|x| (<= x 3)])
+;;;                      trueList)
+;;;(1 2 3)
+;;;> (destructuring-bind (trueList falseList)
+;;;                      (partition '(3 2 5 4 1)
+;;;                                 [|x| (<= x 3)])
+;;;                      falseList)
+;;;(4 5)
 ;;; \end{examplecode}
 ;;;
 ;;; \newpage
@@ -1620,7 +1620,7 @@
 ;;;
 ;;;
 ;;; \newpage
-;;; \chapter{Strings}
+;;; \chapter{Lifting}
 ;;; \section{string-liftList}
 ;;;
 ;;; Strings are sequences of characters, just as lists are
@@ -1630,7 +1630,7 @@
 ;;; equivalent procedure for strings.
 ;;;
 ;;;
-;;; \index{string-liftList"}
+;;; \index{string-liftList}
 ;;; \begin{code}
 {define string-liftList
   [|f|
@@ -1645,7 +1645,7 @@
 
 ;;; \section{string-reverse}
 ;;;
-;;; \index{string-reverse"}
+;;; \index{string-reverse}
 ;;; \begin{code}
 {define string-reverse
   (string-liftList reverse!)
@@ -1666,7 +1666,7 @@
 
 ;;; \section{string-take}
 ;;;
-;;; \index{string-take"}
+;;; \index{string-take}
 ;;; \begin{code}
 {define string-take
   [|n s|
@@ -1685,10 +1685,56 @@
   }
 ;;; \end{code}
 ;;; \newpage
+;;; \section{string-drop}
+;;;
+;;; \index{string-drop}
+;;; \begin{code}
+{define string-drop
+  [|n s|
+   ((string-liftList [|l| (drop n l)])
+    s)]
+;;;
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   [|s| (string-drop 2 s)]
+   '(
+     ("" "")
+     ("foo" "o")
+     ("foobar" "obar")
+     ))
+  }
+;;; \end{code}
+;;; \newpage
+
+;;; \section{character-liftInteger}
+;;;
+;;; \index{character-liftInteger}
+;;; \begin{code}
+{define character-liftInteger
+  [|f|
+   [|#!rest n|
+    (integer->char
+     (apply f
+            (map char->integer n)))]]
+;;;
+;;; \end{code}
+;;; \subsection*{Tests}
+;;; \begin{code}
+  (satisfies?
+   (character-liftInteger [|c| (+ c 1)])
+   '(
+     (#\a #\b)
+     (#\b #\c)
+     (#\c #\d)
+     ))}
+;;; \end{code}
+;;; \newpage
 
 ;;; \section{string-map}
 ;;;
-;;; \index{string-map"}
+;;; \index{string-map}
 ;;; \begin{code}
 {define string-map
   [|f s|
@@ -1697,30 +1743,32 @@
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
+;;;
+;;; The ``Caesar Cipher''. \cite[p. 30]{crypto}.
+;;;
 ;;; \begin{code}
   (satisfies?
-   [|s| (string-map [|c|
-                     (integer->char
-                      (+ (char->integer #\a)
-                         (modulo (+ (- (char->integer c)
-                                       (char->integer #\a))
-                                    13)
-                                 26)))]
-                    s)]
+   [|s| (string-map
+         [|c|
+          ((character-liftInteger [|base-char c|
+                                   (+ base-char
+                                      (modulo (+ (- c base-char)
+                                                 3)
+                                              26))])
+           #\a
+           c)]
+         s)]
 
    '(
      ("" "")
-     ("abc" "nop")
-     ("nop" "abc")
+     ("abc" "def")
+     ("nop" "qrs")
+     ("xyz" "abc")
      ))
 
   }
 ;;; \end{code}
 ;;; \newpage
-
-
-
-;;; \chapter{Symbols}
 
 ;;; \section{symbol-liftList}
 ;;;
@@ -2401,7 +2449,7 @@
 ;;; \section{with-gensyms}
 ;;;   Utility for macros to minimize repetitive calls to ``gensym''.
 ;;;
-;;; \index{with-gensyms"}
+;;; \index{with-gensyms}
 ;;; \begin{code}
 {define-macro with-gensyms
   [|symbols #!rest body|
