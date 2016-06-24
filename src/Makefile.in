@@ -52,15 +52,17 @@ bug.pdf: bug.tex
 	makeindex bug.idx
 	pdflatex bug.tex
 
-
-
-libbug.so: bug-language.scm bug-language-end.scm main.c
+libbug.c: bug-language.scm bug-language-end.scm main.scm
 	gsc -link -o libbug.c main
+
+libbug.so: libbug.c main.c
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
 	$(CC) $(SHARED_LIB_FLAG) -lgambit  libbug.o main.o -o libbug$(LIB_EXTENSION)
 
-libbug.o1: bug-language.scm bug-language-end.scm main.c
+libbug.o1.c: bug-language.scm bug-language-end.scm main.scm
 	gsc -link -flat -o libbug.o1.c main  > /dev/null
+
+libbug.o1: libbug.o1.c main.c
 	gsc -obj -cc-options "-D___DYNAMIC" libbug.o1.c main.c
 	$(CC) $(SHARED_LIB_FLAG)  -lgambit libbug.o1.o main.o -o libbug.o1
 
