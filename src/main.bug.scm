@@ -2309,31 +2309,6 @@
 ;;; \newpage
 ;;; \section{compose}
 ;;;
-;;; Macro-expansions occur during compile-time, so how should a person
-;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
-;;; as a procedure which transforms lists, and as such is able to be tested.
-;;;
-;;;
-;;; ``macroexpand-1'' expands the unevaluated code passed to the
-;;; macro into the new form, which the compiler would have then compiled
-;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
-;;; evaluate, since by definition it creates symbols which cannot be entered
-;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
-;;; is overridden into a procedure
-;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
-;;; call during a macro-expansion generates a new, unique symbol.  Although this symbol
-;;; may clash with symbols in the expanded code, this is not a problem, as these
-;;; symbols are only generated in the call to ``macroexpand-1''.  As such,
-;;; ``eval''ing code generated from ``macroexpand-1'' is not recommended.
-;;;
-;;; Libbug is a library, meant to be used by other projects.  From libbug, these
-;;; projects will require namespace definitions, as well as macro definitions.
-;;; As such, besides defining the macro, libbug-private\#define-macro\footnote{
-;;; defined in section ~\ref{sec:libbugdefinemacro}}
-;;; also exports the
-;;; namespace definition and the macro definitions to external files.
-;;;
-;;;
 ;;; \index{compose}
 ;;; \begin{code}
 {define-macro compose
@@ -2353,27 +2328,65 @@
 ;;; \noindent \cite[p. 66]{onlisp}
 ;;;
 ;;;
+;;; \begin{itemize}
+;;;   \item On line 1, the libbug-private\#define-macro macro\footnote{defined in
+;;;     section ~\ref{sec:libbugdefinemacro}}
+;;;     is invoked.  Besides defining the macro, libbug-private\#define-macro
+;;;     also exports the
+;;;     namespace definition and the macro definitions to external files.
+;;;     Libbug is a library, meant to be used by other projects.  From libbug, these
+;;;     projects will require namespace definitions, as well as macro definitions.
+;;;    
+;;;
+;;; \end{itemize}
+
+;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (equal? {macroexpand-1 (compose)}
           'identity)
-  (equal? 5
-          ((eval {macroexpand-1 (compose)}) 5))
-  (equal? 5
-          ((compose) 5))
+  (equal? ((eval {macroexpand-1 (compose)}) 5)
+          5)
+  (equal? ((compose) 5)
+          5)
 ;;; \end{code}
+;;;
+;;;
+;;; Macro-expansions occur during compile-time, so how should a person
+;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
+;;; as a procedure which transforms lists into lists, and as such is able
+;;; to be tested.
+;;;
+;;; \footnote{
+;;; ``macroexpand-1'' expands the unevaluated code passed to the
+;;; macro into the new form, which the compiler would have then compiled
+;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
+;;; evaluate, since by definition it creates symbols which cannot be entered
+;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
+;;; is overridden into a procedure
+;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
+;;; call during a macro-expansion generates a new, unique symbol.  Although this symbol
+;;; may clash with symbols in the expanded code, this is not a problem, as these
+;;; symbols are only generated in the call to ``macroexpand-1''; run-time ``gensym'' is
+;;; regular old ``gensym''.  As such,
+;;; ``eval''ing code generated from ``macroexpand-1'' in a non-testing context is not
+;;; recommended.
+;;; }
+;;;
+;;;
+;;;
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1 (compose [|x| (* x 2)])}
           '[|#!rest gensymed-var1|
             (apply [|x| (* x 2)]
                    gensymed-var1)])
-  (equal? 10
-          ((eval {macroexpand-1 (compose [|x| (* x 2)])})
-           5))
-  (equal? 10
-          ((compose [|x| (* x 2)])
-           5))
+  (equal? ((eval {macroexpand-1 (compose [|x| (* x 2)])})
+           5)
+          10)
+  (equal? ((compose [|x| (* x 2)])
+           5)
+          10)
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -2383,14 +2396,14 @@
             ([|x| (+ x 1)]
              (apply [|x| (* x 2)]
                     gensymed-var1))])
-  (equal? 11
-          ((eval {macroexpand-1 (compose [|x| (+ x 1)]
+  (equal? ((eval {macroexpand-1 (compose [|x| (+ x 1)]
                                          [|x| (* x 2)])})
-           5))
-  (equal? 11
-          ((compose [|x| (+ x 1)]
+           5)
+          11)
+  (equal? ((compose [|x| (+ x 1)]
                     [|x| (* x 2)])
-           5))
+           5)
+          11)
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -2402,16 +2415,16 @@
              ([|x| (+ x 1)]
               (apply [|x| (* x 2)]
                      gensymed-var1)))])
-  (equal? 11/13
-          ((eval {macroexpand-1 (compose [|x| (/ x 13)]
+  (equal? ((eval {macroexpand-1 (compose [|x| (/ x 13)]
                                          [|x| (+ x 1)]
                                          [|x| (* x 2)])})
-           5))
-  (equal? 11/13
-          ((compose [|x| (/ x 13)]
+           5)
+          11/13)
+  (equal? ((compose [|x| (/ x 13)]
                     [|x| (+ x 1)]
                     [|x| (* x 2)])
-           5))
+           5)
+          11/13)
   }
 ;;; \end{code}
 ;;;
@@ -2427,6 +2440,11 @@
           [,body]
           [#f])}]
 ;;; \end{code}
+;;;
+;;; Although variable capture (TODO - cite onlisp) is generally avoided,
+;;; there are instances in which variable capture is desirable (TODO cite onlisp).
+;;; Within libbug, varibles intended for capture are fully qualified with a namespace
+;;; to ensure that the variable is captured.
 ;;;
 ;;; \noindent \cite[p. 191]{onlisp}
 ;;; \subsection*{Tests}
@@ -2447,7 +2465,8 @@
 ;;;
 ;;; \newpage
 ;;; \section{with-gensyms}
-;;;   Utility for macros to minimize repetitive calls to ``gensym''.
+;;;   ``with-gensyms'' is a macro to be invoked from other macros.  It is a utility for
+;;;    macros to minimize repetitive calls to ``gensym''.
 ;;;
 ;;; \index{with-gensyms}
 ;;; \begin{code}
@@ -2479,6 +2498,13 @@
 ;;; \newpage
 ;;; \section{once-only}
 ;;; \index{once-only}
+;;;
+;;; ``once-only'' is a macro-creating macro which ensures that the arguments
+;;; to the calling macro are evaluated only once.  For more information
+;;; on the problem of multiple evaluation, see (TODO reference onlisp).
+;;;
+;;;
+;;;
 ;;; \begin{code}
 {define-macro once-only
   [|symbols #!rest body|
@@ -2501,7 +2527,13 @@
 ;;;
 ;;; \cite[p. 854]{paip}
 ;;;
+;;; \noindent Code with no quotes is evaluated in the first macroexpansion, code with one
+;;; quote is evaluated in the second macroexpansion, code with two quotes
+;;; is part of the generated code.
+;;;  
 ;;; \subsection*{Tests}
+;;;  
+;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
   (equal? {macroexpand-1 {once-only (x) `(+ ,x ,x)}}
           '(list 'let
@@ -2510,17 +2542,35 @@
                    `(+ ,x ,x)}))
 ;;; \end{code}
 ;;;
+;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  But
+;;; while ``with-gensyms'' only wraps it's argument with a new context to be used for
+;;; later macroexpansions, ``once-only'' needs to defer binding the variable to a
+;;; ``gensym-ed'' variable until the second macroexpansion.
+;;;
+;;; \begin{itemize}
+;;;   \item On line 1, ``once-only'' is invoked, specifying that the variable ``x''
+;;;     shall be evaluated only once in the expanded code of ``x'' plus ``x''.
+;;;   \item On line 2, this first expansion of the macro sets up the second expansion
+;;;      to create a new context (line 3) for modified code (line 4-5)
+;;;   \item On line 3, creates a context for the second expansion.  This corresponds
+;;;      to line 4 of the next test.
+;;;   \item On line 4-5 of this test, substitute the ``gensym-ed'' variable for all
+;;;     instances of the variable to be evaluated once-only, in this case, ``x''.
+;;; \end{itemize}
+;;;  
+;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
-  (equal? (eval `{let ((x 'foo))
+  (equal? (eval `{let ((x 'x))
                    ,(once-only-expand (x)
                                       `(+ ,x ,x))})
-          '{let ((gensymed-var1 foo))
+          '{let ((gensymed-var1 x))
              (+ gensymed-var1 gensymed-var1)})
 ;;; \end{code}
 ;;;
+;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
-  (equal? (eval `{let ((foo 5))
-                   ,(eval `{let ((x 'foo))
+  (equal? (eval `{let ((x 5))
+                   ,(eval `{let ((x 'x))
                              ,(once-only-expand (x)
                                                 `(+ ,x ,x))})})
           10)
