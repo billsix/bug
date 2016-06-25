@@ -2630,16 +2630,17 @@
 ;;; \end{code}
 ;;; \begin{code}
           (else `(,((symbol-liftList
-                     [|l suffix| (append!
-                                  (if (equal? (reverse
-                                               '(#\- #\r #\e #\f))
-                                              (take 4 (reverse l)))
-                                      [(reverse (drop 4
-                                                      (reverse l)))]
-                                      [l])
-                                  suffix)])
+                     [|l -set! -ref|
+                      (append!
+                       (if (equal? (reverse -ref)
+                                   (take 4 (reverse l)))
+                           [(reverse (drop 4
+                                           (reverse l)))]
+                           [l])
+                       -set!)])
                     (car exp)
-                    '-set!)
+                    '-set!
+                    '-ref)
                   ,@(cdr exp)
                   ,val))}])]
 ;;; \end{code}
