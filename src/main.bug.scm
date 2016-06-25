@@ -2650,8 +2650,8 @@
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
-           {setf! a 10}}
-          '{set! a 10})
+           {setf! foo 10}}
+          '{set! foo 10})
   {let ((a 5))
     {setf! a 10}
     (equal? a 10)}
@@ -2661,22 +2661,22 @@
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
-           {setf! (car a) 10}}
-          '{set-car! a 10})
-  {let ((a '(1 2)))
-    {setf! (car a) 10}
-    (equal? (car a) 10)}
+           {setf! (car foo) 10}}
+          '{set-car! foo 10})
+  {let ((foo '(1 2)))
+    {setf! (car foo) 10}
+    (equal? (car foo) 10)}
 ;;; \end{code}
 ;;;
 ;;; \noindent Test setting ``cdr''.
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
-           {setf! (cdr a) 10}}
-          '{set-cdr! a 10})
-  {let ((a '(1 2)))
-    {setf! (cdr a) 10}
-    (equal? (cdr a) 10)}
+           {setf! (cdr foo) 10}}
+          '{set-cdr! foo 10})
+  {let ((foo '(1 2)))
+    {setf! (cdr foo) 10}
+    (equal? (cdr foo) 10)}
 ;;; \end{code}
 ;;;
 ;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures will be highly
