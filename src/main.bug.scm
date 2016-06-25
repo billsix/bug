@@ -2595,8 +2595,8 @@
    (if (not (pair? exp))
        [`{set! ,exp ,val}]
        [{case (car exp)
-          ((car) `{set-car! ,@(cdr exp) ,val})
-          ((cdr) `{set-cdr! ,@(cdr exp) ,val})
+          ((car)  `{set-car! ,@(cdr exp) ,val})
+          ((cdr)  `{set-cdr! ,@(cdr exp) ,val})
           ((caar) `{setf! (car (car ,@(cdr exp))) ,val})
           ((cadr) `{setf! (car (cdr ,@(cdr exp))) ,val})
           ((cdar) `{setf! (cdr (car ,@(cdr exp))) ,val})
