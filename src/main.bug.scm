@@ -2581,6 +2581,18 @@
 ;;; \chapter{Generalized Assignment}
 ;;;  \label{sec:endinglibbug}
 ;;; \section{setf!}
+;;;  Lisp based systems such as Gambit do not provide raw access to memory
+;;;  locations, named ``pointers'', thus relieving the user of the language
+;;;  of direct memory management.  However, pointers are very useful in that
+;;;  they allow a procedure to pass a memory location as a variable to another procedure,
+;;;  which can then indirectly access/write to that location.
+;;;
+;;;  Fortunatly, most data-structures in Lisp has one ``accessing'' procedure
+;;;  (for instance ``car'' or ``stream-a''), and an ``updating procedure''
+;;;  (``set-car!'' and ``stream-a-set!'').  And there are only 3 patterns used
+;;;  to map names of accessing procedures to updating procedures.
+;;;
+;;;  
 ;;; ``Rather than thinking about two distinct functions that respectively
 ;;;  access and update a storage location somehow deduced from their arguments,
 ;;;  we can instead simply think of a call to the access function with given
