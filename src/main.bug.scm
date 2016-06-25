@@ -2441,8 +2441,8 @@
           [#f])}]
 ;;; \end{code}
 ;;;
-;;; Although variable capture (TODO - cite onlisp) is generally avoided,
-;;; there are instances in which variable capture is desirable (TODO cite onlisp).
+;;; Although variable capture \cite[p. 118-132]{onlisp} is generally avoided,
+;;; there are instances in which variable capture is desirable \cite[p. 189-198]{onlisp}.
 ;;; Within libbug, varibles intended for capture are fully qualified with a namespace
 ;;; to ensure that the variable is captured.
 ;;;
@@ -2501,7 +2501,7 @@
 ;;;
 ;;; ``once-only'' is a macro-creating macro which ensures that the arguments
 ;;; to the calling macro are evaluated only once.  For more information
-;;; on the problem of multiple evaluation, see (TODO reference onlisp).
+;;; on the problem of multiple evaluation, see \cite[p. 133]{onlisp}..
 ;;;
 ;;;
 ;;;
@@ -2581,8 +2581,12 @@
 ;;; \chapter{Generalized Assignment}
 ;;;  \label{sec:endinglibbug}
 ;;; \section{setf!}
-;;; Sets a variable using its ``getting'' procedure, as done in Common Lisp.
-;;; The implementation inspired by \cite{setf}.
+;;; ``Rather than thinking about two distinct functions that respectively
+;;;  access and update a storage location somehow deduced from their arguments,
+;;;  we can instead simply think of a call to the access function with given
+;;;  arguments as a \emph{name} for the storage location.'' \cite[p. 123-124]{cl}
+;;; 
+;;; The implementation is inspired by \cite{setf}.
 ;;;
 ;;; \index{setf!}
 ;;; \begin{code}
