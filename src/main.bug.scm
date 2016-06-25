@@ -2686,26 +2686,26 @@
 ;;; \begin{code}
   (eval
    `{and
-      ,@(map [|x| `{let ((a '((((the-caaaar)
-                                the-cadaar)
-                               (the-caadar)
-                               ())
-                              ((the-caaadr) the-cadadr)
-                              (the-caaddr)
-                              ()
-                              )))
-                     {setf! (,x a) 10}
-                     (equal? (,x a) 10)}]
-             '(car
-               cdr
-               caar cadr cdar cddr
-               caaar caadr cadar caddr
-               cdaar cdadr cddar cdddr
-               caaaar caaadr caadar caaddr
-               cadaar cadadr caddar cadddr
-               cdaaar cdaadr cdadar cdaddr
-               cddaar cddadr cdddar cddddr
-               ))})
+     ,@(map [|x| `{let ((foo '((((the-caaaar)
+                                 the-cadaar)
+                                (the-caadar)
+                                ())
+                               ((the-caaadr) the-cadadr)
+                               (the-caaddr)
+                               ()
+                               )))
+                    {setf! (,x foo) 10}
+                    (equal? (,x foo) 10)}]
+            '(car
+              cdr
+              caar cadr cdar cddr
+              caaar caadr cadar caddr
+              cdaar cdadr cddar cdddr
+              caaaar caaadr caadar caaddr
+              cadaar cadadr caddar cadddr
+              cdaaar cdaadr cdadar cdaddr
+              cddaar cddadr cdddar cddddr
+              ))})
 ;;; \end{code}
 ;;;
 ;;; \noindent Test setting procedures where the setting procedure is
