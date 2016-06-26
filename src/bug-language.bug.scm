@@ -402,8 +402,21 @@
 ;;;         argument list as the argument list passed to ``libbug-private\#define-macro''
 ;;;
 ;;; \begin{examplecode}
-;;;    > (cadr '(lambda (foo bar) (quasiquote 5)))
+;;;    > (cadr '[|foo bar| (quasiquote 5)])
 ;;;    (foo bar)
+;;; \end{examplecode}
+;;;
+;;; \noindent (Remember, all REPL sessions in this book assume that ``bug-gsi'' is running,
+;;;  and as such, the lambda literals will be preprocessed.
+;;;
+;;; \begin{examplecode}
+;;;    (cadr '[|foo bar| (quasiquote 5)])
+;;; \end{examplecode}
+;;;
+;;;  expands to
+;;;
+;;; \begin{examplecode}
+;;;    (cadr '(lambda (foo bar) (quasiquote 5)))
 ;;; \end{examplecode}
 ;;;
 ;;;   \item On line 5, the unevaluated form in argument ``lambda-value'' may
@@ -422,7 +435,7 @@
 ;;;   \item On line 9-11, check to see if the unevaluated form is quasiquoted.
 ;;;
 ;;; \begin{examplecode}
-;;;    > (caaddr '(lambda (foo bar) (quasiquote 5)))
+;;;    > (caaddr '[|foo bar| (quasiquote 5)])
 ;;;    quasiquote
 ;;; \end{examplecode}
 ;;;
@@ -430,15 +443,15 @@
 ;;;         list minus the quasiquoting.
 ;;;
 ;;; \begin{examplecode}
-;;;    > (car (cdaddr '(lambda (foo bar) (quasiquote 5 a))))
+;;;    > (car (cdaddr '[|foo bar| (quasiquote 5 a)]))
 ;;;    5
 ;;; \end{examplecode}
 ;;;
 ;;;  Remember, that this value gets wrapped in a quasiquote from line 5
 ;;;
 ;;; \begin{examplecode}
-;;;    > (list 'quasiquote (car (cdaddr '(lambda (foo bar)
-;;;                                         (quasiquote 5)))))
+;;;    > (list 'quasiquote (car (cdaddr '[|foo bar|
+;;;                                         (quasiquote 5)])))
 ;;;    `5
 ;;; \end{examplecode}
 
@@ -446,7 +459,7 @@
 ;;;         the form, and ``unquote'' it.
 ;;;
 ;;; \begin{examplecode}
-;;;    > (append (list 'unquote ) (cddr '(lambda (foo bar) (+ 5 5))))
+;;;    > (append (list 'unquote ) (cddr '[|foo bar| (+ 5 5)]))
 ;;;    ,(+ 5 5)
 ;;; \end{examplecode}
 ;;;
@@ -454,8 +467,8 @@
 ;;;
 ;;; \begin{examplecode}
 ;;;    > (list 'quasiquote (append (list 'unquote )
-;;;                                (cddr '(lambda (foo bar)
-;;;                                          (+ 5 5)))))
+;;;                                (cddr '[|foo bar|
+;;;                                          (+ 5 5)])))
 ;;;    `,(+ 5 5)
 ;;; \end{examplecode}
 

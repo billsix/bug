@@ -282,7 +282,7 @@
 ;;; \end{examplecode}
 ;;;
 ;;; \noindent
-;;; Some examples within this book show sessions of the use of the Lisp Read-Evaluate-Print-Loop (REPL).
+;;; Some examples within this book show sessions of the use of the ``bug-gsi'' Read-Evaluate-Print-Loop (REPL).
 ;;; Such examples will look like the following:
 ;;;
 ;;; \begin{examplecode}
