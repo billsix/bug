@@ -1,0 +1,1 @@
+char* gsi_prelude =  "(load \"@prefix@/lib/libbug.o1\") (include \"@prefix@/include/bug/libbug-macros.scm\") (include \"@prefix@/include/bug/libbug#.scm\")";

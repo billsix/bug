@@ -4,6 +4,7 @@
 AC_PREREQ([2.63])
 AC_INIT([bug],[0.0.8], [billsix@gmail.com])
 # Checks for programs.
+AC_CONFIG_HEADER([config.h])
 AC_PROG_CC
 AC_PROG_INSTALL
 
@@ -11,6 +12,7 @@ AC_CANONICAL_SYSTEM
 
 AC_CONFIG_FILES([Makefile
                  bug-gsc/Makefile
+                 bug-gsc/bug-gsi-config.h
                  src/Makefile
 		 src/config.scm
 		 pkgconfig/libbug.pc

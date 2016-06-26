@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include "bug-gsi-config.h"
 /*
  *  bug-gsi:
  *     Provides an interactive Gambit C scheme environment
@@ -63,7 +64,7 @@ int main(int argc, char** argv)
       close(pipe_from_buggscpp_to_gsi[1]);
 
       // execute gsi, using stdin and stdout
-      int returnCode = execlp("gsi","gsi","-:d-,tE",NULL);
+      int returnCode = execlp("gsi","gsi","-:d-,tE","-e", gsi_prelude,"-", NULL);
     }
   return 0;
 }
