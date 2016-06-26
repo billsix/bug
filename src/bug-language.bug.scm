@@ -3,6 +3,9 @@
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;;
 ;;; \break
+
+;;; \setcounter{part}{0}
+;;; \part{Foundations Of Libbug}
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
 ;;;

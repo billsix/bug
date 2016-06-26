@@ -3,14 +3,15 @@
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;;
 ;;;
-;;; \section{Closing Generated Files}
+;;; \setcounter{part}{2}
+;;; \part{Finishing Compilation}
+;;; \chapter{Closing Generated Files}
 ;;;  \label{sec:closefiles}
 ;;;
-;;; The contents of this section are in ``src/bug-language-end.bug.scm''
+;;; The contents of this part are in ``src/bug-language-end.bug.scm''
 ;;;
 ;;; \begin{code}
 ;;;
-;;;  ;;clear the namespace of the macro file
 (at-compile-time
  {begin
    (display

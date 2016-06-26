@@ -13,3 +13,5 @@
 - Make chapter of lifting, condense string and symbol chapters.  Also add char->int lifting
 - Perhaps save the tests so that the user can query for the tests for a procedure in gsi.
 - Change size of page for Lulu's hardcover book and look at spacing of the boxes for tests.
+- For all of the potential problems associated with macros, address them for each macro.
+   (variable naming/scoping, multiple evaluation, etc)

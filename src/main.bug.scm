@@ -265,6 +265,21 @@
 ;;; book, are all recommended reading but are
 ;;; not necessary to understand the content of this book.
 ;;;
+;;; \section{Order Of Parts}
+;;;  This book is a ``literate program''.  New procedures defined are dependent upon
+;;;  either standard Gambit Scheme procedures or
+;;;  procedures which have already been defined earlier in the book.  In writing the book,
+;;;  however, it became quite apparent that the foundation upon which libbug is constructed
+;;;  is by far the most difficult material.  Reading it in a completely linear format
+;;;  would cause the reader to get lost in the ``how'',
+;;;  before understanding ``why''.
+;;;
+;;;  As such, the ordering of the book was rearranged in an effort to keep the reader
+;;;  engaged and curious.  The book begins with ``Part 2, The Implementation of Libbug'',
+;;;  continues with ``Part 1, Foundations Of Libbug'', and finishes with ``Part 3, Finishing
+;;;  Compilation''.  The Gambit compiler, however, compiles the Part 1 first, then Part 2,
+;;;  finishing compilation with Part 3.
+;;;
 ;;; \section{Conventions}
 ;;; Code which is part of libbug will be outlined and
 ;;; will have line numbers on the left.
@@ -371,6 +386,9 @@
 ;;; along with a comparison
 ;;; of their expressive power.
 ;;;
+;;;
+;;; \setcounter{part}{1}
+;;; \part{The Implementation of Libbug}
 ;;;
 ;;; \chapter{Introductory Procedures}
 ;;;  \label{sec:beginninglibbug}
@@ -1826,7 +1844,7 @@
 ;;; \end{code}
 ;;;
 ;;; ``bug\#define-structure'' will create a constructor procedure named ``make-stream'',
-;;;  accessor procedures ``stream-a'', ``stream-d'', and setting procedures ``stream-a-set!'' and
+;;;  accessor procedures ``stream-a'', ``stream-d'', and updating procedures ``stream-a-set!'' and
 ;;; ``stream-d-set!''.
 ;;;  For streams, none of these generated procedures are intended to be
 ;;; evaluated directly by the programmer. Instead, the following
@@ -1881,13 +1899,13 @@
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-    {let ((s (stream-cons 1 [2])))
-      {and
-       (equal? (stream-car s)
-               1)
-       (equal? (stream-cdr s)
-               2)}}
-    }
+  {let ((s (stream-cons 1 [2])))
+    {and
+     (equal? (stream-car s)
+             1)
+     (equal? (stream-cdr s)
+             2)}}
+  }
 ;;; \end{code}
 ;;;
 ;;;
@@ -2266,8 +2284,8 @@
    {let stream-drop-while ((s s))
      (if {or (stream-null? s)
              ((complement p?) (stream-car s))}
-       [s]
-       [(stream-drop-while (stream-cdr s))])}]
+         [s]
+         [(stream-drop-while (stream-cdr s))])}]
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
@@ -2336,7 +2354,7 @@
 ;;;     namespace definition and the macro definitions to external files.
 ;;;     Libbug is a library, meant to be used by other projects.  From libbug, these
 ;;;     projects will require namespace definitions, as well as macro definitions.
-;;;    
+;;;
 ;;;
 ;;; \end{itemize}
 
@@ -2509,7 +2527,7 @@
 {define-macro once-only
   [|symbols #!rest body|
    {let ((gensyms (map [|s| (gensym)]
-                        symbols)))
+                       symbols)))
      (list 'list
            ''let
            (cons 'list (map [|g s| (list 'list
@@ -2530,9 +2548,9 @@
 ;;; \noindent Code with no quotes is evaluated in the first macroexpansion, code with one
 ;;; quote is evaluated in the second macroexpansion, code with two quotes
 ;;; is part of the generated code.
-;;;  
+;;;
 ;;; \subsection*{Tests}
-;;;  
+;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
   (equal? {macroexpand-1 {once-only (x) `(+ ,x ,x)}}
@@ -2557,7 +2575,7 @@
 ;;;   \item On line 4-5 of this test, substitute the ``gensym-ed'' variable for all
 ;;;     instances of the variable to be evaluated once-only, in this case, ``x''.
 ;;; \end{itemize}
-;;;  
+;;;
 ;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
   (equal? (eval `{let ((x 'x))
@@ -2582,7 +2600,7 @@
 ;;;  \label{sec:endinglibbug}
 ;;; \section{setf!}
 ;;;  Lisp based systems such as Gambit do not provide raw access to memory
-;;;  locations, named ``pointers'', thus relieving the user of the language
+;;;  locations via pointers, thus relieving the user of the language
 ;;;  of direct memory management.  However, pointers are very useful in that
 ;;;  they allow a procedure to pass a memory location as a variable to another procedure,
 ;;;  which can then indirectly access/write to that location.
@@ -2592,12 +2610,12 @@
 ;;;  (``set-car!'' and ``stream-a-set!'').  And there are only 3 patterns used
 ;;;  to map names of accessing procedures to updating procedures.
 ;;;
-;;;  
+;;;
 ;;; ``Rather than thinking about two distinct functions that respectively
 ;;;  access and update a storage location somehow deduced from their arguments,
 ;;;  we can instead simply think of a call to the access function with given
 ;;;  arguments as a \emph{name} for the storage location.'' \cite[p. 123-124]{cl}
-;;; 
+;;;
 ;;; The implementation is inspired by \cite{setf}.
 ;;;
 ;;; \index{setf!}
@@ -2657,8 +2675,7 @@
                   ,val))}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
-;;;
-;;; \noindent Test setting a varible.
+;;; \subsubsection*{Updating a Variable Directly}
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
@@ -2669,7 +2686,8 @@
     (equal? a 10)}
 ;;; \end{code}
 ;;;
-;;; \noindent Test setting ``car''.
+;;; \subsubsection*{Updating Car, Cdr, ... Through Cddddr}
+;;; \noindent Test updating ``car''.
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
@@ -2680,7 +2698,7 @@
     (equal? (car foo) 10)}
 ;;; \end{code}
 ;;;
-;;; \noindent Test setting ``cdr''.
+;;; \noindent Test updating ``cdr''.
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
@@ -2710,7 +2728,8 @@
                     (equal? (,x foo) 10)}]
             '(car
               cdr
-              caar cadr cdar cddr
+              caar cadr
+              cdar cddr
               caaar caadr cadar caddr
               cdaar cdadr cddar cdddr
               caaaar caaadr caadar caaddr
@@ -2720,13 +2739,14 @@
               ))})
 ;;; \end{code}
 ;;;
-;;; \noindent Test setting procedures where the setting procedure is
+;;; \subsubsection*{Suffixed By -set!}
+;;; \noindent Test updating procedures where the updating procedure is
 ;;; the name of the getting procedure, suffixed by '-set!'.
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
            {setf! (stream-a s) 10}}
-          '(stream-a-set! s 10))
+          '{stream-a-set! s 10})
   {begin
     {let ((a (make-stream 1 2)))
       {setf! (stream-a a) 10}
@@ -2734,20 +2754,24 @@
               a)}}
 ;;; \end{code}
 ;;;
-;;; \noindent Test setting procedures where the setting procedure is
+;;; \footnote{As a reminder, ``stream-a'' and ``stream-a-set!'' are not meant to be used
+;;;    directly.  But for the purposes of testing ``setf!'', it sufficies to use them directly.}
+;;;
+;;; \subsubsection*{-ref Replaced By -set!}
+;;; \noindent Test updating procedures where the updating procedure is
 ;;; the name of the getting procedure, removing the suffix of
 ;;; '-ref', and adding a suffix of '-set!'.
 ;;;
 ;;; \begin{code}
   (equal? {macroexpand-1
            {setf! (string-ref s 0) #\q}}
-          '(string-set! s 0 #\q))
+          '{string-set! s 0 #\q})
   {let ((s "foobar"))
     {setf! (string-ref s 0) #\q}
     (equal? s "qoobar")}
   (equal? {macroexpand-1
            {setf! (vector-ref v 2) 4}}
-          '(vector-set! v 2 4))
+          '{vector-set! v 2 4})
   {let ((v (vector 1 2 '() "")))
     {setf! (vector-ref v 2) 4}
     (equal? v
@@ -2757,9 +2781,9 @@
 
 ;;; \newpage
 ;;; \section{mutate!}
-;;;  Like ``setf!'' ``mutate'' takes a generalized variable
-;;;  as input, and a procedure.  The procedure is applied
-;;;  to the value at that generalized procedure, and is then
+;;;  Like ``setf!'', ``mutate!'' takes a generalized variable
+;;;  as input and additionally a procedure.  The procedure is applied
+;;;  to the value of that generalized variable, and is then
 ;;;  stored back into it.
 ;;;
 ;;; \index{mutate!}
@@ -2776,26 +2800,29 @@
              {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]
 ;;; \end{code}
 ;;;
-;;; \footnote{This procedure is used in similar contexts as Common Lisp's
-;;;   ``define-modify-macro'' would be, but is more general.  Oddly, when writing
-;;;   this procedure, the author remembered ``define-modify-macro'' and looked it
-;;;   up on \cite[p. 168]{onlisp}.  In this reference Paul Graham writes
-;;;   what it would need to do but then does not implement it.  His verbal description
-;;;   matched what I already did pretty much exactly.}
+
 ;;; \subsection*{Tests}
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1 (mutate! foo not)}
+  (equal? {macroexpand-1 {mutate! foo not}}
           '{setf! foo (not foo)})
   {let ((foo #t))
     {and
      {begin
-       (mutate! foo not)
+       {mutate! foo not}
        (equal? foo #f)}
      {begin
-       (mutate! foo not)
+       {mutate! foo not}
        (equal? foo #t)}}}
 ;;; \end{code}
+;;;
+;;; \footnote{``mutate!'' is used in similar contexts as Common Lisp's
+;;;   ``define-modify-macro'' would be, but it is more general, as
+;;;   it allows the new procedure to remain anonymous, as compared
+;;;   to making a new name like ``toggle'' \cite[p. 169]{onlisp}.}
+
+;;;
+
 ;;; \begin{code}
   (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
           '{setf! foo ([|n| (+ n 1)] foo)})
@@ -2806,7 +2833,7 @@
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? (macroexpand-1 (mutate! (vector-ref foo 0) [|n| (+ n 1)]))
+  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
           '{let ((gensymed-var1 foo)
                  (gensymed-var2 0))
              {setf! (vector-ref gensymed-var1
@@ -2814,27 +2841,27 @@
                     ([|n| (+ n 1)] (vector-ref gensymed-var1
                                                gensymed-var2))}})
   {let ((foo (vector 0 0 0)))
-    (mutate! (vector-ref foo 0) [|n| (+ n 1)])
+    {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
     (equal? foo
             (vector 1 0 0))}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
   {let ((foo (vector 0 0 0)))
-    (mutate! (vector-ref foo 2) [|n| (+ n 1)])
+    {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
     (equal? foo
             (vector 0 0 1))}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? (macroexpand-1
-           (mutate! (vector-ref foo {begin
-                                      {set! index (+ 1 index)}
+  (equal? {macroexpand-1
+           {mutate! (vector-ref foo {begin
+                                      {setf! index (+ 1 index)}
                                       index})
-                    [|n| (+ n 1)]))
+                    [|n| (+ n 1)]}}
           '{let ((gensymed-var1 foo)
                  (gensymed-var2 {begin
-                                  {set! index (+ 1 index)}
+                                  {setf! index (+ 1 index)}
                                   index}))
              {setf! (vector-ref gensymed-var1
                                 gensymed-var2)
@@ -2842,12 +2869,14 @@
                                                gensymed-var2))}})
   {let ((foo (vector 0 0 0))
         (index 1))
-    (mutate! (vector-ref foo {begin
-                               {set! index (+ 1 index)}
+    {mutate! (vector-ref foo {begin
+                               {setf! index (+ 1 index)}
                                index})
-             [|n| (+ n 1)])
-    (equal? foo
-            (vector 0 0 1))}
+             [|n| (+ n 1)]}
+    {and (equal? foo
+                 (vector 0 0 1))
+         (equal? index
+                 2)}}
   }
 ;;; \end{code}
 ;;;
@@ -2857,9 +2886,25 @@
 ;;;
 ;;;  \label{sec:dbind}
 ;;; \index{destructuring-bind}
+;;;
+;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple variables
+;;;  may be bound to values based on their positions within a list.  Look at the tests
+;;;  at the end of the section for an example.
+;;;
+;;; ``destructuring-bind'' is a complicated macro which can be decomposed into a regular
+;;;  procedure named ``tree-of-accessors'', and the macro ``destructuring-bind''\footnote{
+;;;   This poses a small problem.  ``tree-of-accessors'' is not macroexpanded as it a not a
+;;;  macro, therefore it does not have access to the compile-time ``gensym'' procedure
+;;;  which allows macroexpansions to be tested.  To allow ``tree-of-accessors'' to
+;;;  be tested independently, as well as part of ``destructuring-bind'', ``tree-of-accessors''
+;;;  takes a procedure named ``gensym'' as an argument, defaulting to whatever value
+;;;  ``gensym'' is by default in the environment.
+;;;
+;;;  }.
+;;;
 ;;; \begin{code}
 
-{define destruc
+{define tree-of-accessors
   [|pat lst #!key (gensym gensym) (n 0)|
    {cond ((null? pat)                '())
          ((symbol? pat)              `((,pat (drop ,n ,lst))))
@@ -2871,28 +2916,34 @@
                       [`(,p (list-ref ,lst ,n))]
                       [{let ((var (gensym)))
                          (cons `(,var (list-ref ,lst ,n))
-                               (destruc p var gensym: gensym n: 0))}])}
-                (destruc (cdr pat) lst gensym: gensym n: (+ 1 n))))}]
+                               (tree-of-accessors p
+                                                  var
+                                                  gensym: gensym
+                                                  n: 0))}])}
+                (tree-of-accessors (cdr pat)
+                                   lst
+                                   gensym: gensym
+                                   n: (+ 1 n))))}]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (destruc '() '(1 2))
+  (equal? (tree-of-accessors '() '(1 2))
           '())
-  (equal? (destruc 'a '(1 2))
+  (equal? (tree-of-accessors 'a '(1 2))
           '((a (drop 0 (1 2)))))
-  (equal? (destruc '(#!rest d) '(1 2))
+  (equal? (tree-of-accessors '(#!rest d) '(1 2))
           '((d (drop 0 (1 2)))))
-  (equal? (destruc '(a) '(1 2))
+  (equal? (tree-of-accessors '(a) '(1 2))
           '((a (list-ref (1 2) 0))))
-  (equal? (destruc '(a . b) '(1 2))
+  (equal? (tree-of-accessors '(a . b) '(1 2))
           '((a (list-ref (1 2) 0))
             (b (drop 1 (1 2)))))
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? (destruc '(a (b c))
-                   '(1 (2 3))
-                   gensym: ['gensymed-var1])
+  (equal? (tree-of-accessors '(a (b c))
+                             '(1 (2 3))
+                             gensym: ['gensymed-var1])
           '((a (list-ref (1 (2 3)) 0))
             ((gensymed-var1 (list-ref (1 (2 3)) 1))
              (b (list-ref gensymed-var1 0))
@@ -2900,23 +2951,34 @@
   }
 ;;; \end{code}
 ;;;
+;;;
+;;; Although ``tree-of-accessors'' appears to be victim of the multiple-evaluation
+;;; problem that macros may have, ``tree-of-accessors'' is completely safe to use
+;;; as long as the caller does not directly pass a list to ``tree-of-accessors''.
+;;; The only caller of ``tree-of-accessors'' is ``destructuring-bind'', which passes
+;;; a symbol to ``tree-of-accessors''.  Therefore ``destructuring-bind'' does not
+;;; fall victim to unintended multiple evaluations.
+;;;
 ;;; \begin{code}
 {define-macro destructuring-bind
   [|pat lst #!rest body|
-     {let ((glst (gensym)))
-       `{let ((,glst ,lst))
-          ,{let bindings-expand ((bindings
-                                  (destruc pat glst gensym: gensym)))
-             (if (null? bindings)
-                 [`{begin ,@body}]
-                 [`{let ,(map [|b| (if (pair? (car b))
-                                       [(car b)]
-                                       [b])]
-                              bindings)
-                     ,(bindings-expand (flatmap [|b| (if (pair? (car b))
-                                                         [(cdr b)]
-                                                         ['()])]
-                                                bindings))}])}}}]
+   {let ((glst (gensym)))
+     `{let ((,glst ,lst))
+        ,{let create-nested-lets ((bindings
+                                   (tree-of-accessors
+                                    pat
+                                    glst
+                                    gensym: gensym)))
+           (if (null? bindings)
+               [`{begin ,@body}]
+               [`{let ,(map [|b| (if (pair? (car b))
+                                     [(car b)]
+                                     [b])]
+                            bindings)
+                   ,(create-nested-lets (flatmap [|b| (if (pair? (car b))
+                                                          [(cdr b)]
+                                                          ['()])]
+                                                 bindings))}])}}}]
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 232]{onlisp}
@@ -2924,10 +2986,10 @@
 ;;; \subsection*{Tests}
 ;;;
 ;;; \begin{code}
-  (equal? (macroexpand-1
-           (destructuring-bind (a (b . c) #!rest d)
+  (equal? {macroexpand-1
+           {destructuring-bind (a (b . c) #!rest d)
                                '(1 (2 3) 4 5)
-                               (list a b c d)))
+                               (list a b c d)}}
           '{let ((gensymed-var1 '(1 (2 3) 4 5)))
              {let ((a (list-ref gensymed-var1 0))
                    (gensymed-var2 (list-ref gensymed-var1 1))
@@ -2935,19 +2997,19 @@
                {let ((b (list-ref gensymed-var2 0))
                      (c (drop 1 gensymed-var2)))
                  {begin (list a b c d)}}}})
-  (equal? (eval
-           (macroexpand-1
-            (destructuring-bind (a (b . c) #!rest d)
-                                '(1 (2 3) 4 5)
-                                (list a b c d))))
+  (equal? {destructuring-bind (a (b . c) #!rest d)
+                              '(1 (2 3) 4 5)
+                              (list a b c d)}
           '(1 2 (3) (4 5)))
   }
 ;;; \end{code}
-
-
-
-;;; At the beginning of the code, in section~\ref{sec:beginninglibbug}, ``bug-language.scm''
-;;; was imported, so that ``libbug-private\#define'', and ``libbug-define\#define-macro'' can be used.
+;;;
+;;; \newpage
+;;; \section{The End of Compilation}
+;;;
+;;;
+;;; At the beginning of the book, in chapter~\ref{sec:beginninglibbug}, ``bug-language.scm''
+;;; was imported, so that ``libbug-private\#define'', and ``libbug-private\#define-macro'' can be used.
 ;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
 ;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
 ;;; and they must be closed, accomplished by importing ``bug-language-end.scm'',
