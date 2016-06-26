@@ -9,7 +9,8 @@
   \label{sec:appendix1}
  This appendix provides a quick tour of computer language which is interpreted
  by the compiler, but which is absent in the generated machine
- code.  Examples are provided in well-known languages to illustrate that
+ code.  None of the code is part of libbug.  Examples are provided in
+ well-known languages to illustrate that
  many compilers are also interpreters for a subset of the language.  This
  appendex provides a baseline understanding of compile-time computation
  so that the reader may contrast these languages' capabilities with libbug's.
@@ -46,23 +47,23 @@
  \section{C}
 Consider the following C code:
 
- \begin{examplecode}
-/*Line01*/  #include <stdio.h>
-/*Line02*/  #define square(x) ((x) * (x))
-/*Line03*/  int fact(unsigned int n);
-/*Line04*/  int main(int argc, char* argv[]){
-/*Line05*/  #ifdef DEBUG
-/*Line06*/    printf("Debug - argc = %d\n", argc);
-/*Line07*/  #endif
-/*Line08*/   printf("%d\n",square(fact(argc)));
-/*Line09*/    return 0;
-/*Line10*/  }
-/*Line11*/  int fact(unsigned int n){
-/*Line12*/    return n == 0
-/*Line13*/      ? 1
-/*Line14*/      : n * fact(n-1);
-/*Line15*/  }
- \end{examplecode}
+ \begin{code}
+#include <stdio.h>
+#define square(x) ((x) * (x))
+int fact(unsigned int n);
+int main(int argc, char* argv[]){
+#ifdef DEBUG
+  printf("Debug - argc = %d\n", argc);
+#endif
+ printf("%d\n",square(fact(argc)));
+  return 0;
+}
+int fact(unsigned int n){
+  return n == 0
+    ? 1
+    : n * fact(n-1);
+}
+ \end{code}
 
  \begin{itemize}
   \item
@@ -85,15 +86,15 @@ Consider the following C code:
      else.  For example, using GCC as a compiler, if you run the C preprocessor
      ``cpp'' on the above C code, you'll see that
 
-     \begin{examplecode}
+     \begin{code}
   printf("%d\n",square(fact(argc)));
-     \end{examplecode}
+     \end{code}
 
      \noindent expands into
 
-     \begin{examplecode}
+     \begin{code}
   printf("%d\n",((fact(argc)) * (fact(argc))));
-     \end{examplecode}
+     \end{code}
 
      \noindent before compilation.
 
@@ -126,27 +127,27 @@ Consider the following C code:
  3, using C++ procedures for run-time calulation, and C++'s templates for compile-time
  calculation.
 
- \begin{examplecode}
- /*Line01*/  #include <iostream>
- /*Line02*/  template <unsigned int n>
- /*Line03*/  struct factorial {
- /*Line04*/      enum { value = n * factorial<n - 1>::value };
- /*Line05*/  };
- /*Line06*/  template <>
- /*Line07*/  struct factorial<0> {
- /*Line08*/      enum { value = 1 };
- /*Line09*/  };
- /*Line10*/  int fact(unsigned int n){
- /*Line11*/    return n == 0
- /*Line12*/      ? 1
- /*Line13*/      : n * fact(n-1);
- /*Line14*/  }
- /*Line15*/  int main(int argc, char* argv[]){
- /*Line16*/    std::cout << factorial<3>::value << std::endl;
- /*Line17*/    std::cout << fact(3) << std::endl;
- /*Line18*/    return 0;
- /*Line19*/  }
- \end{examplecode}
+ \begin{code}
+ #include <iostream>
+ template <unsigned int n>
+ struct factorial {
+     enum { value = n * factorial<n - 1>::value };
+ };
+ template <>
+ struct factorial<0> {
+     enum { value = 1 };
+ };
+ int fact(unsigned int n){
+   return n == 0
+     ? 1
+     : n * fact(n-1);
+ }
+ int main(int argc, char* argv[]){
+   std::cout << factorial<3>::value << std::endl;
+   std::cout << fact(3) << std::endl;
+   return 0;
+ }
+ \end{code}
 
  \begin{itemize}
   \item
@@ -180,7 +181,7 @@ Consider the following C code:
 
  The drastic difference in the generated code can be observed by using ``objdump -D''.
 
- \begin{examplecode}
+ \begin{code}
  400850: be 06 00 00 00   mov    $0x6,%esi
  400855: bf c0 0d 60 00   mov    $0x600dc0,%edi
  40085a: e8 41 fe ff ff   callq  4006a0 <_ZNSolsEi@plt>
@@ -192,7 +193,7 @@ Consider the following C code:
  400876: 89 c6            mov    %eax,%esi
  400878: bf c0 0d 60 00   mov    $0x600dc0,%edi
  40087d: e8 1e fe ff ff   callq  4006a0 <_ZNSolsEi@plt>
- \end{examplecode}
+ \end{code}
 
  \begin{itemize}
    \item
@@ -217,16 +218,16 @@ Consider the following C code:
  the factorial of 3 is printing to the screen, both computed at
  compile-time and computed at run-time.
 
- \begin{examplecode}
- {at-both-times                           ;; Line 1
-  {define fact                            ;; Line 2
-    [|n| (if (= n 0)                      ;; Line 3
-             [1]                          ;; Line 4
-             [(* n (fact (- n 1)))])]}}   ;; Line 5
-                                          ;; Line 6
- (pp (at-compile-time-expand (fact 3)))   ;; Line 7
- (pp (fact 3))                            ;; Line 8
- \end{examplecode}
+ \begin{code}
+ {at-both-times
+  {define fact
+    [|n| (if (= n 0)
+             [1]
+             [(* n (fact (- n 1)))])]}}
+
+ (pp (at-compile-time-expand (fact 3)))
+ (pp (fact 3))
+ \end{code}
 
  \begin{itemize}
    \item
@@ -246,22 +247,20 @@ Consider the following C code:
  By compiling the Scheme source to the ``gvm'' intermediate
  representation, the stated behavior can be verified.
 
- \begin{examplecode}
-  ...
-  r1 = '6                                ;; Line 1
-  r0 = #4                                ;; Line 2
-  jump/safe fs=4 global[pp] nargs=1      ;; Line 3
-#4 fs=4 return-point                     ;; Line 4
-  r1 = '3                                ;; Line 5
-  r0 = #5                                ;; Line 6
-  jump/safe fs=4 global[fact] nargs=1    ;; Line 7
-#5 fs=4 return-point                     ;; Line 8
-  r0 = frame[1]                          ;; Line 9
-  jump/poll fs=4 #6                      ;; Line 10
-#6 fs=4                                  ;; Line 11
-  jump/safe fs=0 global[pp] nargs=1      ;; Line 12
-  ...
- \end{examplecode}
+ \begin{code}
+  r1 = '6
+  r0 = #4
+  jump/safe fs=4 global[pp] nargs=1
+#4 fs=4 return-point
+  r1 = '3
+  r0 = #5
+  jump/safe fs=4 global[fact] nargs=1
+#5 fs=4 return-point
+  r0 = frame[1]
+  jump/poll fs=4 #6
+#6 fs=4
+  jump/safe fs=0 global[pp] nargs=1
+ \end{code}
 
  \begin{itemize}
    \item
