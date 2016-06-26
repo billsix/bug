@@ -4,7 +4,7 @@
 ;;;
 ;;; \documentclass[twoside]{book}
 ;;; \pagenumbering{gobble}
-;;; \usepackage[paperwidth=7.44in, paperheight=9.68in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
+;;; \usepackage[paperwidth=8.25in, paperheight=10.75in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
 ;;; \usepackage{times}
 ;;; \usepackage{listings}
 ;;; \usepackage{courier}
