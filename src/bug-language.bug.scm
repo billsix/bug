@@ -4,7 +4,6 @@
 ;;;
 ;;; \break
 
-;;; \setcounter{part}{0}
 ;;; \part{Foundations Of Libbug}
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
@@ -180,7 +179,23 @@
        (eval form)]}
      ")
     libbug-macros-file)
-   }}
+;;;
+;;; \subsection{Close Files At Compile-Time}
+;;;
+;;; At the end of compilation, these open files will need to be
+;;; closed, and the namespace needs to be reset.
+;;;
+   {define at-end-of-compilation
+     [(display
+       "
+       (##namespace (\"\"))"
+       libbug-macros-file)
+      (force-output libbug-headers-file)
+      (close-output-port libbug-headers-file)
+      (force-output libbug-macros-file)
+      (close-output-port libbug-macros-file)]}
+   }
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}

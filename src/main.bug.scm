@@ -265,7 +265,7 @@
 ;;; book, are all recommended reading but are
 ;;; not necessary to understand the content of this book.
 ;;;
-;;; \section{Order Of Parts}
+;;; \section{Parts}
 ;;;  This book is a ``literate program''.  New procedures defined are dependent upon
 ;;;  either standard Gambit Scheme procedures or
 ;;;  procedures which have already been defined earlier in the book.  In writing the book,
@@ -275,10 +275,9 @@
 ;;;  before understanding ``why''.
 ;;;
 ;;;  As such, the ordering of the book was rearranged in an effort to keep the reader
-;;;  engaged and curious.  The book begins with ``Part 2, The Implementation of Libbug'',
-;;;  continues with ``Part 1, Foundations Of Libbug'', and finishes with ``Part 3, Finishing
-;;;  Compilation''.  The Gambit compiler, however, compiles the Part 1 first, then Part 2,
-;;;  finishing compilation with Part 3.
+;;;  engaged and curious.  The book begins with ``Part 1, The Implementation of Libbug''
+;;;  and ends with ``Part 2, Foundations Of Libbug''
+;;;  The Gambit compiler, however, compiles the Part 2 first, then Part 1.
 ;;;
 ;;; \section{Conventions}
 ;;; Code which is part of libbug will be outlined and
@@ -387,7 +386,6 @@
 ;;; of their expressive power.
 ;;;
 ;;;
-;;; \setcounter{part}{1}
 ;;; \part{The Implementation of Libbug}
 ;;;
 ;;; \chapter{Introductory Procedures}
@@ -3012,11 +3010,11 @@
 ;;; was imported, so that ``libbug-private\#define'', and ``libbug-private\#define-macro'' can be used.
 ;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
 ;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
-;;; and they must be closed, accomplished by importing ``bug-language-end.scm'',
-;;; defined in section ~\ref{sec:closefiles}.
+;;; and they must be closed, accomplished executing ``at-end-of-compilation''.
 ;;;
 ;;; \begin{code}
-(include "bug-language-end.scm")
+{at-compile-time
+ (at-end-of-compilation)}
 ;;; \end{code}
 ;;;
 ;;;

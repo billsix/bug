@@ -36,14 +36,11 @@ all: $(OBJECTS_TO_BUILD)
 	gsc -obj $<
 
 
-bug.tex: main.bug.scm bug-language.bug.scm bug-language-end.bug.scm bug-appedicies.tex
+bug.tex: main.bug.scm bug-language.bug.scm bug-appedicies.tex
 	../bug-gsc/bug2tex main.bug.scm bug.tex
 	../bug-gsc/bug2tex bug-language.bug.scm bug-language.tex
-	../bug-gsc/bug2tex bug-language-end.bug.scm bug-language-end.tex
 	cat bug-language.tex >> bug.tex
 	rm bug-language.tex
-	cat bug-language-end.tex >> bug.tex
-	rm bug-language-end.tex
 	cat bug-appedicies.tex >> bug.tex
 	git log | head  -n 1 | cut -d ' ' -f 2   > version.tex
 
@@ -52,14 +49,14 @@ bug.pdf: bug.tex
 	makeindex bug.idx
 	pdflatex bug.tex
 
-libbug.c: bug-language.scm bug-language-end.scm main.scm
+libbug.c: bug-language.scm main.scm
 	gsc -link -o libbug.c main
 
 libbug.so: libbug.c main.c
 	gsc -obj -cc-options "-D___SHARED" libbug.c main.c
 	$(CC) $(SHARED_LIB_FLAG) -lgambit  libbug.o main.o -o libbug$(LIB_EXTENSION)
 
-libbug.o1.c: bug-language.scm bug-language-end.scm main.scm
+libbug.o1.c: bug-language.scm main.scm
 	gsc -link -flat -o libbug.o1.c main  > /dev/null
 
 libbug.o1: libbug.o1.c main.c
