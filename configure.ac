@@ -13,6 +13,7 @@ AC_CANONICAL_SYSTEM
 AC_CONFIG_FILES([Makefile
                  bug-gsc/Makefile
                  bug-gsc/bug-gsi-config.h
+		 demo/env.sh
                  src/Makefile
 		 src/config.scm
 		 pkgconfig/libbug.pc

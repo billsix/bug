@@ -6,7 +6,7 @@ config.sub
 config.guess
 configure
 Makefile
-demo/Makefile
+demo/env.sh
 install-sh
 src/Makefile
 src/config.scm
