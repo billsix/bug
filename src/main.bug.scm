@@ -444,8 +444,7 @@
 ;;;   \item On line 1, the libbug-private\#define macro\footnote{defined in section ~\ref{sec:libbugdefine}}
 ;;; is invoked.
 ;;;   \item On line 1, the variable name ``noop''.
-;;;   \item On line 2, the lambda literal\footnote{See Appendix~\ref{sec:appendixliteral} for why Lisp needs
-;;;         lambda literals} to be stored into the variable.
+;;;   \item On line 2, the lambda literal to be stored into the variable.
 ;;;         Libbug includes a Scheme preprocessor ``bug-gscpp'',
 ;;;         which expands lambda literals
 ;;;         into lambdas.  In this case

@@ -7,9 +7,11 @@
  \noappendicestocpagenum
  \chapter{Compile-Time Language}
   \label{sec:appendix1}
- This appendix provides a quick tour of computer language which is interpreted
- by the compiler, but which is absent in the generated machine
- code.  None of the code is part of libbug.  Examples are provided in
+ This appendix\footnote{Examples in the appendix will have boxes
+ and line numbers around the code, but they are not part of libbug.}
+ provides a quick tour of computer language which is interpreted
+ by the compiler but which is absent in the generated machine
+ code.  Examples are provided in
  well-known languages to illustrate that
  many compilers are also interpreters for a subset of the language.  This
  appendex provides a baseline understanding of compile-time computation
@@ -21,8 +23,10 @@
  Motwani, and Ullman define language as ``A set of strings all of which are chosen
  from some $\Sigma^{\star}$, where $\Sigma$ is a particular alphabet, is called
  a language'' \cite[p. 30]{hmu2001}.
- % They further state ``In automata theory, a problem is the question
- % of deciding whether a given string is a member of some particular language''. \cite[p. 31]{hmu2001}.
+ % They further state ``In automata theory, a
+ % problem is the question
+ % of deciding whether a given string is a member of some particular
+ % language''. \cite[p. 31]{hmu2001}.
  Plainly, that means an ``alphabet'' is a set of characters (for instance, ASCII), and
  that a computer ``language'' is defined as all of the possible sequences of characters
  from that alphabet which match some criterion.
@@ -31,11 +35,11 @@
  computer language as input,
  and does some action based on it.  A ``compiler'' is a pre-existing computer program
  which takes computer language as input,
- but rather than immediately doing the actions specified by the input, instead the compiler
+ but rather than immediately executing the actions specified by the input, instead it
  translates the input language
  into another computer language (typically machine code), which is then output to a file
  for interpretation\footnote{the CPU can be viewed as an
- interpreter which takes machine code as its' input} at a later time.
+ interpreter which takes machine code as its input} at a later time.
 
  In practice though, the distinction is not clear cut.  Most compilers do not exclusively
  translate from an input language
@@ -43,7 +47,7 @@
  language as part of the process of generating the output language.  Well, what
  types of computations can be performed by this subset of language, and how do
  they vary in expressive power?
-;
+
  \section{C}
 Consider the following C code:
 
@@ -67,18 +71,18 @@ int fact(unsigned int n){
 
  \begin{itemize}
   \item
-     On the first line, the \#include preprocessor command
+     On line 1, the \#include preprocessor command
      is language that the compiler
      is intended to interpret, instructing the compiler to
      read the file ``stdio.h''
      from the filesystem and to splice the content
-     into the current C file.  The include command
+     into the current C file.  The \#include command
      itself has no representation in the generated machine code, although the contents
      of the included file may.
 
   \item
-     The second line defines a C macro. C macros are procedure definitions which
-      are not to be translated into the output language, but instead it is a procedure
+     Line 2 defines a C macro. C macros are procedure definitions which
+      are not to be translated into the output language, instead it is a procedure
      to be interpreted by the compiler
      at compile-time only.  C macros take a text
      string as input and transforms it into a new text string as output.
@@ -99,15 +103,14 @@ int fact(unsigned int n){
      \noindent before compilation.
 
   \item
-     The third line defines a procedure prototype, so that
+     Line 3 defines a procedure prototype, so that
      the compiler knows the argument types and return type for a procedure not
      yet defined called ``fact''.
      It is language interpreted by the compiler to determine the types for the procedure
-     call to ``fact'' on line 8, since ``fact'' has not yet been defined in this
-     translation unit.
+     call to ``fact'' on line 8.
   \item
-     The fourth through tenth line is a procedure definition, which will be
-     translated into instructions in the generated machine code.  Line 5, however, is language
+     Lines 4 through 10 are a procedure definition, which will be
+     translated into instructions in the generated machine code.  Line 5 however, is language
      to be interpreted by the compiler, referencing a variable which is defined
      only during compilation, to detemine whether or not line 6 should be
      compiled.
@@ -162,12 +165,11 @@ int fact(unsigned int n){
  by the compiler via template expansions.  Template expansions
  conditionally match patterns based on types (or values in the case
  of integers).  For iteration, instead of loops, templates expand recursively.
- In this case, the expansion of
- ``factorial\textless3\textgreater::value'' in dependent upon
- ``factorial\textless n-1\textgreater::value''.  The compiler
+ In this case,  ``factorial\textless3\textgreater::value'' expands to
+ ``3 * factorial\textless3 - 1\textgreater::value''.  The compiler
  does the subtraction during compile-time,
- so ``factorial\textless3\textgreater::value'' is dependent on
- ``factorial\textless2\textgreater::value''.
+ so ``factorial\textless3\textgreater::value'' expands to
+ ``3 * factorial\textless2\textgreater::value''.
  This recursion will terminate on ``factorial\textless0\textgreater::value''
  on line 7. (Even though
  the base case of ``factorial\textless0\textgreater'' is specified
@@ -179,6 +181,7 @@ int fact(unsigned int n){
  On line 17, a run-time call to ``fact'', defined on line 10, is declared.
  \end{itemize}
 
+ \subsection{Disassembling the Object File}
  The drastic difference in the generated code can be observed by using ``objdump -D''.
 
  \begin{code}
@@ -198,13 +201,13 @@ int fact(unsigned int n){
  \begin{itemize}
    \item
  The instructions at memory locations 400850 through 40085a correspond to the
- printing of the compile-time expanded call to factorial\textless3\textgreater.
- The number 6 is loaded into the esi register; then the second
+ printing of the compile-time expanded call to factorial\textless3\textgreater::value.
+ The immediate value 6 is loaded into the esi register; then the second
  two lines call the printing routine\footnote{at least I assume, because
  I don't completely understand how C++ name-mangling works}.
    \item
  The instructions at locations 40086c through 40087d correspond to the
- printing of the run-time calculation to fact(3).  The number 3
+ printing of the run-time calculation to fact(3).  The immediate value 3
  is loaded into the edi register, fact is invoked, the result of
  calling fact is moved from the eax register to the esi register, and then
  printing routine is called.
@@ -213,10 +216,8 @@ int fact(unsigned int n){
  The compile-time computation worked!
 
  \section{libbug}
- Like C++, Libbug's compile-time language is Turing complete.
- With libbug, the following is how factorial is defined, and how
- the factorial of 3 is printing to the screen, both computed at
- compile-time and computed at run-time.
+ Like C++, libbug's compile-time language is Turing complete.
+ Here is how to solve the same problem with libbug.
 
  \begin{code}
  {at-both-times
@@ -238,12 +239,13 @@ int fact(unsigned int n){
       On lines 2-5, the definition of the ``fact''.
    \item
       On line 7, ``at-compile-time-expand'' is a macro which takes unevaluated code,
-      evaluates it to some result which is then compiled by the compiler.  So the code
+      evaluates it to some result which is then compiled by the compiler.  The code
       will expand at compile-time to ``(pp 6)''.
    \item
       On line 8, the run-time calculation of ``(fact 3)''.
  \end{itemize}
 
+ \subsection{Inspecting the Gambit VM Bytecode}
  By compiling the Scheme source to the ``gvm'' intermediate
  representation, the stated behavior can be verified.
 
@@ -268,8 +270,8 @@ int fact(unsigned int n){
       value of ``(fact 3)'' is 6, which is directly stored into a GVM register, and
       then the ``pp'' routine is called to print it out.
    \item
-      Lines 5-12 correspond to ``(pp (fact 3))''.  3 is stored in a GVM regiister, ``fact''
-      is called, and then ``pp'' is called on the result.
+      Lines 5-12 correspond to ``(pp (fact 3))''.  3 is stored in a GVM register, ``fact''
+      is called, the result of which is passed to ``pp''.
  \end{itemize}
 
  \section{Comparison of Power}
@@ -277,7 +279,7 @@ int fact(unsigned int n){
  Although C++'s and libbug's compile-time languages are both Turing complete,
  they vary drastically in actual real-world programming power.  The language used
  for compile-time calculation of ``fact'' in C++ is a drastically different language than
- the one used for run-time.  Although not demonstrated in this book,
+ the one used for run-time.  Although not fully demonstrated in this book,
  C++ template metaprogramming relies exclusively on recursion for repetition (it has no
  looping construct), it has no mutable state, and it lacks the ability to do input/output
  (I/O)\footnote{For the masochist who wants to know more about C++'s compile-time language,
@@ -289,22 +291,7 @@ int fact(unsigned int n){
  This book is the beginning of an answer.
 
 
- When I first started creating libbug, I only wanted to collocate
- tests with definitions, to evaluate the tests at compile-time exclusively, and to error out
- of compilation
- if any test failed.  Only later did I discover that compile-time evaluation
- can execute full programs without limitations.  What else could be
- calculated at compile-time?  In graphics, perhaps calculating normal vectors
- from a vertex mesh automatically; perhaps writing ``shaders'' as compile-time
- tested Scheme procedures which are translated into actual shaders at compile-time.
- In database programming, perhaps fetching the table definitions at compile-time,
- and generating code for easy database access.
 
-
- \chapter{Why Lisp Needs Lambda Literals}
-  \label{sec:appendixliteral}
-
- Foo bar.
 
 
  \bibliography{abbr_long,pubext}

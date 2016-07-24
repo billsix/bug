@@ -382,11 +382,11 @@
 {##define-macro libbug-private#define-macro
   [|name lambda-value #!rest tests|
 ;;; \end{code}
-;;; \subsection{Write Macro to File}
+;;; \subsection{Write Macros to File}
 ;;;
 ;;; \begin{code}
    (write
-    `{begin
+    `{at-both-times
 ;;; \end{code}
 ;;; \subsubsection{Macro Definition}
 ;;;   The macro definition written to the file will be imported as
@@ -394,23 +394,22 @@
 ;;;   which themselves may have different namespace mappings than libbug.
 ;;;   To ensure that the macro works correctly in other contexts, the
 ;;;   appropriate namespace
-;;;   mappings must be loaded, but just for this macro definition.
+;;;   mappings must be loaded for the definition of this macro definition.
 ;;;
 ;;; \begin{code}
-       {at-both-times
-        {##define-macro
-          ,name
-          (lambda ,(cadr lambda-value)
-            ,(list 'quasiquote
-                   `{##let ()
-                      (##include "~~lib/gambit#.scm")
-                      (##include ,bug-configuration#libbugsharp)
-                      ,(if {and (pair? (caddr lambda-value))
-                                (equal? 'quasiquote
-                                        (caaddr lambda-value))}
-                           [(car (cdaddr lambda-value))]
-                           [(append (list 'unquote)
-                                    (cddr lambda-value))])}))}
+      {##define-macro
+        ,name
+        (lambda ,(cadr lambda-value)
+          ,(list 'quasiquote
+                 `{##let ()
+                    (##include "~~lib/gambit#.scm")
+                    (##include ,bug-configuration#libbugsharp)
+                    ,(if {and (pair? (caddr lambda-value))
+                              (equal? 'quasiquote
+                                      (caaddr lambda-value))}
+                         [(car (cdaddr lambda-value))]
+                         [(append (list 'unquote)
+                                  (cddr lambda-value))])}))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -442,8 +441,8 @@
 ;;;   \item On line 5, the unevaluated form in argument ``lambda-value'' may
 ;;;         or may not be quasiquoted.  Either way, write a quasiquoted form
 ;;;         to the file.  In the case that the ``lambda-value'' argument was not
-;;;         actually intended to be quasiquoted, immediately unquote (which is
-;;;         done on line 12-13), thereby negating the quasi-quoting.
+;;;         actually intended to be quasiquoted, unquote the lambda's body (which is
+;;;         done on line 13-14), thereby negating the quasi-quoting from line 5.
 ;;;   \item On line 5-6, rather than nesting quasiquotes, line 5 uses a technique
 ;;;         of replacing a would-be nested quasiquote with ``,(list 'quasiquote `(...)''.
 ;;;         This makes the code more readable \cite[p. 854]{paip}.  Should the reader
@@ -451,7 +450,9 @@
 ;;;         of \cite[p. 960]{cl} is a great reference.
 ;;;   \item On line 6-8, ensure that the currently unevaluated form will be
 ;;;         evaluated in a context in which the namespaces resolve consistently
-;;;         as they were written in this book.
+;;;         as they were written in this book.  Line 6 create a bounded
+;;;         context for namespace mapping.  Line 7 setst standad Gambit namespace
+;;;         mappings, line 8 sets libbug's mappings.
 ;;;   \item On line 9-11, check to see if the unevaluated form is quasiquoted.
 ;;;
 ;;; \begin{examplecode}
@@ -463,11 +464,11 @@
 ;;;         list minus the quasiquoting.
 ;;;
 ;;; \begin{examplecode}
-;;;    > (car (cdaddr '[|foo bar| (quasiquote 5 a)]))
+;;;    > (car (cdaddr '[|foo bar| (quasiquote 5)]))
 ;;;    5
 ;;; \end{examplecode}
 ;;;
-;;;  Remember, that this value gets wrapped in a quasiquote from line 5
+;;;  Remember that this value gets wrapped in a quasiquote from line 5
 ;;;
 ;;; \begin{examplecode}
 ;;;    > (list 'quasiquote (car (cdaddr '[|foo bar|
@@ -499,42 +500,46 @@
 ;;;
 ;;; \subsubsection{Procedure to expand macro invocations}
 ;;;
-;;; In order to be able to test the macro transformation as unevaluated
+;;; In order to be able to test the macro transformation before evaluation of the
+;;; expanded
 ;;; code, create a procedure (instead of a macro) with ``-expand''
 ;;; suffixed to the ``name'', with the same procedure body as
-;;; the ``lambda-value'''s body.  Override ``gensym'' in this generated
+;;; the ``lambda-value'''s body.  Locally define ``gensym'' in this generated
 ;;; procedure, so that tests may be written\footnote{``\#\#gensym'', by definition,
 ;;; creates a unique symbol which the programmer could never input, which is why it
 ;;; needs to be overridden for testing macro-expansions. }.
 ;;;
 ;;; \begin{code}
-        {##define-macro
-          ,(string->symbol (string-append (symbol->string name)
-                                          "-expand"))
-          (lambda ,(cadr lambda-value)
-            {let ((gensym-count 0))
-              {let ((gensym
-                     [{begin
-                        {set! gensym-count
-                              (+ 1 gensym-count)}
-                        (string->symbol
-                         (string-append
-                          "gensymed-var"
-                          (number->string gensym-count)))}]))
-                (list 'quote ,@(cddr lambda-value))}})}}}
+      {##define-macro
+        ,(string->symbol (string-append (symbol->string name)
+                                        "-expand"))
+        (lambda ,(cadr lambda-value)
+          {let ((gensym-count 0))
+            {let ((gensym
+                   [{begin
+                      {set! gensym-count
+                            (+ 1 gensym-count)}
+                      (string->symbol
+                       (string-append
+                        "gensymed-var"
+                        (number->string gensym-count)))}]))
+              (list 'quote ,@(cddr lambda-value))}})}}
+;;; \end{code}
+;;;
+;;; \begin{code}
     libbug-macros-file)
    (newline libbug-macros-file)
 ;;; \end{code}
 ;;; \subsection{Define Macro and Run Tests}
 ;;; Now that the macro has been exported to a file, now the macro must
-;;; be defined within libbug itself.
+;;; be defined within libbug itself.  Firstly, create the expander.
 ;;;
 ;;; \begin{code}
    {let ((gensym-count (gensym)))
      `{begin
 ;;; \end{code}
 ;;;
-;;; \noindent Namespace the procedure
+;;; \noindent Namespace the procedure and the expander.
 ;;;
 ;;; \begin{code}
         {libbug-private#namespace ,name}
@@ -544,7 +549,7 @@
                           "-expand"))}
 ;;; \end{code}
 ;;;
-;;; \noindent Create the expander just like in the previous section.
+;;; \noindent Create the expander similarly to the previous section.
 ;;;
 ;;; \begin{code}
         {at-both-times
@@ -582,8 +587,8 @@
 ;;; ``macroexpand-1'' allows the programmer to test macro-expansion by writing
 ;;;
 ;;; \begin{examplecode}
-;;;(equal? (macroexpand-1 (aif (+ 5 10)
-;;;                            (* 2 it)))
+;;;(equal? {macroexpand-1 (aif (+ 5 10)
+;;;                            (* 2 it))}
 ;;;       '{let ((it (+ 5 10)))
 ;;;          (if it
 ;;;              [(* 2 it)]
@@ -593,8 +598,8 @@
 ;;; \noindent instead of
 ;;;
 ;;; \begin{examplecode}
-;;;(equal? (aif-expand (+ 5 10)
-;;;                    (* 2 it)))
+;;;(equal? {aif-expand (+ 5 10)
+;;;                    (* 2 it))}
 ;;;       '{let ((it (+ 5 10)))
 ;;;          (if it
 ;;;              [(* 2 it)]
@@ -607,53 +612,55 @@
  macroexpand-1
  [|form|
   {let* ((m (car form))
-         (new-name (string->symbol
-                    (string-append (symbol->string m)
-                                   "-expand"))))
-    `(,new-name ,@(cdr form))}]}
+         (the-expander (string->symbol
+                        (string-append (symbol->string m)
+                                       "-expand"))))
+    `(,the-expander ,@(cdr form))}]}
 ;;; \end{code}
 ;;;
 
 ;;; \section{libbug-private\#define-structure}
 ;;;  \label{sec:definestructure}
 ;;; \index{libbug-private\#define-structure}
+;;;
+;;; Like ``\#\#define-structure'', but additionally writes the namespaces
+;;; to file.
+;;;
 ;;; \begin{code}
 {##define-macro
   libbug-private#define-structure
   [|name #!rest members|
-   `{begin
-      {libbug-private#namespace
-       ,(string->symbol
-         (string-append "make-"
-                        (symbol->string name)))
-       ,(string->symbol
-         (string-append (symbol->string name)
-                        "?"))
-       ,@(map [|m|
-               (string->symbol
-                (string-append (symbol->string name)
-                               "-"
-                               (symbol->string m)))]
-              members)
-       ,@(map [|m|
-               (string->symbol
-                (string-append (symbol->string name)
-                               "-"
-                               (symbol->string m)
-                               "-set!"))]
-              members)}
-
-      {at-both-times
-       {##namespace (""
-                     define
-                     define-structure
-                     )}
-       {define-structure ,name ,@members}
-       {##namespace ("libbug-private#"
-                     define
-                     )}
-       {##namespace ("bug#"
-                     define-structure
-                       )}}}]}
+   {libbug-private#namespace
+    ,(string->symbol
+      (string-append "make-"
+                     (symbol->string name)))
+    ,(string->symbol
+      (string-append (symbol->string name)
+                     "?"))
+    ,@(map [|m|
+            (string->symbol
+             (string-append (symbol->string name)
+                            "-"
+                            (symbol->string m)))]
+           members)
+    ,@(map [|m|
+            (string->symbol
+             (string-append (symbol->string name)
+                            "-"
+                            (symbol->string m)
+                            "-set!"))]
+           members)}
+   {at-both-times
+    {##namespace (""
+                  define
+                  define-structure
+                  )}
+    {define-structure ,name ,@members}
+    {##namespace ("libbug-private#"
+                  define
+                  )}
+    {##namespace ("bug#"
+                  define-structure
+                  )}}]}
 ;;; \end{code}
 ;;;

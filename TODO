@@ -5,7 +5,6 @@
   invoking is cleaner.  main.bug.scm, line 2433
 - Error check the input for macroexpand-1
 - Determine if macroexpand-1 should be exported
-- Add appendix on why lambda literals are important
 - Make chapter of lifting, condense string and symbol chapters.  Also add char->int lifting
 - Perhaps save the tests so that the user can query for the tests for a procedure in gsi.
 - For all of the potential problems associated with macros, address them for each macro.
