@@ -8,46 +8,19 @@
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
 ;;;
-;;; The most prevalent code which executed at compile-time in the previous chapter
+;;; This chapter, which was evaluated before the previous chapters, provides
+;;; the foundation for computation at compile-time.  Although
+;;; the most prevalent code which executed at compile-time in the previous chapters
 ;;; was code for testing, but many other computations occurred during compile-time
 ;;; transparently to the reader.  These other computations produced output
-;;; files for namespace mappings and for macro definitions, to be used by other
+;;; files for namespace mappings and for macro definitions, the latter to be used by other
 ;;; programs which link against libbug.
-;;;
-;;; Many languages, for example C and C++, also must deal with a similar issue with libraries
-;;; when dealing with procedure prototypes.  Whenever a C programmer
-;;; creates a new procedure, he must then copy the procedure name and parameter list into
-;;; a ``.h'' file,
-;;; so that other files may type check against it at compile-time.
-;;;
-;;; Libbug takes a novel approach to solve that problem; it generates this information at
-;;; compile-time.  At first glance, that sound simple enough.  But what types of computation
-;;; can be performed at compile-time, and can a programmer program I/O
-;;; at compile-time?
-;;; Programs written in C and C++ cannot, as C's macros only allow textual substitution
-;;; and conditional compilation, is not Turing Complete,
-;;; and has no I/O capabilities.  C++'s template metaprogramming, althogh Turing Complete,
-;;; lacks state and I/O.
-;;;
-;;; So, what does libbug do that is novel?  It provides procedures to do arbitrary computation
-;;; at compile-time, where the compile-time language is the same exact language which
-;;; the compiler compiles.  A programmer can write programs to run at compile-time
-;;; in the same manner as he'd normally write them.
-;;;
-;;;
-;;;
-;;;
-;;; Reset all namespace mappings for procedures defined by Gambit.
-;;;
-;;; \begin{code}
-(##include "~~lib/gambit#.scm")
-;;;\end{code}
 ;;;
 ;;;
 ;;; \section{at-compile-time}
-;;; ``at-compile-time'' macro is implemented by ``eval''ing code
-;;; during macro-expansion. \cite{evalduringmacroexpansion}
-;;;
+;;; ``at-compile-time'' is a macro which ``eval'''s the form during macroexpansion,
+;;; but evaluates to the symbol ``noop'', thus not affecting
+;;; run-time \cite{evalduringmacroexpansion}.
 ;;; Evaling during macro-expansion is how the compiler may be augmented with new procedures,
 ;;; thus treating the compiler as an interpreter.
 ;;;
@@ -55,13 +28,14 @@
 ;;; \begin{code}
 {##namespace ("bug#" at-compile-time)}
 {##define-macro at-compile-time
-  [|form|
-   (eval form)
+  [|#!rest forms|
+   (eval `{begin
+            ,@forms})
    `{quote noop}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 4, the unevaluated code which was passed to
+;;;   \item On line 4, the unevaluated code which is passed to
 ;;;  ``at-compile-time'' is evaluated during macro-expansion, thus
 ;;;  at compile-time.  The macro-expansion expands into ``{quote noop}'', so the
 ;;;  form will not evaluate at runtime.
@@ -69,30 +43,26 @@
 ;;;
 ;;; \section{at-both-times}
 ;;; \index{at-both-times}
+;;;
+;;; ``at-both-times'', like ``at-compile-time'', ``eval'''s the forms
+;;; in the compile-time environment, but also in the run-time environment.
+;;;
 ;;; \begin{code}
 {##namespace ("bug#" at-both-times)}
 {##define-macro at-both-times
-  [|form|
-   (eval form)
-   form]}
+  [|#!rest forms|
+   (eval `{begin
+            ,@forms})
+   `{begin
+      ,@forms}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
 ;;; \item On line 4, evaluation in the compile-time environment
-;;; \item On line 5, evaluation in the run-time environment
+;;; \item On line 5, evaluation in the run-time environment.  The forms
+;;;  are returned unaltered to Gambit's compiler, thus ensuring that
+;;;  they are defined in the run-time environment.
 ;;; \end{itemize}
-;;;
-;;; Libbug is a collection of procedures and macros.  Building libbug results
-;;; in a library (static or dynamic) and a ``loadable'' library (a .o1 file).
-;;; Macro definitions and namespace declarations ae not compiled into such
-;;; libraries.
-;;;
-;;; ``at-compile-time'' allows us to execute arbitrary code at compile-time,
-;;; so why not open files and write to them during compile-time?
-;;; Open one file for the namespaces, ``libbug\#.scm'', and one for the macros,
-;;; ``libbug-macros.scm''.  These files will be pure Gambit scheme code, no
-;;; libbug-syntax enhancements, and they are not intended to be read by
-;;; a person.  Their documentation is in this file.
 ;;;
 ;;; \section{at-compile-time-expand}
 ;;; \index{at-compile-time-expand}
@@ -102,122 +72,146 @@
 ;;; \begin{code}
 {##namespace ("bug#" at-compile-time-expand)}
 {##define-macro at-compile-time-expand
-  [|form|
-   (eval form)]}
+  [|#!rest forms|
+   (eval `{begin
+            ,@forms})]}
+;;; \end{code}
+;;;
+;;; \section{Create Files for Linking Against Libbug}
+;;;
+;;; Libbug is a collection of procedures and macros.  Building libbug results
+;;; in a dynamic library and a ``loadable'' library (a .o1 file, for loading
+;;; in the Gambit interpreter).
+;;; But programs which link against libug will require libbug's
+;;; macro definitions and namespace declarations, both of which are not
+;;; compiled into the libraries.  Rather than manually copying all of them to
+;;; external files, why not generate them during compile-time?
+;;;
+;;; Open one file for the namespaces, ``libbug\#.scm'', and one for the macros,
+;;; ``libbug-macros.scm''.  These files will be pure Gambit scheme code, no
+;;; libbug-syntax enhancements, and they are not intended to be read by
+;;; a person.
+;;;
+;;; \begin{code}
+{at-compile-time
 ;;; \end{code}
 ;;;
 ;;; \subsection{Create File for Namespaces}
 ;;;
-;;;  The previous three macros are namespaced within libbug, but
+;;;  The previous three macros are currently namespaced within libbug, but
 ;;;  external projects which will use libbug may need these namespace
-;;;  mappings as well.  To rectify that, open a file
-;;;  during compile-time, and write those namespace mappings
+;;;  mappings as well.  Towards that goal, open a file
+;;;  during compile-time and then write those namespace mappings
 ;;;  to the file.
 ;;;
 ;;; \begin{code}
-{at-compile-time
- {begin
-   {##define libbug-headers-file
-     (open-output-file '(path:
-                         "libbug#.scm"
-                         append:
-                         #f))}
-   (display
-    ";;; Copyright 2014-2016 - William Emerison Six
-     ;;;  All rights reserved
-     ;;;  Distributed under LGPL 2.1 or Apache 2.0
-     {##namespace (\"bug#\" at-compile-time)}
-     {##namespace (\"bug#\" at-both-times)}
-     {##namespace (\"bug#\" at-compile-time-expand)}
-     "
-    libbug-headers-file)
+ {##define libbug-headers-file
+   (open-output-file '(path: "libbug#.scm" append: #f))}
+ (display
+  ";;; Copyright 2014-2016 - William Emerison Six
+   ;;;  All rights reserved
+   ;;;  Distributed under LGPL 2.1 or Apache 2.0
+   {##namespace (\"bug#\" at-compile-time)}
+   {##namespace (\"bug#\" at-both-times)}
+   {##namespace (\"bug#\" at-compile-time-expand)}
+   "
+  libbug-headers-file)
 ;;; \end{code}
 ;;;
 ;;; \subsection{Create File for Macro Definitions}
 ;;;
 ;;;
-;;;  The previous three macros are currently available throughout libbug,
-;;;  but not to programs which use libbug.  To rectify that, open a file
+;;;  The previous three macros are currently available throughout the
+;;;  definition of libbug,
+;;;  but not to programs which link against libbug.  To rectify that, open a file
 ;;;  during compile-time, and write those macro definitions
 ;;;  to the file.
 
-;;; These exported macros, when they are ``include''-ed by an external project,
-;;; being dependent on namespaced procedures from libbug, how are the namespaces loaded?
-;;; From the namespace file of course, which
-;;; is installed as a relative path to the ``prefix'' argument passed to
-;;; ``configure''\footnote{Autoconf takes "config.scm.in" as input, and puts the
-;;; relevant configuration/installation information (such as
-;;; the installation prefix) into config.scm}.
-;;;
 
 ;;;
 ;;; \begin{code}
-   (##include "config.scm")
-   {##define bug-configuration#libbugsharp
-     (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}
+ (##include "config.scm")
+ {##define bug-configuration#libbugsharp
+   (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}
 
-   {##define libbug-macros-file
-     (open-output-file '(path: "libbug-macros.scm"
-                         append: #f))}
-   (display
-    (string-append
-     ";;; Copyright 2014-2016 - William Emerison Six
-     ;;;  All rights reserved
-     ;;;  Distributed under LGPL 2.1 or Apache 2.0
-     (##include \"~~lib/gambit#.scm\")
-     (##include \"" bug-configuration#libbugsharp "\")
-     {##define-macro at-compile-time
-       [|form|
-        (eval form)
-        `{quote noop}]}
-     {##define-macro at-both-times
-       [|form|
-        (eval form)
-        form]}
-     {##define-macro at-compile-time-expand
-       [|form|
-       (eval form)]}
-     ")
-    libbug-macros-file)
+ {##define libbug-macros-file
+   (open-output-file '(path: "libbug-macros.scm" append: #f))}
+ (display
+  (string-append
+   ";;; Copyright 2014-2016 - William Emerison Six
+    ;;;  All rights reserved
+    ;;;  Distributed under LGPL 2.1 or Apache 2.0
+    (##include \"~~lib/gambit#.scm\")
+    (##include \"" bug-configuration#libbugsharp "\")
+    {##define-macro at-compile-time
+      [|#!rest forms|
+       (eval `{begin
+                ,@forms})
+       `{quote noop}]}
+    {##define-macro at-both-times
+      [|#!rest forms|
+       (eval `{begin
+                ,@forms})
+       `{begin
+          ,@forms}]}
+    {##define-macro at-compile-time-expand
+      [|#!rest forms|
+       (eval `{begin
+                ,@forms})]}
+   ")
+  libbug-macros-file)
+;;; \end{code}
+
+
+;;; \begin{itemize}
+;;;   \item On line 1-3, include the ``config.scm'' file which was preprocessed
+;;;     by Autconf, so that the installation directory of libbug is known
+;;;     at compile-time.
+;;;   \item On line 11, ``libbug\#.scm'' is imported, so that the generated macros are
+;;;         namespaced correctly in external projects which import libbug.  In the previous section,
+;;;         this file is created at compile-time.  Remember that when ``libbug-macros.scm'' will
+;;;         be imported by an external project, ``libbug\#.scm'' will exist with all
+;;;         of the namespaces defined in libbug\footnote{Marty: ``Well Doc, we can
+;;;    scratch that idea. I mean we can't wait around a year and a half for this
+;;;    thing to get finished.''  Doc Brown:  ``Marty it's perfect, you're just not
+;;;    thinking fourth-dimensionally.  Don't you see, the bridge will exist in 1985.''
+;;;    -Back to the Future 3}.
+;;; \end{itemize}
+;;;
+
 ;;;
 ;;; \subsection{Close Files At Compile-Time}
 ;;;
 ;;; At the end of compilation, these open files will need to be
 ;;; closed, and the namespace needs to be reset.
 ;;;
-   {define at-end-of-compilation
-     [(display
-       "
-       (##namespace (\"\"))"
-       libbug-macros-file)
-      (force-output libbug-headers-file)
-      (close-output-port libbug-headers-file)
-      (force-output libbug-macros-file)
-      (close-output-port libbug-macros-file)]}
-   }
+;;; \begin{code}
+ {define at-end-of-compilation
+   [(display
+     "
+     (##namespace (\"\"))"
+     libbug-macros-file)
+    (force-output libbug-headers-file)
+    (close-output-port libbug-headers-file)
+    (force-output libbug-macros-file)
+    (close-output-port libbug-macros-file)]}
+ ;; close the call to at-compile-time
  }
 ;;; \end{code}
 ;;;
-;;; \begin{itemize}
-;;;   \item On line 11, ``libbug\#.scm'' is imported, so that the generated macros are
-;;;         namespaced correctly in external projects which import libbug.  In the previous section,
-;;;         this file is created at compile-time.  Remember that when ``libbug-macros.scm'' will
-;;;         be imported by an external project, ``libbug\#.scm'' will exist with all
-;;;         of the namespaces defined in libbug.
-;;; \end{itemize}
-;;;
-;;; The files are closed section~\ref{sec:closefiles}
 ;;;
 ;;; \section{libbug-private\#write-and-eval}
 ;;;
 ;;; Now that those files are open, namespaces will be written
-;;; to libbug\#.scm and macro definitions to libbug-macros.scm.  However, the
-;;; code shouldn't have be to duplicated for each context, like was done for
+;;; to ``libbug\#.scm'' and macro definitions to ``libbug-macros.scm''.  However, the
+;;; code shouldn't have be to duplicated for each context, as was done for
 ;;; the previous three macros.
 ;;;
-;;; So, create a macro named ``write-and-eval'' which will write the
+;;; Create a macro named ``write-and-eval'' which will write the
 ;;; unevaluated form plus a newline to the
-;;; file, and the return the form so that the compiler actually evaluate it.
+;;; file, and then return the form so that the compiler actually evaluate
+;;; it\footnote{any procedure which is namespaced to ``libbug-private'' is
+;;;  not exported to the namespace file nor the macro file}.
 ;;;
 ;;; \index{libbug-private\#write-and-eval}
 ;;; \begin{code}
@@ -229,6 +223,10 @@
    form]}
 ;;; \end{code}
 ;;;
+;;; ``write-and-eval'' writes the form to a file, and only evaluates the
+;;; form in the run-time context.  For namespaces in libbug, namespaces
+;;; should be valid at
+;;; compile-time too.
 ;;;
 ;;; \section{libbug-private\#namespace}
 ;;;
@@ -248,22 +246,19 @@
          {##namespace ("bug#" ,@to-namespace)}}}}]}
 ;;; \end{code}
 ;;;
-;;; ``write-and-eval'' writes the form to a file, and evaluates the
-;;; form in the run-time context.  For namespaces in libbug, that
-;;; behavior is desired, but the namespaces should be valid at
-;;; compile-time too.
-;;;
+
 ;;;
 ;;; \section{if}
 ;;; \label{sec:langif}
-;;; In the following, a new version of "if" is defined, where
-;;; bug\#if takes two zero-argument procedures, treating them
+;;; In the following, a new version of "if" is defined named
+;;; ``bug\#if'', where
+;;; ``bug\#if'' takes two zero-argument procedures, treating them
 ;;; as Church Booleans.  bug\#if was first used and described
 ;;; in section ~\ref{sec:langiffirstuse}
 ;;;
 ;;;
 ;;;
-;;; \index{if}
+;;; \index{bug\#if}
 ;;; \begin{code}
 {libbug-private#namespace if}
 {libbug-private#write-and-eval
@@ -278,20 +273,20 @@
            (list '##if pred
                  `{begin ,@(cddr ifTrue)}
                  `{begin ,@(cddr ifFalse)})
-           (error "lang#if requires two lambda expressions")}]}}}
+           (error "bug#if requires two lambda expressions")}]}}}
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
 ;;;  \item
-;;;     On line 7, \#\#if is called.  In Gambit's system of namespacing, ``\#\#'
+;;;     On line 7, ``\#\#if'' is called.  In Gambit's system of namespacing, ``\#\#'
 ;;;     is prefixed to a variable name to specify to use the global namespace for
 ;;;     that variable.
 ;;;     ``bug\#if'' is built on Gambit's implementation of ``if'', but since
-;;;     line 1 set the namespace of ``if'' to ``bug\#if'', ``\#\#if must be
+;;;     line 1 set the namespace of ``if'' to ``bug\#if'', ``\#\#if'' must be
 ;;;     used.
 ;;;  \item
 ;;;   On lines 7-10, check that the caller of ``bug\#if'' is passing
-;;;   lambdas, i.e. has not forgetten that ``if'' is namespaced to ``lang''.
+;;;   lambdas, i.e. has not forgetten that ``if'' is namespaced to ``bug''.
 ;;;  \item
 ;;;    On line 11, if the caller of ``bug\#if'' has not passed lambdas,
 ;;;    error at compile-time.
@@ -312,9 +307,10 @@
 ;;; \begin{itemize}
 ;;;  \item  Make a macro called ``with-tests'', which takes an unevaluated definition
 ;;;         and an unevaluated list of tests.
-;;;  \item  ``eval'' a form which will either error, causing the compilation to
-;;;         exit, or will evaluate to the unevaluated definition, thus allowing the
-;;;         Gambit compiler to compile the form as usual.
+;;;  \item  ``eval'' the definiton at compile-time, ``eval'' the tests at compile-time.
+;;;     If any test evaluates to false, force the compiler to exit in error, producing
+;;;     and appropriate error message.  If all of the tests pass, the Gambit compiler
+;;;     will proceed with compiling the definition.
 ;;; \end{itemize}
 ;;;
 ;;;
@@ -336,7 +332,7 @@
 ;;;
 ;;; \section{libbug-private\#define}
 ;;;  ``libbug-private\#define'' is the main procedure-defining procedure used
-;;;  throughout libbug.  ``libbug-private\#define'' takes a namespace, a variable name,
+;;;  throughout libbug.  ``libbug-private\#define'' takes a variable name,
 ;;;  a value to be stored in the variable, and an optional suite of tests.
 ;;;
 ;;; \label{sec:libbugdefine}
@@ -357,20 +353,26 @@
 ;;;
 ;;; ``libbug-private\#define'' itself is not exported to the macros file.
 ;;;
+;;;  On line 5-7, ``with-tests'' is applied to test at compile-time, thus
+;;;  also ensuring that the definition is available to other procedures
+;;;  both at compile-time and at run-time.
+;;;
 ;;; \section{libbug-private\#define-macro}
+;;;  Like ``libbug-private\#define'' is built upon ``\#\#define'',
+;;;  ``libbug-private\#define-macro'' is built upon ``\#\#define-macro''.
+;;;  Like ``libbug-private\#define'', ``libbug-private\#define-macro'' uses
+;;;  ``with-tests'', thus ensuring that the macro is available both at
+;;;  run-time and at compile-time. But, macros do not get compiled into
+;;;  libraries, so for other projects to use them, they must be exported
+;;;  to file.
 ;;;
-;;; ``libbug-private\#define-macro'' evaluates similarly to ''\#\#define-macro'', with augmentations
-;;; for testing and for exporting.  For testing, it
-;;; creates a procedure with the same name as the macro, suffixed with ``--expand'',
-;;; which performs the source transformation but does not evaluate the resulting form.
-;;; It also overrides ``gensym'' at compile-time so that macroexpansions
-;;; may be tested.  Regarding exporting, macros aren't compiled into the library itself,
-;;; so these macros must be exported to the macros file for consumption by external
-;;; projects.
-;;;
-;;;
-;;;
-;;;
+;;; The steps will be as follows:
+;;; \begin{itemize}
+;;;   \item Write the macro to file
+;;;   \item Write the macro-expander to file
+;;;   \item Define the macro-expaneer within libbug
+;;;   \item Define the macro using ``with-tests''.
+;;; \end{itemize}
 ;;;
 ;;;
 ;;; \label{sec:libbugdefinemacro}
@@ -408,7 +410,7 @@
                                         (caaddr lambda-value))}
                            [(car (cdaddr lambda-value))]
                            [(append (list 'unquote)
-                                    (cddr lambda-value))])}))}}
+                                    (cddr lambda-value))])}))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -506,7 +508,6 @@
 ;;; needs to be overridden for testing macro-expansions. }.
 ;;;
 ;;; \begin{code}
-       {at-both-times
         {##define-macro
           ,(string->symbol (string-append (symbol->string name)
                                           "-expand"))
@@ -643,17 +644,16 @@
               members)}
 
       {at-both-times
-       {begin
-         {##namespace (""
-                       define
-                       define-structure
-                       )}
-         {define-structure ,name ,@members}
-         {##namespace ("libbug-private#"
-                       define
-                       )}
-         {##namespace ("bug#"
-                       define-structure
-                       )}}}}]}
+       {##namespace (""
+                     define
+                     define-structure
+                     )}
+       {define-structure ,name ,@members}
+       {##namespace ("libbug-private#"
+                     define
+                     )}
+       {##namespace ("bug#"
+                     define-structure
+                       )}}}]}
 ;;; \end{code}
 ;;;
