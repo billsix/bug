@@ -630,37 +630,38 @@
 {##define-macro
   libbug-private#define-structure
   [|name #!rest members|
-   {libbug-private#namespace
-    ,(string->symbol
-      (string-append "make-"
-                     (symbol->string name)))
-    ,(string->symbol
-      (string-append (symbol->string name)
-                     "?"))
-    ,@(map [|m|
-            (string->symbol
-             (string-append (symbol->string name)
-                            "-"
-                            (symbol->string m)))]
-           members)
-    ,@(map [|m|
-            (string->symbol
-             (string-append (symbol->string name)
-                            "-"
-                            (symbol->string m)
-                            "-set!"))]
-           members)}
-   {at-both-times
-    {##namespace (""
-                  define
-                  define-structure
-                  )}
-    {define-structure ,name ,@members}
-    {##namespace ("libbug-private#"
-                  define
-                  )}
-    {##namespace ("bug#"
-                  define-structure
-                  )}}]}
+   `{begin
+      {libbug-private#namespace
+       ,(string->symbol
+         (string-append "make-"
+                        (symbol->string name)))
+       ,(string->symbol
+         (string-append (symbol->string name)
+                        "?"))
+       ,@(map [|m|
+               (string->symbol
+                (string-append (symbol->string name)
+                               "-"
+                               (symbol->string m)))]
+              members)
+       ,@(map [|m|
+               (string->symbol
+                (string-append (symbol->string name)
+                               "-"
+                               (symbol->string m)
+                               "-set!"))]
+              members)}
+      {at-both-times
+       {##namespace (""
+                     define
+                     define-structure
+                     )}
+       {define-structure ,name ,@members}
+       {##namespace ("libbug-private#"
+                     define
+                     )}
+       {##namespace ("bug#"
+                     define-structure
+                     )}}}]}
 ;;; \end{code}
 ;;;
