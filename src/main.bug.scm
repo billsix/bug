@@ -524,7 +524,7 @@
 ;;; \newpage
 ;;; \section{all?}
 ;;; Like regular Scheme's ``and'', but takes a list instead of a variable number of arguments, and
-;;; all elements of the list are evaluated before ``and'' is applied.
+;;; all elements of the list are evaluated before ``all?'' is applied.
 ;;;
 ;;; \label{sec:langiffirstuse}
 ;;; \index{all?}
@@ -633,11 +633,10 @@
 ;;; \begin{code}
 {define while
   [|pred? body|
-   {let while ()
+   {let while ((val 'noop))
      (if (pred?)
-         [(body)
-          (while)]
-         [(noop)])}]
+         [(while (body))]
+         [val])}]
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``pred?'' or ``p?'' usually means the parameter
@@ -646,9 +645,10 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   {let ((a 0))
-    (while [(< a 5)]
-           [{set! a (+ a 1)}])
-    (equal? a 5)}}
+    {and (equal? (while [(< a 5)]
+                        [{set! a (+ a 1)}])
+                 #!void)
+         (equal? a 5)}}}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1946,12 +1946,8 @@
    (if (null? l)
        [stream-null]
        [(stream-cons (car l)
-                     [{let list->stream ((l (cdr l)))
-                        (if (null? l)
-                            [stream-null]
-                            [(stream-cons (car l)
-                                          [(list->stream
-                                            (cdr l))])])}])])]
+                     [(list->stream
+                       (cdr l))])])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
