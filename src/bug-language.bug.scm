@@ -11,9 +11,9 @@
 ;;; This chapter, which was evaluated before the previous chapters, provides
 ;;; the foundation for computation at compile-time.  Although
 ;;; the most prevalent code which executed at compile-time in the previous chapters
-;;; was code for testing, but many other computations occurred during compile-time
+;;; was code for testing, many other computations occurred during compile-time
 ;;; transparently to the reader.  These other computations produced output
-;;; files for namespace mappings and for macro definitions, the latter to be used by other
+;;; files for namespace mappings and for macro definitions, to be used by other
 ;;; programs which link against libbug.
 ;;;
 ;;;
@@ -58,8 +58,8 @@
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
-;;; \item On line 4, evaluation in the compile-time environment
-;;; \item On line 5, evaluation in the run-time environment.  The forms
+;;; \item On lines 4-5, evaluation in the compile-time environment
+;;; \item On lines 6-7, evaluation in the run-time environment.  The forms
 ;;;  are returned unaltered to Gambit's compiler, thus ensuring that
 ;;;  they are defined in the run-time environment.
 ;;; \end{itemize}
@@ -165,9 +165,9 @@
 
 ;;; \begin{itemize}
 ;;;   \item On line 1-3, include the ``config.scm'' file which was preprocessed
-;;;     by Autconf, so that the installation directory of libbug is known
+;;;     by Autoconf, so that the installation directory of libbug is known
 ;;;     at compile-time.
-;;;   \item On line 11, ``libbug\#.scm'' is imported, so that the generated macros are
+;;;   \item On line 13, ``libbug\#.scm'' is imported, so that the generated macros are
 ;;;         namespaced correctly in external projects which import libbug.  In the previous section,
 ;;;         this file is created at compile-time.  Remember that when ``libbug-macros.scm'' will
 ;;;         be imported by an external project, ``libbug\#.scm'' will exist with all
@@ -254,7 +254,7 @@
 ;;; ``bug\#if'', where
 ;;; ``bug\#if'' takes two zero-argument procedures, treating them
 ;;; as Church Booleans.  bug\#if was first used and described
-;;; in section ~\ref{sec:langiffirstuse}
+;;; in section~\ref{sec:langiffirstuse}.
 ;;;
 ;;;
 ;;;
@@ -288,10 +288,10 @@
 ;;;   On lines 7-10, check that the caller of ``bug\#if'' is passing
 ;;;   lambdas, i.e. has not forgetten that ``if'' is namespaced to ``bug''.
 ;;;  \item
-;;;    On line 11, if the caller of ``bug\#if'' has not passed lambdas,
+;;;    On line 14, if the caller of ``bug\#if'' has not passed lambdas,
 ;;;    error at compile-time.
 ;;;  \item
-;;;   On line 12-14, evaluate the body of the appropriate lambda, depending
+;;;   On line 11-13, evaluate the body of the appropriate lambda, depending
 ;;;   on whether the predicate is true or false.
 ;;;
 ;;; \end{itemize}
@@ -350,7 +350,6 @@
 ;;;
 ;;; ``libbug-private\#define'' defines the procedure/data at compile-time
 ;;; at run-time, and exports the namespace mapping to the appropriate file.
-;;;
 ;;; ``libbug-private\#define'' itself is not exported to the macros file.
 ;;;
 ;;;  On line 5-7, ``with-tests'' is applied to test at compile-time, thus
@@ -370,7 +369,7 @@
 ;;; \begin{itemize}
 ;;;   \item Write the macro to file
 ;;;   \item Write the macro-expander to file
-;;;   \item Define the macro-expaneer within libbug
+;;;   \item Define the macro-expander within libbug
 ;;;   \item Define the macro using ``with-tests''.
 ;;; \end{itemize}
 ;;;
@@ -415,9 +414,7 @@
 ;;;
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 1, the program which imports this macro shall define the
-;;;         macro at both compile-time and run-time.
-;;;   \item On line 4, the written-to-file lambda value shall have the same
+;;;   \item On line 3, the written-to-file lambda value shall have the same
 ;;;         argument list as the argument list passed to ``libbug-private\#define-macro''
 ;;;
 ;;; \begin{examplecode}
@@ -438,29 +435,29 @@
 ;;;    (cadr '(lambda (foo bar) (quasiquote 5)))
 ;;; \end{examplecode}
 ;;;
-;;;   \item On line 5, the unevaluated form in argument ``lambda-value'' may
+;;;   \item On line 4, the unevaluated form in argument ``lambda-value'' may
 ;;;         or may not be quasiquoted.  Either way, write a quasiquoted form
 ;;;         to the file.  In the case that the ``lambda-value'' argument was not
 ;;;         actually intended to be quasiquoted, unquote the lambda's body (which is
-;;;         done on line 13-14), thereby negating the quasi-quoting from line 5.
-;;;   \item On line 5-6, rather than nesting quasiquotes, line 5 uses a technique
+;;;         done on line 12-13), thereby negating the quasi-quoting from line 4.
+;;;   \item On line 4-5, rather than nesting quasiquotes, line 4 uses a technique
 ;;;         of replacing a would-be nested quasiquote with ``,(list 'quasiquote `(...)''.
 ;;;         This makes the code more readable \cite[p. 854]{paip}.  Should the reader
 ;;;         be interested in learning more about nested quasiquotes, Appendix C
 ;;;         of \cite[p. 960]{cl} is a great reference.
-;;;   \item On line 6-8, ensure that the currently unevaluated form will be
+;;;   \item On line 5-7, ensure that the currently unevaluated form will be
 ;;;         evaluated in a context in which the namespaces resolve consistently
-;;;         as they were written in this book.  Line 6 create a bounded
-;;;         context for namespace mapping.  Line 7 setst standad Gambit namespace
-;;;         mappings, line 8 sets libbug's mappings.
-;;;   \item On line 9-11, check to see if the unevaluated form is quasiquoted.
+;;;         as they were written in this book.  Line 5 create a bounded
+;;;         context for namespace mapping.  Line 6 sets standard Gambit namespace
+;;;         mappings, line 7 sets libbug's mappings.
+;;;   \item On line 8-10, check to see if the unevaluated form is quasiquoted.
 ;;;
 ;;; \begin{examplecode}
 ;;;    > (caaddr '[|foo bar| (quasiquote 5)])
 ;;;    quasiquote
 ;;; \end{examplecode}
 ;;;
-;;;   \item On line 12, it is quasiquoted, as such, grab the content of the
+;;;   \item On line 11, it is quasiquoted, as such, grab the content of the
 ;;;         list minus the quasiquoting.
 ;;;
 ;;; \begin{examplecode}
@@ -476,7 +473,7 @@
 ;;;    `5
 ;;; \end{examplecode}
 
-;;;   \item On line 13-14, since this is not a quasi-quoted form, just grab
+;;;   \item On line 12-13, since this is not a quasi-quoted form, just grab
 ;;;         the form, and ``unquote'' it.
 ;;;
 ;;; \begin{examplecode}
@@ -484,7 +481,7 @@
 ;;;    ,(+ 5 5)
 ;;; \end{examplecode}
 ;;;
-;;;  Remember, that this value gets wrapped in a quasiquote from line 5
+;;;  Remember, this value gets wrapped in a quasiquote from line 4
 ;;;
 ;;; \begin{examplecode}
 ;;;    > (list 'quasiquote (append (list 'unquote )
@@ -492,19 +489,20 @@
 ;;;                                          (+ 5 5)])))
 ;;;    `,(+ 5 5)
 ;;; \end{examplecode}
-
-
+;;;
+;;;
 ;;; \end{itemize}
 ;;;
 ;;;
 ;;;
-;;; \subsubsection{Procedure to expand macro invocations}
+;;; \subsubsection{Macro to expand macro invocations}
 ;;;
 ;;; In order to be able to test the macro transformation before evaluation of the
 ;;; expanded
-;;; code, create a procedure (instead of a macro) with ``-expand''
+;;; code, create the macro with ``-expand''
 ;;; suffixed to the ``name'', with the same procedure body as
-;;; the ``lambda-value'''s body.  Locally define ``gensym'' in this generated
+;;; the ``lambda-value'''s body, but ``quote'' the result of the macro-expansion
+;;; so that the compiler will not compile it.  Locally define ``gensym'' in this generated
 ;;; procedure, so that tests may be written\footnote{``\#\#gensym'', by definition,
 ;;; creates a unique symbol which the programmer could never input, which is why it
 ;;; needs to be overridden for testing macro-expansions. }.

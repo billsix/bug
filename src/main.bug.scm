@@ -254,7 +254,7 @@
 ;;;
 ;;; \section{Prerequisites}
 ;;;
-;;; The reader is assumed to be somewhat familiar both with Scheme, with Common Lisp-style
+;;; The reader is assumed to be somewhat familiar with Scheme, with Common Lisp-style
 ;;; macros, and with recursive design.  If the book proves too difficult for you,
 ;;; read ``Simply Scheme''
 ;;; \cite{ss}\footnote{available on-line for no cost}
@@ -277,7 +277,7 @@
 ;;;  As such, the ordering of the book was rearranged in an effort to keep the reader
 ;;;  engaged and curious.  The book begins with ``Part 1, The Implementation of Libbug''
 ;;;  and ends with ``Part 2, Foundations Of Libbug''
-;;;  The Gambit compiler, however, compiles the Part 2 first, then Part 1.
+;;;  The Gambit compiler, however, compiles Part 2 first, then Part 1.
 ;;;
 ;;; \section{Conventions}
 ;;; Code which is part of libbug will be outlined and
@@ -483,7 +483,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{identity}
-;;; identity is a procedure of one argument which evaluates to
+;;; ``identity'' is a procedure of one argument which evaluates to
 ;;; its argument. \cite[p. 2]{calculi}
 ;;;
 ;;; \index{identity}
@@ -538,10 +538,10 @@
             [(all? (cdr l))])])]
 ;;; \end{code}
 ;;; \begin{itemize}
-;;;   \item On line 3, ``if'', which is currently namespaced to bug\#if\footnote{
+;;;   \item On line 3, ``if'', which is currently namespaced to ``bug\#if''\footnote{
 ;;;      defined in section~\ref{sec:langif} }, takes
 ;;;         lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
-;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that bug\#if is just syntactic sugar:
+;;;         ``Church Booleans'' \cite[p. 58]{tapl}, and that ``bug\#if'' is just syntactic sugar:
 ;;;
 ;;;
 ;;; \begin{examplecode}
@@ -550,7 +550,7 @@
 ;;;{define bug#if [|b t f| (b t f)]}
 ;;; \end{examplecode}
 ;;;
-;;; \noindent As such, bug\#if would not be a special form, and is more consistent with the
+;;; \noindent As such, ``bug\#if'' would not be a special form, and is more consistent with the
 ;;; rest of libbug.
 ;;;
 ;;; \end{itemize}
@@ -619,6 +619,7 @@
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
 ;;; the code, there will be no written documentation.
 ;;;
+;;; \newpage
 ;;; \section{while}
 ;;;
 ;;; \index{while}
@@ -648,6 +649,12 @@
     {and (equal? (while [(< a 5)]
                         [{set! a (+ a 1)}])
                  #!void)
+         (equal? a 5)}}
+  {let ((a 0))
+    {and (equal? (while [(< a 5)]
+                        [{set! a (+ a 1)}
+                         'foo])
+                 'foo)
          (equal? a 5)}}}
 ;;; \end{code}
 ;;;
@@ -828,8 +835,6 @@
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
-;;;  The first test does not provide a value for ``onNull'',
-;;; the second test does, which demonstrates the keyword syntax.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
@@ -1180,14 +1185,6 @@
 ;;; \subsection*{Tests}
 ;;; \begin{code}
   (satisfies?
-   [|l| (map [|x| (list x
-                        (+ x 1)
-                        (+ x 2))]
-             l)]
-   '(
-     ((10 20) ((10 11 12) (20 21 22)))
-     ))
-  (satisfies?
    [|l| (flatmap [|x| (list x
                             (+ x 1)
                             (+ x 2))]
@@ -1471,17 +1468,6 @@
                    [(ref-of (cdr l) (+ index 1))])])}])]
 ;;; \end{code}
 ;;; \subsection*{Tests}
-;;; \begin{code}
-  (satisfies?
-   [|x| (ref-of '() x)]
-   '(
-     (z noop)
-     (a noop)
-     (b noop)
-     (g noop)
-     ))
-;;; \end{code}
-;;;
 ;;; \begin{code}
   (satisfies?
    [|x| (ref-of '(a b c d e f g) x)]
@@ -1875,10 +1861,6 @@
 ;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
 ;;; lambda value.
 ;;;
-;;; ``stream-cons'' is a macro, a topic which has not yet been covered, but will
-;;; be in chapter~\ref{sec:macros}.  For now, just know that ``stream-cons'' is
-;;; a constructor for creating streams which verifies at compile-time that the
-;;; second argument is a zero-argument lambda.
 ;;;
 ;;; \index{stream-cons}
 ;;; \begin{code}
@@ -2366,9 +2348,7 @@
 ;;; Macro-expansions occur during compile-time, so how should a person
 ;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
 ;;; as a procedure which transforms lists into lists, and as such is able
-;;; to be tested.
-;;;
-;;; \footnote{
+;;; to be tested\footnote{
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
 ;;; macro into the new form, which the compiler would have then compiled
 ;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
@@ -2382,7 +2362,7 @@
 ;;; regular old ``gensym''.  As such,
 ;;; ``eval''ing code generated from ``macroexpand-1'' in a non-testing context is not
 ;;; recommended.
-;;; }
+;;; }.
 ;;;
 ;;;
 ;;;
@@ -2538,19 +2518,21 @@
 ;;;
 ;;; \cite[p. 854]{paip}
 ;;;
-;;; \noindent Code with no quotes is evaluated in the first macroexpansion, code with one
-;;; quote is evaluated in the second macroexpansion, code with two quotes
-;;; is part of the generated code.
+;;; \noindent Symbols with no quotes are evaluated in the first macroexpansion, symbols with one
+;;; quote are evaluated in the second macroexpansion, symbols with two quotes
+;;; are part of the generated code.
 ;;;
 ;;; \subsection*{Tests}
 ;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
-  (equal? {macroexpand-1 {once-only (x) `(+ ,x ,x)}}
+  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
           '(list 'let
-                 (list (list 'gensymed-var1 x))
-                 {let ((x 'gensymed-var1))
-                   `(+ ,x ,x)}))
+                 (list (list 'gensymed-var1 x)
+                       (list 'gensymed-var2 y))
+                 {let ((x 'gensymed-var1)
+                       (y 'gensymed-var2))
+                   `(+ ,x ,y)}))
 ;;; \end{code}
 ;;;
 ;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  But
@@ -2559,32 +2541,33 @@
 ;;; ``gensym-ed'' variable until the second macroexpansion.
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 1, ``once-only'' is invoked, specifying that the variable ``x''
-;;;     shall be evaluated only once in the expanded code of ``x'' plus ``x''.
-;;;   \item On line 2, this first expansion of the macro sets up the second expansion
-;;;      to create a new context (line 3) for modified code (line 4-5)
-;;;   \item On line 3, creates a context for the second expansion.  This corresponds
-;;;      to line 4 of the next test.
-;;;   \item On line 4-5 of this test, substitute the ``gensym-ed'' variable for all
-;;;     instances of the variable to be evaluated once-only, in this case, ``x''.
+;;;   \item On line 1, ``once-only'' is invoked, specifying that the variables ``x''
+;;;     and ``y''
+;;;     shall be evaluated only once in the expanded code of ``x'' plus ``y''.
+;;;   \item On line 2, this first expansion of the macro sets up the second expansion's
+;;;      creation of a new context (line 3-4) for modified code (line 5-7)
 ;;; \end{itemize}
 ;;;
 ;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
-  (equal? (eval `{let ((x 'x))
-                   ,(once-only-expand (x)
-                                      `(+ ,x ,x))})
-          '{let ((gensymed-var1 x))
-             (+ gensymed-var1 gensymed-var1)})
+  (equal? (eval `{let ((x 'x)
+                       (y 'y))
+                   ,(once-only-expand (x y)
+                                      `(+ ,x ,y))})
+          '{let ((gensymed-var1 x)
+                 (gensymed-var2 y))
+             (+ gensymed-var1 gensymed-var2)})
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
-  (equal? (eval `{let ((x 5))
-                   ,(eval `{let ((x 'x))
-                             ,(once-only-expand (x)
-                                                `(+ ,x ,x))})})
-          10)
+  (equal? (eval `{let ((x 5)
+                       (y 6))
+                   ,(eval `{let ((x 'x)
+                                 (y 'y))
+                             ,(once-only-expand (x y)
+                                                `(+ ,x ,y))})})
+          11)
   }
 ;;; \end{code}
 ;;;
@@ -2598,8 +2581,8 @@
 ;;;  they allow a procedure to pass a memory location as a variable to another procedure,
 ;;;  which can then indirectly access/write to that location.
 ;;;
-;;;  Fortunatly, most data-structures in Lisp has one ``accessing'' procedure
-;;;  (for instance ``car'' or ``stream-a''), and an ``updating procedure''
+;;;  Fortunatly, most data-structures in Lisp have an ``accessing'' procedure
+;;;  (for instance ``car'' or ``stream-a'') and an ``updating procedure''
 ;;;  (``set-car!'' and ``stream-a-set!'').  And there are only 3 patterns used
 ;;;  to map names of accessing procedures to updating procedures.
 ;;;
@@ -2609,7 +2592,9 @@
 ;;;  we can instead simply think of a call to the access function with given
 ;;;  arguments as a \emph{name} for the storage location.'' \cite[p. 123-124]{cl}
 ;;;
-;;; The implementation is inspired by \cite{setf}.
+;;;  Therefore, create a macro named ``setf!'' which invokes the appropriate
+;;;  ``setting'' procedure, based on the given ``accessing'' procedure\footnote{The
+;;;  implementation is inspired by \cite{setf}.}.
 ;;;
 ;;; \index{setf!}
 ;;; \begin{code}
@@ -2747,7 +2732,7 @@
               a)}}
 ;;; \end{code}
 ;;;
-;;; \footnote{As a reminder, ``stream-a'' and ``stream-a-set!'' are not meant to be used
+;;; \footnote{As a reminder, ``stream-a'', ``make-stream'', and ``stream-a-set!'' are not meant to be used
 ;;;    directly.  But for the purposes of testing ``setf!'', it sufficies to use them directly.}
 ;;;
 ;;; \subsubsection*{-ref Replaced By -set!}
@@ -2775,7 +2760,7 @@
 ;;; \newpage
 ;;; \section{mutate!}
 ;;;  Like ``setf!'', ``mutate!'' takes a generalized variable
-;;;  as input and additionally a procedure.  The procedure is applied
+;;;  as input, but it additionally takes a procedure.  The procedure is applied
 ;;;  to the value of that generalized variable, and is then
 ;;;  stored back into it.
 ;;;
@@ -2787,9 +2772,8 @@
        [`{setf! ,exp (,f ,exp)}]
        [{let* ((args (cdr exp))
                (syml (map [|s| (gensym)]
-                          args))
-               (params (zip syml args)))
-          `{let ,params
+                          args)))
+          `{let ,(zip syml args)
              {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]
 ;;; \end{code}
 ;;;
@@ -2837,9 +2821,6 @@
     {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
     (equal? foo
             (vector 1 0 0))}
-;;; \end{code}
-;;;
-;;; \begin{code}
   {let ((foo (vector 0 0 0)))
     {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
     (equal? foo
