@@ -7,7 +7,7 @@ Prerequisites
 Building
  Run the following:
    ./autogen.sh
-   ./configure --prefix=$myprefix
+   ./configure --prefix=$myprefix --enable-pdf
    make
    make install
 
