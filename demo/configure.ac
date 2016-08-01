@@ -7,7 +7,9 @@ AC_CONFIG_HEADER([config.h])
 AC_CHECK_HEADER([stdio.h])
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile
+        src/Makefile
+        src/config.scm])
 
 export LIBBUG_INCLUDE_DIR=$(pkg-config --variable=includedir libbug)
 AC_SUBST(LIBBUG_INCLUDE_DIR)

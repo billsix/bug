@@ -1,0 +1,32 @@
+;; Copyright 2016 - William Emerison Six
+;;  All rights reserved
+;;  Distributed under LGPL 2.1 or Apache 2.0
+
+{namespace ("bug-demo-configuration#"
+	    package
+	    version
+	    prefix
+            ac_unique_file
+	    )}
+
+{define package  "@PACKAGE_NAME@"}
+{define version  "@PACKAGE_VERSION@"}
+{define prefix "@prefix@"}
+{define ac_unique_file "@ac_unique_file@"}
+
+;; set the namespace for the project
+(namespace ("bug-demo#"))
+;; but use default Gambit procedures
+(##include "~~lib/gambit#.scm")
+;; and also use libbug's
+(##include "@LIBBUG_INCLUDE_DIR@libbug-macros.scm")
+(##include "@LIBBUG_INCLUDE_DIR@libbug#.scm")
+
+;; ensure that the libraries are loaded for compile
+;; time, and that they are namespaced
+{at-compile-time
+ {begin
+   (load "@LIBBUG_LOADABLE_LIBS@")
+   (##include "@LIBBUG_INCLUDE_DIR@libbug-macros.scm")
+   (##include "@LIBBUG_INCLUDE_DIR@libbug#.scm")}}
+
