@@ -1,0 +1,68 @@
+# @configure_input@
+
+package = @PACKAGE_NAME@
+version = @PACKAGE_VERSION@
+tarname = @PACKAGE_TARNAME@
+distdir = $(tarname)-$(version)
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+includedir=@includedir@
+datarootdir = @datarootdir@
+
+all: bug-demo
+
+%.scm : %.bug.scm
+	bug-gscpp $< $@
+
+%.c : %.scm
+	gsc -c $<
+
+%.o : %.c
+	gsc -obj $<
+
+bug-demo: bug-demo.scm
+	gsc -link -l @LIBBUG_INCLUDE_DIR@libbug bug-demo.scm
+	gsc -obj bug-demo.c bug-demo_.c
+	$(CC)  -o bug-demo bug-demo.o bug-demo_.o @LIBBUG_LIB_DIR@/libbug.so -lgambit -lm -ldl -lutil 
+
+
+install:
+	install -d $(DESTDIR)$(bindir)
+	install -m 0755 bug-demo $(DESTDIR)$(bindir)
+
+
+uninstall:
+	rm $(DESTDIR)$(bindir)/bug-demo
+
+Makefile: Makefile.in ../config.status
+	cd .. && ./config.status $@
+
+
+clean:
+	-rm bug-demo
+	-rm bug-demo.c
+	-rm bug-demo.o
+	-rm bug-demo.scm
+	-rm bug-demo_.c
+	-rm bug-demo_.o
+
+
+
+.PHONY: all clean install uninstall
+
+
+# SUFFIXES = .bug.scm .o
+
+# .bug.scm.o:
+# 	bug-gscpp bug-demo.bug.scm bug-demo.scm
+# 	gsc -link -l @LIBBUG_INCLUDE_DIR@libbug bug-demo.scm
+# 	gsc -obj bug-demo.c
+# 	gsc -obj bug-demo_.c
+
+
+# bin_PROGRAMS = bug-demo
+# bug_demo_SOURCES = bug-demo.bug.scm
+# bug_demo_LDFLAGS = @LIBBUG_LIB_DIR@/libbug.so -lgambit -lm -ldl -lutil bug-demo_.o 
+

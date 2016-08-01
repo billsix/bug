@@ -1,4 +1,1 @@
-aclocal
-autoconf
-autoheader
-automake -a
+autoreconf --install
