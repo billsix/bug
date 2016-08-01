@@ -1,5 +1,5 @@
 Prerequisites
- - Gambit-C, versions 4.7.6 or greater
+ - Gambit Scheme, versions 4.8 or greater
  - a C compiler like GCC
  - autoconf, automake, make
  - pkg-config
