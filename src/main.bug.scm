@@ -461,7 +461,7 @@
 ;;; \end{examplecode}
 ;;;
 ;;; \end{itemize}
-;;; \subsection*{Test}
+;;;
 ;;; \begin{code}
 {unit-test
   (equal? (noop) 'noop)}
@@ -511,7 +511,7 @@
 ;;; literals, Scheme's block comments are not allowed in libbug programs}.
 ;;; \end{itemize}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;;
 ;;; libbug-private\#define can take more than one test as parameters.
 ;;;
@@ -557,7 +557,7 @@
 ;;; \end{itemize}
 ;;;
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (all? '())
@@ -596,7 +596,7 @@
 ;;; \footnote{Within libbug, a parameter named ``f'' usually means the parameter is
 ;;;   a procedure.}
 
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -645,7 +645,7 @@
 ;;; \footnote{Within libbug, a parameter named ``pred?'' or ``p?'' usually means the parameter
 ;;;   is a predicate, meaning a procedure which returns true or false.}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  {let ((a 0))
@@ -683,7 +683,7 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 150, called ``nif'']{onlisp}
-;;; \subsection*{Tests}
+;;;
 ;;; Keyword arguments are optionally defined, and use the following syntax.
 ;;;
 ;;; \begin{code}
@@ -718,7 +718,7 @@
 ;;;   be of any type.}
 ;;;
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -748,7 +748,7 @@
 ;;;
 ;;; \noindent \cite[p. 63]{onlisp}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -785,7 +785,7 @@
 ;;; \footnote{Within libbug, a parameter named ``l'' usually means the parameter is
 ;;;   is a list.}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  {let ((a '(1 2 3 4 5)))
@@ -811,7 +811,7 @@
             [(proper? (cdr l))]
             [#f])])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -843,7 +843,7 @@
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -875,7 +875,7 @@
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -908,7 +908,7 @@
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -944,7 +944,7 @@
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -982,7 +982,7 @@
 ;;;
 ;;; \noindent \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
 ;;; on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}}. \cite[p. 115]{sicp}.
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1009,7 +1009,7 @@
    (filter [|y| (not (equal? x y))]
            l)]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1041,7 +1041,7 @@
 ;;;   is an accumulated value}
 ;;;
 ;;; \noindent \cite[p. 121]{sicp}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1087,7 +1087,7 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 116 (named ``accumulate'')]{sicp}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1133,7 +1133,7 @@
                            (cdr last-cell)}
                          (cdr l))}])}}]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1169,7 +1169,7 @@
              head}])]}
    (fold-right append! '() ls)]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (append! '()
@@ -1200,7 +1200,7 @@
 ;;;
 ;;; \noindent \cite[p. 123]{sicp}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1233,7 +1233,7 @@
                     (cdr l)))])]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1261,7 +1261,7 @@
                 (take-while (cdr l)))])}]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1289,7 +1289,7 @@
               (cdr l))])]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1315,7 +1315,7 @@
          [(drop-while (cdr l))])}]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1344,7 +1344,7 @@
                                   high
                                   step: step))])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (enumerate-interval 1 10)
@@ -1366,7 +1366,7 @@
             [#t]
             [(any? (cdr l))])])]}
 ;;; \end{code}
-;;; \subsection*{Test}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1392,7 +1392,7 @@
        [(cons (apply list (map car lsts))
               (apply zip (map cdr lsts)))])]}
 ;;; \end{code}
-;;; \subsection*{Tests with 2 Lists}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (zip '() '())
@@ -1411,7 +1411,7 @@
  (equal? (zip '() '(1))
          '())
 ;;; \end{code}
-;;; \subsection*{Tests with 3 Lists}
+;;;
 ;;; \begin{code}
  (equal? (zip '() '() '())
          '())
@@ -1422,7 +1422,7 @@
            (2 5 8)
            (3 6 9)))
 ;;; \end{code}
-;;; \subsection*{Tests with 4 Lists}
+;;;
 ;;; \begin{code}
  (equal? (zip '() '() '() '())
          '())
@@ -1451,7 +1451,7 @@
                                   (permutations (remove x l)))]
                         l)])}])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1494,7 +1494,7 @@
                    [(onMissing)]
                    [(ref-of (cdr l) (+ index 1))])])}])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1556,7 +1556,7 @@
                           trueList
                           (cons (car l) falseList))])])}]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1605,7 +1605,7 @@
                      (cons current-node
                            (sort greater-than)))}])}]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1635,7 +1635,7 @@
                  {set-cdr! cons-cell reversed-list}
                  (reverse! rest cons-cell)}])}])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1683,7 +1683,7 @@
   (string-liftList reverse!)}
 ;;;
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1707,7 +1707,7 @@
     s)]}
 ;;;
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1729,7 +1729,7 @@
     s)]}
 ;;;
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1755,7 +1755,7 @@
             (map char->integer n)))]]}
 ;;;
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1778,7 +1778,7 @@
     s)]}
 ;;;
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;;
 ;;; The ``Caesar Cipher''. \cite[p. 30]{crypto}.
 ;;;
@@ -1825,7 +1825,7 @@
             (map symbol->string s)))]]}
 ;;;
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -1912,7 +1912,7 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  {let ((s (stream-cons 1 [2])))
@@ -1944,7 +1944,7 @@
   null?}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (stream-null?
@@ -1969,7 +1969,7 @@
                      [(list->stream
                        (cdr l))])])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  {let ((foo (list->stream '(1 2 3))))
@@ -1998,7 +1998,7 @@
               (stream->list
                (stream-cdr s)))])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (stream->list
@@ -2027,7 +2027,7 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 319]{sicp}.
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -2061,7 +2061,7 @@
 ;;;
 ;;; \cite[p. 326]{sicp}.
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -2095,7 +2095,7 @@
                                    (stream-cdr s))])])]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -2129,7 +2129,7 @@
                 [(stream-filter (stream-cdr s))])}])}]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal?  (stream->list
@@ -2166,7 +2166,7 @@
 ;;;
 ;;; \cite[p. 327]{sicp}.
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (stream->list
@@ -2194,7 +2194,7 @@
                        [(stream-map (map stream-cdr list-of-streams))])])}]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (stream->list
@@ -2223,7 +2223,7 @@
                                                  high
                                                  step: step)])])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (stream->list
@@ -2249,7 +2249,7 @@
                          (stream-cdr s))])])}]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -2276,7 +2276,7 @@
                      (stream-cdr s))])]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -2311,7 +2311,7 @@
          [(stream-drop-while (stream-cdr s))])}]}
 ;;; \end{code}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
@@ -2383,7 +2383,7 @@
 ;;; \end{itemize}
 
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 (compose)}
@@ -2488,7 +2488,7 @@
 ;;; to ensure that the variable is captured.
 ;;;
 ;;; \noindent \cite[p. 191]{onlisp}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? {aif (+ 5 10) (* 2 bug#it)}
@@ -2520,7 +2520,7 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 145]{onlisp}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 (with-gensyms (foo bar baz)
@@ -2574,7 +2574,7 @@
 ;;; quote are evaluated in the second macroexpansion, symbols with two quotes
 ;;; are part of the generated code.
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
@@ -2705,7 +2705,7 @@
                   ,@(cdr exp)
                   ,val))}])]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \subsubsection*{Updating a Variable Directly}
 ;;;
 ;;; \begin{code}
@@ -2832,7 +2832,7 @@
 ;;; \end{code}
 ;;;
 
-;;; \subsection*{Tests}
+;;;
 ;;;
 ;;; \begin{code}
 {unit-test
@@ -2953,7 +2953,7 @@
                                    gensym: gensym
                                    n: (+ 1 n))))}]}
 ;;; \end{code}
-;;; \subsection*{Tests}
+;;;
 ;;; \begin{code}
 {unit-test
  (equal? (tree-of-accessors '() '(1 2))
@@ -3012,7 +3012,7 @@
 ;;;
 ;;; \cite[p. 232]{onlisp}
 ;;;
-;;; \subsection*{Tests}
+;;;
 ;;;
 ;;; \begin{code}
 {unit-test
