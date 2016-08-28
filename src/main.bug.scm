@@ -1653,18 +1653,18 @@
 ;;;
 ;;; \newpage
 ;;; \chapter{Lifting}
-;;; \section{string-liftList}
+;;; \section{string-lift-list}
 ;;;
 ;;; Strings are sequences of characters, just as lists are
-;;; sequences of arbitrary Scheme objects. ``string-liftList''
+;;; sequences of arbitrary Scheme objects. ``string-lift-list''
 ;;; takes a one-argument
 ;;; list processing procedure, and evaluates to an
 ;;; equivalent procedure for strings.
 ;;;
 ;;;
-;;; \index{string-liftList}
+;;; \index{string-lift-list}
 ;;; \begin{code}
-{define string-liftList
+{define string-lift-list
   [|f|
    [|#!rest s|
     (list->string
@@ -1680,7 +1680,7 @@
 ;;; \index{string-reverse}
 ;;; \begin{code}
 {define string-reverse
-  (string-liftList reverse!)}
+  (string-lift-list reverse!)}
 ;;;
 ;;; \end{code}
 ;;;
@@ -1703,7 +1703,7 @@
 ;;; \begin{code}
 {define string-take
   [|n s|
-   ((string-liftList [|l| (take n l)])
+   ((string-lift-list [|l| (take n l)])
     s)]}
 ;;;
 ;;; \end{code}
@@ -1725,7 +1725,7 @@
 ;;; \begin{code}
 {define string-drop
   [|n s|
-   ((string-liftList [|l| (drop n l)])
+   ((string-lift-list [|l| (drop n l)])
     s)]}
 ;;;
 ;;; \end{code}
@@ -1743,11 +1743,11 @@
 ;;; \end{code}
 ;;; \newpage
 
-;;; \section{character-liftInteger}
+;;; \section{character-lift-integer}
 ;;;
-;;; \index{character-liftInteger}
+;;; \index{character-lift-integer}
 ;;; \begin{code}
-{define character-liftInteger
+{define character-lift-integer
   [|f|
    [|#!rest n|
     (integer->char
@@ -1759,7 +1759,7 @@
 ;;; \begin{code}
 {unit-test
  (satisfies?
-  (character-liftInteger [|c| (+ c 1)])
+  (character-lift-integer [|c| (+ c 1)])
    '(
      (#\a #\b)
      (#\b #\c)
@@ -1774,7 +1774,7 @@
 ;;; \begin{code}
 {define string-map
   [|f s|
-   ((string-liftList [|l| (map f l)])
+   ((string-lift-list [|l| (map f l)])
     s)]}
 ;;;
 ;;; \end{code}
@@ -1787,11 +1787,11 @@
  (satisfies?
   [|s| (string-map
         [|c|
-         ((character-liftInteger [|base-char c|
-                                  (+ base-char
-                                     (modulo (+ (- c base-char)
-                                                3)
-                                             26))])
+         ((character-lift-integer [|base-char c|
+                                   (+ base-char
+                                      (modulo (+ (- c base-char)
+                                                 3)
+                                              26))])
           #\a
           c)]
         s)]
@@ -1806,22 +1806,22 @@
 ;;; \end{code}
 ;;; \newpage
 
-;;; \section{symbol-liftList}
+;;; \section{symbol-lift-list}
 ;;;
 ;;; Symbols are sequences of characters, just as lists are
-;;; sequences of arbitrary Scheme objects. ``symbol-liftList''
+;;; sequences of arbitrary Scheme objects. ``symbol-lift-list''
 ;;; takes a one-argument
 ;;; list processing procedure, and evaluates to an
 ;;; equivalent procedure for symbols.
 ;;;
 ;;;
-;;; \index{symbol-liftList}
+;;; \index{symbol-lift-list}
 ;;; \begin{code}
-{define symbol-liftList
+{define symbol-lift-list
   [|f|
    [|#!rest s|
     (string->symbol
-     (apply (string-liftList f)
+     (apply (string-lift-list f)
             (map symbol->string s)))]]}
 ;;;
 ;;; \end{code}
@@ -1829,12 +1829,12 @@
 ;;; \begin{code}
 {unit-test
  (satisfies?
-  (symbol-liftList reverse)
+  (symbol-lift-list reverse)
   '(
     (foo oof)
     (bar rab)
     ))
- (equal? ((symbol-liftList append!) 'foo 'bar)
+ (equal? ((symbol-lift-list append!) 'foo 'bar)
          'foobar)
  }
 ;;; \end{code}
@@ -2690,7 +2690,7 @@
           ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
 ;;; \end{code}
 ;;; \begin{code}
-          (else `(,((symbol-liftList
+          (else `(,((symbol-lift-list
                      [|l -set! -ref|
                       (append!
                        (if (equal? (reverse -ref)
