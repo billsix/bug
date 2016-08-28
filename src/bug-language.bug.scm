@@ -297,9 +297,9 @@
 ;;; \end{itemize}
 ;;;
 ;;;
-;;; \section{with-tests}
+;;; \section{unit-test}
 ;;;
-;;; \index{with-tests}
+;;; \index{unit-test}
 ;;;
 ;;; Given that the reader now knows how to evaluate at compile-time, implementing
 ;;; a macro to execute tests at compile-time is trivial.
@@ -315,18 +315,16 @@
 ;;;
 ;;;
 ;;; \begin{code}
-{libbug-private#namespace with-tests}
+{libbug-private#namespace unit-test}
 {libbug-private#write-and-eval
  libbug-macros-file
- {##define-macro with-tests
-   [|definition #!rest tests|
+ {##define-macro unit-test
+   [|#!rest tests|
     (eval
-     `{begin
-        ,definition
-        (if {and ,@tests}
-            [',definition]
-            [(for-each pp (list "Test Failed" ',tests ',definition))
-             (error "Tests Failed")])})]}}
+     `(if {and ,@tests}
+          ['noop]
+          [(for-each pp (list "Test Failed" ',tests))
+           (error "Tests Failed")]))]}}
 ;;; \end{code}
 ;;;
 ;;;
@@ -340,12 +338,11 @@
 ;;; \begin{code}
 {##define-macro
   libbug-private#define
-  [|name body #!rest tests|
+  [|name body|
    `{begin
       {libbug-private#namespace ,name}
-      {with-tests
-       {##define ,name ,body}
-       ,@tests}}]}
+      {at-both-times
+       {##define ,name ,body}}}]}
 ;;; \end{code}
 ;;;
 ;;; ``libbug-private\#define'' defines the procedure/data at compile-time
@@ -572,7 +569,7 @@
 ;;; and execute the compile-time tests.
 ;;;
 ;;; \begin{code}
-        {with-tests
+        {at-both-times
          {##define-macro
            ,name
            ,lambda-value}

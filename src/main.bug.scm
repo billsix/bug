@@ -437,7 +437,7 @@
 ;;; \index{noop}
 ;;; \begin{code}
 {define noop
-  ['noop]
+  ['noop]}
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
@@ -463,6 +463,7 @@
 ;;; \end{itemize}
 ;;; \subsection*{Test}
 ;;; \begin{code}
+{unit-test
   (equal? (noop) 'noop)}
 ;;; \end{code}
 ;;;
@@ -490,7 +491,7 @@
 ;;;
 ;;; \begin{code}
 {define identity
-  [|x| x]
+  [|x| x]}
 ;;; \end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 2, ``bug-gscpp'' expands
@@ -515,9 +516,9 @@
 ;;; libbug-private\#define can take more than one test as parameters.
 ;;;
 ;;; \begin{code}
-  (equal? "foo" (identity "foo"))
-  (equal? identity (identity identity))
-  }
+{unit-test
+ (equal? "foo" (identity "foo"))
+ (equal? identity (identity identity))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -535,7 +536,7 @@
        [#t]
        [(if (not (car l))
             [#f]
-            [(all? (cdr l))])])]
+            [(all? (cdr l))])])]}
 ;;; \end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 3, ``if'', which is currently namespaced to ``bug\#if''\footnote{
@@ -558,13 +559,13 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (all? '())
-  (all? '(1))
-  (all? '(#t))
-  (all? '(#t #t))
-  (not (all? '(#f)))
-  (not (all? '(#t #t #t #f)))
-  }
+{unit-test
+ (all? '())
+ (all? '(1))
+ (all? '(#t))
+ (all? '(#t #t))
+ (not (all? '(#f)))
+ (not (all? '(#t #t #t #f)))}
 ;;; \end{code}
 ;;;
 ;;; Tests in libbug are defined for two purposes.  Firstly, to ensure
@@ -589,7 +590,7 @@
   [|f list-of-pairs|
    (all? (map [|pair| (equal? (f (car pair))
                               (cadr pair))]
-              list-of-pairs))]
+              list-of-pairs))]}
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``f'' usually means the parameter is
@@ -597,23 +598,24 @@
 
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|x| (+ x 1)]
-   '(
-     (0 1)
-     (1 2)
-     (2 3)
-     ))
-  (satisfies?
-   all?
-   '(
-     (() #t)
+{unit-test
+ (satisfies?
+  [|x| (+ x 1)]
+  '(
+    (0 1)
+    (1 2)
+    (2 3)
+    ))
+ (satisfies?
+  all?
+  '(
+    (() #t)
      ((1) #t)
      ((#t) #t)
      ((#t #t) #t)
      ((#f) #f)
      ((#t #t #t #f) #f)))
-  }
+ }
 ;;; \end{code}
 ;;;
 ;;; For the remaining procedures, if the tests do an adequate job of explaining
@@ -637,7 +639,7 @@
    {let while ((val 'noop))
      (if (pred?)
          [(while (body))]
-         [val])}]
+         [val])}]}
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``pred?'' or ``p?'' usually means the parameter
@@ -645,17 +647,18 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((a 0))
-    {and (equal? (while [(< a 5)]
-                        [{set! a (+ a 1)}])
-                 #!void)
-         (equal? a 5)}}
-  {let ((a 0))
-    {and (equal? (while [(< a 5)]
-                        [{set! a (+ a 1)}
-                         'foo])
-                 'foo)
-         (equal? a 5)}}}
+{unit-test
+ {let ((a 0))
+   {and (equal? (while [(< a 5)]
+                       [{set! a (+ a 1)}])
+                #!void)
+        (equal? a 5)}}
+ {let ((a 0))
+   {and (equal? (while [(< a 5)]
+                       [{set! a (+ a 1)}
+                        'foo])
+                'foo)
+        (equal? a 5)}}}
 ;;; \end{code}
 ;;;
 ;;;
@@ -676,7 +679,7 @@
        [(ifPositive)]
        [(if (= n 0)
             [(ifZero)]
-            [(ifNegative)])])]
+            [(ifNegative)])])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 150, called ``nif'']{onlisp}
@@ -684,17 +687,18 @@
 ;;; Keyword arguments are optionally defined, and use the following syntax.
 ;;;
 ;;; \begin{code}
-  (satisfies?
-   [|n|
-    (numeric-if n
-                ifPositive: ['pos]
-                ifZero: ['zero]
-                ifNegative: ['neg])]
-   '(
-     (5 pos)
-     (0 zero)
-     (-5 neg)
-     ))}
+{unit-test
+ (satisfies?
+  [|n|
+   (numeric-if n
+               ifPositive: ['pos]
+               ifZero: ['zero]
+               ifNegative: ['neg])]
+  '(
+    (5 pos)
+    (0 zero)
+    (-5 neg)
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -707,7 +711,7 @@
 {define atom?
   [|x|
    {or (number? x)
-       (symbol? x)}]
+       (symbol? x)}]}
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``x'' usually means the parameter can
@@ -716,17 +720,18 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   atom?
-   '(
-     (1 #t)
-     (1/3 #t)
-     (a #t)
-     ((make-vector 3) #f)
-     (() #f)
-     ((a) #f)
-     ))
-  }
+{unit-test
+ (satisfies?
+  atom?
+  '(
+    (1 #t)
+    (1/3 #t)
+    (a #t)
+    ((make-vector 3) #f)
+    (() #f)
+    ((a) #f)
+    ))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -738,26 +743,27 @@
 {define complement
   [|f|
    [|#!rest args|
-    (not (apply f args))]]
+    (not (apply f args))]]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 63]{onlisp}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   pair?
-   '(
-     (1 #f)
-     ((1 2) #t)
-     ))
-  (satisfies?
-   (complement pair?)
-   '(
-     (1 #t)
-     ((1 2) #f)
-     ))
-  }
+{unit-test
+ (satisfies?
+  pair?
+  '(
+    (1 #f)
+    ((1 2) #t)
+    ))
+ (satisfies?
+  (complement pair?)
+  '(
+    (1 #t)
+    ((1 2) #f)
+    ))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -773,7 +779,7 @@
 ;;; \begin{code}
 {define copy
   [|l|
-   (map identity l)]
+   (map identity l)]}
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``l'' usually means the parameter is
@@ -781,10 +787,11 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((a '(1 2 3 4 5)))
-    {and (equal? a (copy a))
-         (not (eq? a (copy a)))}}
-  }
+{unit-test
+ {let ((a '(1 2 3 4 5)))
+   {and (equal? a (copy a))
+        (not (eq? a (copy a)))}}
+ }
 ;;; \end{code}
 ;;;
 ;;; For a thorough description of ``equal?'' vs ``eq?'', see \cite[p. 122-129]{schemeprogramminglanguage}.
@@ -802,19 +809,20 @@
        [#t]
        [(if (pair? l)
             [(proper? (cdr l))]
-            [#f])])]
+            [#f])])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   proper?
-   '(
-     (() #t)
-     ((4) #t)
-     ((1 2) #t)
-     (4 #f)
-     ((1 2 . 5) #f)
-     ))}
+{unit-test
+ (satisfies?
+  proper?
+  '(
+    (() #t)
+    ((4) #t)
+    ((1 2) #t)
+    (4 #f)
+    ((1 2 . 5) #f)
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -830,25 +838,26 @@
   [|l #!key (onNull noop)|
    (if (null? l)
        [(onNull)]
-       [(car l)])]
+       [(car l)])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   first
-   '(
-     (() noop)
-     ((1 2 3) 1)
-     ))
-  (satisfies?
-   [|l| (first l onNull: [5])]
-   '(
-     (() 5)
-     ((1 2 3) 1)
-     ))}
+{unit-test
+ (satisfies?
+  first
+  '(
+    (() noop)
+    ((1 2 3) 1)
+    ))
+ (satisfies?
+  [|l| (first l onNull: [5])]
+  '(
+    (() 5)
+    ((1 2 3) 1)
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -861,25 +870,26 @@
   [|l #!key (onNull noop)|
    (if (null? l)
        [(onNull)]
-       [(cdr l)])]
+       [(cdr l)])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   but-first
-   '(
-     (() noop)
-     ((1 2 3) (2 3))
-     ))
-  (satisfies?
-   [|l| (but-first l onNull: [5])]
-   '(
-     (() 5)
-     ((1 2 3) (2 3))
-     ))}
+{unit-test
+ (satisfies?
+  but-first
+  '(
+    (() noop)
+    ((1 2 3) (2 3))
+    ))
+ (satisfies?
+  [|l| (but-first l onNull: [5])]
+  '(
+    (() 5)
+    ((1 2 3) (2 3))
+    ))}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -893,26 +903,27 @@
        [{let last ((l l))
           (if (null? (cdr l))
               [(car l)]
-              [(last (cdr l))])}])]
+              [(last (cdr l))])}])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   last
-   '(
-     (() noop)
-     ((1) 1)
-     ((2 1) 1)
-     ))
-  (satisfies?
-   [|l| (last l onNull: [5])]
-   '(
-     (() 5)
-     ((2 1) 1)
-     ))}
+{unit-test
+ (satisfies?
+  last
+  '(
+    (() noop)
+    ((1) 1)
+    ((2 1) 1)
+    ))
+ (satisfies?
+  [|l| (last l onNull: [5])]
+  '(
+    (() 5)
+    ((2 1) 1)
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -928,28 +939,29 @@
           (if (null? (cdr l))
               ['()]
               [(cons (car l)
-                     (but-last (cdr l)))])}])]
+                     (but-last (cdr l)))])}])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 59]{ss}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   but-last
-   '(
-     (() noop)
-     ((1) ())
-     ((2 1) (2))
-     ((3 2 1) (3 2))
-     ))
-  (satisfies?
-   [|l| (but-last l onNull: [5])]
-   '(
-     (() 5)
-     ((3 2 1) (3 2))
-     ))
-  }
+{unit-test
+ (satisfies?
+  but-last
+  '(
+    (() noop)
+    ((1) ())
+    ((2 1) (2))
+    ((3 2 1) (3 2))
+    ))
+ (satisfies?
+  [|l| (but-last l onNull: [5])]
+  '(
+    (() 5)
+    ((3 2 1) (3 2))
+    ))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -965,23 +977,24 @@
          [{let ((first (car l)))
             (if (p? first)
                 [(cons first (filter (cdr l)))]
-                [(filter (cdr l))])}])}]
+                [(filter (cdr l))])}])}]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 331]{ss}\footnote{Simply Scheme has an excellent discussion on section
 ;;; on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}}. \cite[p. 115]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (filter [|x| (not (= 4 x))]
-                l)]
-   '(
-     (() ())
-     ((4) ())
-     ((1 4) (1))
-     ((4 1 4) (1))
-     ((2 4 1 4) (2 1))
-     ))}
+{unit-test
+ (satisfies?
+  [|l| (filter [|x| (not (= 4 x))]
+               l)]
+  '(
+    (() ())
+    ((4) ())
+    ((1 4) (1))
+    ((4 1 4) (1))
+    ((2 4 1 4) (2 1))
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -994,15 +1007,16 @@
 {define remove
   [|x l|
    (filter [|y| (not (equal? x y))]
-           l)]
+           l)]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (remove 5 l)]
-   '(
-     ((1 5 2 5 3 5 4 5 5) (1 2 3 4))
-     ))}
+{unit-test
+ (satisfies?
+  [|l| (remove 5 l)]
+  '(
+    ((1 5 2 5 3 5 4 5 5) (1 2 3 4))
+    ))}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -1019,7 +1033,7 @@
          [acc]
          [(fold-left (f acc
                         (car l))
-                     (cdr l))])}]
+                     (cdr l))])}]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1029,14 +1043,15 @@
 ;;; \noindent \cite[p. 121]{sicp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (fold-left + 5 l)]
-   '(
-     (() 5)
-     ((1) 6)
-     ((1 2) 8)
-     ((1 2 3 4 5 6) 26)
-     ))
+{unit-test
+ (satisfies?
+  [|l| (fold-left + 5 l)]
+  '(
+    (() 5)
+    ((1) 6)
+    ((1 2) 8)
+    ((1 2 3 4 5 6) 26)
+    ))
 ;;; \end{code}
 ;;;
 ;;; Understanding the first test may give the reader false confidence in understanding
@@ -1044,13 +1059,13 @@
 ;;; to how it works with non-commutative procedures, such as ``-''.
 ;;;
 ;;; \begin{code}
-  (satisfies?
-   [|l| (fold-left - 5 l)]
-   '(
-     (() 5)
-     ((1) 4)
-     ((1 2) 2)
-     ((1 2 3 4 5 6) -16)))}
+ (satisfies?
+  [|l| (fold-left - 5 l)]
+  '(
+    (() 5)
+    ((1) 4)
+    ((1 2) 2)
+    ((1 2 3 4 5 6) -16)))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1068,28 +1083,29 @@
      (if (null? l)
          [acc]
          [(f (car l)
-             (fold-right (cdr l)))])}]
+             (fold-right (cdr l)))])}]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 116 (named ``accumulate'')]{sicp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (fold-right + 5 l)]
-   '(
-     (() 5)
-     ((1) 6)
-     ((1 2) 8)
-     ((1 2 3 4 5 6) 26)
-     ))
-  (satisfies?
-   [|l| (fold-right - 5 l)]
-   '(
-     (() 5)
-     ((1) -4)
-     ((1 2) 4)
-     ((1 2 3 4 5 6) 2)))
-  }
+{unit-test
+ (satisfies?
+  [|l| (fold-right + 5 l)]
+  '(
+    (() 5)
+    ((1) 6)
+    ((1 2) 8)
+    ((1 2 3 4 5 6) 26)
+    ))
+ (satisfies?
+  [|l| (fold-right - 5 l)]
+  '(
+    (() 5)
+    ((1) -4)
+    ((1 2) 4)
+    ((1 2 3 4 5 6) 2)))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1115,20 +1131,21 @@
                          {begin
                            {set-cdr! last-cell (list newacc)}
                            (cdr last-cell)}
-                         (cdr l))}])}}]
+                         (cdr l))}])}}]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (scan-left * 1 l)]
-   '(
-     (() (1))
-     ((2) (1 2))
-     ((2 3) (1 2 6))
-     ((2 3 4) (1 2 6 24))
-     ((2 3 4 5 ) (1 2 6 24 120))
-     ))
-  }
+{unit-test
+ (satisfies?
+  [|l| (scan-left * 1 l)]
+  '(
+    (() (1))
+    ((2) (1 2))
+    ((2 3) (1 2 6))
+    ((2 3 4) (1 2 6 24))
+    ((2 3 4 5 ) (1 2 6 24 120))
+    ))
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -1150,24 +1167,25 @@
                    [{set-cdr! l1 l2}]
                    [(append! (cdr l1))])}
              head}])]}
-   (fold-right append! '() ls)]
+   (fold-right append! '() ls)]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (append! '()
-                   '(5))
-          '(5))
-  (equal? (append! '(1 2 3)
-                   '(5))
-          '(1 2 3 5))
-  {let ((a '(1 2 3)))
-    (append! a '(5))
-    (not (equal? '(1 2 3) a))}
-  {let ((a '(1 2 3))
-        (b '(4 5 6)))
-    (append! a b '(7))
-    (equal? a '(1 2 3 4 5 6 7))}
-  }
+{unit-test
+ (equal? (append! '()
+                  '(5))
+         '(5))
+ (equal? (append! '(1 2 3)
+                  '(5))
+         '(1 2 3 5))
+ {let ((a '(1 2 3)))
+   (append! a '(5))
+   (not (equal? '(1 2 3) a))}
+ {let ((a '(1 2 3))
+       (b '(4 5 6)))
+   (append! a b '(7))
+   (equal? a '(1 2 3 4 5 6 7))}
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1177,22 +1195,23 @@
 ;;; \begin{code}
 {define flatmap
   [|f l|
-   (fold-left append! '() (map f l))]
+   (fold-left append! '() (map f l))]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 123]{sicp}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (flatmap [|x| (list x
-                            (+ x 1)
-                            (+ x 2))]
-                 l)]
-   '(
-     ((10 20) (10 11 12 20 21 22))
-     ))
-  }
+{unit-test
+ (satisfies?
+  [|l| (flatmap [|x| (list x
+                           (+ x 1)
+                           (+ x 2))]
+                l)]
+  '(
+    ((10 20) (10 11 12 20 21 22))
+    ))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1211,19 +1230,20 @@
        ['()]
        [(cons (car l)
               (take (- n 1)
-                    (cdr l)))])]
+                    (cdr l)))])]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|n| (take n '(a b))]
-   '(
-     (0 ())
-     (1 (a))
-     (2 (a b))
-     (3 (a b))
-     ))}
+{unit-test
+ (satisfies?
+  [|n| (take n '(a b))]
+  '(
+    (0 ())
+    (1 (a))
+    (2 (a b))
+    (3 (a b))
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1238,20 +1258,21 @@
              ((complement p?) (car l))}
          ['()]
          [(cons (car l)
-                (take-while (cdr l)))])}]
+                (take-while (cdr l)))])}]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|x| (take-while [|y| (not (equal? x y))]
-                    '(a b c))]
-   '(
-     (a ())
-     (b (a))
-     (c (a b))
-     (d (a b c))
-     ))}
+{unit-test
+ (satisfies?
+  [|x| (take-while [|y| (not (equal? x y))]
+                   '(a b c))]
+  '(
+    (a ())
+    (b (a))
+    (c (a b))
+    (d (a b c))
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1265,19 +1286,20 @@
            (= n 0)}
        [l]
        [(drop (- n 1)
-              (cdr l))])]
+              (cdr l))])]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|n| (drop n '(a b))]
-   '(
-     (0 (a b))
-     (1 (b))
-     (2 ())
-     (3 ())
-     ))}
+{unit-test
+ (satisfies?
+  [|n| (drop n '(a b))]
+  '(
+    (0 (a b))
+    (1 (b))
+    (2 ())
+    (3 ())
+    ))}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -1290,21 +1312,22 @@
      (if {or (null? l)
              ((complement p?) (car l))}
          [l]
-         [(drop-while (cdr l))])}]
+         [(drop-while (cdr l))])}]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|x| (drop-while [|y| (not (equal? x y))]
-                    '(a b c))]
-   '(
-     (a (a b c))
-     (b (b c))
-     (c (c))
-     (d ())
-     (e ())
-     ))}
+{unit-test
+ (satisfies?
+  [|x| (drop-while [|y| (not (equal? x y))]
+                   '(a b c))]
+  '(
+    (a (a b c))
+    (b (b c))
+    (c (c))
+    (d ())
+    (e ())
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1319,14 +1342,15 @@
        [(cons low
               (enumerate-interval (+ low step)
                                   high
-                                  step: step))])]
+                                  step: step))])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (enumerate-interval 1 10)
-          '(1 2 3 4 5 6 7 8 9 10))
-  (equal? (enumerate-interval 1 10 step: 2)
-          '(1 3 5 7 9))}
+{unit-test
+ (equal? (enumerate-interval 1 10)
+         '(1 2 3 4 5 6 7 8 9 10))
+ (equal? (enumerate-interval 1 10 step: 2)
+         '(1 3 5 7 9))}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -1340,20 +1364,21 @@
        [#f]
        [(if (car l)
             [#t]
-            [(any? (cdr l))])])]
+            [(any? (cdr l))])])]}
 ;;; \end{code}
 ;;; \subsection*{Test}
 ;;; \begin{code}
-  (satisfies?
-   any?
-   '(
-     (() #f)
-     ((1) #t)
-     ((#t) #t)
-     ((#t #t) #t)
-     ((#f) #f)
-     ((#t #t #t #f) #t)))
-  }
+{unit-test
+ (satisfies?
+  any?
+  '(
+    (() #f)
+    ((1) #t)
+    ((#t) #t)
+    ((#t #t) #t)
+    ((#f) #f)
+    ((#t #t #t #f) #t)))
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -1365,49 +1390,50 @@
    (if (any? (map null? lsts))
        ['()]
        [(cons (apply list (map car lsts))
-              (apply zip (map cdr lsts)))])]
+              (apply zip (map cdr lsts)))])]}
 ;;; \end{code}
 ;;; \subsection*{Tests with 2 Lists}
 ;;; \begin{code}
-  (equal? (zip '() '())
-          '())
-  (equal? (zip '(1) '(4))
-          '((1 4)))
-  (equal? (zip '(1 2) '(4 5))
-          '((1 4)
-            (2 5)))
-  (equal? (zip '(1 2 3) '(4 5 6))
-          '((1 4)
-            (2 5)
-            (3 6)))
-  (equal? (zip '(1) '())
-          '())
-  (equal? (zip '() '(1))
-          '())
+{unit-test
+ (equal? (zip '() '())
+         '())
+ (equal? (zip '(1) '(4))
+         '((1 4)))
+ (equal? (zip '(1 2) '(4 5))
+         '((1 4)
+           (2 5)))
+ (equal? (zip '(1 2 3) '(4 5 6))
+         '((1 4)
+           (2 5)
+           (3 6)))
+ (equal? (zip '(1) '())
+         '())
+ (equal? (zip '() '(1))
+         '())
 ;;; \end{code}
 ;;; \subsection*{Tests with 3 Lists}
 ;;; \begin{code}
-  (equal? (zip '() '() '())
-          '())
-  (equal? (zip '(1 2 3)
-               '(4 5 6)
-               '(7 8 9))
-          '((1 4 7)
-            (2 5 8)
-            (3 6 9)))
+ (equal? (zip '() '() '())
+         '())
+ (equal? (zip '(1 2 3)
+              '(4 5 6)
+              '(7 8 9))
+         '((1 4 7)
+           (2 5 8)
+           (3 6 9)))
 ;;; \end{code}
 ;;; \subsection*{Tests with 4 Lists}
 ;;; \begin{code}
-  (equal? (zip '() '() '() '())
-          '())
-  (equal? (zip '(1 2 3)
-               '(4 5 6)
-               '(7 8 9)
-               '(10 11 12))
-          '((1 4 7 10)
-            (2 5 8 11)
-            (3 6 9 12)))
-  }
+ (equal? (zip '() '() '() '())
+         '())
+ (equal? (zip '(1 2 3)
+              '(4 5 6)
+              '(7 8 9)
+              '(10 11 12))
+         '((1 4 7 10)
+           (2 5 8 11)
+           (3 6 9 12)))
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -1423,24 +1449,25 @@
               [(list l)]
               [(flatmap [|x| (map [|y| (cons x y)]
                                   (permutations (remove x l)))]
-                        l)])}])]
+                        l)])}])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   permutations
-   '(
-     (() ())
-     ((1) ((1)))
-     ((1 2) ((1 2)
-             (2 1)))
-     ((1 2 3) ((1 2 3)
-               (1 3 2)
-               (2 1 3)
-               (2 3 1)
-               (3 1 2)
-               (3 2 1)))
-     ))}
+{unit-test
+ (satisfies?
+  permutations
+  '(
+    (() ())
+    ((1) ((1)))
+    ((1 2) ((1 2)
+            (2 1)))
+    ((1 2 3) ((1 2 3)
+              (1 3 2)
+              (2 1 3)
+              (2 3 1)
+              (3 1 2)
+              (3 2 1)))
+    ))}
 ;;; \end{code}
 ;;;
 ;;; Inspired by \cite[p. 124]{sicp}, although I think they have a slight
@@ -1465,40 +1492,41 @@
               [index]
               [(if (null? (cdr l))
                    [(onMissing)]
-                   [(ref-of (cdr l) (+ index 1))])])}])]
+                   [(ref-of (cdr l) (+ index 1))])])}])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|x| (ref-of '(a b c d e f g) x)]
-   '(
-     (z noop)
-     (a 0)
-     (b 1)
-     (g 6)
-     ))
+{unit-test
+ (satisfies?
+  [|x| (ref-of '(a b c d e f g) x)]
+  '(
+    (z noop)
+    (a 0)
+    (b 1)
+    (g 6)
+    ))
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (satisfies?
-   [|x| (ref-of '(a b c d e f g)
-                x
-                onMissing: ['missing])]
-   '(
-     (z missing)
-     (a 0)
-     ))
+ (satisfies?
+  [|x| (ref-of '(a b c d e f g)
+               x
+               onMissing: ['missing])]
+  '(
+    (z missing)
+    (a 0)
+    ))
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  {let ((l '(a b c d e f g)))
-    (satisfies?
-     [|x| (list-ref l (ref-of l x))]
-     '(
-       (a a)
-       (b b)
-       (g g)
-       ))}
+ {let ((l '(a b c d e f g)))
+   (satisfies?
+    [|x| (list-ref l (ref-of l x))]
+    '(
+      (a a)
+      (b b)
+      (g g)
+      ))}
   }
 ;;; \end{code}
 ;;;
@@ -1526,18 +1554,19 @@
                           falseList)]
               [(partition (cdr l)
                           trueList
-                          (cons (car l) falseList))])])}]
+                          (cons (car l) falseList))])])}]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (partition l [|x| (<= x 3)])]
-   '(
-     (() (()
-          ()))
-     ((3 2 5 4 1) ((1 2 3)
-                   (4 5)))
-     ))}
+{unit-test
+ (satisfies?
+  [|l| (partition l [|x| (<= x 3)])]
+  '(
+    (() (()
+         ()))
+    ((3 2 5 4 1) ((1 2 3)
+                  (4 5)))
+    ))}
 ;;; \end{code}
 ;;;
 ;;; In section~\ref{sec:dbind}, ``destructuring-bind'' allows for a more convenient syntax when
@@ -1574,16 +1603,17 @@
                  (greater-than (cadr p)))
             (append! (sort less-than)
                      (cons current-node
-                           (sort greater-than)))}])}]
+                           (sort greater-than)))}])}]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|l| (sort l <)]
-   '(
-     (() ())
-     ((1 3 2 5 4 0) (0 1 2 3 4 5))
-     ))}
+{unit-test
+ (satisfies?
+  [|l| (sort l <)]
+  '(
+    (() ())
+    ((1 3 2 5 4 0) (0 1 2 3 4 5))
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1603,18 +1633,19 @@
                cons-cell]
               [{let ((rest (cdr cons-cell)))
                  {set-cdr! cons-cell reversed-list}
-                 (reverse! rest cons-cell)}])}])]
+                 (reverse! rest cons-cell)}])}])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   reverse!
-   '(
-     (() ())
-     ((1) (1))
-     ((2 1) (1 2))
-     ((3 2 1) (1 2 3))
-     ))}
+{unit-test
+ (satisfies?
+  reverse!
+  '(
+    (() ())
+    ((1) (1))
+    ((2 1) (1 2))
+    ((3 2 1) (1 2 3))
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1649,19 +1680,20 @@
 ;;; \index{string-reverse}
 ;;; \begin{code}
 {define string-reverse
-  (string-liftList reverse!)
+  (string-liftList reverse!)}
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   string-reverse
-   '(
-     ("" "")
-     ("foo" "oof")
-     ("bar" "rab")
-     ))
-  }
+{unit-test
+ (satisfies?
+  string-reverse
+  '(
+    ("" "")
+    ("foo" "oof")
+    ("bar" "rab")
+    ))
+ }
 ;;; \end{code}
 ;;; \newpage
 
@@ -1672,18 +1704,19 @@
 {define string-take
   [|n s|
    ((string-liftList [|l| (take n l)])
-    s)]
+    s)]}
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|s| (string-take 2 s)]
-   '(
-     ("" "")
-     ("foo" "fo")
-     ))
-  }
+{unit-test
+ (satisfies?
+  [|s| (string-take 2 s)]
+  '(
+    ("" "")
+    ("foo" "fo")
+    ))
+ }
 ;;; \end{code}
 ;;; \newpage
 ;;; \section{string-drop}
@@ -1693,19 +1726,20 @@
 {define string-drop
   [|n s|
    ((string-liftList [|l| (drop n l)])
-    s)]
+    s)]}
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|s| (string-drop 2 s)]
-   '(
-     ("" "")
-     ("foo" "o")
-     ("foobar" "obar")
-     ))
-  }
+{unit-test
+ (satisfies?
+  [|s| (string-drop 2 s)]
+  '(
+    ("" "")
+    ("foo" "o")
+    ("foobar" "obar")
+    ))
+ }
 ;;; \end{code}
 ;;; \newpage
 
@@ -1718,13 +1752,14 @@
    [|#!rest n|
     (integer->char
      (apply f
-            (map char->integer n)))]]
+            (map char->integer n)))]]}
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   (character-liftInteger [|c| (+ c 1)])
+{unit-test
+ (satisfies?
+  (character-liftInteger [|c| (+ c 1)])
    '(
      (#\a #\b)
      (#\b #\c)
@@ -1740,7 +1775,7 @@
 {define string-map
   [|f s|
    ((string-liftList [|l| (map f l)])
-    s)]
+    s)]}
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
@@ -1748,26 +1783,26 @@
 ;;; The ``Caesar Cipher''. \cite[p. 30]{crypto}.
 ;;;
 ;;; \begin{code}
-  (satisfies?
-   [|s| (string-map
-         [|c|
-          ((character-liftInteger [|base-char c|
-                                   (+ base-char
-                                      (modulo (+ (- c base-char)
-                                                 3)
-                                              26))])
-           #\a
-           c)]
-         s)]
-
-   '(
-     ("" "")
-     ("abc" "def")
-     ("nop" "qrs")
-     ("xyz" "abc")
-     ))
-
-  }
+{unit-test
+ (satisfies?
+  [|s| (string-map
+        [|c|
+         ((character-liftInteger [|base-char c|
+                                  (+ base-char
+                                     (modulo (+ (- c base-char)
+                                                3)
+                                             26))])
+          #\a
+          c)]
+        s)]
+  
+  '(
+    ("" "")
+    ("abc" "def")
+    ("nop" "qrs")
+    ("xyz" "abc")
+    )) 
+ }
 ;;; \end{code}
 ;;; \newpage
 
@@ -1787,20 +1822,21 @@
    [|#!rest s|
     (string->symbol
      (apply (string-liftList f)
-            (map symbol->string s)))]]
+            (map symbol->string s)))]]}
 ;;;
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   (symbol-liftList reverse)
-   '(
-     (foo oof)
-     (bar rab)
-     ))
-  (equal? ((symbol-liftList append!) 'foo 'bar)
-          'foobar)
-  }
+{unit-test
+ (satisfies?
+  (symbol-liftList reverse)
+  '(
+    (foo oof)
+    (bar rab)
+    ))
+ (equal? ((symbol-liftList append!) 'foo 'bar)
+         'foobar)
+ }
 ;;; \end{code}
 
 ;;; \newpage
@@ -1872,19 +1908,20 @@
             (equal? '() (cadr d))}
        [`(make-stream ,a {delay ,(caddr d)})]
        [(error "bug#stream-cons requires a zero-argument \
-                lambda in it's second arg")])]
+                lambda in it's second arg")])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((s (stream-cons 1 [2])))
-    {and
-     (equal? (stream-car s)
-             1)
-     (equal? (stream-cdr s)
-             2)}}
-  }
+{unit-test
+ {let ((s (stream-cons 1 [2])))
+   {and
+    (equal? (stream-car s)
+            1)
+    (equal? (stream-cdr s)
+            2)}}
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1904,16 +1941,17 @@
 ;;; \index{stream-null?}
 ;;; \begin{code}
 {define stream-null?
-  null?
+  null?}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (stream-null?
-   (stream-cdr
-    (stream-cdr (stream-cons 1 [(stream-cons 2
-                                             [stream-null])]))))
-  }
+{unit-test
+ (stream-null?
+  (stream-cdr
+   (stream-cdr (stream-cons 1 [(stream-cons 2
+                                            [stream-null])]))))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1929,20 +1967,21 @@
        [stream-null]
        [(stream-cons (car l)
                      [(list->stream
-                       (cdr l))])])]
+                       (cdr l))])])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  {let ((foo (list->stream '(1 2 3))))
-    {and (equal? 1 (stream-car foo))
-         (equal? 2 (stream-car
-                    (stream-cdr foo)))
-         (equal? 3 (stream-car
-                    (stream-cdr
-                     (stream-cdr foo))))
-         (stream-null? (stream-cdr
-                        (stream-cdr
-                         (stream-cdr foo))))}}}
+{unit-test
+ {let ((foo (list->stream '(1 2 3))))
+   {and (equal? 1 (stream-car foo))
+        (equal? 2 (stream-car
+                   (stream-cdr foo)))
+        (equal? 3 (stream-car
+                   (stream-cdr
+                    (stream-cdr foo))))
+        (stream-null? (stream-cdr
+                       (stream-cdr
+                        (stream-cdr foo))))}}}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -1957,14 +1996,15 @@
        ['()]
        [(cons (stream-car s)
               (stream->list
-               (stream-cdr s)))])]
+               (stream-cdr s)))])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (stream->list
-           (list->stream '(1 2 3)))
-          '(1 2 3))
-  }
+{unit-test
+ (equal? (stream->list
+          (list->stream '(1 2 3)))
+         '(1 2 3))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1983,25 +2023,26 @@
               [(stream-car s)]
               [(if (not (stream-null? (stream-cdr s)))
                    [(stream-ref (stream-cdr s) (- n 1))]
-                   [(onOutOfBounds)])])}])]
+                   [(onOutOfBounds)])])}])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 319]{sicp}.
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|i| (stream-ref (list->stream '(a b c d e)) i)]
-   '(
-     (-1 noop)
-     (0 a)
-     (4 e)
-     (5 noop)
-     )
-   )
-  (equal? (stream-ref (list->stream '(a b c d e))
-                      5
-                      onOutOfBounds: ['out])
-          'out)}
+{unit-test
+ (satisfies?
+  [|i| (stream-ref (list->stream '(a b c d e)) i)]
+  '(
+    (-1 noop)
+    (0 a)
+    (4 e)
+    (5 noop)
+    )
+  )
+ (equal? (stream-ref (list->stream '(a b c d e))
+                     5
+                     onOutOfBounds: ['out])
+         'out)}
 ;;; \end{code}
 ;;;
 ;;;
@@ -2015,28 +2056,29 @@
 ;;; \begin{code}
 {define integers-from
   [|n|
-   (stream-cons n [(integers-from (+ n 1))])]
+   (stream-cons n [(integers-from (+ n 1))])]}
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 326]{sicp}.
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|n| (stream-ref (integers-from 0) n)]
-   '(
-     (0 0)
-     (1 1)
-     (2 2)
-     ))
-  (satisfies?
-   [|n| (stream-ref (integers-from 5) n)]
-   '(
-     (0 5)
-     (1 6)
-     (2 7)
-     ))
-  }
+{unit-test
+ (satisfies?
+  [|n| (stream-ref (integers-from 0) n)]
+  '(
+    (0 0)
+    (1 1)
+    (2 2)
+    ))
+ (satisfies?
+  [|n| (stream-ref (integers-from 5) n)]
+  '(
+    (0 5)
+    (1 6)
+    (2 7)
+    ))
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2050,20 +2092,21 @@
        [stream-null]
        [(stream-cons (stream-car s)
                      [(stream-take (- n 1)
-                                   (stream-cdr s))])])]
+                                   (stream-cdr s))])])]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|n| (stream->list
-         (stream-take n (integers-from 0)))]
-   '(
-     (0 ())
-     (1 (0))
-     (2 (0 1))
-     (6 (0 1 2 3 4 5))
-     ))}
+{unit-test
+ (satisfies?
+  [|n| (stream->list
+        (stream-take n (integers-from 0)))]
+  '(
+    (0 ())
+    (1 (0))
+    (2 (0 1))
+    (6 (0 1 2 3 4 5))
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -2083,24 +2126,25 @@
                 [(stream-cons
                   first
                   [(stream-filter (stream-cdr s))])]
-                [(stream-filter (stream-cdr s))])}])}]
+                [(stream-filter (stream-cdr s))])}])}]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal?  (stream->list
-            (stream-filter [|x| (not (= 4 x))]
-                           (list->stream '(1 4 2 4))))
-           '(1 2))
-  (equal? (stream->list
-           (stream-take
-            10
-            (stream-filter [|n|
-                            (not (equal? 0
-                                         (modulo n 2)))]
-                           (integers-from 2))))
-          '(3 5 7 9 11 13 15 17 19 21))
-  }
+{unit-test
+ (equal?  (stream->list
+           (stream-filter [|x| (not (= 4 x))]
+                          (list->stream '(1 4 2 4))))
+          '(1 2))
+ (equal? (stream->list
+          (stream-take
+           10
+           (stream-filter [|n|
+                           (not (equal? 0
+                                        (modulo n 2)))]
+                          (integers-from 2))))
+         '(3 5 7 9 11 13 15 17 19 21))
+ }
 ;;;
 ;;; \end{code}
 ;;;
@@ -2117,20 +2161,20 @@
                               [|n|
                                (not (equal? 0
                                             (modulo n (stream-car s))))]
-                              (stream-cdr s)))])}
-
+                              (stream-cdr s)))])}}
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 327]{sicp}.
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (stream->list
-           (stream-take
-            10
-            primes))
-          '(2 3 5 7 11 13 17 19 23 29))
-  }
+{unit-test
+ (equal? (stream->list
+          (stream-take
+           10
+           primes))
+         '(2 3 5 7 11 13 17 19 23 29))
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2147,21 +2191,22 @@
          [stream-null]
          [(stream-cons (apply f
                               (map stream-car list-of-streams))
-                       [(stream-map (map stream-cdr list-of-streams))])])}]
+                       [(stream-map (map stream-cdr list-of-streams))])])}]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (stream->list
-           (stream-map [|x| (+ x 1)]
-                       (list->stream '(1 2 3 4 5))))
-          '(2 3 4 5 6))
-  (equal? (stream->list
-           (stream-map [|x y| (+ x y)]
-                       (list->stream '(1 2 3 4 5))
-                       (list->stream '(1 1 1 1 1))))
-          '(2 3 4 5 6))
-  }
+{unit-test
+ (equal? (stream->list
+          (stream-map [|x| (+ x 1)]
+                      (list->stream '(1 2 3 4 5))))
+         '(2 3 4 5 6))
+ (equal? (stream->list
+          (stream-map [|x y| (+ x y)]
+                      (list->stream '(1 2 3 4 5))
+                      (list->stream '(1 1 1 1 1))))
+         '(2 3 4 5 6))
+ }
 ;;;
 ;;; \end{code}
 ;;;
@@ -2176,16 +2221,17 @@
        [(stream-cons low
                      [(stream-enumerate-interval (+ low step)
                                                  high
-                                                 step: step)])])]
+                                                 step: step)])])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (stream->list
-           (stream-enumerate-interval 1 10))
-          '(1 2 3 4 5 6 7 8 9 10))
-  (equal? (stream->list
-           (stream-enumerate-interval 1 10 step: 2))
-          '(1 3 5 7 9))}
+{unit-test
+ (equal? (stream->list
+          (stream-enumerate-interval 1 10))
+         '(1 2 3 4 5 6 7 8 9 10))
+ (equal? (stream->list
+          (stream-enumerate-interval 1 10 step: 2))
+         '(1 3 5 7 9))}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2200,19 +2246,20 @@
          [stream-null]
          [(stream-cons (stream-car s)
                        [(stream-take-while
-                         (stream-cdr s))])])}]
+                         (stream-cdr s))])])}]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|s|
-    (stream->list
-     (stream-take-while [|n| (< n 10)]
-                        s))]
-   `((,(integers-from 0)               (0 1 2 3 4 5 6 7 8 9))
-     (,(stream-enumerate-interval 1 4) (1 2 3 4))))
-  }
+{unit-test
+ (satisfies?
+  [|s|
+   (stream->list
+    (stream-take-while [|n| (< n 10)]
+                       s))]
+  `((,(integers-from 0)               (0 1 2 3 4 5 6 7 8 9))
+    (,(stream-enumerate-interval 1 4) (1 2 3 4))))
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2226,26 +2273,27 @@
            (= n 0)}
        [s]
        [(stream-drop (- n 1)
-                     (stream-cdr s))])]
+                     (stream-cdr s))])]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|n|
-    (stream->list
-     (stream-drop n (list->stream '(a b))))]
-   '(
-     (0 (a b))
-     (1 (b))
-     (2 ())
-     (3 ())
-     ))
-  (equal? (stream->list
-           (stream-take 10 (stream-drop 10
-                                        primes)))
-          '(31 37 41 43 47 53 59 61 67 71))
-  }
+{unit-test
+ (satisfies?
+  [|n|
+   (stream->list
+    (stream-drop n (list->stream '(a b))))]
+  '(
+    (0 (a b))
+    (1 (b))
+    (2 ())
+    (3 ())
+    ))
+ (equal? (stream->list
+          (stream-take 10 (stream-drop 10
+                                       primes)))
+         '(31 37 41 43 47 53 59 61 67 71))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -2260,24 +2308,25 @@
      (if {or (stream-null? s)
              ((complement p?) (stream-car s))}
          [s]
-         [(stream-drop-while (stream-cdr s))])}]
+         [(stream-drop-while (stream-cdr s))])}]}
 ;;; \end{code}
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (satisfies?
-   [|x|
-    (stream->list
-     (stream-drop-while [|y| (not (equal? x y))]
-                        (list->stream
-                         '(a b c))))]
-   '(
-     (a (a b c))
-     (b (b c))
-     (c (c))
-     (d ())
-     (e ())
-     ))}
+{unit-test
+ (satisfies?
+  [|x|
+   (stream->list
+    (stream-drop-while [|y| (not (equal? x y))]
+                       (list->stream
+                        '(a b c))))]
+  '(
+    (a (a b c))
+    (b (b c))
+    (c (c))
+    (d ())
+    (e ())
+    ))}
 ;;; \end{code}
 ;;;
 ;;;
@@ -2315,7 +2364,7 @@
                    [`(apply ,(car fs)
                             ,args)]
                    [`(,(car fs)
-                      ,(compose (cdr fs)))])}]}])]
+                      ,(compose (cdr fs)))])}]}])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 66]{onlisp}
@@ -2336,12 +2385,13 @@
 ;;;
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? {macroexpand-1 (compose)}
-          'identity)
-  (equal? ((eval {macroexpand-1 (compose)}) 5)
-          5)
-  (equal? ((compose) 5)
-          5)
+{unit-test
+ (equal? {macroexpand-1 (compose)}
+         'identity)
+ (equal? ((eval {macroexpand-1 (compose)}) 5)
+         5)
+ (equal? ((compose) 5)
+         5)
 ;;; \end{code}
 ;;;
 ;;;
@@ -2368,55 +2418,55 @@
 ;;;
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1 (compose [|x| (* x 2)])}
-          '[|#!rest gensymed-var1|
-            (apply [|x| (* x 2)]
-                   gensymed-var1)])
-  (equal? ((eval {macroexpand-1 (compose [|x| (* x 2)])})
-           5)
-          10)
-  (equal? ((compose [|x| (* x 2)])
-           5)
-          10)
+ (equal? {macroexpand-1 (compose [|x| (* x 2)])}
+         '[|#!rest gensymed-var1|
+           (apply [|x| (* x 2)]
+                  gensymed-var1)])
+ (equal? ((eval {macroexpand-1 (compose [|x| (* x 2)])})
+          5)
+         10)
+ (equal? ((compose [|x| (* x 2)])
+          5)
+         10)
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1 (compose [|x| (+ x 1)]
-                                  [|x| (* x 2)])}
-          '[|#!rest gensymed-var1|
+ (equal? {macroexpand-1 (compose [|x| (+ x 1)]
+                                 [|x| (* x 2)])}
+         '[|#!rest gensymed-var1|
+           ([|x| (+ x 1)]
+            (apply [|x| (* x 2)]
+                   gensymed-var1))])
+ (equal? ((eval {macroexpand-1 (compose [|x| (+ x 1)]
+                                        [|x| (* x 2)])})
+          5)
+         11)
+ (equal? ((compose [|x| (+ x 1)]
+                   [|x| (* x 2)])
+          5)
+         11)
+;;; \end{code}
+;;;
+;;; \begin{code}
+ (equal? {macroexpand-1 (compose [|x| (/ x 13)]
+                                 [|x| (+ x 1)]
+                                 [|x| (* x 2)])}
+         '[|#!rest gensymed-var1|
+           ([|x| (/ x 13)]
             ([|x| (+ x 1)]
              (apply [|x| (* x 2)]
-                    gensymed-var1))])
-  (equal? ((eval {macroexpand-1 (compose [|x| (+ x 1)]
-                                         [|x| (* x 2)])})
-           5)
-          11)
-  (equal? ((compose [|x| (+ x 1)]
-                    [|x| (* x 2)])
-           5)
-          11)
-;;; \end{code}
-;;;
-;;; \begin{code}
-  (equal? {macroexpand-1 (compose [|x| (/ x 13)]
-                                  [|x| (+ x 1)]
-                                  [|x| (* x 2)])}
-          '[|#!rest gensymed-var1|
-            ([|x| (/ x 13)]
-             ([|x| (+ x 1)]
-              (apply [|x| (* x 2)]
-                     gensymed-var1)))])
-  (equal? ((eval {macroexpand-1 (compose [|x| (/ x 13)]
-                                         [|x| (+ x 1)]
-                                         [|x| (* x 2)])})
-           5)
-          11/13)
-  (equal? ((compose [|x| (/ x 13)]
-                    [|x| (+ x 1)]
-                    [|x| (* x 2)])
-           5)
-          11/13)
-  }
+                    gensymed-var1)))])
+ (equal? ((eval {macroexpand-1 (compose [|x| (/ x 13)]
+                                        [|x| (+ x 1)]
+                                        [|x| (* x 2)])})
+          5)
+         11/13)
+ (equal? ((compose [|x| (/ x 13)]
+                   [|x| (+ x 1)]
+                   [|x| (* x 2)])
+          5)
+         11/13)
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2429,7 +2479,7 @@
    `{let ((bug#it ,bool))
       (if bug#it
           [,body]
-          [#f])}]
+          [#f])}]}
 ;;; \end{code}
 ;;;
 ;;; Although variable capture \cite[p. 118-132]{onlisp} is generally avoided,
@@ -2440,17 +2490,18 @@
 ;;; \noindent \cite[p. 191]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? {aif (+ 5 10) (* 2 bug#it)}
-          30)
-  (equal? {aif #f (* 2 bug#it)}
-          #f)
-  (equal? {macroexpand-1 {aif (+ 5 10)
-                              (* 2 bug#it)}}
-          '{let ((bug#it (+ 5 10)))
-             (if bug#it
-                 [(* 2 bug#it)]
-                 [#f])})
-  }
+{unit-test
+ (equal? {aif (+ 5 10) (* 2 bug#it)}
+         30)
+ (equal? {aif #f (* 2 bug#it)}
+         #f)
+ (equal? {macroexpand-1 {aif (+ 5 10)
+                             (* 2 bug#it)}}
+         '{let ((bug#it (+ 5 10)))
+            (if bug#it
+                [(* 2 bug#it)]
+                [#f])})
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -2465,25 +2516,26 @@
   [|symbols #!rest body|
    `{let ,(map [|symbol| `(,symbol {gensym})]
                symbols)
-      ,@body}]
+      ,@body}]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 145]{onlisp}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? {macroexpand-1 (with-gensyms (foo bar baz)
-                                       `{begin
-                                          (pp ,foo)
-                                          (pp ,bar)
-                                          (pp ,baz)})}
-          '{let ((foo (gensym))
-                 (bar (gensym))
-                 (baz (gensym)))
-             `{begin
-                (pp ,foo)
-                (pp ,bar)
-                (pp ,baz)}})
-  }
+{unit-test
+ (equal? {macroexpand-1 (with-gensyms (foo bar baz)
+                                      `{begin
+                                         (pp ,foo)
+                                         (pp ,bar)
+                                         (pp ,baz)})}
+         '{let ((foo (gensym))
+                (bar (gensym))
+                (baz (gensym)))
+            `{begin
+               (pp ,foo)
+               (pp ,bar)
+               (pp ,baz)}})
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2513,7 +2565,7 @@
                                            (list 'quote g))]
                               symbols
                               gensyms))
-                   body))}]
+                   body))}]}
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 854]{paip}
@@ -2526,13 +2578,14 @@
 ;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
-  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
-          '(list 'let
-                 (list (list 'gensymed-var1 x)
-                       (list 'gensymed-var2 y))
-                 {let ((x 'gensymed-var1)
-                       (y 'gensymed-var2))
-                   `(+ ,x ,y)}))
+{unit-test
+ (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
+         '(list 'let
+                (list (list 'gensymed-var1 x)
+                      (list 'gensymed-var2 y))
+                {let ((x 'gensymed-var1)
+                      (y 'gensymed-var2))
+                  `(+ ,x ,y)}))
 ;;; \end{code}
 ;;;
 ;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  But
@@ -2550,25 +2603,25 @@
 ;;;
 ;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
-  (equal? (eval `{let ((x 'x)
-                       (y 'y))
-                   ,(once-only-expand (x y)
-                                      `(+ ,x ,y))})
-          '{let ((gensymed-var1 x)
-                 (gensymed-var2 y))
-             (+ gensymed-var1 gensymed-var2)})
+ (equal? (eval `{let ((x 'x)
+                      (y 'y))
+                  ,(once-only-expand (x y)
+                                     `(+ ,x ,y))})
+         '{let ((gensymed-var1 x)
+                (gensymed-var2 y))
+            (+ gensymed-var1 gensymed-var2)})
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
-  (equal? (eval `{let ((x 5)
-                       (y 6))
-                   ,(eval `{let ((x 'x)
-                                 (y 'y))
-                             ,(once-only-expand (x y)
-                                                `(+ ,x ,y))})})
-          11)
-  }
+ (equal? (eval `{let ((x 5)
+                      (y 6))
+                  ,(eval `{let ((x 'x)
+                                (y 'y))
+                            ,(once-only-expand (x y)
+                                               `(+ ,x ,y))})})
+         11)
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2650,41 +2703,42 @@
                     '-set!
                     '-ref)
                   ,@(cdr exp)
-                  ,val))}])]
+                  ,val))}])]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \subsubsection*{Updating a Variable Directly}
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1
-           {setf! foo 10}}
-          '{set! foo 10})
-  {let ((a 5))
-    {setf! a 10}
-    (equal? a 10)}
+{unit-test
+ (equal? {macroexpand-1
+          {setf! foo 10}}
+         '{set! foo 10})
+ {let ((a 5))
+   {setf! a 10}
+   (equal? a 10)}
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{Updating Car, Cdr, ... Through Cddddr}
 ;;; \noindent Test updating ``car''.
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1
-           {setf! (car foo) 10}}
-          '{set-car! foo 10})
-  {let ((foo '(1 2)))
-    {setf! (car foo) 10}
-    (equal? (car foo) 10)}
+ (equal? {macroexpand-1
+          {setf! (car foo) 10}}
+         '{set-car! foo 10})
+ {let ((foo '(1 2)))
+   {setf! (car foo) 10}
+   (equal? (car foo) 10)}
 ;;; \end{code}
 ;;;
 ;;; \noindent Test updating ``cdr''.
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1
-           {setf! (cdr foo) 10}}
-          '{set-cdr! foo 10})
-  {let ((foo '(1 2)))
-    {setf! (cdr foo) 10}
-    (equal? (cdr foo) 10)}
+ (equal? {macroexpand-1
+          {setf! (cdr foo) 10}}
+         '{set-cdr! foo 10})
+ {let ((foo '(1 2)))
+   {setf! (cdr foo) 10}
+   (equal? (cdr foo) 10)}
 ;;; \end{code}
 ;;;
 ;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures will be highly
@@ -2692,29 +2746,29 @@
 ;;; accessor procedures, and test each.
 ;;;
 ;;; \begin{code}
-  (eval
-   `{and
-     ,@(map [|x| `{let ((foo '((((the-caaaar)
-                                 the-cadaar)
-                                (the-caadar)
-                                ())
-                               ((the-caaadr) the-cadadr)
-                               (the-caaddr)
-                               ()
-                               )))
-                    {setf! (,x foo) 10}
-                    (equal? (,x foo) 10)}]
-            '(car
-              cdr
-              caar cadr
-              cdar cddr
-              caaar caadr cadar caddr
-              cdaar cdadr cddar cdddr
-              caaaar caaadr caadar caaddr
-              cadaar cadadr caddar cadddr
-              cdaaar cdaadr cdadar cdaddr
-              cddaar cddadr cdddar cddddr
-              ))})
+ (eval
+  `{and
+    ,@(map [|x| `{let ((foo '((((the-caaaar)
+                                the-cadaar)
+                               (the-caadar)
+                               ())
+                              ((the-caaadr) the-cadadr)
+                              (the-caaddr)
+                              ()
+                              )))
+                   {setf! (,x foo) 10}
+                   (equal? (,x foo) 10)}]
+           '(car
+             cdr
+             caar cadr
+             cdar cddr
+             caaar caadr cadar caddr
+             cdaar cdadr cddar cdddr
+             caaaar caaadr caadar caaddr
+             cadaar cadadr caddar cadddr
+             cdaaar cdaadr cdadar cdaddr
+             cddaar cddadr cdddar cddddr
+             ))})
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{Suffixed By -set!}
@@ -2722,14 +2776,14 @@
 ;;; the name of the getting procedure, suffixed by '-set!'.
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1
-           {setf! (stream-a s) 10}}
-          '{stream-a-set! s 10})
-  {begin
-    {let ((a (make-stream 1 2)))
-      {setf! (stream-a a) 10}
-      (equal? (make-stream 10 2)
-              a)}}
+ (equal? {macroexpand-1
+          {setf! (stream-a s) 10}}
+         '{stream-a-set! s 10})
+ {begin
+   {let ((a (make-stream 1 2)))
+     {setf! (stream-a a) 10}
+     (equal? (make-stream 10 2)
+             a)}}
 ;;; \end{code}
 ;;;
 ;;; \footnote{As a reminder, ``stream-a'', ``make-stream'', and ``stream-a-set!'' are not meant to be used
@@ -2741,20 +2795,20 @@
 ;;; '-ref', and adding a suffix of '-set!'.
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1
-           {setf! (string-ref s 0) #\q}}
-          '{string-set! s 0 #\q})
-  {let ((s "foobar"))
-    {setf! (string-ref s 0) #\q}
-    (equal? s "qoobar")}
-  (equal? {macroexpand-1
-           {setf! (vector-ref v 2) 4}}
-          '{vector-set! v 2 4})
-  {let ((v (vector 1 2 '() "")))
-    {setf! (vector-ref v 2) 4}
-    (equal? v
-            (vector 1 2 4 ""))}
-  }
+ (equal? {macroexpand-1
+          {setf! (string-ref s 0) #\q}}
+         '{string-set! s 0 #\q})
+ {let ((s "foobar"))
+   {setf! (string-ref s 0) #\q}
+   (equal? s "qoobar")}
+ (equal? {macroexpand-1
+          {setf! (vector-ref v 2) 4}}
+         '{vector-set! v 2 4})
+ {let ((v (vector 1 2 '() "")))
+   {setf! (vector-ref v 2) 4}
+   (equal? v
+           (vector 1 2 4 ""))}
+ }
 ;;; \end{code}
 
 ;;; \newpage
@@ -2774,23 +2828,24 @@
                (syml (map [|s| (gensym)]
                           args)))
           `{let ,(zip syml args)
-             {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]
+             {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]}
 ;;; \end{code}
 ;;;
 
 ;;; \subsection*{Tests}
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1 {mutate! foo not}}
-          '{setf! foo (not foo)})
-  {let ((foo #t))
-    {and
-     {begin
-       {mutate! foo not}
-       (equal? foo #f)}
-     {begin
-       {mutate! foo not}
-       (equal? foo #t)}}}
+{unit-test
+ (equal? {macroexpand-1 {mutate! foo not}}
+         '{setf! foo (not foo)})
+ {let ((foo #t))
+   {and
+    {begin
+      {mutate! foo not}
+      (equal? foo #f)}
+    {begin
+      {mutate! foo not}
+      (equal? foo #t)}}}
 ;;; \end{code}
 ;;;
 ;;; \footnote{``mutate!'' is used in similar contexts as Common Lisp's
@@ -2801,57 +2856,57 @@
 ;;;
 
 ;;; \begin{code}
-  (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
-          '{setf! foo ([|n| (+ n 1)] foo)})
-  {let ((foo 1))
-    (mutate! foo [|n| (+ n 1)])
-    (equal? foo
-            2)}
+ (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
+         '{setf! foo ([|n| (+ n 1)] foo)})
+ {let ((foo 1))
+   (mutate! foo [|n| (+ n 1)])
+   (equal? foo
+           2)}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
-          '{let ((gensymed-var1 foo)
-                 (gensymed-var2 0))
-             {setf! (vector-ref gensymed-var1
-                                gensymed-var2)
-                    ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                               gensymed-var2))}})
-  {let ((foo (vector 0 0 0)))
-    {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
-    (equal? foo
-            (vector 1 0 0))}
-  {let ((foo (vector 0 0 0)))
-    {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
-    (equal? foo
-            (vector 0 0 1))}
+ (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
+         '{let ((gensymed-var1 foo)
+                (gensymed-var2 0))
+            {setf! (vector-ref gensymed-var1
+                               gensymed-var2)
+                   ([|n| (+ n 1)] (vector-ref gensymed-var1
+                                              gensymed-var2))}})
+ {let ((foo (vector 0 0 0)))
+   {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
+   (equal? foo
+           (vector 1 0 0))}
+ {let ((foo (vector 0 0 0)))
+   {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
+   (equal? foo
+           (vector 0 0 1))}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1
-           {mutate! (vector-ref foo {begin
-                                      {setf! index (+ 1 index)}
-                                      index})
-                    [|n| (+ n 1)]}}
-          '{let ((gensymed-var1 foo)
-                 (gensymed-var2 {begin
-                                  {setf! index (+ 1 index)}
-                                  index}))
-             {setf! (vector-ref gensymed-var1
-                                gensymed-var2)
-                    ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                               gensymed-var2))}})
-  {let ((foo (vector 0 0 0))
-        (index 1))
-    {mutate! (vector-ref foo {begin
-                               {setf! index (+ 1 index)}
-                               index})
-             [|n| (+ n 1)]}
-    {and (equal? foo
-                 (vector 0 0 1))
-         (equal? index
-                 2)}}
-  }
+ (equal? {macroexpand-1
+          {mutate! (vector-ref foo {begin
+                                     {setf! index (+ 1 index)}
+                                     index})
+                   [|n| (+ n 1)]}}
+         '{let ((gensymed-var1 foo)
+                (gensymed-var2 {begin
+                                 {setf! index (+ 1 index)}
+                                 index}))
+            {setf! (vector-ref gensymed-var1
+                               gensymed-var2)
+                   ([|n| (+ n 1)] (vector-ref gensymed-var1
+                                              gensymed-var2))}})
+ {let ((foo (vector 0 0 0))
+       (index 1))
+   {mutate! (vector-ref foo {begin
+                              {setf! index (+ 1 index)}
+                              index})
+            [|n| (+ n 1)]}
+   {and (equal? foo
+                (vector 0 0 1))
+        (equal? index
+                2)}}
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -2877,7 +2932,6 @@
 ;;;  }.
 ;;;
 ;;; \begin{code}
-
 {define tree-of-accessors
   [|pat lst #!key (gensym gensym) (n 0)|
    {cond ((null? pat)                '())
@@ -2897,32 +2951,33 @@
                 (tree-of-accessors (cdr pat)
                                    lst
                                    gensym: gensym
-                                   n: (+ 1 n))))}]
+                                   n: (+ 1 n))))}]}
 ;;; \end{code}
 ;;; \subsection*{Tests}
 ;;; \begin{code}
-  (equal? (tree-of-accessors '() '(1 2))
-          '())
-  (equal? (tree-of-accessors 'a '(1 2))
-          '((a (drop 0 (1 2)))))
-  (equal? (tree-of-accessors '(#!rest d) '(1 2))
-          '((d (drop 0 (1 2)))))
-  (equal? (tree-of-accessors '(a) '(1 2))
-          '((a (list-ref (1 2) 0))))
-  (equal? (tree-of-accessors '(a . b) '(1 2))
-          '((a (list-ref (1 2) 0))
-            (b (drop 1 (1 2)))))
+{unit-test
+ (equal? (tree-of-accessors '() '(1 2))
+         '())
+ (equal? (tree-of-accessors 'a '(1 2))
+         '((a (drop 0 (1 2)))))
+ (equal? (tree-of-accessors '(#!rest d) '(1 2))
+         '((d (drop 0 (1 2)))))
+ (equal? (tree-of-accessors '(a) '(1 2))
+         '((a (list-ref (1 2) 0))))
+ (equal? (tree-of-accessors '(a . b) '(1 2))
+         '((a (list-ref (1 2) 0))
+           (b (drop 1 (1 2)))))
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
-  (equal? (tree-of-accessors '(a (b c))
-                             '(1 (2 3))
-                             gensym: ['gensymed-var1])
-          '((a (list-ref (1 (2 3)) 0))
-            ((gensymed-var1 (list-ref (1 (2 3)) 1))
-             (b (list-ref gensymed-var1 0))
-             (c (list-ref gensymed-var1 1)))))
-  }
+ (equal? (tree-of-accessors '(a (b c))
+                            '(1 (2 3))
+                            gensym: ['gensymed-var1])
+         '((a (list-ref (1 (2 3)) 0))
+           ((gensymed-var1 (list-ref (1 (2 3)) 1))
+            (b (list-ref gensymed-var1 0))
+            (c (list-ref gensymed-var1 1)))))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -2952,7 +3007,7 @@
                    ,(create-nested-lets (flatmap [|b| (if (pair? (car b))
                                                           [(cdr b)]
                                                           ['()])]
-                                                 bindings))}])}}}]
+                                                 bindings))}])}}}]}
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 232]{onlisp}
@@ -2960,22 +3015,23 @@
 ;;; \subsection*{Tests}
 ;;;
 ;;; \begin{code}
-  (equal? {macroexpand-1
-           {destructuring-bind (a (b . c) #!rest d)
-                               '(1 (2 3) 4 5)
-                               (list a b c d)}}
-          '{let ((gensymed-var1 '(1 (2 3) 4 5)))
-             {let ((a (list-ref gensymed-var1 0))
-                   (gensymed-var2 (list-ref gensymed-var1 1))
-                   (d (drop 2 gensymed-var1)))
-               {let ((b (list-ref gensymed-var2 0))
-                     (c (drop 1 gensymed-var2)))
-                 {begin (list a b c d)}}}})
-  (equal? {destructuring-bind (a (b . c) #!rest d)
+{unit-test
+ (equal? {macroexpand-1
+          {destructuring-bind (a (b . c) #!rest d)
                               '(1 (2 3) 4 5)
-                              (list a b c d)}
-          '(1 2 (3) (4 5)))
-  }
+                              (list a b c d)}}
+         '{let ((gensymed-var1 '(1 (2 3) 4 5)))
+            {let ((a (list-ref gensymed-var1 0))
+                  (gensymed-var2 (list-ref gensymed-var1 1))
+                  (d (drop 2 gensymed-var1)))
+              {let ((b (list-ref gensymed-var2 0))
+                    (c (drop 1 gensymed-var2)))
+                {begin (list a b c d)}}}})
+ (equal? {destructuring-bind (a (b . c) #!rest d)
+                             '(1 (2 3) 4 5)
+                             (list a b c d)}
+         '(1 2 (3) (4 5)))
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage

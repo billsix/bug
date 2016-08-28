@@ -1,2 +1,9 @@
 - Ensure that the descriptions of the namespace stuff matches the changes I just made.
 - Perhaps save the tests so that the user can query for the tests for a procedure in gsi.
+- Updated preface, as the definition of permutations does not take unit tests as
+  part of the definition
+- Search for all references to 'with-tests', and update the documentation.
+- export 'unit-test'
+- Perhaps export a bug#define and bug#define-macro, so that applications which link
+  to libbug can use 'unit-test'
+  
