@@ -156,7 +156,7 @@
 ;;;              [(flatmap [|x|
 ;;;                         (map [|y| (cons x y)]
 ;;;                              (permutations (remove x l)))]
-;;;                        l)])}])]
+;;;                        l)])}])]}
 ;;; \end{examplecode}
 ;;;
 ;;; What does the code do?  How did the author intend for it to be used?
@@ -177,40 +177,36 @@
 ;;;
 ;;; But how else would a programmer organize tests?  Well in this book, which is the
 ;;; implementation of a library called ``libbug'',
-;;; tests are specified as part of the procedure's definition
-;;; and they are executed at compile-time.  Should any test fail the compiler will
+;;; tests are specified after the procedure's definition,
+;;; but they are only executed at compile-time.  Should any test fail the compiler will
 ;;; exit in error, like a type error in a
-;;; statically-typed language.  Furthermore,
+;;; statically-typed language.
+;;;
+;;; \begin{examplecode}
+;;;{unit-test
+;;; (satisfies?
+;;;  permutations
+;;;  '(
+;;;    (() ())
+;;;    ((1) ((1)))
+;;;    ((1 2) ((1 2)
+;;;            (2 1)))
+;;;    ((1 2 3) ((1 2 3)
+;;;              (1 3 2)
+;;;              (2 1 3)
+;;;              (2 3 1)
+;;;              (3 1 2)
+;;;              (3 2 1)))
+;;;    ))}
+;;; \end{examplecode}
+;;;
+;;; Furthermore,
 ;;; the book you are currently reading
 ;;; is embedded into the source code of libbug; it is generated only upon successful
 ;;; compilation of libbug and it couldn't exist if a single test
 ;;; failed.
 ;;;
-;;; So where are these tests then? The very alert reader may have noticed
-;;; that the opening '\{' in the definition
-;;; of ``permutations'' was not closed.  That is because the definition
-;;; of ``permutations'' is completed by specifying tests
-;;; to be run at compile-time.
-;;;
-;;; \begin{examplecode}
-;;; (equal? (permutations '())
-;;;         '())
-;;; (equal? (permutations '(1))
-;;;         '((1)))
-;;; (equal? (permutations '(1 2))
-;;;         '((1 2)
-;;;           (2 1)))
-;;; (equal? (permutations '(1 2 3))
-;;;         '((1 2 3)
-;;;           (1 3 2)
-;;;           (2 1 3)
-;;;           (2 3 1)
-;;;           (3 1 2)
-;;;           (3 2 1)))}
-;;; \end{examplecode}
-;;;
-;;;
-;;; Why does this matter?
+;;; Why does collocating tests with definitions matter?
 ;;; Towards answering the questions ``what does the code do?'' and ``how did the author
 ;;; intend for it to be used?'', there is neither searching through files nor guessing
 ;;; how the code was originally intended to be used.
@@ -276,7 +272,7 @@
 ;;;
 ;;;  As such, the ordering of the book was rearranged in an effort to keep the reader
 ;;;  engaged and curious.  The book begins with ``Part 1, The Implementation of Libbug''
-;;;  and ends with ``Part 2, Foundations Of Libbug''
+;;;  and ends with ``Part 2, Foundations Of Libbug''.
 ;;;  The Gambit compiler, however, compiles Part 2 first, then Part 1.
 ;;;
 ;;; \section{Conventions}
@@ -513,7 +509,7 @@
 ;;;
 ;;;
 ;;;
-;;; libbug-private\#define can take more than one test as parameters.
+;;; ``unit-test'' can take more than one test as parameters.
 ;;;
 ;;; \begin{code}
 {unit-test
