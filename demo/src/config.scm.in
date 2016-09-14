@@ -30,3 +30,13 @@
    (##include "@LIBBUG_INCLUDE_DIR@libbug-macros.scm")
    (##include "@LIBBUG_INCLUDE_DIR@libbug#.scm")}}
 
+{##define-macro define
+  (lambda (#!rest args)
+    `{at-both-times
+      {##define ,@args}})}
+
+{##define-macro define-macro
+  (lambda (#!rest args)
+   `{at-both-times
+     {##define ,@args}})}
+

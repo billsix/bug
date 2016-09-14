@@ -4,7 +4,14 @@
 
 (##include "config.scm")
 
+{define first-ten-primes
+  (stream->list
+   (stream-take 10 primes))}
+
+{unit-test
+ (equal? first-ten-primes
+         '(2 3 5 7 11 13 17 19 23 29))}
+
 {at-both-times
  (pp "FIRST 10 PRIMES")
- (pp (stream->list
-      (stream-take 10 primes)))}
+ (pp first-ten-primes)}

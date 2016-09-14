@@ -49,7 +49,7 @@ bug.pdf: bug.tex
 	makeindex bug.idx
 	pdflatex bug.tex
 
-libbug.c: bug-language.scm main.scm
+libbug.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
 	gsc -link -o libbug.c main
 
 libbug.so: libbug.c main.c
