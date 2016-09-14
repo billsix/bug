@@ -200,20 +200,14 @@
 ;;;    ))}
 ;;; \end{examplecode}
 ;;;
-;;; Furthermore,
-;;; the book you are currently reading
-;;; is embedded into the source code of libbug; it is generated only upon successful
-;;; compilation of libbug and it couldn't exist if a single test
-;;; failed.
-;;;
 ;;; Why does collocating tests with definitions matter?
 ;;; Towards answering the questions ``what does the code do?'' and ``how did the author
 ;;; intend for it to be used?'', there is neither searching through files nor guessing
 ;;; how the code was originally intended to be used.
 ;;; The fact that the
 ;;; tests are collocated with the procedure definition means that the reader can
-;;; read the tests without switching between files, perhaps
-;;; before reading the procedure's definition.  And the reader
+;;; inspect the tests without switching between files, perhaps
+;;; before looking at the procedure's definition.  And the reader
 ;;; may not even read the procedure at all if the tests gave him enough information
 ;;; to use it successfully.  Should the reader want to understand the procedure, he
 ;;; can mentally apply the procedure to the tests to understand it.
@@ -258,16 +252,20 @@
 ;;; Common Lisp-style macros, the author recommends reading ``On Lisp''
 ;;; \cite{onlisp}\footnote{available on-line for no cost}.
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
-;;; book, are all recommended reading but are
+;;; book, are recommended reading but are
 ;;; not necessary to understand the content of this book.
 ;;;
 ;;; \section{Parts}
-;;;  This book is a ``literate program''.  New procedures defined are dependent upon
+;;;  This book is a ``literate program'', meaning both that the source code of libbug is
+;;;  embedded within this book, and that the book is intended to be able to be
+;;;  read linearly.
+;;;  As such, new procedures defined are dependent upon
 ;;;  either standard Gambit Scheme procedures or
 ;;;  procedures which have already been defined earlier in the book.  In writing the book,
 ;;;  however, it became quite apparent that the foundation upon which libbug is constructed
-;;;  is by far the most difficult material.  Reading it in a completely linear format
-;;;  would cause the reader to get lost in the ``how'',
+;;;  is by far the most difficult material.  Reading it in the order which the compiler
+;;;  compiles it
+;;;  would cause the reader to quickly get lost in the ``how'',
 ;;;  before understanding ``why''.
 ;;;
 ;;;  As such, the ordering of the book was rearranged in an effort to keep the reader
@@ -460,7 +458,7 @@
 ;;;
 ;;; \begin{code}
 {unit-test
-  (equal? (noop) 'noop)}
+ (equal? (noop) 'noop)}
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
@@ -606,11 +604,11 @@
   all?
   '(
     (() #t)
-     ((1) #t)
-     ((#t) #t)
-     ((#t #t) #t)
-     ((#f) #f)
-     ((#t #t #t #f) #f)))
+    ((1) #t)
+    ((#t) #t)
+    ((#t #t) #t)
+    ((#f) #f)
+    ((#t #t #t #f) #f)))
  }
 ;;; \end{code}
 ;;;
@@ -680,7 +678,7 @@
 ;;;
 ;;; \noindent \cite[p. 150, called ``nif'']{onlisp}
 ;;;
-;;; Keyword arguments are optionally defined, and use the following syntax.
+;;; Keyword arguments are optionally passed to the procedure, and use the following syntax.
 ;;;
 ;;; \begin{code}
 {unit-test
@@ -1523,7 +1521,7 @@
       (b b)
       (g g)
       ))}
-  }
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1653,9 +1651,8 @@
 ;;;
 ;;; Strings are sequences of characters, just as lists are
 ;;; sequences of arbitrary Scheme objects. ``string-lift-list''
-;;; takes a one-argument
-;;; list processing procedure, and evaluates to an
-;;; equivalent procedure for strings.
+;;; allows the creation of a context in which the strings may
+;;; be treated as lists.
 ;;;
 ;;;
 ;;; \index{string-lift-list}
@@ -1738,8 +1735,14 @@
  }
 ;;; \end{code}
 ;;; \newpage
-
+;;;
 ;;; \section{character-lift-integer}
+;;;
+;;; Characters have a numeric value, but are not treated
+;;; as numbers.
+;;; ``character-lift-integer''
+;;; allows the creation of a context in which the characters may
+;;; be treated as integers.
 ;;;
 ;;; \index{character-lift-integer}
 ;;; \begin{code}
@@ -1756,11 +1759,11 @@
 {unit-test
  (satisfies?
   (character-lift-integer [|c| (+ c 1)])
-   '(
-     (#\a #\b)
-     (#\b #\c)
-     (#\c #\d)
-     ))}
+  '(
+    (#\a #\b)
+    (#\b #\c)
+    (#\c #\d)
+    ))}
 ;;; \end{code}
 ;;; \newpage
 
@@ -1791,13 +1794,13 @@
           #\a
           c)]
         s)]
-  
+
   '(
     ("" "")
     ("abc" "def")
     ("nop" "qrs")
     ("xyz" "abc")
-    )) 
+    ))
  }
 ;;; \end{code}
 ;;; \newpage
@@ -1806,9 +1809,8 @@
 ;;;
 ;;; Symbols are sequences of characters, just as lists are
 ;;; sequences of arbitrary Scheme objects. ``symbol-lift-list''
-;;; takes a one-argument
-;;; list processing procedure, and evaluates to an
-;;; equivalent procedure for symbols.
+;;; allows the creation of a context in which the symbols may
+;;; be treated as lists.
 ;;;
 ;;;
 ;;; \index{symbol-lift-list}
@@ -3038,7 +3040,7 @@
 ;;; was imported, so that ``libbug-private\#define'', and ``libbug-private\#define-macro'' can be used.
 ;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
 ;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
-;;; and they must be closed, accomplished executing ``at-end-of-compilation''.
+;;; and they must be closed, accomplished by executing ``at-end-of-compilation''.
 ;;;
 ;;; \begin{code}
 {at-compile-time

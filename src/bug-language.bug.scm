@@ -89,8 +89,7 @@
 ;;;
 ;;; Open one file for the namespaces, ``libbug\#.scm'', and one for the macros,
 ;;; ``libbug-macros.scm''.  These files will be pure Gambit scheme code, no
-;;; libbug-syntax enhancements, and they are not intended to be read by
-;;; a person.
+;;; libbug-syntax enhancements.
 ;;;
 ;;; \begin{code}
 {at-compile-time
@@ -305,12 +304,12 @@
 ;;; a macro to execute tests at compile-time is trivial.
 ;;;
 ;;; \begin{itemize}
-;;;  \item  Make a macro called ``with-tests'', which takes an unevaluated definition
-;;;         and an unevaluated list of tests.
-;;;  \item  ``eval'' the definiton at compile-time, ``eval'' the tests at compile-time.
+;;;  \item  Make a macro called ``unit-test'', which takes
+;;;         an unevaluated list of tests.
+;;;  \item  ``eval'' the tests at compile-time.
 ;;;     If any test evaluates to false, force the compiler to exit in error, producing
 ;;;     and appropriate error message.  If all of the tests pass, the Gambit compiler
-;;;     will proceed with compiling the definition.
+;;;     continues compiling subsequent definitions.
 ;;; \end{itemize}
 ;;;
 ;;;
@@ -349,15 +348,14 @@
 ;;; at run-time, and exports the namespace mapping to the appropriate file.
 ;;; ``libbug-private\#define'' itself is not exported to the macros file.
 ;;;
-;;;  On line 5-7, ``with-tests'' is applied to test at compile-time, thus
-;;;  also ensuring that the definition is available to other procedures
-;;;  both at compile-time and at run-time.
+;;;  On line 6-7, the definition occurs at both compile-time and run-time,
+;;;  ensuring that the procedure is available for evaluation of tests.
 ;;;
 ;;; \section{libbug-private\#define-macro}
 ;;;  Like ``libbug-private\#define'' is built upon ``\#\#define'',
 ;;;  ``libbug-private\#define-macro'' is built upon ``\#\#define-macro''.
-;;;  Like ``libbug-private\#define'', ``libbug-private\#define-macro'' uses
-;;;  ``with-tests'', thus ensuring that the macro is available both at
+;;;  Like ``libbug-private\#define'', ``libbug-private\#define-macro''
+;;;  ensures that the macro is available both at
 ;;;  run-time and at compile-time. But, macros do not get compiled into
 ;;;  libraries, so for other projects to use them, they must be exported
 ;;;  to file.
@@ -367,7 +365,7 @@
 ;;;   \item Write the macro to file
 ;;;   \item Write the macro-expander to file
 ;;;   \item Define the macro-expander within libbug
-;;;   \item Define the macro using ``with-tests''.
+;;;   \item Define the macro.
 ;;; \end{itemize}
 ;;;
 ;;;
