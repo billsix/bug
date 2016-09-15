@@ -1147,7 +1147,7 @@
 ;;;   Like Scheme's ``append'', but recycles the last cons cell, so it's
 ;;;   faster but it mutates the input.
 ;;;
-;;; \index{append!}
+;;; \index{append"!}
 ;;; \begin{code}
 {define append!
   [|#!rest ls|
@@ -2647,7 +2647,7 @@
 ;;;  ``setting'' procedure, based on the given ``accessing'' procedure\footnote{The
 ;;;  implementation is inspired by \cite{setf}.}.
 ;;;
-;;; \index{setf!}
+;;; \index{setf"!}
 ;;; \begin{code}
 {define-macro setf!
   [|exp val|
@@ -2816,7 +2816,7 @@
 ;;;  to the value of that generalized variable, and is then
 ;;;  stored back into it.
 ;;;
-;;; \index{mutate!}
+;;; \index{mutate"!}
 ;;; \begin{code}
 {define-macro mutate!
   [|exp f|
