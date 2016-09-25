@@ -2540,9 +2540,35 @@
 ;;; \section{once-only}
 ;;; \index{once-only}
 ;;;
-;;; ``once-only'' is a macro-creating macro which ensures that the arguments
-;;; to the calling macro are evaluated only once.  For more information
-;;; on the problem of multiple evaluation, see \cite[p. 133]{onlisp}..
+;;; Sometimes macros need to put two copies of its arguments in the generated code.
+;;; But that will mean that the argument will be evaluated multiple times,
+;;; which is not always desirable.
+;;;
+;;;
+;;; \begin{examplecode}
+;;;> {define-macro double [|x| `(+ ,x ,x)]}
+;;;> {double 5}
+;;;10
+;;; \end{examplecode}
+;;;
+;;; A person using a macro such as ``double'' should expect the argument to ``double''
+;;; to only be evaluated once.
+;;;
+;;; \begin{examplecode}
+;;;> {define foo 5}
+;;;> {double {mutate! foo [|x| (+ x 1)]}}
+;;;13
+;;; \end{examplecode}
+;;;
+;;; ``once-only'' allows a macro-writer to ensure that a variable is evaluated
+;;; only once in the generated code.
+;;;
+;;; \begin{examplecode}
+;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
+;;;> {define foo 5}
+;;;> {double {mutate! foo [|x| (+ x 1)]}}
+;;;12
+;;; \end{examplecode}
 ;;;
 ;;;
 ;;;
@@ -2592,11 +2618,11 @@
 ;;; ``gensym-ed'' variable until the second macroexpansion.
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 1, ``once-only'' is invoked, specifying that the variables ``x''
+;;;   \item On line 2, ``once-only'' is invoked, specifying that the variables ``x''
 ;;;     and ``y''
 ;;;     shall be evaluated only once in the expanded code of ``x'' plus ``y''.
-;;;   \item On line 2, this first expansion of the macro sets up the second expansion's
-;;;      creation of a new context (line 3-4) for modified code (line 5-7)
+;;;   \item On line 3, this first expansion of the macro sets up the second expansion's
+;;;      creation of a new context (line 4-5) for modified code (line 6-8)
 ;;; \end{itemize}
 ;;;
 ;;; \subsubsection*{The Second Macroexpansion}
@@ -2609,6 +2635,10 @@
                 (gensymed-var2 6))
             (+ gensymed-var1 gensymed-var2)})
 ;;; \end{code}
+;;;
+;;; \footnote{Future work - optimize the generated code whene
+;;;    the form
+;;;    passed to ``once-only'' cannot have side-effects, i.e. is an ``atom''.}
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
@@ -2819,12 +2849,15 @@
 {define-macro mutate!
   [|exp f|
    (if (symbol? exp)
-       [`{setf! ,exp (,f ,exp)}]
+       [`{begin
+           {setf! ,exp (,f ,exp)}
+           ,exp}]
        [{let* ((args (cdr exp))
                (syml (map [|s| (gensym)]
                           args)))
           `{let ,(zip syml args)
-             {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}}}])]}
+             {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}
+             (,(car exp) ,@syml)}}])]}
 ;;; \end{code}
 ;;;
 
@@ -2833,7 +2866,9 @@
 ;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 {mutate! foo not}}
-         '{setf! foo (not foo)})
+         '{begin
+            {setf! foo (not foo)}
+            foo})
  {let ((foo #t))
    {and
     {begin
@@ -2853,7 +2888,9 @@
 
 ;;; \begin{code}
  (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
-         '{setf! foo ([|n| (+ n 1)] foo)})
+         '{begin
+            {setf! foo ([|n| (+ n 1)] foo)}
+            foo})
  {let ((foo 1))
    (mutate! foo [|n| (+ n 1)])
    (equal? foo
@@ -2867,7 +2904,9 @@
             {setf! (vector-ref gensymed-var1
                                gensymed-var2)
                    ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                              gensymed-var2))}})
+                                              gensymed-var2))}
+            (vector-ref gensymed-var1
+                        gensymed-var2)})
  {let ((foo (vector 0 0 0)))
    {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
    (equal? foo
@@ -2877,6 +2916,10 @@
    (equal? foo
            (vector 0 0 1))}
 ;;; \end{code}
+;;;
+;;; \footnote{Future work - optimize the generated code whene
+;;;    the form
+;;;    passed to ``once-only'' cannot have side-effects, i.e. is an ``atom''.}
 ;;;
 ;;; \begin{code}
  (equal? {macroexpand-1
@@ -2891,7 +2934,9 @@
             {setf! (vector-ref gensymed-var1
                                gensymed-var2)
                    ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                              gensymed-var2))}})
+                                              gensymed-var2))}
+            (vector-ref gensymed-var1
+                        gensymed-var2)})
  {let ((foo (vector 0 0 0))
        (index 1))
    {mutate! (vector-ref foo {begin
