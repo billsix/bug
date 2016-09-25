@@ -2579,14 +2579,18 @@
                        symbols)))
      (list 'list
            ''let
-           (cons 'list (map [|g s| (list 'list
-                                         (list 'quote g)
-                                         s)]
-                            gensyms
-                            symbols))
+           (cons 'append (map [|g s| `(if (atom? ,s)
+                                          ['()]
+                                          [(list ,(list 'list
+                                                        (list 'quote g)
+                                                        s))])]
+                              gensyms
+                              symbols))
            (append (list 'let
                          (map [|s g| (list s
-                                           (list 'quote g))]
+                                           `(if (atom? ,s)
+                                                [,(list 'quote s)]
+                                                [,(list 'quote g)]))]
                               symbols
                               gensyms))
                    body))}]}
@@ -2602,14 +2606,22 @@
 ;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
-         '(list 'let
-                (list (list 'gensymed-var1 x)
-                      (list 'gensymed-var2 y))
-                {let ((x 'gensymed-var1)
-                      (y 'gensymed-var2))
-                  `(+ ,x ,y)}))
+ {unit-test
+  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
+          `(list 'let
+                 (append (if (atom? x)
+                             ['()]
+                             [(list (list 'gensymed-var1 x))])
+                         (if (atom? y)
+                             ['()]
+                             [(list (list 'gensymed-var2 y))]))
+                 (let ((x (if (atom? x)
+                              ['x]
+                              ['gensymed-var1]))
+                       (y (if (atom? y)
+                              ['y]
+                              ['gensymed-var2))))
+                   `(+ ,x ,y))))
 ;;; \end{code}
 ;;;
 ;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  But
@@ -2627,13 +2639,24 @@
 ;;;
 ;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
- (equal? (eval `{let ((x 5)
-                      (y 6))
-                  ,(once-only-expand (x y)
-                                     `(+ ,x ,y))})
-         '{let ((gensymed-var1 5)
-                (gensymed-var2 6))
-            (+ gensymed-var1 gensymed-var2)})
+  (equal? (eval `{let ((x 5)
+                       (y 6))
+                   ,(once-only-expand (x y)
+                                      `(+ ,x ,y))})
+          `(let () (+ x y)))
+  (equal? (eval `{let ((x '(car foo))
+                       (y 6))
+                   ,(once-only-expand (x y)
+                                      `(+ ,x ,y))})
+          '(let ((gensymed-var1 (car foo)))
+             (+ gensymed-var1 y)))
+  (equal? (eval `{let ((x '(car foo))
+                       (y '(baz)))
+                   ,(once-only-expand (x y)
+                                      `(+ ,x ,y))})
+          '(let ((gensymed-var1 (car foo))
+                 (gensymed-var2 (baz)))
+             (+ gensymed-var1 gensymed-var2)))
 ;;; \end{code}
 ;;;
 ;;; \footnote{Future work - optimize the generated code whene
@@ -2642,12 +2665,14 @@
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
- (equal? (eval (eval `{let ((x 5)
-                            (y 6))
-                        ,(once-only-expand (x y)
-                                           `(+ ,x ,y))}))
-         11)
- }
+  (equal? (eval `{let ((x 5)
+                       (y 6))
+                   ,(eval `{let ((x 5)
+                                 (y 6))
+                             ,(once-only-expand (x y)
+                                                `(+ ,x ,y))})})
+          11)
+  }
 ;;; \end{code}
 ;;;
 ;;; \newpage
