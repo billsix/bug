@@ -2601,23 +2601,21 @@
 ;;;
 ;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
- (equal? (eval `{let ((x 'x)
-                      (y 'y))
+ (equal? (eval `{let ((x 5)
+                      (y 6))
                   ,(once-only-expand (x y)
                                      `(+ ,x ,y))})
-         '{let ((gensymed-var1 x)
-                (gensymed-var2 y))
+         '{let ((gensymed-var1 5)
+                (gensymed-var2 6))
             (+ gensymed-var1 gensymed-var2)})
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
- (equal? (eval `{let ((x 5)
-                      (y 6))
-                  ,(eval `{let ((x 'x)
-                                (y 'y))
-                            ,(once-only-expand (x y)
-                                               `(+ ,x ,y))})})
+ (equal? (eval (eval `{let ((x 5)
+                            (y 6))
+                        ,(once-only-expand (x y)
+                                           `(+ ,x ,y))}))
          11)
  }
 ;;; \end{code}
