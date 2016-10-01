@@ -2659,10 +2659,6 @@
              (+ gensymed-var1 gensymed-var2)))
 ;;; \end{code}
 ;;;
-;;; \footnote{Future work - optimize the generated code whene
-;;;    the form
-;;;    passed to ``once-only'' cannot have side-effects, i.e. is an ``atom''.}
-;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
   (equal? (eval `{let ((x 5)
@@ -2877,12 +2873,18 @@
        [`{begin
            {setf! ,exp (,f ,exp)}
            ,exp}]
-       [{let* ((args (cdr exp))
-               (syml (map [|s| (gensym)]
-                          args)))
-          `{let ,(zip syml args)
-             {setf! (,(car exp) ,@syml) (,f (,(car exp) ,@syml))}
-             (,(car exp) ,@syml)}}])]}
+       [{let* ((let-args (map [|x| (if (atom? x)
+                                       [x]
+                                       [(list (gensym) x)])]
+                              (cdr exp)))
+               (symbol-list-to-setf (map [|x| (if (atom? x)
+                                                  [x]
+                                                  [(car x)])]
+                                         let-args)))
+          `{let ,(filter (complement atom?) let-args)
+             {setf! (,(car exp) ,@symbol-list-to-setf)
+                    (,f (,(car exp) ,@symbol-list-to-setf))}
+             (,(car exp) ,@symbol-list-to-setf)}}])]}
 ;;; \end{code}
 ;;;
 
@@ -2924,14 +2926,10 @@
 ;;;
 ;;; \begin{code}
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
-         '{let ((gensymed-var1 foo)
-                (gensymed-var2 0))
-            {setf! (vector-ref gensymed-var1
-                               gensymed-var2)
-                   ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                              gensymed-var2))}
-            (vector-ref gensymed-var1
-                        gensymed-var2)})
+         '(let ()
+            (setf! (vector-ref foo 0)
+                   ([|n| (+ n 1)] (vector-ref foo 0)))
+            (vector-ref foo 0)))
  {let ((foo (vector 0 0 0)))
    {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
    (equal? foo
@@ -2942,9 +2940,6 @@
            (vector 0 0 1))}
 ;;; \end{code}
 ;;;
-;;; \footnote{Future work - optimize the generated code whene
-;;;    the form
-;;;    passed to ``once-only'' cannot have side-effects, i.e. is an ``atom''.}
 ;;;
 ;;; \begin{code}
  (equal? {macroexpand-1
@@ -2952,16 +2947,12 @@
                                      {setf! index (+ 1 index)}
                                      index})
                    [|n| (+ n 1)]}}
-         '{let ((gensymed-var1 foo)
-                (gensymed-var2 {begin
-                                 {setf! index (+ 1 index)}
-                                 index}))
-            {setf! (vector-ref gensymed-var1
-                               gensymed-var2)
-                   ([|n| (+ n 1)] (vector-ref gensymed-var1
-                                              gensymed-var2))}
-            (vector-ref gensymed-var1
-                        gensymed-var2)})
+         '(let ((gensymed-var1 (begin
+                                 (setf! index (+ 1 index))
+                                 index)))
+            (setf! (vector-ref foo gensymed-var1)
+                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1)))
+            (vector-ref foo gensymed-var1)))
  {let ((foo (vector 0 0 0))
        (index 1))
    {mutate! (vector-ref foo {begin
