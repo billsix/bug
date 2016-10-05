@@ -2542,7 +2542,7 @@
 ;;;
 ;;; Sometimes macros need to put two copies of its arguments in the generated code.
 ;;; But that will mean that the argument will be evaluated multiple times,
-;;; which is not always desirable.
+;;; which is seldomly desirable.
 ;;;
 ;;;
 ;;; \begin{examplecode}
@@ -2575,34 +2575,54 @@
 ;;; \begin{code}
 {define-macro once-only
   [|symbols #!rest body|
+   ;; one gensym per symbol
    {let ((gensyms (map [|s| (gensym)]
                        symbols)))
-     (list 'list
-           ''let
-           (cons 'append (map [|g s| `(if (atom? ,s)
-                                          ['()]
-                                          [(list ,(list 'list
-                                                        (list 'quote g)
-                                                        s))])]
-                              gensyms
-                              symbols))
-           (append (list 'let
-                         (map [|s g| (list s
-                                           `(if (atom? ,s)
-                                                [,(list 'quote s)]
-                                                [,(list 'quote g)]))]
-                              symbols
-                              gensyms))
-                   body))}]}
+     ;; after the second macro expansion, the resulting code to be compiled
+     ;; will be a ``let'' expression.
+     ;;
+     ;; The ``let'''s variable bindings will be the subset of symbols whose values
+     ;; are not atoms in the second macroexpansion, as multiple evaluation of
+     ;; atoms causes no problems with respect to multiple evaluation.
+     ;;
+     ;; The ``let'''s body will be the body passed to ``once-only'', but
+     ;; with gensymed variables substituted for all non-atom arguments
+     ;; to the calling macro.
+     `(list 'let
+            ;; In the second expansion, append a list of variable mappings
+            ;; together
+            ,`(append ,@(map [|g s| `(if (atom? ,s)
+                                         ;; in the second expansion,
+                                         ;; if the value is an atom, no gensymed
+                                         ;; variable substition is required
+                                         ['()]
+                                         ;; if it's not create a binding to a
+                                         ;; gensymed variable
+                                         [(list ,`(list
+                                                   ,`(quote ,g)
+                                                   ,s))])]
+                             gensyms
+                             symbols))
+            ;; in the second expansion, substitute symbols in body either with
+            ;; a gensym or with the symbol itself
+            ,(append (list 'let
+                           (map [|s g| (list s
+                                             `(if (atom? ,s)
+                                                  ;; itself
+                                                  [,(list 'quote s)]
+                                                  ;; the associated gensym
+                                                  [,(list 'quote g)]))]
+                                symbols
+                                gensyms))
+                     body))}]}
 ;;; \end{code}
 ;;;
 ;;; \cite[p. 854]{paip}
 ;;;
-;;; \noindent Symbols with no quotes are evaluated in the first macroexpansion, symbols with one
-;;; quote are evaluated in the second macroexpansion, symbols with two quotes
-;;; are part of the generated code.
-;;;
-;;;
+;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  But
+;;; while ``with-gensyms'' only wraps it's argument with a new context to be used for
+;;; later macroexpansions, ``once-only'' needs to defer binding the variable to a
+;;; ``gensym-ed'' variable until the second macroexpansion.
 ;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
@@ -2615,48 +2635,39 @@
                          (if (atom? y)
                              ['()]
                              [(list (list 'gensymed-var2 y))]))
-                 (let ((x (if (atom? x)
+                 {let ((x (if (atom? x)
                               ['x]
                               ['gensymed-var1]))
                        (y (if (atom? y)
                               ['y]
                               ['gensymed-var2))))
-                   `(+ ,x ,y))))
+                   `(+ ,x ,y)}))
 ;;; \end{code}
 ;;;
-;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  But
-;;; while ``with-gensyms'' only wraps it's argument with a new context to be used for
-;;; later macroexpansions, ``once-only'' needs to defer binding the variable to a
-;;; ``gensym-ed'' variable until the second macroexpansion.
-;;;
-;;; \begin{itemize}
-;;;   \item On line 2, ``once-only'' is invoked, specifying that the variables ``x''
-;;;     and ``y''
-;;;     shall be evaluated only once in the expanded code of ``x'' plus ``y''.
-;;;   \item On line 3, this first expansion of the macro sets up the second expansion's
-;;;      creation of a new context (line 4-5) for modified code (line 6-8)
-;;; \end{itemize}
 ;;;
 ;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
   (equal? (eval `{let ((x 5)
                        (y 6))
-                   ,(once-only-expand (x y)
-                                      `(+ ,x ,y))})
-          `(let () (+ x y)))
+                   ,{macroexpand-1
+                     {once-only (x y)
+                                `(+ ,x ,y)}}})
+          `{let () (+ x y)})
   (equal? (eval `{let ((x '(car foo))
                        (y 6))
-                   ,(once-only-expand (x y)
-                                      `(+ ,x ,y))})
-          '(let ((gensymed-var1 (car foo)))
-             (+ gensymed-var1 y)))
+                   ,{macroexpand-1
+                     {once-only (x y)
+                                `(+ ,x ,y)}}})
+          '{let ((gensymed-var1 (car foo)))
+             (+ gensymed-var1 y)})
   (equal? (eval `{let ((x '(car foo))
                        (y '(baz)))
-                   ,(once-only-expand (x y)
-                                      `(+ ,x ,y))})
-          '(let ((gensymed-var1 (car foo))
+                   ,{macroexpand-1
+                     {once-only (x y)
+                                `(+ ,x ,y)}}})
+          '{let ((gensymed-var1 (car foo))
                  (gensymed-var2 (baz)))
-             (+ gensymed-var1 gensymed-var2)))
+             (+ gensymed-var1 gensymed-var2)})
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
@@ -2665,8 +2676,9 @@
                        (y 6))
                    ,(eval `{let ((x 5)
                                  (y 6))
-                             ,(once-only-expand (x y)
-                                                `(+ ,x ,y))})})
+                             ,{macroexpand-1
+                               {once-only (x y)
+                                          `(+ ,x ,y)}}})})
           11)
   }
 ;;; \end{code}
@@ -2926,10 +2938,10 @@
 ;;;
 ;;; \begin{code}
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
-         '(let ()
+         '{let ()
             (setf! (vector-ref foo 0)
                    ([|n| (+ n 1)] (vector-ref foo 0)))
-            (vector-ref foo 0)))
+            (vector-ref foo 0)})
  {let ((foo (vector 0 0 0)))
    {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
    (equal? foo
@@ -2947,12 +2959,12 @@
                                      {setf! index (+ 1 index)}
                                      index})
                    [|n| (+ n 1)]}}
-         '(let ((gensymed-var1 (begin
+         '{let ((gensymed-var1 (begin
                                  (setf! index (+ 1 index))
                                  index)))
             (setf! (vector-ref foo gensymed-var1)
                    ([|n| (+ n 1)] (vector-ref foo gensymed-var1)))
-            (vector-ref foo gensymed-var1)))
+            (vector-ref foo gensymed-var1)})
  {let ((foo (vector 0 0 0))
        (index 1))
    {mutate! (vector-ref foo {begin
