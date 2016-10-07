@@ -2352,12 +2352,16 @@
 ;;;  Although many concepts first implemented in Lisp (conditional expressions,
 ;;;  garbage collection, procedures as first-class objects)
 ;;;  have been appropriated into mainstream languages, the one feature of Lisp which
-;;;  remains difficult to copy is also one of Lisp's strongest:  macros.  Macros are a facility
+;;;  remains difficult for other languages to copy is also Lisp's best:  macros.
+;;;  A Lisp macro is a procedure which takes unevaluated Lisp code as a parameter and
+;;;  transforms it into a new form of unevaluated code before further evaluation.
+;;;  Essentially, they are a facility
 ;;;  by which a programmer may augment the compiler with new functionality \emph{while
 ;;;  the compiler is compiling.}
 ;;;
 ;;;  Mastery of macros is required to understand all subsequent chapters of this book.
-;;;  Should the reader have difficulty with this chapter, the author recommends reading
+;;;  Should the reader have difficulty with the remainder of the book, the author
+;;;  recommends reading
 ;;;  ``On Lisp'' by Paul Graham \cite{onlisp}.
 
 ;;;
@@ -2384,14 +2388,12 @@
 ;;;
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 1, the libbug-private\#define-macro macro\footnote{defined in
+;;;   \item On line 1, the ``libbug-private\#define-macro'' macro\footnote{defined in
 ;;;     section ~\ref{sec:libbugdefinemacro}}
-;;;     is invoked.  Besides defining the macro, libbug-private\#define-macro
+;;;     is invoked.  Besides defining the macro, ``libbug-private\#define-macro''
 ;;;     also exports the
-;;;     namespace definition and the macro definitions to external files.
-;;;     Libbug is a library, meant to be used by other projects.  From libbug, these
-;;;     projects will require namespace definitions, as well as macro definitions.
-;;;
+;;;     namespace definition and the macro definitions to external files,
+;;;     for consumption by programs which link against libbug.
 ;;;
 ;;; \end{itemize}
 
@@ -2415,12 +2417,14 @@
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
 ;;; macro into the new form, which the compiler would have then compiled
 ;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
-;;; evaluate, since by definition it creates symbols which cannot be entered
+;;; evaluate, since by definition it creates symbols which cannot be typed
+;;; by the programmer
 ;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
-;;; is overridden into a procedure
-;;; which expands into symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
+;;; is overridden by a procedure
+;;; which expands into typable symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
 ;;; call during a macro-expansion generates a new, unique symbol.  Although this symbol
-;;; may clash with symbols in the expanded code, this is not a problem, as these
+;;; may clash with symbols in the expanded code, this is not break ``gensym'' for
+;;; runtime evaluation, as these
 ;;; symbols are only generated in the call to ``macroexpand-1''; run-time ``gensym'' is
 ;;; regular old ``gensym''.  As such,
 ;;; ``eval''ing code generated from ``macroexpand-1'' in a non-testing context is not
@@ -2556,8 +2560,8 @@
 ;;; \index{once-only}
 ;;;
 ;;; Sometimes macros need to put two copies of its arguments in the generated code.
-;;; But that will mean that the argument will be evaluated multiple times,
-;;; which is seldomly desirable.
+;;; But that will cause the argument to the macro to be evaluated multiple times,
+;;; which is seldomly expected by the caller.
 ;;;
 ;;;
 ;;; \begin{examplecode}
@@ -2566,12 +2570,13 @@
 ;;;10
 ;;; \end{examplecode}
 ;;;
-;;; A person using a macro such as ``double'' should expect the argument to ``double''
-;;; to only be evaluated once.
+;;; The caller of ``double'' should reasoably expect the argument to ``double''
+;;; to only be evaluated once.  Because that's how Scheme usually works.
 ;;;
 ;;; \begin{examplecode}
 ;;;> {define foo 5}
-;;;> {double {mutate! foo [|x| (+ x 1)]}}
+;;;> {double {begin {set! foo (+ foo 1)}
+;;;                 foo}}
 ;;;13
 ;;; \end{examplecode}
 ;;;
@@ -2581,7 +2586,8 @@
 ;;; \begin{examplecode}
 ;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
 ;;;> {define foo 5}
-;;;> {double {mutate! foo [|x| (+ x 1)]}}
+;;;> {double {begin {set! foo (+ foo 1)}
+;;;                 foo}}
 ;;;12
 ;;; \end{examplecode}
 ;;;
@@ -2703,12 +2709,11 @@
 ;;;  \label{sec:endinglibbug}
 ;;; \section{setf!}
 ;;;  Lisp based systems such as Gambit do not provide raw access to memory
-;;;  locations via pointers, thus relieving the user of the language
-;;;  of direct memory management.  However, pointers are very useful in that
-;;;  they allow a procedure to pass a memory location as a variable to another procedure,
-;;;  which can then indirectly access/write to that location.
+;;;  locations via pointers, thus relieving the programmer
+;;;  of direct memory management.  However, pointers are very useful in allowing
+;;;  indirect access to read or write to memory.
 ;;;
-;;;  Fortunatly, most data-structures in Lisp have an ``accessing'' procedure
+;;;  Fortunately, most data-structures in Lisp have an ``accessing'' procedure
 ;;;  (for instance ``car'' or ``stream-a'') and an ``updating procedure''
 ;;;  (``set-car!'' and ``stream-a-set!'').  And there are only 3 patterns used
 ;;;  to map names of accessing procedures to updating procedures.
@@ -2762,8 +2767,6 @@
           ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
           ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
           ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
-;;; \end{code}
-;;; \begin{code}
           (else `(,((symbol-lift-list
                      [|l -set! -ref|
                       (append!
@@ -2815,7 +2818,7 @@
    (equal? (cdr foo) 10)}
 ;;; \end{code}
 ;;;
-;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures will be highly
+;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures would
 ;;; repetitive.  Instead, create a list which has an element at each of those
 ;;; accessor procedures, and test each.
 ;;;
@@ -2888,9 +2891,9 @@
 ;;; \newpage
 ;;; \section{mutate!}
 ;;;  Like ``setf!'', ``mutate!'' takes a generalized variable
-;;;  as input, but it additionally takes a procedure.  The procedure is applied
-;;;  to the value of that generalized variable, and is then
-;;;  stored back into it.
+;;;  as input, but it additionally takes a procedure to be applied
+;;;  to the value of the generalized variable; the result of which
+;;;  will be stored into the generalized variable.
 ;;;
 ;;; \index{mutate"!}
 ;;; \begin{code}
@@ -2900,18 +2903,18 @@
        [`{begin
            {setf! ,exp (,f ,exp)}
            ,exp}]
-       [{let* ((let-args (map [|x| (if (atom? x)
-                                       [x]
-                                       [(list (gensym) x)])]
-                              (cdr exp)))
-               (symbol-list-to-setf (map [|x| (if (atom? x)
-                                                  [x]
-                                                  [(car x)])]
-                                         let-args)))
-          `{let ,(filter (complement atom?) let-args)
-             {setf! (,(car exp) ,@symbol-list-to-setf)
-                    (,f (,(car exp) ,@symbol-list-to-setf))}
-             (,(car exp) ,@symbol-list-to-setf)}}])]}
+       [{let* ((atom-or-binding (map [|x| (if (atom? x)
+					      [x]
+					      [(list (gensym) x)])]
+				     (cdr exp)))
+               (args-to-setf (map [|x| (if (atom? x)
+					   [x]
+					   [(car x)])]
+				  atom-or-binding)))
+          `{let ,(filter (complement atom?) atom-or-binding)
+             {setf! (,(car exp) ,@args-to-setf)
+                    (,f (,(car exp) ,@args-to-setf))}
+             (,(car exp) ,@args-to-setf)}}])]}
 ;;; \end{code}
 ;;;
 
@@ -2954,8 +2957,8 @@
 ;;; \begin{code}
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
          '{let ()
-            (setf! (vector-ref foo 0)
-                   ([|n| (+ n 1)] (vector-ref foo 0)))
+            {setf! (vector-ref foo 0)
+                   ([|n| (+ n 1)] (vector-ref foo 0))}
             (vector-ref foo 0)})
  {let ((foo (vector 0 0 0)))
    {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
@@ -2974,11 +2977,11 @@
                                      {setf! index (+ 1 index)}
                                      index})
                    [|n| (+ n 1)]}}
-         '{let ((gensymed-var1 (begin
-                                 (setf! index (+ 1 index))
-                                 index)))
-            (setf! (vector-ref foo gensymed-var1)
-                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1)))
+         '{let ((gensymed-var1 {begin
+                                 {setf! index (+ 1 index)}
+                                 index}))
+            {setf! (vector-ref foo gensymed-var1)
+                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1))}
             (vector-ref foo gensymed-var1)})
  {let ((foo (vector 0 0 0))
        (index 1))
