@@ -177,8 +177,8 @@
 ;;;
 ;;; But how else would a programmer organize tests?  Well in this book, which is the
 ;;; implementation of a library called ``libbug'',
-;;; tests are specified after the procedure's definition,
-;;; but they are only executed at compile-time.  Should any test fail the compiler will
+;;; tests may be specified immediately after the procedure's definition,
+;;; yet they are only executed at compile-time.  Should any test fail the compiler will
 ;;; exit in error, like a type error in a
 ;;; statically-typed language.
 ;;;
@@ -200,7 +200,7 @@
 ;;;    ))}
 ;;; \end{examplecode}
 ;;;
-;;; Why does collocating tests with definitions matter?
+;;; Why does the collocation of tests with definitions matter?
 ;;; Towards answering the questions ``what does the code do?'' and ``how did the author
 ;;; intend for it to be used?'', there is neither searching through files nor guessing
 ;;; how the code was originally intended to be used.
@@ -209,7 +209,7 @@
 ;;; inspect the tests without switching between files, perhaps
 ;;; before looking at the procedure's definition.  And the reader
 ;;; may not even read the procedure at all if the tests gave him enough information
-;;; to use it successfully.  Should the reader want to understand the procedure, he
+;;; to use it successfully.  Should he want to understand the procedure, he
 ;;; can mentally apply the procedure to the tests to understand it.
 ;;;
 ;;; Wait a second. If those tests are defined in the source code itself, won't they
@@ -221,8 +221,8 @@
 ;;; compiled.  Lisp implementations such as Gambit are particularly well
 ;;; suited for this style of programming because unevaluated Lisp code is
 ;;; specified using a data structure of Lisp; because the compiler
-;;; is an interpreter capable of being augmented with the
-;;; same code which it is compiling.  Upon finishing compilation, the
+;;; is an interpreter capable of being augmented.
+;;; Upon finishing compilation, the
 ;;; compiler has \emph{become} the very program it is compiling.
 ;;;
 ;;;
@@ -260,11 +260,11 @@
 ;;;  embedded within this book, and that the book is intended to be able to be
 ;;;  read linearly.
 ;;;  As such, new procedures defined are dependent upon
-;;;  either standard Gambit Scheme procedures or
-;;;  procedures which have already been defined earlier in the book.  In writing the book,
+;;;  procedures defined either from standard Gambit Scheme or
+;;;  which have already been defined earlier in libbug.  In writing the book,
 ;;;  however, it became quite apparent that the foundation upon which libbug is constructed
-;;;  is by far the most difficult material.  Reading it in the order which the compiler
-;;;  compiles it
+;;;  is by far the most difficult material.  Reading the book in the order which the compiler
+;;;  compiles the source
 ;;;  would cause the reader to quickly get lost in the ``how'',
 ;;;  before understanding ``why''.
 ;;;
@@ -290,7 +290,9 @@
 ;;; \end{examplecode}
 ;;;
 ;;; \noindent
-;;; Some examples within this book show sessions of the use of the ``bug-gsi'' Read-Evaluate-Print-Loop (REPL).
+;;; Some examples within this book show interaction with ``bug-gsi'' \footnote{Gambit's
+;;; Read-Evaluate-Print-Loop (REPL), both with libbug's procedures loaded, and with libbug's
+;;; syntactic extensions.}
 ;;; Such examples will look like the following:
 ;;;
 ;;; \begin{examplecode}
@@ -323,7 +325,8 @@
 ;;;
 ;;; \noindent
 ;;; is used to denote to
-;;; the reader that the standard evaluation rules do not apply.  For instance, in
+;;; the reader that the standard evaluation rules do not necessarily
+;;; apply.  For instance, in
 ;;;
 ;;; \begin{examplecode}
 ;;; {define x 5}
@@ -331,10 +334,10 @@
 ;;;
 ;;; \noindent
 ;;; \{\} are used because ``x''
-;;; may be a new variable.  As such, ``x'' cannot currently evaluate to anything.
+;;; may be a new variable.  As such, ``x'' might not currently evaluate to anything.
 ;;;
-;;; Not all macro applications use \{\}.  If the macro respects Scheme's standard
-;;; order of evaluation, macro application will use standard Scheme notation:
+;;; Not all macro applications use \{\}.  If the macro always respects Scheme's standard
+;;; order of evaluation, macro application may use standard Scheme notation:
 ;;;
 ;;; \begin{examplecode}
 ;;; ((compose [|x| (* x 2)]) 5)
@@ -347,7 +350,7 @@
 ;;;  Currently the code works on various distributions of Linux, on FreeBSD, and on Mac
 ;;;  OS X.  The build currently does not work on Windows.
 ;;;
-;;; You will need a C compiler such as GCC,
+;;; The prerequisites for building libbug are a C compiler \footnote{such as GCC},
 ;;; Autoconf, Automake, and Gambit
 ;;; Scheme\footnote{http://gambitscheme.org} version 4.8 or newer.
 ;;;
@@ -362,8 +365,8 @@
 ;;;
 ;;; \begin{itemize}
 ;;;   \item
-;;;      The argument to ``prefix'' tells Autoconf the location into which libbug
-;;;      should be installed when ``make install'' is executed. ``\$BUG\textunderscore HOME'' is an
+;;;      The argument to ``prefix'' is the location into which libbug
+;;;      will be installed when ``make install'' is executed. ``\$BUG\textunderscore HOME'' is an
 ;;;      environment variable that I have not defined, so the reader should substitute
 ;;;      ``\$BUG\textunderscore HOME'' with an actual filesystem path.
 ;;;   \item
@@ -373,8 +376,11 @@
 ;;;
 ;;; \section{Comparison of Compile-Time Computations in Other Languages}
 ;;;
-;;; What exactly is computation at compile-time?  An introduction to the topic is provided
-;;; in Appendix~\ref{sec:appendix1}, demonstrated
+;;; What exactly is computation at compile-time?  An introduction
+;;; to the topic is provided
+;;; in Appendix~\ref{sec:appendix1}\footnote{introduction in an appendix?  wtf?
+;;; well, the book was more boring when that appendix was the next chapter.},
+;;; demonstrated
 ;;; in languages of more widespread use (C and C++),
 ;;; along with a comparison
 ;;; of their expressive power.
@@ -387,7 +393,7 @@
 ;;;
 ;;; This chapter begins the definition of libbug's standard library of Scheme procedures and
 ;;; macros\footnote{The code within chapters~\ref{sec:beginninglibbug}
-;;; through ~\ref{sec:endinglibbug} inclusive is found in
+;;; through ~\ref{sec:endinglibbug} (inclusive) is found in
 ;;; ``src/main.bug.scm''.}, along with tests which are run as part of the
 ;;; compilation process.  If any test fails, the compiler will exit in error,
 ;;; much like a type error in a statically-typed language.
@@ -400,8 +406,8 @@
 ;;; Instead, definitions within
 ;;; libbug use ``libbug-private\#define'', ``libbug-private\#define-macro'', and
 ;;; ``libbug-private\#\#define-structure''\footnote{Per convention
-;;; within libbug, procedures namespaced to ``libbug-private'' are not compiled into the library
-;;; or other output files; such procedures are meant for private use within the implementation
+;;; within libbug, procedures namespaced to ``libbug-private'' are not compiled into the library;
+;;; such procedures are meant for private use within the implementation
 ;;; of libbug.}, which  are implemented in Chapter~\ref{sec:buglang}.
 ;;; How they are implemented is not relevant yet, since the use of these
 ;;; procedure-defining procedures will be explained
@@ -414,18 +420,19 @@
 ;;;\end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 1, the code which makes computation at compile-time possible
-;;;     is imported. The contents of that file are in Chapter~\ref{sec:buglang}.
-;;;   \item On line 2, Gambit's ``\#\#namespace'' procedure is invoked, to
-;;;     tell the compiler that all subsequent uses of ``define'', ``define-macro'',
-;;;     and ``define-structure'' shall use libbug's version of those procedures
+;;;     is imported. That code is defined in Chapter~\ref{sec:buglang}.
+;;;   \item On line 2, Gambit's ``\#\#namespace'' procedure is invoked, ensuring
+;;;     that all unnamespaced uses of ``define'', ``define-macro'',
+;;;     and ``define-structure'' will use libbug's version of those procedures
 ;;;     instead of Gambit's.
-;;;   \item On line 3, all subsequent uses of ``if'' shall use libbug's version.
+;;;   \item On line 3, all unnamespaced uses of ``if'' will use libbug's version.
 ;;; \end{itemize}
 ;;;
 ;;;
 ;;; \newpage
 ;;; \section{noop}
-;;; The first definition is ``noop'', a procedure which takes no arguments and
+;;; The first definition is ``noop'' (meaning ``no operation''), a procedure which
+;;; takes zero arguments and
 ;;; which evaluates to the symbol 'noop.
 ;;;
 ;;; \index{noop}
@@ -441,14 +448,14 @@
 ;;;   \item On line 2, the lambda literal to be stored into the variable.
 ;;;         Libbug includes a Scheme preprocessor ``bug-gscpp'',
 ;;;         which expands lambda literals
-;;;         into lambdas.  In this case
+;;;         into lambdas.  In this case, ``bug-gscpp'' expands
 ;;;
 ;;; \begin{examplecode}
 ;;; ['noop]
 ;;; \end{examplecode}
 ;;;
 ;;; \noindent
-;;; is expanded into
+;;; into
 ;;;
 ;;; \begin{examplecode}
 ;;; (lambda () 'noop)
@@ -462,16 +469,18 @@
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
-;;;  \item  On line 1, an expression which evaluates to a boolean is defined.
+;;;  \item  On line 1, an invocation of ``unit-test''. ``unit-test'' takes one
+;;; parameter, which is a test to be run at compile-time.
+;;;  \item  On line 2, an expression which evaluates to a boolean.
 ;;;  This is a
 ;;; test which will be evaluated at compile-time.  Should the test fail,
-;;; the build process will fail and neither the shared library nor the document which
+;;; the compilation of libbug will fail and neither the shared library nor the document which
 ;;; you are currently reading will be created.
 ;;; Tests are not present in the created
 ;;; library.
 ;;; \end{itemize}
 ;;;
-;;; ``noop'' does not look useful at first glance, but it is frequently used when
+;;; ``noop'' does not look useful at first glance.  It is used when
 ;;;  a procedure is required but the resulting value of it is not.
 ;;;  For instance, ``noop'' is used as a default ``exception-handler'' for many
 ;;;  procedures within libbug.
@@ -528,9 +537,9 @@
   [|l|
    (if (null? l)
        [#t]
-       [(if (not (car l))
-            [#f]
-            [(all? (cdr l))])])]}
+       [(if (car l)
+            [(all? (cdr l))]
+            [#f])])]}
 ;;; \end{code}
 ;;; \begin{itemize}
 ;;;   \item On line 3, ``if'', which is currently namespaced to ``bug\#if''\footnote{
@@ -563,8 +572,8 @@
 ;;; \end{code}
 ;;;
 ;;; Tests in libbug are defined for two purposes.  Firstly, to ensure
-;;; that expected behavior of a procedure does not change when that procedure's internal
-;;; definition has changed.  Secondly, as a form of documentation of the procedure.
+;;; that expected behavior of a procedure does not change when the source code
+;;; has changed.  Secondly, as a form of documentation.
 ;;; Libbug is unique\footnote{as far as the author knows} in that the tests are collocated with
 ;;; the procedure definitions.  The reader is encouraged to read the tests for a
 ;;; procedure before reading the implementation; since in many cases, the tests are designed
@@ -622,7 +631,7 @@
 ;;;
 ;;; Programmers who are new to the Scheme language  may be surprised that
 ;;; the language provides no built-in syntax for looping, such as ``for''
-;;; or ``while''.  A better question though, is why don't other
+;;; or ``while''.  A better question is why don't other
 ;;; languages provide primitives from which you can create
 ;;; those looping constructs yourself?  ``Take the red pill.''
 ;;;
@@ -661,7 +670,7 @@
 ;;; \section{numeric-if}
 ;;;   A conditional expression for numbers, based on their sign. ``numeric-if''
 ;;;   uses Gambit's keyword syntax.  ``ifPositive'', ``ifZero'', and ``ifNegative'' are
-;;;   an optionals argument, each with their default value as the value in the ``noop''
+;;;   optional arguments, each with their default value as the value in the ``noop''
 ;;;   variable.
 ;;;
 ;;;
@@ -1031,7 +1040,7 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;; \footnote{Within libbug, a parameter named ``acc'' usually means the parameter is
+;;; \footnote{Within libbug, a parameter named ``acc'' usually means the parameter
 ;;;   is an accumulated value}
 ;;;
 ;;; \noindent \cite[p. 121]{sicp}
@@ -1049,8 +1058,8 @@
 ;;; \end{code}
 ;;;
 ;;; Understanding the first test may give the reader false confidence in understanding
-;;; ``fold-left''.  To understand how ``fold-left'' really works, pay close attention
-;;; to how it works with non-commutative procedures, such as ``-''.
+;;; ``fold-left''.  To understand how ``fold-left'' really works, understand
+;;; how it works with non-commutative procedures, such as ``-''.
 ;;;
 ;;; \begin{code}
  (satisfies?
@@ -1106,8 +1115,8 @@
 ;;;
 ;;; \newpage
 ;;; \section{scan-left}
-;;;   Like fold-left, but every intermediate value
-;;;   of fold-left's accumulator is put onto the resulting list
+;;;   Like ``fold-left'', but every intermediate value
+;;;   of ``fold-left'''s accumulator is an element in the resulting list
 ;;;
 ;;; \index{scan-left}
 ;;; \begin{code}
@@ -1115,17 +1124,17 @@
   [|f acc l|
    {let ((acc-list (list acc)))
      {let scan-left ((acc acc)
-                     (last-cell acc-list)
-                     (l l))
+                     (l l)
+                     (last-cell acc-list))
        (if (null? l)
            [acc-list]
            [{let ((newacc (f acc
                              (car l))))
               (scan-left newacc
+                         (cdr l)
                          {begin
                            {set-cdr! last-cell (list newacc)}
-                           (cdr last-cell)}
-                         (cdr l))}])}}]}
+                           (cdr last-cell)})}])}}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1144,22 +1153,22 @@
 ;;;
 ;;; \newpage
 ;;; \section{append!}
-;;;   Like Scheme's ``append'', but recycles the last cons cell, so it's
-;;;   faster but it mutates the input.
+;;;   Like Scheme's ``append'', but recycles the last cons cell, so it is a more
+;;;   efficient computation at the expense of mutating the input.
 ;;;
 ;;; \index{append"!}
 ;;; \begin{code}
 {define append!
   [|#!rest ls|
    {##define append!
-     [|l1 l2|
-      (if (null? l1)
-          [l2]
-          [{let ((head l1))
-             {let append! ((l1 l1))
-               (if (null? (cdr l1))
-                   [{set-cdr! l1 l2}]
-                   [(append! (cdr l1))])}
+     [|first-list second-list|
+      (if (null? first-list)
+          [second-list]
+          [{let ((head first-list))
+             {let append! ((first-list first-list))
+               (if (null? (cdr first-list))
+                   [{set-cdr! first-list second-list}]
+                   [(append! (cdr first-list))])}
              head}])]}
    (fold-right append! '() ls)]}
 ;;; \end{code}
@@ -1621,7 +1630,8 @@
   [|l|
    (if (null? l)
        ['()]
-       [{let reverse! ((cons-cell l) (reversed-list '()))
+       [{let reverse! ((cons-cell l)
+		       (reversed-list '()))
           (if (null? (cdr cons-cell))
               [{set-cdr! cons-cell reversed-list}
                cons-cell]
@@ -1647,6 +1657,11 @@
 ;;;
 ;;; \newpage
 ;;; \chapter{Lifting}
+;;;
+;;; From the Haskell wiki\footnote{https://wiki.haskell.org/Lifting}
+;;;  ``lifting is a concept which allows you to transform a function into
+;;;  a corresponding function within another (usually more general) setting''.
+;;;
 ;;; \section{string-lift-list}
 ;;;
 ;;; Strings are sequences of characters, just as lists are
@@ -1738,8 +1753,7 @@
 ;;;
 ;;; \section{character-lift-integer}
 ;;;
-;;; Characters have a numeric value, but are not treated
-;;; as numbers.
+;;; Characters have a numeric value but are not numbers.
 ;;; ``character-lift-integer''
 ;;; allows the creation of a context in which the characters may
 ;;; be treated as integers.
@@ -1841,8 +1855,8 @@
 ;;; \chapter{Streams}
 ;;;
 ;;; Streams are sequential collections like lists, but the
-;;; ``cdr'' of each pair must be a zero-argument lambda value.  That lambda
-;;; is automatically evaluated when ``(stream-cdr s)'' is evaluated.
+;;; ``cdr'' of each pair must be a zero-argument lambda expression.  This lambda
+;;; expression is evaluated when ``(stream-cdr s)'' is evaluated.
 ;;; For more information, consult ``The Structure and
 ;;; Interpretation of Computer Programs''\footnote{although, they
 ;;; define ``stream-cons'' as syntax instead of passing a lambda
@@ -1851,8 +1865,8 @@
 ;;; \section{Stream structure}
 ;;;
 ;;; ``bug\#define-structure''\footnote{defined in section~\ref{sec:definestructure}}
-;;;  takes as parameters the name of the datatype, and a variable
-;;; number of fields.
+;;;  takes the name of the datatype and a variable
+;;; number of fields as parameters.
 ;;;
 ;;; \begin{code}
 {define-structure stream
@@ -1906,7 +1920,7 @@
             (equal? '() (cadr d))}
        [`(make-stream ,a {delay ,(caddr d)})]
        [(error "bug#stream-cons requires a zero-argument \
-                lambda in it's second arg")])]}
+                lambda as its second argument.")])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
@@ -2049,7 +2063,8 @@
 ;;; \section{integers-from}
 ;;; \index{integers-from}
 ;;;
-;;; Creates an ``infinite'' list of integers.
+;;; Creates an infinite\footnote{bounded by memory constraints of course. Scheme
+;;; isn't a Turing machine.} stream of integers.
 ;;;
 ;;; \begin{code}
 {define integers-from
