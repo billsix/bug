@@ -23,21 +23,21 @@ install:
 	install -d $(DESTDIR)$(mandir)/man1
 	install -m 0755 man/bug-gscpp.1.bz2  $(DESTDIR)$(mandir)/man1/
 	install -m 0755 man/bug-gsi.1.bz2  $(DESTDIR)$(mandir)/man1/
-	install -d $(DESTDIR)$(datarootdir)/libbug//demo
-	install -m 0755 demo/AUTHORS  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/COPYING  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/ChangeLog  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/INSTALL  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/Makefile.in  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/NEWS  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/README  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/autogen.sh  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/configure.ac  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -m 0755 demo/env.sh  $(DESTDIR)$(datarootdir)/libbug//demo/
-	install -d $(DESTDIR)$(datarootdir)/libbug//demo/src/
-	install -m 0755 demo/src/Makefile.in  $(DESTDIR)$(datarootdir)/libbug//demo/src/
-	install -m 0755 demo/src/bug-demo.bug.scm  $(DESTDIR)$(datarootdir)/libbug//demo/src/
-	install -m 0755 demo/src/config.scm.in  $(DESTDIR)$(datarootdir)/libbug//demo/src/
+	install -d $(DESTDIR)$(datarootdir)/libbug/demo
+	install -m 0755 demo/AUTHORS  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/COPYING  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/ChangeLog  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/INSTALL  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/Makefile.in  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/NEWS  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/README  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/autogen.sh  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/configure.ac  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0755 demo/env.sh  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -d $(DESTDIR)$(datarootdir)/libbug/demo/src/
+	install -m 0755 demo/src/Makefile.in  $(DESTDIR)$(datarootdir)/libbug/demo/src/
+	install -m 0755 demo/src/bug-demo.bug.scm  $(DESTDIR)$(datarootdir)/libbug/demo/src/
+	install -m 0755 demo/src/config.scm.in  $(DESTDIR)$(datarootdir)/libbug/demo/src/
 	mkdir -p $(DESTDIR)$(libdir)/pkgconfig/
 	install -m 0755 pkgconfig/libbug.pc $(DESTDIR)$(libdir)/pkgconfig/
 uninstall:
@@ -45,19 +45,19 @@ uninstall:
 	-cd src && $(MAKE) $@
 	-rm $(DESTDIR)$(mandir)/man1/bug-gscpp.1.bz2
 	-rm $(DESTDIR)$(mandir)/man1/bug-gsi.1.bz2
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/AUTHORS
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/COPYING
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/ChangeLog
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/INSTALL
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/Makefile.in
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/NEWS
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/README
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/autogen.sh
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/configure.ac
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/env.sh
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/src/Makefile.in
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/src/bug-demo.bug.scm
-	-rm $(DESTDIR)$(datarootdir)/libbug//demo/src/config.scm.in
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/AUTHORS
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/COPYING
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/ChangeLog
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/INSTALL
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/Makefile.in
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/NEWS
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/README
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/autogen.sh
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/configure.ac
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/env.sh
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/src/Makefile.in
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/src/bug-demo.bug.scm
+	-rm $(DESTDIR)$(datarootdir)/libbug/demo/src/config.scm.in
 	-rm $(DESTDIR)$(libdir)/pkgconfig/libbug.pc
 
 dist: $(distdir).tar.gz
