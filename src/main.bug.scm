@@ -378,8 +378,7 @@
 ;;;
 ;;; What exactly is computation at compile-time?  An introduction
 ;;; to the topic is provided
-;;; in Appendix~\ref{sec:appendix1}\footnote{introduction in an appendix?  wtf?
-;;; well, the book was more boring when that appendix was the next chapter.},
+;;; in Appendix~\ref{sec:appendix1}
 ;;; demonstrated
 ;;; in languages of more widespread use (C and C++),
 ;;; along with a comparison
@@ -2560,7 +2559,7 @@
 ;;; \index{once-only}
 ;;;
 ;;; Sometimes macros need to put two copies of its arguments in the generated code.
-;;; But that will cause the argument to the macro to be evaluated multiple times,
+;;; But that will cause the form to be evaluated multiple times,
 ;;; which is seldomly expected by the caller.
 ;;;
 ;;;
@@ -2570,8 +2569,8 @@
 ;;;10
 ;;; \end{examplecode}
 ;;;
-;;; The caller of ``double'' should reasoably expect the argument to ``double''
-;;; to only be evaluated once.  Because that's how Scheme usually works.
+;;; The caller of ``double'' should reasonably expect the argument to ``double''
+;;; to only be evaluated once only, because that's how Scheme usually works.
 ;;;
 ;;; \begin{examplecode}
 ;;;> {define foo 5}
@@ -2592,46 +2591,30 @@
 ;;; \end{examplecode}
 ;;;
 ;;;
+;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  Code
+;;; which generates code which generates code.  But
+;;; while ``with-gensyms'' only wraps it's argument with a new context to be used for
+;;; later macroexpansions, ``once-only'' needs to defer binding the variable to a
+;;; ``gensym-ed'' variable until the second macroexpansion.  As such, it is the
+;;; most difficult macro is this book.
 ;;;
 ;;; \begin{code}
 {define-macro once-only
   [|symbols #!rest body|
-   ;; one gensym per symbol
    {let ((gensyms (map [|s| (gensym)]
                        symbols)))
-     ;; after the second macro expansion, the resulting code to be compiled
-     ;; will be a ``let'' expression.
-     ;;
-     ;; The ``let'''s variable bindings will be the subset of symbols whose values
-     ;; are not atoms in the second macroexpansion, as multiple evaluation of
-     ;; atoms causes no problems with respect to multiple evaluation.
-     ;;
-     ;; The ``let'''s body will be the body passed to ``once-only'', but
-     ;; with gensymed variables substituted for all non-atom arguments
-     ;; to the calling macro.
      `(list 'let
-            ;; In the second expansion, append a list of variable mappings
-            ;; together
             ,`(append ,@(map [|g s| `(if (atom? ,s)
-                                         ;; in the second expansion,
-                                         ;; if the value is an atom, no gensymed
-                                         ;; variable substition is required
                                          ['()]
-                                         ;; if it's not create a binding to a
-                                         ;; gensymed variable
                                          [(list ,`(list
                                                    ,`(quote ,g)
                                                    ,s))])]
                              gensyms
                              symbols))
-            ;; in the second expansion, substitute symbols in body either with
-            ;; a gensym or with the symbol itself
             ,(append (list 'let
                            (map [|s g| (list s
                                              `(if (atom? ,s)
-                                                  ;; itself
                                                   [,(list 'quote s)]
-                                                  ;; the associated gensym
                                                   [,(list 'quote g)]))]
                                 symbols
                                 gensyms))
@@ -2640,10 +2623,39 @@
 ;;;
 ;;; \cite[p. 854]{paip}
 ;;;
-;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  But
-;;; while ``with-gensyms'' only wraps it's argument with a new context to be used for
-;;; later macroexpansions, ``once-only'' needs to defer binding the variable to a
-;;; ``gensym-ed'' variable until the second macroexpansion.
+;;;
+;;; \begin{itemize}
+;;;   \item On lines 3-4, generate one gensym per argument to ``once-only''.  These
+;;;        ``gensym''-ed names will be bound to the evaluated value of the arguments
+;;;        to ``once-only'',
+;;;        to ensure that those arguments are only evaluated once.  But that
+;;;        won't happen until the second macroexpansion.
+;;;   \item On lines 5-20,  create a ``let'' expression after two macroexpansions.
+;;;
+;;;        The ``let'''s variable bindings (lines 6-12) will be a subset of the
+;;;        gensyms, as arguments to ``once-only'' whose values are atoms do not
+;;;        need protection from multiple evaluation.
+;;;
+;;;        The ``let'''s body (lines 13-20) will be the body passed to ``once-only'', but
+;;;        with gensymed variables substituted for all non-atom arguments
+;;;        to the calling macro, completing the protection from multiple evaluation.
+;;;
+;;;   \item On line 7,
+;;;        in the second expansion,
+;;;        if the value is an atom, no ``gensym''-ed
+;;;        variable substition is required.
+;;;   \item On line 8,
+;;;        in the second expansion,
+;;;        if it's not an atom, create a binding to a
+;;;        ``gensym''-ed variable.
+;;;
+;;;   \item On lines 15-17,
+;;;             in the second expansion, substitute symbols in body either with
+;;;             its corresponding gensym, or with the symbol itself.
+;;;   \item On line 16, itself.
+;;;   \item On line 17, the associated gensym.
+;;; \end{itemize}
+;;;
 ;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
