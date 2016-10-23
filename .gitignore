@@ -11,3 +11,5 @@ install-sh
 src/Makefile
 src/config.scm
 pkgconfig/libbug.pc
+bug-gsc/bug-gsi-config.h
+config.h

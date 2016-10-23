@@ -4,7 +4,7 @@
 ;;;
 ;;; \documentclass[twoside]{book}
 ;;; \pagenumbering{gobble}
-;;; \usepackage[paperwidth=8.25in, paperheight=10.75in,bindingoffset=0.2in, left=0.5in, right=0.5in]{geometry}
+;;; \usepackage[paperwidth=8.25in, paperheight=10.75in,bindingoffset=0.7in, left=0.5in, right=0.5in]{geometry}
 ;;; \usepackage{times}
 ;;; \usepackage{listings}
 ;;; \usepackage{courier}
@@ -147,7 +147,7 @@
 ;;;
 ;;; \begin{examplecode}
 ;;;{define permutations
-;;; [|l|
+;;;  [|l|
 ;;;   (if (null? l)
 ;;;       ['()]
 ;;;       [{let permutations ((l l))
@@ -170,7 +170,7 @@
 ;;; where are those tests?  Probably in some other file whose filesystem path is
 ;;; similar to the current file's path (e.g., src/com/BigCorp/HugeProject/Foo.java
 ;;; is tested by test/com/BigCorp/HugeProject/FooTest.java).
-;;; Then you'd have to find the file, open the file, look through it
+;;; You'd have to find the file, open the file, look through it
 ;;; while ignoring tests which are
 ;;; for other methods.  Frankly, it's too much work and it interrupts the flow
 ;;; of coding, at least for me.
@@ -260,7 +260,7 @@
 ;;;  embedded within this book, and that the book is intended to be able to be
 ;;;  read linearly.
 ;;;  As such, new procedures defined are dependent upon
-;;;  procedures defined either from standard Gambit Scheme or
+;;;  procedures either defined in standard Gambit Scheme or
 ;;;  which have already been defined earlier in libbug.  In writing the book,
 ;;;  however, it became quite apparent that the foundation upon which libbug is constructed
 ;;;  is by far the most difficult material.  Reading the book in the order which the compiler
@@ -479,8 +479,8 @@
 ;;; library.
 ;;; \end{itemize}
 ;;;
-;;; ``noop'' does not look useful at first glance.  It is used when
-;;;  a procedure is required but the resulting value of it is not.
+;;; ``noop'' does not look useful at first glance, but it is used when
+;;;  a procedure of zero arguments is required but the resulting value of it is not.
 ;;;  For instance, ``noop'' is used as a default ``exception-handler'' for many
 ;;;  procedures within libbug.
 ;;;
@@ -571,7 +571,7 @@
 ;;; \end{code}
 ;;;
 ;;; Tests in libbug are defined for two purposes.  Firstly, to ensure
-;;; that expected behavior of a procedure does not change when the source code
+;;; that the expected behavior of a procedure does not change when the source code
 ;;; has changed.  Secondly, as a form of documentation.
 ;;; Libbug is unique\footnote{as far as the author knows} in that the tests are collocated with
 ;;; the procedure definitions.  The reader is encouraged to read the tests for a
@@ -619,9 +619,6 @@
     ((#t #t #t #f) #f)))
  }
 ;;; \end{code}
-;;;
-;;; For the remaining procedures, if the tests do an adequate job of explaining
-;;; the code, there will be no written documentation.
 ;;;
 ;;; \newpage
 ;;; \section{while}
@@ -1115,7 +1112,7 @@
 ;;; \newpage
 ;;; \section{scan-left}
 ;;;   Like ``fold-left'', but every intermediate value
-;;;   of ``fold-left'''s accumulator is an element in the resulting list
+;;;   of ``fold-left'''s accumulator is an element in the resulting list of ``scan-left''.
 ;;;
 ;;; \index{scan-left}
 ;;; \begin{code}
@@ -1339,12 +1336,12 @@
 ;;; \begin{code}
 {define enumerate-interval
   [|low high #!key (step 1)|
-   (if (> low high)
-       ['()]
-       [(cons low
-              (enumerate-interval (+ low step)
-                                  high
-                                  step: step))])]}
+   {let enumerate-interval ((low low) (high high))
+     (if (> low high)
+         ['()]
+         [(cons low
+                (enumerate-interval (+ low step)
+                                    high))])}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1389,10 +1386,11 @@
 ;;; \begin{code}
 {define zip
   [|#!rest lsts|
-   (if (any? (map null? lsts))
-       ['()]
-       [(cons (apply list (map car lsts))
-              (apply zip (map cdr lsts)))])]}
+   {let zip ((lsts lsts))
+     (if (any? (map null? lsts))
+         ['()]
+         [(cons (map car lsts)
+                (zip (map cdr lsts)))])}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1412,9 +1410,11 @@
          '())
  (equal? (zip '() '(1))
          '())
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? (zip '() '() '())
          '())
  (equal? (zip '(1 2 3)
@@ -1423,9 +1423,11 @@
          '((1 4 7)
            (2 5 8)
            (3 6 9)))
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? (zip '() '() '() '())
          '())
  (equal? (zip '(1 2 3)
@@ -1507,9 +1509,11 @@
     (b 1)
     (g 6)
     ))
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
+{unit-test
  (satisfies?
   [|x| (ref-of '(a b c d e f g)
                x
@@ -1518,9 +1522,11 @@
     (z missing)
     (a 0)
     ))
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
+{unit-test
  {let ((l '(a b c d e f g)))
    (satisfies?
     [|x| (list-ref l (ref-of l x))]
@@ -1702,7 +1708,6 @@
     ))
  }
 ;;; \end{code}
-;;; \newpage
 
 ;;; \section{string-take}
 ;;;
@@ -1748,11 +1753,11 @@
     ))
  }
 ;;; \end{code}
-;;; \newpage
 ;;;
 ;;; \section{character-lift-integer}
 ;;;
-;;; Characters have a numeric value but are not numbers.
+;;; Characters are stored as integer values in computers, but in Scheme
+;;; they are not treated as numbers.
 ;;; ``character-lift-integer''
 ;;; allows the creation of a context in which the characters may
 ;;; be treated as integers.
@@ -1902,7 +1907,6 @@
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
-;;; \newpage
 ;;; \section{stream-cons}
 ;;;
 ;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
@@ -2032,9 +2036,10 @@
        [{let stream-ref ((s s) (n n))
           (if (equal? n 0)
               [(stream-car s)]
-              [(if (not (stream-null? (stream-cdr s)))
-                   [(stream-ref (stream-cdr s) (- n 1))]
-                   [(onOutOfBounds)])])}])]}
+              [(if (stream-null? (stream-cdr s))
+                   [(onOutOfBounds)]
+                   [(stream-ref (stream-cdr s)
+                                (- n 1))])])}])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 319]{sicp}.
@@ -2228,12 +2233,12 @@
 ;;; \begin{code}
 {define stream-enumerate-interval
   [|low high #!key (step 1)|
-   (if (> low high)
-       [stream-null]
-       [(stream-cons low
-                     [(stream-enumerate-interval (+ low step)
-                                                 high
-                                                 step: step)])])]}
+   {let stream-enumerate-interval ((low low) (high high))
+     (if (> low high)
+         [stream-null]
+         [(stream-cons low
+                       [(stream-enumerate-interval (+ low step)
+                                                   high)])])}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -2406,34 +2411,34 @@
          5)
  (equal? ((compose) 5)
          5)
+ }
 ;;; \end{code}
 ;;;
 ;;;
-;;; Macro-expansions occur during compile-time, so how should a person
+;;; Macro-expansions occur during compile-time, so how should a programmer
 ;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
 ;;; as a procedure which transforms lists into lists, and as such is able
 ;;; to be tested\footnote{
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
-;;; macro into the new form, which the compiler would have then compiled
-;;; if ``macroexpand-1'' had not been present.  But, how should ``gensyms''
+;;; macro into a new unevaluated form, which would have been compiled by the compiler 
+;;; if ``macroexpand-1'' had been absent.  But, how should ``gensyms''
 ;;; evaluate, since by definition it creates symbols which cannot be typed
 ;;; by the programmer
 ;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
 ;;; is overridden by a procedure
 ;;; which expands into typable symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
-;;; call during a macro-expansion generates a new, unique symbol.  Although this symbol
-;;; may clash with symbols in the expanded code, this is not break ``gensym'' for
-;;; runtime evaluation, as these
-;;; symbols are only generated in the call to ``macroexpand-1''; run-time ``gensym'' is
-;;; regular old ``gensym''.  As such,
-;;; ``eval''ing code generated from ``macroexpand-1'' in a non-testing context is not
-;;; recommended.
+;;; call during a macro-expansion generates a new, unique symbol.  Although the generated symbol
+;;; may clash with symbols in the expanded code, this does not break ``gensym'' for
+;;; runtime evaluation, since run-time ``gensym'' remains the same.
+;;; Although testing code within libbug ``eval''s code generated from ``macroexpand-1'',
+;;; the author advises against doing such in compiled code.
 ;;; }.
 ;;;
 ;;;
 ;;;
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1 (compose [|x| (* x 2)])}
          '[|#!rest gensymed-var1|
            (apply [|x| (* x 2)]
@@ -2444,9 +2449,11 @@
  (equal? ((compose [|x| (* x 2)])
           5)
          10)
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1 (compose [|x| (+ x 1)]
                                  [|x| (* x 2)])}
          '[|#!rest gensymed-var1|
@@ -2461,9 +2468,11 @@
                    [|x| (* x 2)])
           5)
          11)
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1 (compose [|x| (/ x 13)]
                                  [|x| (+ x 1)]
                                  [|x| (* x 2)])}
@@ -2523,14 +2532,14 @@
 ;;;
 ;;; \newpage
 ;;; \section{with-gensyms}
-;;;   ``with-gensyms'' is a macro to be invoked from other macros.  It is a utility for
-;;;    macros to minimize repetitive calls to ``gensym''.
+;;;   ``with-gensyms'' is a macro to be invoked from other macros.  It is a utility
+;;;    to minimize repetitive calls to ``gensym''.
 ;;;
 ;;; \index{with-gensyms}
 ;;; \begin{code}
 {define-macro with-gensyms
   [|symbols #!rest body|
-   `{let ,(map [|symbol| `(,symbol {gensym})]
+   `{let ,(map [|symbol| `(,symbol (gensym))]
                symbols)
       ,@body}]}
 ;;; \end{code}
@@ -2539,11 +2548,11 @@
 ;;;
 ;;; \begin{code}
 {unit-test
- (equal? {macroexpand-1 (with-gensyms (foo bar baz)
+ (equal? {macroexpand-1 {with-gensyms (foo bar baz)
                                       `{begin
                                          (pp ,foo)
                                          (pp ,bar)
-                                         (pp ,baz)})}
+                                         (pp ,baz)}}}
          '{let ((foo (gensym))
                 (bar (gensym))
                 (baz (gensym)))
@@ -2558,8 +2567,9 @@
 ;;; \section{once-only}
 ;;; \index{once-only}
 ;;;
-;;; Sometimes macros need to put two copies of its arguments in the generated code.
-;;; But that will cause the form to be evaluated multiple times,
+;;; Sometimes macros need to put two or more copies of an argument
+;;; into the generated code.
+;;; But that can possibly cause that form to be evaluated multiple times,
 ;;; which is seldomly expected by the caller.
 ;;;
 ;;;
@@ -2570,7 +2580,7 @@
 ;;; \end{examplecode}
 ;;;
 ;;; The caller of ``double'' should reasonably expect the argument to ``double''
-;;; to only be evaluated once only, because that's how Scheme usually works.
+;;; only to be evaluated once only, because that's how Scheme usually works.
 ;;;
 ;;; \begin{examplecode}
 ;;;> {define foo 5}
@@ -2592,10 +2602,10 @@
 ;;;
 ;;;
 ;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  Code
-;;; which generates code which generates code.  But
-;;; while ``with-gensyms'' only wraps it's argument with a new context to be used for
+;;; which generates code which generates code.  Unlike
+;;; ``with-gensyms'' which wraps its argument with a new context to be used for
 ;;; later macroexpansions, ``once-only'' needs to defer binding the variable to a
-;;; ``gensym-ed'' variable until the second macroexpansion.  As such, it is the
+;;; ``gensym''-ed variable until the second macroexpansion.  As such, it is the
 ;;; most difficult macro is this book.
 ;;;
 ;;; \begin{code}
@@ -2624,119 +2634,79 @@
 ;;; \cite[p. 854]{paip}
 ;;;
 ;;;
-;;; \begin{itemize}
-;;;   \item On lines 3-4, generate one gensym per argument to ``once-only''.  These
-;;;        ``gensym''-ed names will be bound to the evaluated value of the arguments
-;;;        to ``once-only'',
-;;;        to ensure that those arguments are only evaluated once.  But that
-;;;        won't happen until the second macroexpansion.
-;;;   \item On lines 5-20,  create a ``let'' expression after two macroexpansions.
-;;;
-;;;        The ``let'''s variable bindings (lines 6-12) will be a subset of the
-;;;        gensyms, as arguments to ``once-only'' whose values are atoms do not
-;;;        need protection from multiple evaluation.
-;;;
-;;;        The ``let'''s body (lines 13-20) will be the body passed to ``once-only'', but
-;;;        with gensymed variables substituted for all non-atom arguments
-;;;        to the calling macro, completing the protection from multiple evaluation.
-;;;
-;;;   \item On line 7,
-;;;        in the second expansion,
-;;;        if the value is an atom, no ``gensym''-ed
-;;;        variable substition is required.
-;;;   \item On line 8,
-;;;        in the second expansion,
-;;;        if it's not an atom, create a binding to a
-;;;        ``gensym''-ed variable.
-;;;
-;;;   \item On lines 15-17,
-;;;             in the second expansion, substitute symbols in body either with
-;;;             its corresponding gensym, or with the symbol itself.
-;;;   \item On line 16, itself.
-;;;   \item On line 17, the associated gensym.
-;;; \end{itemize}
-;;;
-;;;
 ;;; \subsubsection*{First Macroexpansion}
 ;;; \begin{code}
- {unit-test
-  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
-          `(list 'let
-                 (append (if (atom? x)
-                             ['()]
-                             [(list (list 'gensymed-var1 x))])
-                         (if (atom? y)
-                             ['()]
-                             [(list (list 'gensymed-var2 y))]))
-                 {let ((x (if (atom? x)
-                              ['x]
-                              ['gensymed-var1]))
-                       (y (if (atom? y)
-                              ['y]
-                              ['gensymed-var2))))
-                   `(+ ,x ,y)}))
+{unit-test
+ (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
+         `(list 'let
+                (append (if (atom? x)
+                            ['()]
+                            [(list (list 'gensymed-var1 x))])
+                        (if (atom? y)
+                            ['()]
+                            [(list (list 'gensymed-var2 y))]))
+                {let ((x (if (atom? x)
+                             ['x]
+                             ['gensymed-var1]))
+                      (y (if (atom? y)
+                             ['y]
+                             ['gensymed-var2))))
+                  `(+ ,x ,y)}))
+ }
 ;;; \end{code}
 ;;;
 ;;;
 ;;; \subsubsection*{The Second Macroexpansion}
 ;;; \begin{code}
-  (equal? (eval `{let ((x 5)
-                       (y 6))
-                   ,{macroexpand-1
-                     {once-only (x y)
-                                `(+ ,x ,y)}}})
-          `{let () (+ x y)})
-  (equal? (eval `{let ((x '(car foo))
-                       (y 6))
-                   ,{macroexpand-1
-                     {once-only (x y)
-                                `(+ ,x ,y)}}})
-          '{let ((gensymed-var1 (car foo)))
-             (+ gensymed-var1 y)})
-  (equal? (eval `{let ((x '(car foo))
-                       (y '(baz)))
-                   ,{macroexpand-1
-                     {once-only (x y)
-                                `(+ ,x ,y)}}})
-          '{let ((gensymed-var1 (car foo))
-                 (gensymed-var2 (baz)))
-             (+ gensymed-var1 gensymed-var2)})
+{unit-test
+ (equal? (eval `{let ((x 5)
+                      (y 6))
+                  ,{macroexpand-1
+                    {once-only (x y)
+                               `(+ ,x ,y)}}})
+         `{let () (+ x y)})
+ (equal? (eval `{let ((x '(car foo))
+                      (y 6))
+                  ,{macroexpand-1
+                    {once-only (x y)
+                               `(+ ,x ,y)}}})
+         '{let ((gensymed-var1 (car foo)))
+            (+ gensymed-var1 y)})
+ (equal? (eval `{let ((x '(car foo))
+                      (y '(baz)))
+                  ,{macroexpand-1
+                    {once-only (x y)
+                               `(+ ,x ,y)}}})
+         '{let ((gensymed-var1 (car foo))
+                (gensymed-var2 (baz)))
+            (+ gensymed-var1 gensymed-var2)})
+ }
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
-  (equal? (eval `{let ((x 5)
-                       (y 6))
-                   ,(eval `{let ((x 5)
-                                 (y 6))
-                             ,{macroexpand-1
-                               {once-only (x y)
-                                          `(+ ,x ,y)}}})})
-          11)
-  }
+{unit-test
+ (equal? (eval `{let ((x 5)
+                      (y 6))
+                  ,(eval `{let ((x 5)
+                                (y 6))
+                            ,{macroexpand-1
+                              {once-only (x y)
+                                         `(+ ,x ,y)}}})})
+         11)
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
 ;;; \chapter{Generalized Assignment}
 ;;;  \label{sec:endinglibbug}
 ;;; \section{setf!}
-;;;  Lisp based systems such as Gambit do not provide raw access to memory
-;;;  locations via pointers, thus relieving the programmer
-;;;  of direct memory management.  However, pointers are very useful in allowing
-;;;  indirect access to read or write to memory.
-;;;
-;;;  Fortunately, most data-structures in Lisp have an ``accessing'' procedure
-;;;  (for instance ``car'' or ``stream-a'') and an ``updating procedure''
-;;;  (``set-car!'' and ``stream-a-set!'').  And there are only 3 patterns used
-;;;  to map names of accessing procedures to updating procedures.
-;;;
-;;;
 ;;; ``Rather than thinking about two distinct functions that respectively
 ;;;  access and update a storage location somehow deduced from their arguments,
 ;;;  we can instead simply think of a call to the access function with given
 ;;;  arguments as a \emph{name} for the storage location.'' \cite[p. 123-124]{cl}
 ;;;
-;;;  Therefore, create a macro named ``setf!'' which invokes the appropriate
+;;;  Create a macro named ``setf!'' which invokes the appropriate
 ;;;  ``setting'' procedure, based on the given ``accessing'' procedure\footnote{The
 ;;;  implementation is inspired by \cite{setf}.}.
 ;;;
@@ -2805,36 +2775,43 @@
  {let ((a 5))
    {setf! a 10}
    (equal? a 10)}
+ }
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{Updating Car, Cdr, ... Through Cddddr}
 ;;; \noindent Test updating ``car''.
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1
           {setf! (car foo) 10}}
          '{set-car! foo 10})
  {let ((foo '(1 2)))
    {setf! (car foo) 10}
    (equal? (car foo) 10)}
+ }
 ;;; \end{code}
 ;;;
 ;;; \noindent Test updating ``cdr''.
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1
           {setf! (cdr foo) 10}}
          '{set-cdr! foo 10})
  {let ((foo '(1 2)))
    {setf! (cdr foo) 10}
    (equal? (cdr foo) 10)}
+ }
 ;;; \end{code}
 ;;;
 ;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures would
+;;; be quite
 ;;; repetitive.  Instead, create a list which has an element at each of those
 ;;; accessor procedures, and test each.
 ;;;
 ;;; \begin{code}
+{unit-test
  (eval
   `{and
     ,@(map [|x| `{let ((foo '((((the-caaaar)
@@ -2858,6 +2835,7 @@
              cdaaar cdaadr cdadar cdaddr
              cddaar cddadr cdddar cddddr
              ))})
+ }
 ;;; \end{code}
 ;;;
 ;;; \subsubsection*{Suffixed By -set!}
@@ -2865,6 +2843,7 @@
 ;;; the name of the getting procedure, suffixed by '-set!'.
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1
           {setf! (stream-a s) 10}}
          '{stream-a-set! s 10})
@@ -2873,6 +2852,7 @@
      {setf! (stream-a a) 10}
      (equal? (make-stream 10 2)
              a)}}
+ }
 ;;; \end{code}
 ;;;
 ;;; \footnote{As a reminder, ``stream-a'', ``make-stream'', and ``stream-a-set!'' are not meant to be used
@@ -2880,10 +2860,11 @@
 ;;;
 ;;; \subsubsection*{-ref Replaced By -set!}
 ;;; \noindent Test updating procedures where the updating procedure is
-;;; the name of the getting procedure, removing the suffix of
-;;; '-ref', and adding a suffix of '-set!'.
+;;; the name of the getting procedure, with the ``-ref'' suffix removed, replaced
+;;; with ``-set''.
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1
           {setf! (string-ref s 0) #\q}}
          '{string-set! s 0 #\q})
@@ -2904,8 +2885,8 @@
 ;;; \section{mutate!}
 ;;;  Like ``setf!'', ``mutate!'' takes a generalized variable
 ;;;  as input, but it additionally takes a procedure to be applied
-;;;  to the value of the generalized variable; the result of which
-;;;  will be stored into the generalized variable.
+;;;  to the value of the generalized variable; the result of the application
+;;;  will be stored back into the generalized variable.
 ;;;
 ;;; \index{mutate"!}
 ;;; \begin{code}
@@ -2946,6 +2927,7 @@
     {begin
       {mutate! foo not}
       (equal? foo #t)}}}
+ }
 ;;; \end{code}
 ;;;
 ;;; \footnote{``mutate!'' is used in similar contexts as Common Lisp's
@@ -2956,6 +2938,7 @@
 ;;;
 
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
          '{begin
             {setf! foo ([|n| (+ n 1)] foo)}
@@ -2964,9 +2947,6 @@
    (mutate! foo [|n| (+ n 1)])
    (equal? foo
            2)}
-;;; \end{code}
-;;;
-;;; \begin{code}
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
          '{let ()
             {setf! (vector-ref foo 0)
@@ -2980,10 +2960,12 @@
    {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
    (equal? foo
            (vector 0 0 1))}
+ }
 ;;; \end{code}
 ;;;
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? {macroexpand-1
           {mutate! (vector-ref foo {begin
                                      {setf! index (+ 1 index)}
@@ -3016,7 +2998,8 @@
 ;;; \index{destructuring-bind}
 ;;;
 ;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple variables
-;;;  may be bound to values based on their positions within a list.  Look at the tests
+;;;  may be bound to values based on their positions within a (possibly nested) list.
+;;;  Look at the tests
 ;;;  at the end of the section for an example.
 ;;;
 ;;; ``destructuring-bind'' is a complicated macro which can be decomposed into a regular
@@ -3055,25 +3038,27 @@
 ;;;
 ;;; \begin{code}
 {unit-test
- (equal? (tree-of-accessors '() '(1 2))
+ (equal? (tree-of-accessors '() 'gensym-for-list)
          '())
- (equal? (tree-of-accessors 'a '(1 2))
-         '((a (drop 0 (1 2)))))
- (equal? (tree-of-accessors '(#!rest d) '(1 2))
-         '((d (drop 0 (1 2)))))
- (equal? (tree-of-accessors '(a) '(1 2))
-         '((a (list-ref (1 2) 0))))
- (equal? (tree-of-accessors '(a . b) '(1 2))
-         '((a (list-ref (1 2) 0))
-           (b (drop 1 (1 2)))))
+ (equal? (tree-of-accessors 'a 'gensym-for-list)
+         '((a (drop 0 gensym-for-list))))
+ (equal? (tree-of-accessors '(#!rest d) 'gensym-for-list)
+         '((d (drop 0 gensym-for-list))))
+ (equal? (tree-of-accessors '(a) 'gensym-for-list)
+         '((a (list-ref gensym-for-list 0))))
+ (equal? (tree-of-accessors '(a . b) 'gensym-for-list)
+         '((a (list-ref gensym-for-list 0))
+           (b (drop 1 gensym-for-list))))
+ }
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
+{unit-test
  (equal? (tree-of-accessors '(a (b c))
-                            '(1 (2 3))
+                            'gensym-for-list
                             gensym: ['gensymed-var1])
-         '((a (list-ref (1 (2 3)) 0))
-           ((gensymed-var1 (list-ref (1 (2 3)) 1))
+         '((a (list-ref gensym-for-list 0))
+           ((gensymed-var1 (list-ref gensym-for-list 1))
             (b (list-ref gensymed-var1 0))
             (c (list-ref gensymed-var1 1)))))
  }
@@ -3093,10 +3078,9 @@
    {let ((glst (gensym)))
      `{let ((,glst ,lst))
         ,{let create-nested-lets ((bindings
-                                   (tree-of-accessors
-                                    pat
-                                    glst
-                                    gensym: gensym)))
+                                   (tree-of-accessors pat
+                                                      glst
+                                                      gensym: gensym)))
            (if (null? bindings)
                [`{begin ,@body}]
                [`{let ,(map [|b| (if (pair? (car b))
@@ -3130,6 +3114,16 @@
                              '(1 (2 3) 4 5)
                              (list a b c d)}
          '(1 2 (3) (4 5)))
+ (equal? (destructuring-bind (trueList falseList)
+                             (partition '(3 2 5 4 1)
+                                        [|x| (<= x 3)])
+                             trueList)
+         '(1 2 3))
+ (equal? (destructuring-bind (trueList falseList)
+                             (partition '(3 2 5 4 1)
+                                        [|x| (<= x 3)])
+                             falseList)
+         '(4 5))
  }
 ;;; \end{code}
 ;;;
@@ -3138,7 +3132,7 @@
 ;;;
 ;;;
 ;;; At the beginning of the book, in chapter~\ref{sec:beginninglibbug}, ``bug-language.scm''
-;;; was imported, so that ``libbug-private\#define'', and ``libbug-private\#define-macro'' can be used.
+;;; was imported, so that ``libbug-private\#define'', and ``libbug-private\#define-macro'' could be used.
 ;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
 ;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
 ;;; and they must be closed, accomplished by executing ``at-end-of-compilation''.
