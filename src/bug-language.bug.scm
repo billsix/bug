@@ -10,8 +10,8 @@
 ;;;
 ;;; This chapter, which was evaluated before the previous chapters, provides
 ;;; the foundation for computation at compile-time.  Although
-;;; the most prevalent code which executed at compile-time in the previous chapters
-;;; was code for testing, many other computations occurred during compile-time
+;;; the most prevalent code in the previous chapters which executed at compile-time
+;;; was for testing, many other computations occurred during compile-time
 ;;; transparently to the reader.  These other computations produced output
 ;;; files for namespace mappings and for macro definitions, to be used by other
 ;;; programs which link against libbug.
@@ -35,7 +35,7 @@
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 4, the unevaluated code which is passed to
+;;;   \item On lines 4-5, the unevaluated code which is passed to
 ;;;  ``at-compile-time'' is evaluated during macro-expansion, thus
 ;;;  at compile-time.  The macro-expansion expands into ``{quote noop}'', so the
 ;;;  form will not evaluate at runtime.
@@ -76,6 +76,25 @@
    (eval `{begin
             ,@forms})]}
 ;;; \end{code}
+;;;
+;;;  This allows the programmer to create ``anonymous'' macros.
+;;;
+;;; \begin{examplecode}
+;;;> ({at-compile-time-expand
+;;;     (if #t
+;;;         ['car]
+;;;         ['cdr])}
+;;;   '(1 2))
+;;;1
+;;;> ({at-compile-time-expand
+;;;     (if #f
+;;;         ['car]
+;;;         ['cdr]))
+;;;   '(1 2)}
+;;;(2)
+;;;>
+;;; \end{examplecode}
+;;;
 ;;;
 ;;; \section{Create Files for Linking Against Libbug}
 ;;;
@@ -131,7 +150,7 @@
 ;;; \begin{code}
  (##include "config.scm")
  {##define bug-configuration#libbugsharp
-   (string-append bug-configuration#prefix "/include/bug/libbug#.scm")}
+   (string-append bug-configuration#prefix "/include/libbug/libbug#.scm")}
 
  {##define libbug-macros-file
    (open-output-file '(path: "libbug-macros.scm" append: #f))}
