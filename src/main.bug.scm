@@ -167,7 +167,7 @@
 ;;; fans of dynamically-typed languages might argue ``Look at the tests!'',
 ;;; as tests ensure the code functions in a user-specified way and
 ;;; they serve as a form of documentation.  But
-;;; where are those tests?  Probably in some other file whose filesystem path is
+;;; where are those tests?  Probably in some other file whose file-system path is
 ;;; similar to the current file's path (e.g., src/com/BigCorp/HugeProject/Foo.java
 ;;; is tested by test/com/BigCorp/HugeProject/FooTest.java).
 ;;; You'd have to find the file, open the file, look through it
@@ -2429,7 +2429,7 @@
 ;;; which expands into typable symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
 ;;; call during a macro-expansion generates a new, unique symbol.  Although the generated symbol
 ;;; may clash with symbols in the expanded code, this does not break ``gensym'' for
-;;; runtime evaluation, since run-time ``gensym'' remains the same.
+;;; run-time evaluation, since run-time ``gensym'' remains the same.
 ;;; Although testing code within libbug ``eval''s code generated from ``macroexpand-1'',
 ;;; the author advises against doing such in compiled code.
 ;;; }.
@@ -2570,7 +2570,7 @@
 ;;; Sometimes macros need to put two or more copies of an argument
 ;;; into the generated code.
 ;;; But that can possibly cause that form to be evaluated multiple times,
-;;; which is seldomly expected by the caller.
+;;; which is seldom expected by the caller.
 ;;;
 ;;;
 ;;; \begin{examplecode}
@@ -2604,8 +2604,8 @@
 ;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  Code
 ;;; which generates code which generates code.  Unlike
 ;;; ``with-gensyms'' which wraps its argument with a new context to be used for
-;;; later macroexpansions, ``once-only'' needs to defer binding the variable to a
-;;; ``gensym''-ed variable until the second macroexpansion.  As such, it is the
+;;; later macro-expansions, ``once-only'' needs to defer binding the variable to a
+;;; ``gensym''-ed variable until the second macro-expansion.  As such, it is the
 ;;; most difficult macro is this book.
 ;;;
 ;;; \begin{code}
@@ -2634,7 +2634,7 @@
 ;;; \cite[p. 854]{paip}
 ;;;
 ;;;
-;;; \subsubsection*{First Macroexpansion}
+;;; \subsubsection*{First Macro-expansion}
 ;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
@@ -2656,7 +2656,7 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;; \subsubsection*{The Second Macroexpansion}
+;;; \subsubsection*{The Second Macro-expansion}
 ;;; \begin{code}
 {unit-test
  (equal? (eval `{let ((x 5)
@@ -3006,7 +3006,7 @@
 ;;;  procedure named ``tree-of-accessors'', and the macro ``destructuring-bind''\footnote{
 ;;;   This poses a small problem.  ``tree-of-accessors'' is not macroexpanded as it a not a
 ;;;  macro, therefore it does not have access to the compile-time ``gensym'' procedure
-;;;  which allows macroexpansions to be tested.  To allow ``tree-of-accessors'' to
+;;;  which allows macro-expansions to be tested.  To allow ``tree-of-accessors'' to
 ;;;  be tested independently, as well as part of ``destructuring-bind'', ``tree-of-accessors''
 ;;;  takes a procedure named ``gensym'' as an argument, defaulting to whatever value
 ;;;  ``gensym'' is by default in the environment.

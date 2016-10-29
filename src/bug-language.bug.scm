@@ -18,7 +18,7 @@
 ;;;
 ;;;
 ;;; \section{at-compile-time}
-;;; ``at-compile-time'' is a macro which ``eval'''s the form during macroexpansion,
+;;; ``at-compile-time'' is a macro which ``eval'''s the form during macro-expansion,
 ;;; but evaluates to the symbol ``noop'', thus not affecting
 ;;; run-time \cite{evalduringmacroexpansion}.
 ;;; Evaling during macro-expansion is how the compiler may be augmented with new procedures,
@@ -38,7 +38,7 @@
 ;;;   \item On lines 4-5, the unevaluated code which is passed to
 ;;;  ``at-compile-time'' is evaluated during macro-expansion, thus
 ;;;  at compile-time.  The macro-expansion expands into ``{quote noop}'', so the
-;;;  form will not evaluate at runtime.
+;;;  form will not evaluate at run-time.
 ;;; \end{itemize}
 ;;;
 ;;; \section{at-both-times}
