@@ -4,7 +4,7 @@
 ;;;
 ;;; \documentclass[twoside]{book}
 ;;; \pagenumbering{gobble}
-;;; \usepackage[paperwidth=8.25in, paperheight=10.75in,bindingoffset=0.7in, left=0.5in, right=0.5in]{geometry}
+;;; \usepackage[paperwidth=8.25in, paperheight=10.75in,bindingoffset=1.0in, left=0.5in, right=0.5in]{geometry}
 ;;; \usepackage{times}
 ;;; \usepackage{listings}
 ;;; \usepackage{courier}
@@ -1112,7 +1112,7 @@
 ;;; \newpage
 ;;; \section{scan-left}
 ;;;   Like ``fold-left'', but every intermediate value
-;;;   of ``fold-left'''s accumulator is an element in the resulting list of ``scan-left''.
+;;;   of ``fold-left''s accumulator is an element in the resulting list of ``scan-left''.
 ;;;
 ;;; \index{scan-left}
 ;;; \begin{code}
@@ -2206,9 +2206,10 @@
    {let stream-map ((list-of-streams list-of-streams))
      (if (any? (map stream-null? list-of-streams))
          [stream-null]
-         [(stream-cons (apply f
-                              (map stream-car list-of-streams))
-                       [(stream-map (map stream-cdr list-of-streams))])])}]}
+         [(stream-cons
+           (apply f
+                  (map stream-car list-of-streams))
+           [(stream-map (map stream-cdr list-of-streams))])])}]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -2420,7 +2421,7 @@
 ;;; as a procedure which transforms lists into lists, and as such is able
 ;;; to be tested\footnote{
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
-;;; macro into a new unevaluated form, which would have been compiled by the compiler 
+;;; macro into a new unevaluated form, which would have been compiled by the compiler
 ;;; if ``macroexpand-1'' had been absent.  But, how should ``gensyms''
 ;;; evaluate, since by definition it creates symbols which cannot be typed
 ;;; by the programmer
@@ -3137,6 +3138,7 @@
 ;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
 ;;; and they must be closed, accomplished by executing ``at-end-of-compilation''.
 ;;;
+;;; \label{sec:call-end-of-compilation}
 ;;; \begin{code}
 {at-compile-time
  (at-end-of-compilation)}

@@ -13,8 +13,8 @@
  by the compiler but which is absent in the generated machine
  code.  Examples are provided in
  well-known languages to illustrate that
- many compilers are also interpreters for a subset of the language.  This
- appendex provides a baseline understanding of compile-time computation
+ most compilers are also interpreters for a subset of the language.  This
+ appendix provides a baseline demonstration of compile-time computation
  so that the reader may contrast these languages' capabilities with libbug's.
  But first, let's discuss was is meant by the words ``language'',``compiler'', and
  ``interpreter''.
@@ -27,24 +27,24 @@
  % problem is the question
  % of deciding whether a given string is a member of some particular
  % language''. \cite[p. 31]{hmu2001}.
- Plainly, that means an ``alphabet'' is a set of characters (for instance, ASCII), and
+ Plainly, that means that an ``alphabet'' is a set of characters (for instance, ASCII), and
  that a computer ``language'' is defined as all of the possible sequences of characters
  from that alphabet which match some criterion.
 
- An ``interpreter'' is a pre-existing computer program which takes a specific
+ An ``interpreter'' is a computer program which takes an instance of a specific
  computer language as input,
- and does some action based on it.  A ``compiler'' is a pre-existing computer program
- which takes computer language as input,
+ and does some action based on it.  A ``compiler'' is a computer program
+ which also takes an instance of a specific computer language as input,
  but rather than immediately executing the actions specified by the input, instead it
  translates the input language
  into another computer language (typically machine code), which is then output to a file
- for interpretation\footnote{the CPU can be viewed as an
+ for interpretation\footnote{the Central Processing Unit (CPU) can be viewed as an
  interpreter which takes machine code as its input} at a later time.
 
- In practice though, the distinction is not clear cut.  Most compilers do not exclusively
+ In practice though, the distinction is not binary.  Most compilers do not exclusively
  translate from an input language
  to an output language; instead, they also interpret a subset of the input
- language as part of the process of generating the output language.  Well, what
+ language as part of the process of generating the output language.  What
  types of computations can be performed by this subset of language, and how do
  they vary in expressive power?
 
@@ -72,8 +72,8 @@ int fact(unsigned int n){
  \begin{itemize}
   \item
      On line 1, the \#include preprocessor command
-     is language that the compiler
-     is intended to interpret, instructing the compiler to
+     is language to be interpreted by the compiler,
+     instructing the compiler to
      read the file ``stdio.h''
      from the filesystem and to splice the content
      into the current C file.  The \#include command
@@ -81,12 +81,12 @@ int fact(unsigned int n){
      of the included file may.
 
   \item
-     Line 2 defines a C macro. C macros are procedure definitions which
-      are not to be translated into the output language, instead it is a procedure
-     to be interpreted by the compiler
-     at compile-time only.  C macros take a text
+     Line 2 defines a C macro. A C macro is a procedure definition which
+     is to be interpreted by the compiler, instead of being translated
+     into the output language.
+     A C macro takes a text
      string as input and transforms it into a new text string as output.
-     This expansion happens before the compiler does much
+     This expansion happens before the compiler does anything
      else.  For example, using GCC as a compiler, if you run the C preprocessor
      ``cpp'' on the above C code, you'll see that
 
@@ -112,18 +112,18 @@ int fact(unsigned int n){
      Lines 4 through 10 are a procedure definition, which will be
      translated into instructions in the generated machine code.  Line 5 however, is language
      to be interpreted by the compiler, referencing a variable which is defined
-     only during compilation, to detemine whether or not line 6 should be
+     only during compile-time, to detemine whether or not line 6 should be
      compiled.
  \end{itemize}
 
  \section{C++}
 
  C++ inherits C's macros, but with the additional introduction
- of templates, C++'s compile-time language
- incidentally became Turing complete.  This means that
+ of templates, its compile-time language
+ incidentally became Turing complete.  Meaning that
  anything that can be
  calculated by a computer can be calculated using template expansion
- at compile-time.  That's great!  So how does a programmer begin to use this new
+ at compile-time.  That's great!  So how does a programmer use this new
  expressive power?
 
  The following is an example of calculating the factorial of
@@ -160,7 +160,7 @@ int fact(unsigned int n){
    Lines 2-9 are the
    template code for the compile-time calculation of ``factorial''.
    \item
- On line 16, ``factorial\textless3\textgreater::value'' is an
+ On line 16, ``factorial\textless3\textgreater::value'' is
  language to be interpreted
  by the compiler via template expansions.  Template expansions
  conditionally match patterns based on types (or values in the case
@@ -170,11 +170,11 @@ int fact(unsigned int n){
  does the subtraction during compile-time,
  so ``factorial\textless3\textgreater::value'' expands to
  ``3 * factorial\textless2\textgreater::value''.
- This recursion will terminate on ``factorial\textless0\textgreater::value''
+ This recursion terminates on ``factorial\textless0\textgreater::value''
  on line 7. (Even though
  the base case of ``factorial\textless0\textgreater'' is specified
  after the more general
- case of ``factorial\textless n\textgreater'', template expansion expands to the most
+ case of ``factorial\textless n\textgreater'', template expansion expands the most
  specific case first.  So the compiler will terminate.)
 
    \item
@@ -217,7 +217,7 @@ int fact(unsigned int n){
 
  \section{libbug}
  Like C++, libbug's compile-time language is Turing complete.
- Here is how to solve the same problem with libbug.
+ The following is how to solve the same problem with libbug.
 
  \begin{code}
  {at-both-times
@@ -239,15 +239,15 @@ int fact(unsigned int n){
       On lines 2-5, the definition of the ``fact''.
    \item
       On line 7, ``at-compile-time-expand'' is a macro which takes unevaluated code,
-      evaluates it to some result which is then compiled by the compiler.  The code
-      will expand at compile-time to ``(pp 6)''.
+      evaluates it to a new form which is then compiled by the compiler.  At compile-time the code
+      will expand to ``(pp 6)''.
    \item
       On line 8, the run-time calculation of ``(fact 3)''.
  \end{itemize}
 
  \subsection{Inspecting the Gambit VM Bytecode}
  By compiling the Scheme source to the ``gvm'' intermediate
- representation, the stated behavior can be verified.
+ representation, the previously stated behavior can be verified.
 
  \begin{code}
   r1 = '6
@@ -276,8 +276,8 @@ int fact(unsigned int n){
 
  \section{Comparison of Power}
 
- Although C++'s and libbug's compile-time languages are both Turing complete,
- they vary drastically in actual real-world programming power.  The language used
+ Although the compile-time languages of both C++ and libbug are Turing complete,
+ they vary in actual real-world programming power.  The language used
  for compile-time calculation of ``fact'' in C++ is a drastically different language than
  the one used for run-time.  Although not fully demonstrated in this book,
  C++ template metaprogramming relies exclusively on recursion for repetition (it has no
@@ -286,7 +286,7 @@ int fact(unsigned int n){
  I recommend \cite{ctm} }
 
  In contrast, the compile-time
- language in libbug is the same exact language as the one that the compiler
+ language in libbug is the exact same language as the one that the compiler
  is compiling, complete with state and I/O!  How can that power be used?
  This book is the beginning of an answer.
 
@@ -295,7 +295,7 @@ int fact(unsigned int n){
 Thanks to Dr. Marc Feeley, for Gambit Scheme, for his mailing list postings
 which inspired the foundations of this book, and for reviewing this
 book.  Thanks to Adam from the Gambit mailing lists for reviewing the book,
-as well as his suggestions for naming conventions.
+as well as his suggestion for naming convention standards.
 
 Thanks to Dr. John McCarthy for Lisp.
 
@@ -307,9 +307,7 @@ but also for demonstrating why writing well matters.
 Thanks to Dr. Donald Knuth for \TeX, and thanks to all contributors to
 \LaTeX.
 
-Thanks to Dr. Alan Kay for Smalltalk, the first language I loved.  And thanks
-for describing Lisp as the ``Maxwell's equations of software'', which led
-me to learn Lisp.
+Thanks to Dr. Alan Kay for Smalltalk, the first language I loved.  Lisp may be the best high-level language, but Smalltalk is the best high-level environment.
 
 \chapter{Related Work}
 \begin{itemize}
@@ -418,6 +416,9 @@ me to learn Lisp.
 
 
 \end{thebibliography}
+
+\cleardoublepage
+
  \printindex
 
 \end{document}  %End of document.

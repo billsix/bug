@@ -21,25 +21,25 @@ install:
 	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
 	install -d $(DESTDIR)$(mandir)/man1
-	install -m 0755 man/bug-gscpp.1.bz2  $(DESTDIR)$(mandir)/man1/
-	install -m 0755 man/bug-gsi.1.bz2  $(DESTDIR)$(mandir)/man1/
+	install -m 0744 man/bug-gscpp.1.bz2  $(DESTDIR)$(mandir)/man1/
+	install -m 0744 man/bug-gsi.1.bz2  $(DESTDIR)$(mandir)/man1/
 	install -d $(DESTDIR)$(datarootdir)/libbug/demo
-	install -m 0755 demo/AUTHORS  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/COPYING  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/ChangeLog  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/INSTALL  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/Makefile.in  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/NEWS  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/README  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/autogen.sh  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/configure.ac  $(DESTDIR)$(datarootdir)/libbug/demo/
-	install -m 0755 demo/env.sh  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/AUTHORS  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/COPYING  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/ChangeLog  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/INSTALL  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/Makefile.in  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/NEWS  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/README  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0744 demo/autogen.sh  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0644 demo/configure.ac  $(DESTDIR)$(datarootdir)/libbug/demo/
+	install -m 0744 demo/env.sh  $(DESTDIR)$(datarootdir)/libbug/demo/
 	install -d $(DESTDIR)$(datarootdir)/libbug/demo/src/
-	install -m 0755 demo/src/Makefile.in  $(DESTDIR)$(datarootdir)/libbug/demo/src/
-	install -m 0755 demo/src/bug-demo.bug.scm  $(DESTDIR)$(datarootdir)/libbug/demo/src/
-	install -m 0755 demo/src/config.scm.in  $(DESTDIR)$(datarootdir)/libbug/demo/src/
+	install -m 0644 demo/src/Makefile.in  $(DESTDIR)$(datarootdir)/libbug/demo/src/
+	install -m 0644 demo/src/bug-demo.bug.scm  $(DESTDIR)$(datarootdir)/libbug/demo/src/
+	install -m 0644 demo/src/config.scm.in  $(DESTDIR)$(datarootdir)/libbug/demo/src/
 	mkdir -p $(DESTDIR)$(libdir)/pkgconfig/
-	install -m 0755 pkgconfig/libbug.pc $(DESTDIR)$(libdir)/pkgconfig/
+	install -m 0644 pkgconfig/libbug.pc $(DESTDIR)$(libdir)/pkgconfig/
 uninstall:
 	-cd bug-gsc/ && $(MAKE) $@
 	-cd src && $(MAKE) $@

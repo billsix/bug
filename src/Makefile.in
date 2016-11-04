@@ -69,12 +69,12 @@ install:
 	install -m 0755 libbug$(LIB_EXTENSION) $(DESTDIR)$(libdir)
 	install -m 0755 libbug.o1 $(DESTDIR)$(libdir)
 	install -d $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 libbug.c $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 libbug#.scm $(DESTDIR)$(includedir)/$(package)/
-	install -m 0755 libbug-macros.scm $(DESTDIR)$(includedir)/$(package)/
+	install -m 0644 libbug.c $(DESTDIR)$(includedir)/$(package)/
+	install -m 0644 libbug#.scm $(DESTDIR)$(includedir)/$(package)/
+	install -m 0644 libbug-macros.scm $(DESTDIR)$(includedir)/$(package)/
 ifeq ($(ENABLE_PDF),yes)
 	install -d $(DESTDIR)$(pdfdir)/$(package)
-	install -m 0755 bug.pdf $(DESTDIR)$(pdfdir)/$(package)/
+	install -m 0644 bug.pdf $(DESTDIR)$(pdfdir)/$(package)/
 endif
 uninstall:
 	-rm $(DESTDIR)$(libdir)/libbug$(LIB_EXTENSION)
