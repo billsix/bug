@@ -343,7 +343,7 @@
    [|#!rest tests|
     (eval
      `(if {and ,@tests}
-          ['noop]
+          [''noop]
           [(for-each pp (list "Test Failed" ',tests))
            (error "Tests Failed")]))]}}
 ;;; \end{code}
