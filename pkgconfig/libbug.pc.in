@@ -7,14 +7,14 @@ datarootdir = @datarootdir@
 mandir = @mandir@
 # the directory which contains the namespaces, macros, etc
 # execute "pkg-config --variable=includedir libbug" to get the value
-includedir=@includedir@/bug/
+includedir=@includedir@/@PACKAGE_NAME@/
 # the loadable-into-gsi version of Libs:
 # execute "pkg-config --variable=loadablelibs libbug"
-loadablelibs=${libdir}/libbug.o1
+loadablelibs=${libdir}/@PACKAGE_NAME@.o1
 
 
-Name: libbug
+Name: @PACKAGE_NAME@
 Description:  Bill's Utilities for Gambit-C
 Version: ${version}
-# execute "pkg-config --libs libbug"
-Libs: ${libdir}/libbug.so
+# execute "pkg-config --libs @PACKAGE_NAME@"
+Libs: ${libdir}/@PACKAGE_NAME@.so

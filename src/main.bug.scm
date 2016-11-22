@@ -4,7 +4,14 @@
 ;;;
 ;;; \documentclass[twoside]{book}
 ;;; \pagenumbering{gobble}
-;;; \usepackage[paperwidth=8.25in, paperheight=10.75in,bindingoffset=1.0in, left=0.5in, right=0.5in]{geometry}
+;;; \usepackage[paperwidth=8.25in,
+;;;             paperheight=10.75in,
+;;;             bindingoffset=1.0in,
+;;;             left=0.5in,
+;;;             right=0.5in,
+;;;             textheight=9.0in,
+;;;             footskip=0.1in,
+;;;             voffset=0.5in]{geometry}
 ;;; \usepackage{times}
 ;;; \usepackage{listings}
 ;;; \usepackage{courier}
@@ -782,7 +789,7 @@
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``l'' usually means the parameter is
-;;;   is a list.}
+;;;   a list.}
 ;;;
 ;;;
 ;;; \begin{code}
@@ -2615,18 +2622,17 @@
    {let ((gensyms (map [|s| (gensym)]
                        symbols)))
      `(list 'let
-            ,`(append ,@(map [|g s| `(if (atom? ,s)
-                                         ['()]
-                                         [(list ,`(list
-                                                   ,`(quote ,g)
-                                                   ,s))])]
-                             gensyms
-                             symbols))
+            (append ,@(map [|g s| `(if (atom? ,s)
+                                       ['()]
+                                       [(list (list (quote ,g)
+                                                    ,s))])]
+                           gensyms
+                           symbols))
             ,(append (list 'let
                            (map [|s g| (list s
                                              `(if (atom? ,s)
-                                                  [,(list 'quote s)]
-                                                  [,(list 'quote g)]))]
+                                                  [(quote ,s)]
+                                                  [(quote ,g)]))]
                                 symbols
                                 gensyms))
                      body))}]}

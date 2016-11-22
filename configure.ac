@@ -17,7 +17,8 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
 		 src/config.scm
 		 pkgconfig/libbug.pc
-		 ])
+                 libbug-create-project
+])
 
 
 case "$target_os" in
