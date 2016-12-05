@@ -2625,14 +2625,24 @@
   [|#!rest fs|
    (if (null? fs)
        ['identity]
-       [{let ((args (gensym)))
-          `[|#!rest ,args|
-            ,{let compose ((fs fs))
-               (if (null? (cdr fs))
-                   [`(apply ,(car fs)
-                            ,args)]
-                   [`(,(car fs)
-                      ,(compose (cdr fs)))])}]}])]}
+       [{let* ((last-fn-is-lambda-literal
+                {and (list? (last fs))
+                     (equal? 'lambda
+                             (car (last fs)))})
+               (args (if last-fn-is-lambda-literal
+                         [(cadr (last fs))]
+                         [(gensym)])))
+          `(lambda ,(if last-fn-is-lambda-literal
+                        [args]
+                        [`(#!rest ,args)])
+             ,{let compose ((fs fs))
+                (if (null? (cdr fs))
+                    [(if last-fn-is-lambda-literal
+                         [`{begin ,@(cddar fs)}]
+                         [`(apply ,(car fs)
+                                  ,args)])]
+                    [`(,(car fs)
+                       ,(compose (cdr fs)))])})}])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 66]{onlisp}
@@ -2687,9 +2697,7 @@
 ;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 (compose [|x| (* x 2)])}
-         '[|#!rest gensymed-var1|
-           (apply [|x| (* x 2)]
-                  gensymed-var1)])
+         '[|x| {begin (* x 2)}])
  (equal? ((eval {macroexpand-1 (compose [|x| (* x 2)])})
           5)
          10)
@@ -2697,48 +2705,39 @@
           5)
          10)
  }
-;;; \end{code}
-;;;
-;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 (compose [|x| (+ x 1)]
-                                 [|x| (* x 2)])}
-         '[|#!rest gensymed-var1|
+                                 [|y| (* y 2)])}
+         '[|y|
            ([|x| (+ x 1)]
-            (apply [|x| (* x 2)]
-                   gensymed-var1))])
- (equal? ((eval {macroexpand-1 (compose [|x| (+ x 1)]
-                                        [|x| (* x 2)])})
-          5)
-         11)
+            {begin (* y 2)})])
  (equal? ((compose [|x| (+ x 1)]
-                   [|x| (* x 2)])
+                   [|y| (* y 2)])
           5)
          11)
  }
-;;; \end{code}
-;;;
-;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 (compose [|x| (/ x 13)]
-                                 [|x| (+ x 1)]
-                                 [|x| (* x 2)])}
-         '[|#!rest gensymed-var1|
+                                 [|y| (+ y 1)]
+                                 [|z| (* z 2)])}
+         '[|z|
            ([|x| (/ x 13)]
-            ([|x| (+ x 1)]
-             (apply [|x| (* x 2)]
-                    gensymed-var1)))])
- (equal? ((eval {macroexpand-1 (compose [|x| (/ x 13)]
-                                        [|x| (+ x 1)]
-                                        [|x| (* x 2)])})
-          5)
-         11/13)
+            ([|y| (+ y 1)]
+             {begin (* z 2)}))])
  (equal? ((compose [|x| (/ x 13)]
-                   [|x| (+ x 1)]
-                   [|x| (* x 2)])
+                   [|y| (+ y 1)]
+                   [|z| (* z 2)])
           5)
          11/13)
  }
+{unit-test
+ (equal? {macroexpand-1 (compose not +)}
+         '[|#!rest gensymed-var1|
+           (not (apply + gensymed-var1))])
+ (equal? ((compose not +) 1 2)
+         #f)
+ }
+;;;
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2942,7 +2941,7 @@
                           {once-only (x y)
                                      `(+ ,x ,y ,x)}}}))
          16)
-}
+ }
 ;;; \end{code}
 ;;;
 ;;; \newpage
