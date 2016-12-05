@@ -226,7 +226,7 @@ int fact(unsigned int n){
              [1]
              [(* n (fact (- n 1)))])]}}
 
- (pp (at-compile-time-expand (fact 3)))
+ (pp {at-compile-time-expand (fact 3)})
  (pp (fact 3))
  \end{code}
 
@@ -266,7 +266,7 @@ int fact(unsigned int n){
 
  \begin{itemize}
    \item
-      Lines 1-4 correspond to ``(pp (at-compile-time-expand (fact 3)))''.  The precomputed
+      Lines 1-4 correspond to ``(pp {at-compile-time-expand (fact 3)})''.  The precomputed
       value of ``(fact 3)'' is 6, which is directly stored into a GVM register, and
       then the ``pp'' routine is called to print it out.
    \item

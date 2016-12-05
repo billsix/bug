@@ -9,7 +9,7 @@
 ;;;             bindingoffset=1.0in,
 ;;;             left=0.5in,
 ;;;             right=0.5in,
-;;;             textheight=9.0in,
+;;;             textheight=8.25in,
 ;;;             footskip=0.1in,
 ;;;             voffset=0.5in]{geometry}
 ;;; \usepackage{times}
@@ -72,7 +72,7 @@
 ;;; \vspace*{\fill}
 ;;; \begin{center}
 ;;;  \begin{minipage}{.9\textwidth}
-
+;;;
 ;;;  \noindent
 ;;;  EITHER
 ;;;
@@ -184,8 +184,8 @@
 ;;;
 ;;; But how else would a programmer organize tests?  Well in this book, which is the
 ;;; implementation of a library called ``libbug'',
-;;; tests may be specified immediately after the procedure's definition,
-;;; yet they are only executed at compile-time.  Should any test fail the compiler will
+;;; tests may be specified immediately after the procedure's definition.
+;;; Should any test fail the compiler will
 ;;; exit in error, like a type error in a
 ;;; statically-typed language.
 ;;;
@@ -262,8 +262,8 @@
 ;;; book, are recommended reading but are
 ;;; not necessary to understand the content of this book.
 ;;;
-;;; \section{Parts}
-;;;  This book is a ``literate program'', meaning both that the source code of libbug is
+;;; \section{Order of Parts}
+;;;  This book is a ``literate program'', meaning that the source code of libbug is
 ;;;  embedded within this book, and that the book is intended to be able to be
 ;;;  read linearly.
 ;;;  As such, new procedures defined are dependent upon
@@ -350,7 +350,7 @@
 ;;; ((compose [|x| (* x 2)]) 5)
 ;;; \end{examplecode}
 ;;;
-;;; \section{Getting the Source Code}
+;;; \section{Getting the Source Code And Building}
 ;;;  The Scheme source code is located at http://github.com/billsix/bug\footnote{
 ;;;  This book was generated from git commit \input{version.tex}}.
 ;;;  The Scheme files produce the libbug library, as well as this book.
@@ -360,6 +360,15 @@
 ;;; The prerequisites for building libbug are a C compiler \footnote{such as GCC},
 ;;; Autoconf, Automake, and Gambit
 ;;; Scheme\footnote{http://gambitscheme.org} version 4.8 or newer.
+;;;
+;;; After installing Gambit, you should set the following environment variables.
+;;;
+;;; \begin{examplecode}
+;;; export PATH=$GAMBIT_HOME/bin:$PATH
+;;; export LIBRARY_PATH=$GAMBIT_HOME/lib:$LIBRARY_PATH
+;;; export LD_LIBRARY_PATH=$GAMBIT_HOME/lib:$LD_LIBRARY_PATH
+;;; export CPATH=$GAMBIT_HOME/lib:$CPATH
+;;; \end{examplecode}
 ;;;
 ;;; To compile the book and library, execute the following on the command line:
 ;;;
@@ -380,6 +389,43 @@
 ;;;      ``--enable-pdf'' means to build this book as a PDF.  To disable the creation of the PDF,
 ;;;      substitute ``--enable-pdf=no''.
 ;;; \end{itemize}
+;;;
+;;; After installing libbug, you should set the following environment variables.
+;;;
+;;; \begin{examplecode}
+;;;
+;;; export PATH=$BUG_HOME/bin:$PATH
+;;; export PKG_CONFIG_PATH=$BUG_HOME/lib/pkgconfig/
+;;; export LD_LIBRARY_PATH=$BUG_HOME/lib:$LD_LIBRARY_PATH
+;;; export LIBRARY_PATH=$BUG_HOME/lib:$LIBRARY_PATH
+;;;
+;;; \end{examplecode}
+;;;
+;;; \section{Creating Your Own Project}
+;;;
+;;; \begin{examplecode}
+;;;$ libbug-create-project testProject 1.0 "Jane Doe <jane@doe.com"
+;;;$ cd testProject/
+;;;$ ./autogen.sh
+;;;$ ./configure --prefix=$BUILD_DIR
+;;;....
+;;;....
+;;;$ make
+;;;.....
+;;;"FIRST 10 PRIMES"
+;;;(2 3 5 7 11 13 17 19 23 29)
+;;;....
+;;;....
+;;;$ make install
+;;;....
+;;;$ cd $BUILD_DIR
+;;;$ ./bin/testProject
+;;;"FIRST 10 PRIMES"
+;;;(2 3 5 7 11 13 17 19 23 29)
+;;; \end{examplecode}
+;;;
+;;; Of particular note is that a "FIRST 10 PRIMES", and the 10 values, were printed
+;;; during the compilation of the source code in the "make" phase.
 ;;;
 ;;; \section{Comparison of Compile-Time Computations in Other Languages}
 ;;;
@@ -475,7 +521,7 @@
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
-;;;  \item  On line 1, an invocation of ``unit-test''. ``unit-test'' takes one
+;;;  \item  On line 1, an invocation of ``unit-test''. In this case, ``unit-test'' takes one
 ;;; parameter, which is a test to be run at compile-time.
 ;;;  \item  On line 2, an expression which evaluates to a boolean.
 ;;;  This is a
@@ -516,8 +562,8 @@
 ;;; \end{examplecode}
 ;;;
 ;;; This expansion works with multiple arguments, as long as they are between
-;;; the ``\textbar''s \footnote{Since ``bug-gscpp'' uses ``\textbar''s for lambda
-;;; literals, Scheme's block comments are not allowed in libbug programs}.
+;;; the bar symbols ``\textbar'' \footnote{Since ``bug-gscpp'' uses ``\textbar''s for lambda
+;;; literals, Scheme's block comments are not allowed in libbug programs.}.
 ;;; \end{itemize}
 ;;;
 ;;;
@@ -591,7 +637,8 @@
 ;;; When writing multiple tests, why explicitly invoke the procedure repeatedly
 ;;; with varying inputs and outputs, as was done for ``all?''?  Instead, provide
 ;;; the procedure and a list
-;;; of input/output pairs.
+;;; of input/output pairs\footnote{Within libbug, a parameter named ``f'' usually means the parameter is
+;;;   a procedure.}.
 ;;;
 ;;; \index{satisfies?}
 ;;; \begin{code}
@@ -602,9 +649,8 @@
               list-of-pairs))]}
 ;;; \end{code}
 ;;;
-;;; \footnote{Within libbug, a parameter named ``f'' usually means the parameter is
-;;;   a procedure.}
-
+;;;
+;;;
 ;;;
 ;;; \begin{code}
 {unit-test
@@ -636,7 +682,9 @@
 ;;; the language provides no built-in syntax for looping, such as ``for''
 ;;; or ``while''.  A better question is why don't other
 ;;; languages provide primitives from which you can create
-;;; those looping constructs yourself?  ``Take the red pill.''
+;;; those looping constructs yourself?  ``Take the red pill.'' \footnote{Within libbug,
+;;; a parameter named ``pred?'' or ``p?'' usually means the parameter
+;;;   is a predicate, meaning a procedure which returns true or false.}
 ;;;
 ;;;
 ;;; \begin{code}
@@ -648,8 +696,7 @@
          [val])}]}
 ;;; \end{code}
 ;;;
-;;; \footnote{Within libbug, a parameter named ``pred?'' or ``p?'' usually means the parameter
-;;;   is a predicate, meaning a procedure which returns true or false.}
+;;;
 ;;;
 ;;;
 ;;; \begin{code}
@@ -704,7 +751,17 @@
     (5 pos)
     (0 zero)
     (-5 neg)
-    ))}
+    ))
+ (satisfies?
+  [|n|
+   (numeric-if n
+               ifZero: ['zero])]
+  '(
+    (5 noop)
+    (0 zero)
+    (-5 noop)
+    ))
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -717,7 +774,10 @@
 {define atom?
   [|x|
    {or (number? x)
-       (symbol? x)}]}
+       (symbol? x)
+       (boolean? x)
+       (string? x)
+       (char? x)}]}
 ;;; \end{code}
 ;;;
 ;;; \footnote{Within libbug, a parameter named ``x'' usually means the parameter can
@@ -733,6 +793,10 @@
     (1 #t)
     (1/3 #t)
     (a #t)
+    (#t #t)
+    (#f #t)
+    ("string" #t)
+    (#\c #t)
     ((make-vector 3) #f)
     (() #f)
     ((a) #f)
@@ -779,7 +843,9 @@
 ;;; \newpage
 ;;; \chapter{Lists}
 ;;; \section{copy}
-;;;   Creates a shallow copy of the list.
+;;;   Creates a shallow copy of the list\footnote{meaning the list structure itself is copied, but not the data
+;;;       to which each node points.}\footnote{Within libbug, a parameter named ``l'' usually means the parameter is
+;;;   a list.}.
 ;;;
 ;;; \index{copy}
 ;;; \begin{code}
@@ -788,8 +854,7 @@
    (map identity l)]}
 ;;; \end{code}
 ;;;
-;;; \footnote{Within libbug, a parameter named ``l'' usually means the parameter is
-;;;   a list.}
+;;;
 ;;;
 ;;;
 ;;; \begin{code}
@@ -1028,7 +1093,9 @@
 ;;; \newpage
 ;;; \section{fold-left}
 ;;;    Reduce the list to a scalar by applying the reducing procedure repeatedly,
-;;;    starting from the ``left'' side of the list
+;;;    starting from the ``left'' side of the list\footnote{Within libbug, a
+;;;  parameter named ``acc'' usually means the parameter
+;;;   is an accumulated value.}.
 ;;;
 ;;; \index{fold-left}
 ;;; \begin{code}
@@ -1043,8 +1110,7 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;; \footnote{Within libbug, a parameter named ``acc'' usually means the parameter
-;;;   is an accumulated value}
+;;;
 ;;;
 ;;; \noindent \cite[p. 121]{sicp}
 ;;;
@@ -1143,6 +1209,21 @@
 ;;; \begin{code}
 {unit-test
  (satisfies?
+  [|l| (scan-left + 5 l)]
+  '(
+    (() (5))
+    ((1) (5 6))
+    ((1 2) (5 6 8))
+    ((1 2 3 4 5 6) (5 6 8 11 15 20 26))
+    ))
+ (satisfies?
+  [|l| (scan-left - 5 l)]
+  '(
+    (() (5))
+    ((1) (5 4))
+    ((1 2) (5 4 2))
+    ((1 2 3 4 5 6) (5 4 2 -1 -5 -10 -16))))
+ (satisfies?
   [|l| (scan-left * 1 l)]
   '(
     (() (1))
@@ -1163,17 +1244,16 @@
 ;;; \begin{code}
 {define append!
   [|#!rest ls|
-   {##define append!
-     [|first-list second-list|
-      (if (null? first-list)
-          [second-list]
-          [{let ((head first-list))
-             {let append! ((first-list first-list))
-               (if (null? (cdr first-list))
-                   [{set-cdr! first-list second-list}]
-                   [(append! (cdr first-list))])}
-             head}])]}
-   (fold-right append! '() ls)]}
+   {let ((append! [|first-list second-list|
+                   (if (null? first-list)
+                       [second-list]
+                       [{let ((head first-list))
+                          {let append! ((first-list first-list))
+                            (if (null? (cdr first-list))
+                                [{set-cdr! first-list second-list}]
+                                [(append! (cdr first-list))])}
+                          head}])]))
+     (fold-right append! '() ls)}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1184,13 +1264,14 @@
  (equal? (append! '(1 2 3)
                   '(5))
          '(1 2 3 5))
- {let ((a '(1 2 3)))
-   (append! a '(5))
-   (not (equal? '(1 2 3) a))}
  {let ((a '(1 2 3))
        (b '(4 5 6)))
    (append! a b '(7))
    (equal? a '(1 2 3 4 5 6 7))}
+ {let ((a '(1 2 3))
+       (b '(4 5 6)))
+   (append! a b '(7) '(8))
+   (equal? a '(1 2 3 4 5 6 7 8))}
  }
 ;;; \end{code}
 ;;;
@@ -1231,12 +1312,15 @@
 ;;; \begin{code}
 {define take
   [|n l|
-   (if {or (null? l)
-           (= n 0)}
+   (if (< n 0)
        ['()]
-       [(cons (car l)
-              (take (- n 1)
-                    (cdr l)))])]}
+       [{let take ((n n) (l l))
+          (if {or (null? l)
+                  (= n 0)}
+              ['()]
+              [(cons (car l)
+                     (take (- n 1)
+                           (cdr l)))])}])]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1245,6 +1329,7 @@
  (satisfies?
   [|n| (take n '(a b))]
   '(
+    (-1 ())
     (0 ())
     (1 (a))
     (2 (a b))
@@ -1259,12 +1344,13 @@
 ;;; \begin{code}
 {define take-while
   [|p? l|
-   {let take-while ((l l))
-     (if {or (null? l)
-             ((complement p?) (car l))}
-         ['()]
-         [(cons (car l)
-                (take-while (cdr l)))])}]}
+   {let ((not-p? (complement p?)))
+     {let take-while ((l l))
+       (if {or (null? l)
+               (not-p? (car l))}
+           ['()]
+           [(cons (car l)
+                  (take-while (cdr l)))])}}]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1288,11 +1374,14 @@
 ;;; \begin{code}
 {define drop
   [|n l|
-   (if {or (null? l)
-           (= n 0)}
+   (if (< n 0)
        [l]
-       [(drop (- n 1)
-              (cdr l))])]}
+       [{let drop ((n n) (l l))
+          (if {or (null? l)
+                  (= n 0)}
+              [l]
+              [(drop (- n 1)
+                     (cdr l))])}])]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1301,6 +1390,7 @@
  (satisfies?
   [|n| (drop n '(a b))]
   '(
+    (-1 (a b))
     (0 (a b))
     (1 (b))
     (2 ())
@@ -1314,11 +1404,12 @@
 ;;; \begin{code}
 {define drop-while
   [|p? l|
-   {let drop-while ((l l))
-     (if {or (null? l)
-             ((complement p?) (car l))}
-         [l]
-         [(drop-while (cdr l))])}]}
+   {let ((not-p? (complement p?)))
+     {let drop-while ((l l))
+       (if {or (null? l)
+               (not-p? (car l))}
+           [l]
+           [(drop-while (cdr l))])}}]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1343,12 +1434,11 @@
 ;;; \begin{code}
 {define enumerate-interval
   [|low high #!key (step 1)|
-   {let enumerate-interval ((low low) (high high))
+   {let enumerate-interval ((low low))
      (if (> low high)
          ['()]
          [(cons low
-                (enumerate-interval (+ low step)
-                                    high))])}]}
+                (enumerate-interval (+ low step)))])}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1444,6 +1534,80 @@
          '((1 4 7 10)
            (2 5 8 11)
            (3 6 9 12)))
+ }
+;;; \end{code}
+;;;
+;;; \newpage
+;;; \section{zip-with}
+;;; \index{zip-with}
+;;; \begin{code}
+{define zip-with
+  [|f #!rest lsts|
+   {let zip ((lsts lsts))
+     (if (any? (map null? lsts))
+         ['()]
+         [(cons (apply f (map car lsts))
+                (zip (map cdr lsts)))])}]}
+;;; \end{code}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? (zip-with +
+                   '()
+                   '())
+         '())
+ (equal? (zip-with +
+                   '(1)
+                   '(4))
+         '(5))
+ (equal? (zip-with +
+                   '(1 2)
+                   '(4 5))
+         '(5 7))
+ (equal? (zip-with +
+                   '(1 2 3)
+                   '(4 5 6))
+         '(5 7 9))
+ (equal? (zip-with +
+                   '(1)
+                   '())
+         '())
+ (equal? (zip-with +
+                   '()
+                   '(1))
+         '())
+ }
+;;; \end{code}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? (zip-with +
+                   '()
+                   '()
+                   '())
+         '())
+ (equal? (zip-with +
+                   '(1 2 3)
+                   '(4 5 6)
+                   '(7 8 9))
+         '(12 15 18))
+ }
+;;; \end{code}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? (zip-with +
+                   '()
+                   '()
+                   '()
+                   '())
+         '())
+ (equal? (zip-with +
+                   '(1 2 3)
+                   '(4 5 6)
+                   '(7 8 9)
+                   '(10 11 12))
+         '(22 26 30))
  }
 ;;; \end{code}
 ;;;
@@ -1563,13 +1727,14 @@
                    (falseList '()))
      (if (null? l)
          [(list trueList falseList)]
-         [(if (p? (car l))
-              [(partition (cdr l)
-                          (cons (car l) trueList)
-                          falseList)]
-              [(partition (cdr l)
-                          trueList
-                          (cons (car l) falseList))])])}]}
+         [{let ((head (car l)))
+            (if (p? head)
+                [(partition (cdr l)
+                            (cons head trueList)
+                            falseList)]
+                [(partition (cdr l)
+                            trueList
+                            (cons head falseList))])}])}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1588,15 +1753,15 @@
 ;;; using ``partition''.
 ;;;
 ;;; \begin{examplecode}
-;;;> (destructuring-bind (trueList falseList)
+;;;> {destructuring-bind (trueList falseList)
 ;;;                      (partition '(3 2 5 4 1)
 ;;;                                 [|x| (<= x 3)])
-;;;                      trueList)
+;;;                      trueList}
 ;;;(1 2 3)
-;;;> (destructuring-bind (trueList falseList)
+;;;> {destructuring-bind (trueList falseList)
 ;;;                      (partition '(3 2 5 4 1)
 ;;;                                 [|x| (<= x 3)])
-;;;                      falseList)
+;;;                      falseList}
 ;;;(4 5)
 ;;; \end{examplecode}
 ;;;
@@ -1611,14 +1776,10 @@
          ['()]
          [{let* ((current-node (car l))
                  (p (partition (cdr l)
-                               [|x| (comparison?
-                                     x
-                                     current-node)]))
-                 (less-than (car p))
-                 (greater-than (cadr p)))
-            (append! (sort less-than)
+                               [|x| (comparison? x current-node)])))
+            (append! (sort (car p))
                      (cons current-node
-                           (sort greater-than)))}])}]}
+                           (sort (cadr p))))}])}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1634,7 +1795,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{reverse!}
-;;;   Reverses the list quickly by reusing cons cells
+;;;   Reverses the list more efficiently by mutating cons cells
 ;;;
 ;;; \index{reverse"!}
 ;;; \begin{code}
@@ -1642,14 +1803,14 @@
   [|l|
    (if (null? l)
        ['()]
-       [{let reverse! ((cons-cell l)
+       [{let reverse! ((current-cons-cell l)
 		       (reversed-list '()))
-          (if (null? (cdr cons-cell))
-              [{set-cdr! cons-cell reversed-list}
-               cons-cell]
-              [{let ((rest (cdr cons-cell)))
-                 {set-cdr! cons-cell reversed-list}
-                 (reverse! rest cons-cell)}])}])]}
+          (if (null? (cdr current-cons-cell))
+              [{set-cdr! current-cons-cell reversed-list}
+               current-cons-cell]
+              [{let ((rest (cdr current-cons-cell)))
+                 {set-cdr! current-cons-cell reversed-list}
+                 (reverse! rest current-cons-cell)}])}])]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1661,7 +1822,12 @@
     ((1) (1))
     ((2 1) (1 2))
     ((3 2 1) (1 2 3))
-    ))}
+    ))
+ {let ((x '(1 2 3)))
+   {let ((y (reverse! x)))
+     {and (equal? y '(3 2 1))
+          (equal? x '(1))}}}
+ }
 ;;; \end{code}
 ;;;
 ;;;
@@ -1678,8 +1844,9 @@
 ;;;
 ;;; Strings are sequences of characters, just as lists are
 ;;; sequences of arbitrary Scheme objects. ``string-lift-list''
-;;; allows the creation of a context in which the strings may
-;;; be treated as lists.
+;;; allows the creation of a context in which strings may
+;;; be treated as lists{\footnote{Within libbug, a parameter named
+;;;    ``s'' usually means the parameter is of type string.}.
 ;;;
 ;;;
 ;;; \index{string-lift-list}
@@ -1693,8 +1860,8 @@
 ;;;
 ;;; \end{code}
 ;;; \newpage
-
-
+;;;
+;;;
 ;;; \section{string-reverse}
 ;;;
 ;;; \index{string-reverse}
@@ -1715,15 +1882,16 @@
     ))
  }
 ;;; \end{code}
-
+;;;
+;;; \newpage
 ;;; \section{string-take}
 ;;;
 ;;; \index{string-take}
 ;;; \begin{code}
 {define string-take
   [|n s|
-   ((string-lift-list [|l| (take n l)])
-    s)]}
+   {let ((string-take-n (string-lift-list [|l| (take n l)])))
+     (string-take-n s)}]}
 ;;;
 ;;; \end{code}
 ;;;
@@ -1744,8 +1912,8 @@
 ;;; \begin{code}
 {define string-drop
   [|n s|
-   ((string-lift-list [|l| (drop n l)])
-    s)]}
+   {let ((string-drop-n (string-lift-list [|l| (drop n l)])))
+     (string-drop-n s)}]}
 ;;;
 ;;; \end{code}
 ;;;
@@ -1761,6 +1929,7 @@
  }
 ;;; \end{code}
 ;;;
+;;; \newpage
 ;;; \section{character-lift-integer}
 ;;;
 ;;; Characters are stored as integer values in computers, but in Scheme
@@ -1773,17 +1942,17 @@
 ;;; \begin{code}
 {define character-lift-integer
   [|f|
-   [|#!rest n|
+   [|#!rest c|
     (integer->char
      (apply f
-            (map char->integer n)))]]}
+            (map char->integer c)))]]}
 ;;;
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
 {unit-test
  (satisfies?
-  (character-lift-integer [|c| (+ c 1)])
+  (character-lift-integer [|i| (+ i 1)])
   '(
     (#\a #\b)
     (#\b #\c)
@@ -1791,15 +1960,15 @@
     ))}
 ;;; \end{code}
 ;;; \newpage
-
+;;;
 ;;; \section{string-map}
 ;;;
 ;;; \index{string-map}
 ;;; \begin{code}
 {define string-map
   [|f s|
-   ((string-lift-list [|l| (map f l)])
-    s)]}
+   {let ((string-map-f (string-lift-list [|l| (map f l)])))
+     (string-map-f s)}]}
 ;;;
 ;;; \end{code}
 ;;;
@@ -1809,17 +1978,15 @@
 ;;; \begin{code}
 {unit-test
  (satisfies?
-  [|s| (string-map
-        [|c|
-         ((character-lift-integer [|base-char c|
-                                   (+ base-char
-                                      (modulo (+ (- c base-char)
-                                                 3)
-                                              26))])
-          #\a
-          c)]
-        s)]
-
+  [|s| (string-map [|c| {let ((transform-char
+                               (character-lift-integer
+                                [|base-char c|
+                                 (+ base-char
+                                    (modulo (+ (- c base-char)
+                                               3)
+                                            26))])))
+                          (transform-char #\a c)}]
+                   s)]
   '(
     ("" "")
     ("abc" "def")
@@ -1829,7 +1996,7 @@
  }
 ;;; \end{code}
 ;;; \newpage
-
+;;;
 ;;; \section{symbol-lift-list}
 ;;;
 ;;; Symbols are sequences of characters, just as lists are
@@ -1842,10 +2009,10 @@
 ;;; \begin{code}
 {define symbol-lift-list
   [|f|
-   [|#!rest s|
+   [|#!rest sym|
     (string->symbol
      (apply (string-lift-list f)
-            (map symbol->string s)))]]}
+            (map symbol->string sym)))]]}
 ;;;
 ;;; \end{code}
 ;;;
@@ -1861,15 +2028,16 @@
          'foobar)
  }
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \chapter{Streams}
 ;;;
 ;;; Streams are sequential collections like lists, but the
 ;;; ``cdr'' of each pair must be a zero-argument lambda expression.  This lambda
-;;; expression is evaluated when ``(stream-cdr s)'' is evaluated.
-;;; For more information, consult ``The Structure and
-;;; Interpretation of Computer Programs''\footnote{although, they
+;;; expression will be automatically applied when ``(stream-cdr s)'' is evaluated.
+;;; This techique allows a programmer to create seemingly infinite data structures,
+;;; such as the definion of ``integers-from'' and ``primes''.
+;;; For more information, consult \cite{sicp}\footnote{although, they
 ;;; define ``stream-cons'' as syntax instead of passing a lambda
 ;;; to the second argument}.
 ;;;
@@ -1892,6 +2060,29 @@
 ;;; evaluated directly by the programmer. Instead, the following
 ;;; are to be used.
 ;;;
+;;; \section{stream-cons}
+;;;
+;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
+;;; lambda value.
+;;;
+;;;
+;;; \index{stream-cons}
+;;; \begin{code}
+{define-macro stream-cons
+  [|a d|
+   (if {and (list? d)
+            (equal? 'lambda (car d))
+            (not (null? (cdr d)))
+            (equal? '() (cadr d))}
+       [`(make-stream ,a {delay ,(caddr d)})]
+       [(error "bug#stream-cons requires a zero-argument \
+                lambda as its second argument.")])]}
+;;; \end{code}
+;;;
+;;; \noindent \cite[p. 321]{sicp}.
+;;;
+;;;
+;;; \newpage
 ;;; \section{stream-car}
 ;;; Get the first element of the stream.
 ;;;
@@ -1911,26 +2102,6 @@
 {define stream-cdr
   [|s|
    {force (stream-d s)}]}
-;;; \end{code}
-;;;
-;;; \noindent \cite[p. 321]{sicp}.
-;;; \section{stream-cons}
-;;;
-;;; Like ``cons'', creates a pair.  The second argument must be a zero-argument
-;;; lambda value.
-;;;
-;;;
-;;; \index{stream-cons}
-;;; \begin{code}
-{define-macro stream-cons
-  [|a d|
-   (if {and (list? d)
-            (equal? 'lambda (car d))
-            (not (null? (cdr d)))
-            (equal? '() (cadr d))}
-       [`(make-stream ,a {delay ,(caddr d)})]
-       [(error "bug#stream-cons requires a zero-argument \
-                lambda as its second argument.")])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 321]{sicp}.
@@ -1979,7 +2150,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{list-\textgreater stream}
-;;; Converts a list into a stream
+;;; Converts a list into a stream.
 ;;;
 ;;; \index{list-\textgreater stream}
 ;;; \begin{code}
@@ -2008,7 +2179,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{stream-\textgreater list}
-;;; Converts a stream into a list
+;;; Converts a stream into a list.
 ;;;
 ;;; \index{stream-\textgreater list}
 ;;; \begin{code}
@@ -2032,7 +2203,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{stream-ref}
-;;; The analogous procedure of ``list-ref''
+;;; The analogous procedure of ``list-ref''.
 ;;;
 ;;; \index{stream-ref}
 ;;; \begin{code}
@@ -2062,15 +2233,23 @@
     (5 noop)
     )
   )
- (equal? (stream-ref (list->stream '(a b c d e))
-                     5
-                     onOutOfBounds: ['out])
-         'out)}
+ (satisfies?
+  [|i| (stream-ref (list->stream '(a b c d e))
+                   i
+                   onOutOfBounds: ['out])]
+  '(
+    (-1 out)
+    (0 a)
+    (4 e)
+    (5 out)
+    )
+  )
+ }
 ;;; \end{code}
 ;;;
 ;;;
 ;;; \newpage
-
+;;;
 ;;; \section{integers-from}
 ;;; \index{integers-from}
 ;;;
@@ -2160,18 +2339,71 @@
            (stream-filter [|x| (not (= 4 x))]
                           (list->stream '(1 4 2 4))))
           '(1 2))
+ }
+;;; \end{code}
+;;;
+;;; Understanding the following tests is crucial to understanding
+;;; the definition of ``primes''.
+;;;
+;;; \begin{code}
+{unit-test
  (equal? (stream->list
           (stream-take
            10
-           (stream-filter [|n|
-                           (not (equal? 0
-                                        (modulo n 2)))]
-                          (integers-from 2))))
-         '(3 5 7 9 11 13 15 17 19 21))
+           (stream-cons
+            2
+            [(stream-filter [|n|
+                             (not (equal? 0
+                                          (modulo n 2)))]
+                            (integers-from 2))])))
+         '(2 3 5 7 9 11 13 15 17 19))
+ (equal? (stream->list
+          (stream-take
+           10
+           (stream-cons
+            2
+            [(stream-filter [|n|
+                             (not (equal? 0
+                                          (modulo n 2)))]
+                            (stream-cons
+                             3
+                             [(stream-filter [|n|
+                                              (not (equal? 0
+                                                           (modulo n 3)))]
+                                             (integers-from 2))]))])))
+         '(2 3 5 7 11 13 17 19 23 25))
  }
 ;;;
 ;;; \end{code}
 ;;;
+;;; \begin{code}
+{unit-test
+ (equal? (stream->list
+          (stream-take
+           10
+           (stream-cons
+            2
+            [(stream-filter
+              [|n|
+               (not (equal? 0
+                            (modulo n 2)))]
+              (stream-cons
+               3
+               [(stream-filter
+                 [|n|
+                  (not (equal? 0
+                               (modulo n 3)))]
+                 (stream-cons
+                  5
+                  [(stream-filter
+                    [|n|
+                     (not (equal? 0
+                                  (modulo n 5)))]
+                    (integers-from 2))]))]))])))
+         '(2 3 5 7 11 13 17 19 23 29))
+ }
+;;;
+;;; \end{code}
 ;;;
 ;;; \newpage
 ;;; \section{primes}
@@ -2202,7 +2434,80 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-
+;;;
+;;; \section{stream-drop}
+;;; \index{stream-drop}
+;;; \begin{code}
+{define stream-drop
+  [|n s|
+   (if (< n 0)
+       [s]
+       [{let stream-drop ((n n) (s s))
+          (if {or (stream-null? s)
+                  (= n 0)}
+              [s]
+              [(stream-drop (- n 1)
+                            (stream-cdr s))])}])]}
+;;; \end{code}
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (satisfies?
+  [|n|
+   (stream->list
+    (stream-drop n (list->stream '(a b))))]
+  '(
+    (-1 (a b))
+    (0 (a b))
+    (1 (b))
+    (2 ())
+    (3 ())
+    ))
+ (equal? (stream->list
+          (stream-take 10 (stream-drop 10
+                                       primes)))
+         '(31 37 41 43 47 53 59 61 67 71))
+ }
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
+;;;
+;;; \section{stream-drop-while}
+;;; \index{stream-drop-while}
+;;; \begin{code}
+{define stream-drop-while
+  [|p? s|
+   {let ((not-p? (complement p?)))
+     {let stream-drop-while ((s s))
+       (if {or (stream-null? s)
+               (not-p? (stream-car s))}
+           [s]
+           [(stream-drop-while (stream-cdr s))])}}]}
+;;; \end{code}
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (satisfies?
+  [|x|
+   (stream->list
+    (stream-drop-while [|y| (not (equal? x y))]
+                       (list->stream
+                        '(a b c))))]
+  '(
+    (a (a b c))
+    (b (b c))
+    (c (c))
+    (d ())
+    (e ())
+    ))}
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
+;;;
 ;;; \section{stream-map}
 ;;; The analogous procedure of ``map''.
 ;;;
@@ -2241,12 +2546,11 @@
 ;;; \begin{code}
 {define stream-enumerate-interval
   [|low high #!key (step 1)|
-   {let stream-enumerate-interval ((low low) (high high))
+   {let stream-enumerate-interval ((low low))
      (if (> low high)
          [stream-null]
          [(stream-cons low
-                       [(stream-enumerate-interval (+ low step)
-                                                   high)])])}]}
+                       [(stream-enumerate-interval (+ low step))])])}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -2265,13 +2569,14 @@
 ;;; \begin{code}
 {define stream-take-while
   [|p? s|
-   {let stream-take-while ((s s))
-     (if {or (stream-null? s)
-             ((complement p?) (stream-car s))}
-         [stream-null]
-         [(stream-cons (stream-car s)
-                       [(stream-take-while
-                         (stream-cdr s))])])}]}
+   {let ((not-p? (complement p?)))
+     {let stream-take-while ((s s))
+       (if {or (stream-null? s)
+               (not-p? (stream-car s))}
+           [stream-null]
+           [(stream-cons (stream-car s)
+                         [(stream-take-while
+                           (stream-cdr s))])])}}]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -2287,76 +2592,10 @@
  }
 ;;; \end{code}
 ;;;
-;;; \newpage
-
-;;; \section{stream-drop}
-;;; \index{stream-drop}
-;;; \begin{code}
-{define stream-drop
-  [|n s|
-   (if {or (stream-null? s)
-           (= n 0)}
-       [s]
-       [(stream-drop (- n 1)
-                     (stream-cdr s))])]}
-;;; \end{code}
-;;;
-;;;
-;;; \begin{code}
-{unit-test
- (satisfies?
-  [|n|
-   (stream->list
-    (stream-drop n (list->stream '(a b))))]
-  '(
-    (0 (a b))
-    (1 (b))
-    (2 ())
-    (3 ())
-    ))
- (equal? (stream->list
-          (stream-take 10 (stream-drop 10
-                                       primes)))
-         '(31 37 41 43 47 53 59 61 67 71))
- }
-;;; \end{code}
 ;;;
 ;;;
 ;;; \newpage
-
-;;; \section{stream-drop-while}
-;;; \index{stream-drop-while}
-;;; \begin{code}
-{define stream-drop-while
-  [|p? s|
-   {let stream-drop-while ((s s))
-     (if {or (stream-null? s)
-             ((complement p?) (stream-car s))}
-         [s]
-         [(stream-drop-while (stream-cdr s))])}]}
-;;; \end{code}
 ;;;
-;;;
-;;; \begin{code}
-{unit-test
- (satisfies?
-  [|x|
-   (stream->list
-    (stream-drop-while [|y| (not (equal? x y))]
-                       (list->stream
-                        '(a b c))))]
-  '(
-    (a (a b c))
-    (b (b c))
-    (c (c))
-    (d ())
-    (e ())
-    ))}
-;;; \end{code}
-;;;
-;;;
-;;; \newpage
-
 ;;;
 ;;; \chapter{Macros}
 ;;;  \label{sec:macros}
@@ -2375,7 +2614,7 @@
 ;;;  Should the reader have difficulty with the remainder of the book, the author
 ;;;  recommends reading
 ;;;  ``On Lisp'' by Paul Graham \cite{onlisp}.
-
+;;;
 ;;;
 ;;; \newpage
 ;;; \section{compose}
@@ -2408,7 +2647,7 @@
 ;;;     for consumption by programs which link against libbug.
 ;;;
 ;;; \end{itemize}
-
+;;;
 ;;;
 ;;;
 ;;; \begin{code}
@@ -2631,7 +2870,7 @@
             ,(append (list 'let
                            (map [|s g| (list s
                                              `(if (atom? ,s)
-                                                  [(quote ,s)]
+                                                  [,s]
                                                   [(quote ,g)]))]
                                 symbols
                                 gensyms))
@@ -2640,11 +2879,14 @@
 ;;;
 ;;; \cite[p. 854]{paip}
 ;;;
+;;; ``atom''s are handled as a special case to minimize the creation
+;;; of ``gensym''ed variables since evaluation of ``atom''s
+;;; causes no side effects, thus causes no problems from multiple evaluation.
 ;;;
 ;;; \subsubsection*{First Macro-expansion}
 ;;; \begin{code}
 {unit-test
- (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y)}}
+ (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y ,x)}}
          `(list 'let
                 (append (if (atom? x)
                             ['()]
@@ -2653,12 +2895,12 @@
                             ['()]
                             [(list (list 'gensymed-var2 y))]))
                 {let ((x (if (atom? x)
-                             ['x]
+                             [x]
                              ['gensymed-var1]))
                       (y (if (atom? y)
-                             ['y]
+                             [y]
                              ['gensymed-var2))))
-                  `(+ ,x ,y)}))
+                  `(+ ,x ,y ,x)}))
  }
 ;;; \end{code}
 ;;;
@@ -2670,38 +2912,37 @@
                       (y 6))
                   ,{macroexpand-1
                     {once-only (x y)
-                               `(+ ,x ,y)}}})
-         `{let () (+ x y)})
+                               `(+ ,x ,y ,x)}}})
+         `{let () (+ 5 6 5)})
  (equal? (eval `{let ((x '(car foo))
                       (y 6))
                   ,{macroexpand-1
                     {once-only (x y)
-                               `(+ ,x ,y)}}})
+                               `(+ ,x ,y ,x)}}})
          '{let ((gensymed-var1 (car foo)))
-            (+ gensymed-var1 y)})
+            (+ gensymed-var1 6 gensymed-var1)})
  (equal? (eval `{let ((x '(car foo))
                       (y '(baz)))
                   ,{macroexpand-1
                     {once-only (x y)
-                               `(+ ,x ,y)}}})
+                               `(+ ,x ,y ,x)}}})
          '{let ((gensymed-var1 (car foo))
                 (gensymed-var2 (baz)))
-            (+ gensymed-var1 gensymed-var2)})
+            (+ gensymed-var1 gensymed-var2 gensymed-var1)})
  }
 ;;; \end{code}
+;;;
 ;;;
 ;;; \subsubsection*{The Evaluation of the twice-expanded Code}
 ;;; \begin{code}
 {unit-test
- (equal? (eval `{let ((x 5)
-                      (y 6))
-                  ,(eval `{let ((x 5)
-                                (y 6))
-                            ,{macroexpand-1
-                              {once-only (x y)
-                                         `(+ ,x ,y)}}})})
-         11)
- }
+ (equal? (eval (eval `{let ((x 5)
+                            (y 6))
+                        ,{macroexpand-1
+                          {once-only (x y)
+                                     `(+ ,x ,y ,x)}}}))
+         16)
+}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2847,7 +3088,9 @@
 ;;;
 ;;; \subsubsection*{Suffixed By -set!}
 ;;; \noindent Test updating procedures where the updating procedure is
-;;; the name of the getting procedure, suffixed by '-set!'.
+;;; the name of the getting procedure, suffixed by '-set!'\footnote{As a reminder, ``stream-a'',
+;;; ``make-stream'', and ``stream-a-set!'' are not meant to be used
+;;;    directly.  But for the purposes of testing ``setf!'', it sufficies to use them directly.}.
 ;;;
 ;;; \begin{code}
 {unit-test
@@ -2862,8 +3105,7 @@
  }
 ;;; \end{code}
 ;;;
-;;; \footnote{As a reminder, ``stream-a'', ``make-stream'', and ``stream-a-set!'' are not meant to be used
-;;;    directly.  But for the purposes of testing ``setf!'', it sufficies to use them directly.}
+;;;
 ;;;
 ;;; \subsubsection*{-ref Replaced By -set!}
 ;;; \noindent Test updating procedures where the updating procedure is
@@ -2887,13 +3129,17 @@
            (vector 1 2 4 ""))}
  }
 ;;; \end{code}
-
+;;;
 ;;; \newpage
 ;;; \section{mutate!}
 ;;;  Like ``setf!'', ``mutate!'' takes a generalized variable
 ;;;  as input, but it additionally takes a procedure to be applied
 ;;;  to the value of the generalized variable; the result of the application
-;;;  will be stored back into the generalized variable.
+;;;  will be stored back into the generalized variable\footnote{``mutate!'' is
+;;; used in similar contexts as Common Lisp's
+;;;   ``define-modify-macro'' would be, but it is more general, as
+;;;   it allows the new procedure to remain anonymous, as compared
+;;;   to making a new name like ``toggle'' \cite[p. 169]{onlisp}.}.
 ;;;
 ;;; \index{mutate"!}
 ;;; \begin{code}
@@ -2917,7 +3163,7 @@
              (,(car exp) ,@args-to-setf)}}])]}
 ;;; \end{code}
 ;;;
-
+;;;
 ;;;
 ;;;
 ;;; \begin{code}
@@ -2937,21 +3183,18 @@
  }
 ;;; \end{code}
 ;;;
-;;; \footnote{``mutate!'' is used in similar contexts as Common Lisp's
-;;;   ``define-modify-macro'' would be, but it is more general, as
-;;;   it allows the new procedure to remain anonymous, as compared
-;;;   to making a new name like ``toggle'' \cite[p. 169]{onlisp}.}
-
 ;;;
-
+;;;
+;;;
+;;;
 ;;; \begin{code}
 {unit-test
- (equal? {macroexpand-1 (mutate! foo [|n| (+ n 1)])}
+ (equal? {macroexpand-1 {mutate! foo [|n| (+ n 1)]}}
          '{begin
             {setf! foo ([|n| (+ n 1)] foo)}
             foo})
  {let ((foo 1))
-   (mutate! foo [|n| (+ n 1)])
+   {mutate! foo [|n| (+ n 1)]}
    (equal? foo
            2)}
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
@@ -3121,15 +3364,15 @@
                              '(1 (2 3) 4 5)
                              (list a b c d)}
          '(1 2 (3) (4 5)))
- (equal? (destructuring-bind (trueList falseList)
+ (equal? {destructuring-bind (trueList falseList)
                              (partition '(3 2 5 4 1)
                                         [|x| (<= x 3)])
-                             trueList)
+                             trueList}
          '(1 2 3))
- (equal? (destructuring-bind (trueList falseList)
+ (equal? {destructuring-bind (trueList falseList)
                              (partition '(3 2 5 4 1)
                                         [|x| (<= x 3)])
-                             falseList)
+                             falseList}
          '(4 5))
  }
 ;;; \end{code}

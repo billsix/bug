@@ -3,7 +3,7 @@
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;;
 ;;; \break
-
+;;;
 ;;; \part{Foundations Of Libbug}
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
@@ -41,6 +41,7 @@
 ;;;  form will not evaluate at run-time.
 ;;; \end{itemize}
 ;;;
+;;; \newpage
 ;;; \section{at-both-times}
 ;;; \index{at-both-times}
 ;;;
@@ -64,6 +65,7 @@
 ;;;  they are defined in the run-time environment.
 ;;; \end{itemize}
 ;;;
+;;; \newpage
 ;;; \section{at-compile-time-expand}
 ;;; \index{at-compile-time-expand}
 ;;;
@@ -96,6 +98,7 @@
 ;;; \end{examplecode}
 ;;;
 ;;;
+;;; \newpage
 ;;; \section{Create Files for Linking Against Libbug}
 ;;;
 ;;; Libbug is a collection of procedures and macros.  Building libbug results
@@ -144,14 +147,14 @@
 ;;;  but not to programs which link against libbug.  To rectify that, open a file
 ;;;  during compile-time, and write those macro definitions
 ;;;  to the file.
-
-
+;;;
+;;;
 ;;;
 ;;; \begin{code}
  (##include "config.scm")
  {##define bug-configuration#libbugsharp
    (string-append bug-configuration#prefix "/include/libbug/libbug#.scm")}
-
+;;;
  {##define libbug-macros-file
    (open-output-file '(path: "libbug-macros.scm" append: #f))}
  (display
@@ -179,8 +182,8 @@
    ")
   libbug-macros-file)
 ;;; \end{code}
-
-
+;;;
+;;;
 ;;; \begin{itemize}
 ;;;   \item On line 1-3, include the ``config.scm'' file which was preprocessed
 ;;;     by Autoconf, so that the installation directory of libbug is known
@@ -196,7 +199,7 @@
 ;;;    -Back to the Future 3}.
 ;;; \end{itemize}
 ;;;
-
+;;;
 ;;;
 ;;; \subsection{Close Files At Compile-Time}
 ;;;
@@ -221,6 +224,7 @@
 ;;; \end{code}
 ;;;
 ;;;
+;;; \newpage
 ;;; \section{libbug-private\#write-and-eval}
 ;;;
 ;;; Now that those files are open, namespaces will be written
@@ -249,6 +253,7 @@
 ;;; should be valid at
 ;;; compile-time too.
 ;;;
+;;; \newpage
 ;;; \section{libbug-private\#namespace}
 ;;;
 ;;; Namespaces for procedures in libbug need to be available at
@@ -267,8 +272,9 @@
          {##namespace ("bug#" ,@to-namespace)}}}}]}
 ;;; \end{code}
 ;;;
-
 ;;;
+;;;
+;;; \newpage
 ;;; \section{if}
 ;;; \label{sec:langif}
 ;;; In the following, a new version of "if" is defined named
@@ -318,6 +324,7 @@
 ;;; \end{itemize}
 ;;;
 ;;;
+;;; \newpage
 ;;; \section{unit-test}
 ;;;
 ;;; \index{unit-test}
@@ -349,6 +356,7 @@
 ;;; \end{code}
 ;;;
 ;;;
+;;; \newpage
 ;;; \section{libbug-private\#define}
 ;;;  ``libbug-private\#define'' is the main procedure-defining procedure used
 ;;;  throughout libbug.  ``libbug-private\#define'' takes a variable name and
@@ -373,6 +381,7 @@
 ;;;  On line 6-7, the definition occurs at both compile-time and run-time,
 ;;;  ensuring that the procedure is available for evaluation of tests.
 ;;;
+;;; \newpage
 ;;; \section{libbug-private\#define-macro}
 ;;;  Like ``libbug-private\#define'' is built upon ``\#\#define'',
 ;;;  ``libbug-private\#define-macro'' is built upon ``\#\#define-macro''.
@@ -477,7 +486,7 @@
 ;;;                                         (quasiquote 5)])))
 ;;;    `5
 ;;; \end{examplecode}
-
+;;;
 ;;;   \item On line 12-13, since this is not a quasiquoted form, just grab
 ;;;         the form, and ``unquote'' it.
 ;;;
@@ -584,6 +593,7 @@
 ;;;
 ;;; \end{code}
 ;;;
+;;; \newpage
 ;;; \section{macroexpand-1}
 ;;;
 ;;; ``macroexpand-1'' allows the programmer to test macro-expansion by writing
@@ -620,7 +630,8 @@
     `(,the-expander ,@(cdr form))}]}
 ;;; \end{code}
 ;;;
-
+;;;
+;;; \newpage
 ;;; \section{libbug-private\#define-structure}
 ;;;  \label{sec:definestructure}
 ;;; \index{libbug-private\#define-structure}
