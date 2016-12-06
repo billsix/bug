@@ -2030,7 +2030,7 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \chapter{Macros}
+;;; \chapter{Basic Macros}
 ;;;  \label{sec:macros}
 ;;;
 ;;;  Although many concepts first implemented in Lisp (conditional expressions,
@@ -2043,8 +2043,17 @@
 ;;;  by which a programmer may augment the compiler with new functionality \emph{while
 ;;;  the compiler is compiling.}
 ;;;
-;;;  Mastery of macros is required to understand all subsequent chapters of this book.
-;;;  Should the reader have difficulty with the remainder of the book, the author
+;;;  Manipulating unevaluated code introduces a few problems.  First, a ``new'' variable
+;;;  name, generated from the macro, inserted into the generated code may clash
+;;;  with a variable name in the input form; resulting in expanded code which does
+;;;  not function correctly.  Second, if
+;;;  unevaluated code which causes side-effects is inserted more than once into
+;;;  the generated code, the expanded code will likely have unintended side-effects.
+;;;
+;;;  The first problem is solved using ``gensym''s.  The second problem is solved
+;;;  using ``once-only''.
+;;;
+;;;  For a much fuller explanation of the aforementioned problems, the author
 ;;;  recommends reading
 ;;;  ``On Lisp'' by Paul Graham \cite{onlisp}.
 ;;;
@@ -2188,7 +2197,7 @@
 ;;;
 ;;; Although variable capture \cite[p. 118-132]{onlisp} is generally avoided,
 ;;; there are instances in which variable capture is desirable \cite[p. 189-198]{onlisp}.
-;;; Within libbug, varibles intended for capture are fully qualified with a namespace
+;;; Within libbug, variables intended for capture are fully qualified with a namespace
 ;;; to ensure that the variable is captured.
 ;;;
 ;;; \noindent \cite[p. 191]{onlisp}
@@ -2378,6 +2387,442 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
+;;;
+;;;
+;;; \chapter{Generalized Assignment}
+;;;  \label{sec:endinglibbug}
+;;; \section{setf!}
+;;; ``Rather than thinking about two distinct functions that respectively
+;;;  access and update a storage location somehow deduced from their arguments,
+;;;  we can instead simply think of a call to the access function with given
+;;;  arguments as a \emph{name} for the storage location.'' \cite[p. 123-124]{cl}
+;;;
+;;;  Create a macro named ``setf!'' which invokes the appropriate
+;;;  ``setting'' procedure, based on the given ``accessing'' procedure\footnote{The
+;;;  implementation is inspired by \cite{setf}.}.
+;;;
+;;; \index{setf"!}
+;;; \begin{code}
+{define-macro setf!
+  [|exp val|
+   (if (not (pair? exp))
+       [`{set! ,exp ,val}]
+       [{case (car exp)
+          ((car)  `{set-car! ,@(cdr exp) ,val})
+          ((cdr)  `{set-cdr! ,@(cdr exp) ,val})
+          ((caar) `{setf! (car (car ,@(cdr exp))) ,val})
+          ((cadr) `{setf! (car (cdr ,@(cdr exp))) ,val})
+          ((cdar) `{setf! (cdr (car ,@(cdr exp))) ,val})
+          ((cddr) `{setf! (cdr (cdr ,@(cdr exp))) ,val})
+;;; \end{code}
+;;; \begin{code}
+          ((caaar) `{setf! (car (caar ,@(cdr exp))) ,val})
+          ((caadr) `{setf! (car (cadr ,@(cdr exp))) ,val})
+          ((cadar) `{setf! (car (cdar ,@(cdr exp))) ,val})
+          ((caddr) `{setf! (car (cddr ,@(cdr exp))) ,val})
+          ((cdaar) `{setf! (cdr (caar ,@(cdr exp))) ,val})
+          ((cdadr) `{setf! (cdr (cadr ,@(cdr exp))) ,val})
+          ((cddar) `{setf! (cdr (cdar ,@(cdr exp))) ,val})
+          ((cdddr) `{setf! (cdr (cddr ,@(cdr exp))) ,val})
+          ((caaaar) `{setf! (car (caaar ,@(cdr exp))) ,val})
+          ((caaadr) `{setf! (car (caadr ,@(cdr exp))) ,val})
+          ((caadar) `{setf! (car (cadar ,@(cdr exp))) ,val})
+          ((caaddr) `{setf! (car (caddr ,@(cdr exp))) ,val})
+          ((cadaar) `{setf! (car (cdaar ,@(cdr exp))) ,val})
+          ((cadadr) `{setf! (car (cdadr ,@(cdr exp))) ,val})
+          ((caddar) `{setf! (car (cddar ,@(cdr exp))) ,val})
+          ((cadddr) `{setf! (car (cdddr ,@(cdr exp))) ,val})
+          ((cdaaar) `{setf! (cdr (caaar ,@(cdr exp))) ,val})
+          ((cdaadr) `{setf! (cdr (caadr ,@(cdr exp))) ,val})
+          ((cdadar) `{setf! (cdr (cadar ,@(cdr exp))) ,val})
+          ((cdaddr) `{setf! (cdr (caddr ,@(cdr exp))) ,val})
+          ((cddaar) `{setf! (cdr (cdaar ,@(cdr exp))) ,val})
+          ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
+          ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
+          ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
+          (else `(,((symbol-lift-list
+                     [|l -set! -ref|
+                      (append!
+                       (if (equal? (reverse -ref)
+                                   (take 4 (reverse l)))
+                           [(reverse (drop 4
+                                           (reverse l)))]
+                           [l])
+                       -set!)])
+                    (car exp)
+                    '-set!
+                    '-ref)
+                  ,@(cdr exp)
+                  ,val))}])]}
+;;; \end{code}
+;;;
+;;; \subsubsection*{Updating a Variable Directly}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1
+          {setf! foo 10}}
+         '{set! foo 10})
+ {let ((a 5))
+   {setf! a 10}
+   (equal? a 10)}
+ }
+;;; \end{code}
+;;;
+;;; \subsubsection*{Updating Car, Cdr, ... Through Cddddr}
+;;; \noindent Test updating ``car''.
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1
+          {setf! (car foo) 10}}
+         '{set-car! foo 10})
+ {let ((foo '(1 2)))
+   {setf! (car foo) 10}
+   (equal? (car foo) 10)}
+ }
+;;; \end{code}
+;;;
+;;; \noindent Test updating ``cdr''.
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1
+          {setf! (cdr foo) 10}}
+         '{set-cdr! foo 10})
+ {let ((foo '(1 2)))
+   {setf! (cdr foo) 10}
+   (equal? (cdr foo) 10)}
+ }
+;;; \end{code}
+;;;
+;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures would
+;;; be quite
+;;; repetitive.  Instead, create a list which has an element at each of those
+;;; accessor procedures, and test each.
+;;;
+;;; \begin{code}
+{unit-test
+ (eval
+  `{and
+    ,@(map [|x| `{let ((foo '((((the-caaaar)
+                                the-cadaar)
+                               (the-caadar)
+                               ())
+                              ((the-caaadr) the-cadadr)
+                              (the-caaddr)
+                              ()
+                              )))
+                   {setf! (,x foo) 10}
+                   (equal? (,x foo) 10)}]
+           '(car
+             cdr
+             caar cadr
+             cdar cddr
+             caaar caadr cadar caddr
+             cdaar cdadr cddar cdddr
+             caaaar caaadr caadar caaddr
+             cadaar cadadr caddar cadddr
+             cdaaar cdaadr cdadar cdaddr
+             cddaar cddadr cdddar cddddr
+             ))})
+ }
+;;; \end{code}
+;;;
+;;; \subsubsection*{Suffixed By -set!}
+;;; \noindent Test updating procedures where the updating procedure is
+;;; the name of the getting procedure, suffixed by '-set!'.
+;;;
+;;; \begin{code}
+{at-compile-time
+ {##define-structure foo bar}}
+
+{unit-test
+ (equal? {macroexpand-1
+          {setf! (foo-bar f) 10}}
+         '{foo-bar-set! f 10})
+ {begin
+   {let ((f (make-foo 1)))
+     {setf! (foo-bar f) 10}
+     (equal? (make-foo 10)
+             f)}}
+ }
+;;; \end{code}
+;;;
+;;;
+;;;
+;;; \subsubsection*{-ref Replaced By -set!}
+;;; \noindent Test updating procedures where the updating procedure is
+;;; the name of the getting procedure, with the ``-ref'' suffix removed, replaced
+;;; with ``-set''.
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1
+          {setf! (string-ref s 0) #\q}}
+         '{string-set! s 0 #\q})
+ {let ((s "foobar"))
+   {setf! (string-ref s 0) #\q}
+   (equal? s "qoobar")}
+ (equal? {macroexpand-1
+          {setf! (vector-ref v 2) 4}}
+         '{vector-set! v 2 4})
+ {let ((v (vector 1 2 '() "")))
+   {setf! (vector-ref v 2) 4}
+   (equal? v
+           (vector 1 2 4 ""))}
+ }
+;;; \end{code}
+;;;
+;;; \newpage
+;;; \section{mutate!}
+;;;  Like ``setf!'', ``mutate!'' takes a generalized variable
+;;;  as input, but it additionally takes a procedure to be applied
+;;;  to the value of the generalized variable; the result of the application
+;;;  will be stored back into the generalized variable\footnote{``mutate!'' is
+;;; used in similar contexts as Common Lisp's
+;;;   ``define-modify-macro'' would be, but it is more general, as
+;;;   it allows the new procedure to remain anonymous, as compared
+;;;   to making a new name like ``toggle'' \cite[p. 169]{onlisp}.}.
+;;;
+;;; \index{mutate"!}
+;;; \begin{code}
+{define-macro mutate!
+  [|exp f|
+   (if (symbol? exp)
+       [`{begin
+           {setf! ,exp (,f ,exp)}
+           ,exp}]
+       [{let* ((atom-or-binding (map [|x| (if (atom? x)
+					      [x]
+					      [(list (gensym) x)])]
+				     (cdr exp)))
+               (args-of-generalized-var (map [|x| (if (atom? x)
+                                                      [x]
+                                                      [(car x)])]
+                                             atom-or-binding)))
+          `{let ,(filter (complement atom?) atom-or-binding)
+             {setf! (,(car exp) ,@args-of-generalized-var)
+                    (,f (,(car exp) ,@args-of-generalized-var))}
+             (,(car exp) ,@args-of-generalized-var)}}])]}
+;;; \end{code}
+;;;
+;;;
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1 {mutate! foo not}}
+         '{begin
+            {setf! foo (not foo)}
+            foo})
+ {let ((foo #t))
+   {and
+    {begin
+      {mutate! foo not}
+      (equal? foo #f)}
+    {begin
+      {mutate! foo not}
+      (equal? foo #t)}}}
+ }
+;;; \end{code}
+;;;
+;;;
+;;;
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1 {mutate! foo [|n| (+ n 1)]}}
+         '{begin
+            {setf! foo ([|n| (+ n 1)] foo)}
+            foo})
+ {let ((foo 1))
+   {mutate! foo [|n| (+ n 1)]}
+   (equal? foo
+           2)}
+ (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
+         '{let ()
+            {setf! (vector-ref foo 0)
+                   ([|n| (+ n 1)] (vector-ref foo 0))}
+            (vector-ref foo 0)})
+ {let ((foo (vector 0 0 0)))
+   {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
+   (equal? foo
+           (vector 1 0 0))}
+ {let ((foo (vector 0 0 0)))
+   {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
+   (equal? foo
+           (vector 0 0 1))}
+ }
+;;; \end{code}
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1
+          {mutate! (vector-ref foo {begin
+                                     {setf! index (+ 1 index)}
+                                     index})
+                   [|n| (+ n 1)]}}
+         '{let ((gensymed-var1 {begin
+                                 {setf! index (+ 1 index)}
+                                 index}))
+            {setf! (vector-ref foo gensymed-var1)
+                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1))}
+            (vector-ref foo gensymed-var1)})
+ {let ((foo (vector 0 0 0))
+       (index 1))
+   {mutate! (vector-ref foo {begin
+                              {setf! index (+ 1 index)}
+                              index})
+            [|n| (+ n 1)]}
+   {and (equal? foo
+                (vector 0 0 1))
+        (equal? index
+                2)}}
+ }
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
+;;; \section{destructuring-bind}
+;;;
+;;;  \label{sec:dbind}
+;;; \index{destructuring-bind}
+;;;
+;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple variables
+;;;  may be bound to values based on their positions within a (possibly nested) list.
+;;;  Look at the tests
+;;;  at the end of the section for an example.
+;;;
+;;; ``destructuring-bind'' is a complicated macro which can be decomposed into a regular
+;;;  procedure named ``tree-of-accessors'', and the macro ``destructuring-bind''\footnote{
+;;;   This poses a small problem.  ``tree-of-accessors'' is not macroexpanded as it a not a
+;;;  macro, therefore it does not have access to the compile-time ``gensym'' procedure
+;;;  which allows macro-expansions to be tested.  To allow ``tree-of-accessors'' to
+;;;  be tested independently, as well as part of ``destructuring-bind'', ``tree-of-accessors''
+;;;  takes a procedure named ``gensym'' as an argument, defaulting to whatever value
+;;;  ``gensym'' is by default in the environment.
+;;;
+;;;  }.
+;;;
+;;; \begin{code}
+{define tree-of-accessors
+  [|pat lst #!key (gensym gensym) (n 0)|
+   {let tree-of-accessors ((pat pat)
+                           (lst lst)
+                           (n n))
+     {cond ((null? pat)                '())
+           ((symbol? pat)              `((,pat (drop ,n ,lst))))
+           ((equal? (car pat) '#!rest) `((,(cadr pat) (drop ,n
+                                                            ,lst))))
+           (else
+            (cons {let ((p (car pat)))
+                    (if (symbol? p)
+                        [`(,p (list-ref ,lst ,n))]
+                        [{let ((var (gensym)))
+                           (cons `(,var (list-ref ,lst ,n))
+                                 (tree-of-accessors p
+                                                    var
+                                                    0))}])}
+                  (tree-of-accessors (cdr pat)
+                                     lst
+                                     (+ 1 n))))}}]}
+;;; \end{code}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? (tree-of-accessors '() 'gensym-for-list)
+         '())
+ (equal? (tree-of-accessors 'a 'gensym-for-list)
+         '((a (drop 0 gensym-for-list))))
+ (equal? (tree-of-accessors '(#!rest d) 'gensym-for-list)
+         '((d (drop 0 gensym-for-list))))
+ (equal? (tree-of-accessors '(a) 'gensym-for-list)
+         '((a (list-ref gensym-for-list 0))))
+ (equal? (tree-of-accessors '(a . b) 'gensym-for-list)
+         '((a (list-ref gensym-for-list 0))
+           (b (drop 1 gensym-for-list))))
+ }
+;;; \end{code}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? (tree-of-accessors '(a (b c))
+                            'gensym-for-list
+                            gensym: ['gensymed-var1])
+         '((a (list-ref gensym-for-list 0))
+           ((gensymed-var1 (list-ref gensym-for-list 1))
+            (b (list-ref gensymed-var1 0))
+            (c (list-ref gensymed-var1 1)))))
+ }
+;;; \end{code}
+;;;
+;;;
+;;; Although ``tree-of-accessors'' appears to be victim of the multiple-evaluation
+;;; problem that macros may have, ``tree-of-accessors'' is completely safe to use
+;;; as long as the caller does not directly pass a list to ``tree-of-accessors''.
+;;; The only caller of ``tree-of-accessors'' is ``destructuring-bind'', which passes
+;;; a symbol to ``tree-of-accessors''.  Therefore ``destructuring-bind'' does not
+;;; fall victim to unintended multiple evaluations.
+;;;
+;;; \begin{code}
+{define-macro destructuring-bind
+  [|pat lst #!rest body|
+   {let ((glst (gensym)))
+     `{let ((,glst ,lst))
+        ,{let create-nested-lets ((bindings
+                                   (tree-of-accessors pat
+                                                      glst
+                                                      gensym: gensym)))
+           (if (null? bindings)
+               [`{begin ,@body}]
+               [`{let ,(map [|b| (if (pair? (car b))
+                                     [(car b)]
+                                     [b])]
+                            bindings)
+                   ,(create-nested-lets (flatmap [|b| (if (pair? (car b))
+                                                          [(cdr b)]
+                                                          ['()])]
+                                                 bindings))}])}}}]}
+;;; \end{code}
+;;;
+;;; \cite[p. 232]{onlisp}
+;;;
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1
+          {destructuring-bind (a (b . c) #!rest d)
+                              '(1 (2 3) 4 5)
+                              (list a b c d)}}
+         '{let ((gensymed-var1 '(1 (2 3) 4 5)))
+            {let ((a (list-ref gensymed-var1 0))
+                  (gensymed-var2 (list-ref gensymed-var1 1))
+                  (d (drop 2 gensymed-var1)))
+              {let ((b (list-ref gensymed-var2 0))
+                    (c (drop 1 gensymed-var2)))
+                {begin (list a b c d)}}}})
+ (equal? {destructuring-bind (a (b . c) #!rest d)
+                             '(1 (2 3) 4 5)
+                             (list a b c d)}
+         '(1 2 (3) (4 5)))
+ (equal? {destructuring-bind (trueList falseList)
+                             (partition '(3 2 5 4 1)
+                                        [|x| (<= x 3)])
+                             trueList}
+         '(1 2 3))
+ (equal? {destructuring-bind (trueList falseList)
+                             (partition '(3 2 5 4 1)
+                                        [|x| (<= x 3)])
+                             falseList}
+         '(4 5))
+ }
+;;; \end{code}
+;;;
+
 ;;; \chapter{Streams}
 ;;;
 ;;; Streams are sequential collections like lists, but the
@@ -2391,7 +2836,7 @@
 ;;;
 ;;; \section{Stream structure}
 ;;;
-;;; ``bug\#define-structure''\footnote{defined in section~\ref{sec:definestructure}}
+;;; ``libbug-private\#define-structure''\footnote{defined in section~\ref{sec:definestructure}}
 ;;;  takes the name of the datatype and a variable
 ;;; number of fields as parameters.
 ;;;
@@ -2401,7 +2846,7 @@
   d}
 ;;; \end{code}
 ;;;
-;;; ``bug\#define-structure'' will create a constructor procedure named ``make-stream'',
+;;; ``libbug-private\#define-structure'' will create a constructor procedure named ``make-stream'',
 ;;;  accessor procedures ``stream-a'', ``stream-d'', and updating procedures ``stream-a-set!'' and
 ;;; ``stream-d-set!''.
 ;;;  For streams, none of these generated procedures are intended to be
@@ -2515,14 +2960,17 @@
 {unit-test
  {let ((foo (list->stream '(1 2 3))))
    {and (equal? 1 (stream-car foo))
-        (equal? 2 (stream-car
-                   (stream-cdr foo)))
-        (equal? 3 (stream-car
-                   (stream-cdr
-                    (stream-cdr foo))))
-        (stream-null? (stream-cdr
-                       (stream-cdr
-                        (stream-cdr foo))))}}}
+        (equal? 2 ((compose stream-car
+                            stream-cdr)
+                   foo))
+        (equal? 3 ((compose stream-car
+                            stream-cdr
+                            stream-cdr)
+                   foo))
+        (stream-null? ((compose stream-cdr
+                                stream-cdr
+                                stream-cdr)
+                       foo))}}}
 ;;; \end{code}
 ;;;
 ;;; \newpage
@@ -2941,438 +3389,4 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;;
-;;; \newpage
-;;;
-;;;
-;;; \chapter{Generalized Assignment}
-;;;  \label{sec:endinglibbug}
-;;; \section{setf!}
-;;; ``Rather than thinking about two distinct functions that respectively
-;;;  access and update a storage location somehow deduced from their arguments,
-;;;  we can instead simply think of a call to the access function with given
-;;;  arguments as a \emph{name} for the storage location.'' \cite[p. 123-124]{cl}
-;;;
-;;;  Create a macro named ``setf!'' which invokes the appropriate
-;;;  ``setting'' procedure, based on the given ``accessing'' procedure\footnote{The
-;;;  implementation is inspired by \cite{setf}.}.
-;;;
-;;; \index{setf"!}
-;;; \begin{code}
-{define-macro setf!
-  [|exp val|
-   (if (not (pair? exp))
-       [`{set! ,exp ,val}]
-       [{case (car exp)
-          ((car)  `{set-car! ,@(cdr exp) ,val})
-          ((cdr)  `{set-cdr! ,@(cdr exp) ,val})
-          ((caar) `{setf! (car (car ,@(cdr exp))) ,val})
-          ((cadr) `{setf! (car (cdr ,@(cdr exp))) ,val})
-          ((cdar) `{setf! (cdr (car ,@(cdr exp))) ,val})
-          ((cddr) `{setf! (cdr (cdr ,@(cdr exp))) ,val})
-;;; \end{code}
-;;; \begin{code}
-          ((caaar) `{setf! (car (caar ,@(cdr exp))) ,val})
-          ((caadr) `{setf! (car (cadr ,@(cdr exp))) ,val})
-          ((cadar) `{setf! (car (cdar ,@(cdr exp))) ,val})
-          ((caddr) `{setf! (car (cddr ,@(cdr exp))) ,val})
-          ((cdaar) `{setf! (cdr (caar ,@(cdr exp))) ,val})
-          ((cdadr) `{setf! (cdr (cadr ,@(cdr exp))) ,val})
-          ((cddar) `{setf! (cdr (cdar ,@(cdr exp))) ,val})
-          ((cdddr) `{setf! (cdr (cddr ,@(cdr exp))) ,val})
-          ((caaaar) `{setf! (car (caaar ,@(cdr exp))) ,val})
-          ((caaadr) `{setf! (car (caadr ,@(cdr exp))) ,val})
-          ((caadar) `{setf! (car (cadar ,@(cdr exp))) ,val})
-          ((caaddr) `{setf! (car (caddr ,@(cdr exp))) ,val})
-          ((cadaar) `{setf! (car (cdaar ,@(cdr exp))) ,val})
-          ((cadadr) `{setf! (car (cdadr ,@(cdr exp))) ,val})
-          ((caddar) `{setf! (car (cddar ,@(cdr exp))) ,val})
-          ((cadddr) `{setf! (car (cdddr ,@(cdr exp))) ,val})
-          ((cdaaar) `{setf! (cdr (caaar ,@(cdr exp))) ,val})
-          ((cdaadr) `{setf! (cdr (caadr ,@(cdr exp))) ,val})
-          ((cdadar) `{setf! (cdr (cadar ,@(cdr exp))) ,val})
-          ((cdaddr) `{setf! (cdr (caddr ,@(cdr exp))) ,val})
-          ((cddaar) `{setf! (cdr (cdaar ,@(cdr exp))) ,val})
-          ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
-          ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
-          ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
-          (else `(,((symbol-lift-list
-                     [|l -set! -ref|
-                      (append!
-                       (if (equal? (reverse -ref)
-                                   (take 4 (reverse l)))
-                           [(reverse (drop 4
-                                           (reverse l)))]
-                           [l])
-                       -set!)])
-                    (car exp)
-                    '-set!
-                    '-ref)
-                  ,@(cdr exp)
-                  ,val))}])]}
-;;; \end{code}
-;;;
-;;; \subsubsection*{Updating a Variable Directly}
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1
-          {setf! foo 10}}
-         '{set! foo 10})
- {let ((a 5))
-   {setf! a 10}
-   (equal? a 10)}
- }
-;;; \end{code}
-;;;
-;;; \subsubsection*{Updating Car, Cdr, ... Through Cddddr}
-;;; \noindent Test updating ``car''.
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1
-          {setf! (car foo) 10}}
-         '{set-car! foo 10})
- {let ((foo '(1 2)))
-   {setf! (car foo) 10}
-   (equal? (car foo) 10)}
- }
-;;; \end{code}
-;;;
-;;; \noindent Test updating ``cdr''.
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1
-          {setf! (cdr foo) 10}}
-         '{set-cdr! foo 10})
- {let ((foo '(1 2)))
-   {setf! (cdr foo) 10}
-   (equal? (cdr foo) 10)}
- }
-;;; \end{code}
-;;;
-;;; \noindent Testing all of the ``car'' through ``cddddr'' procedures would
-;;; be quite
-;;; repetitive.  Instead, create a list which has an element at each of those
-;;; accessor procedures, and test each.
-;;;
-;;; \begin{code}
-{unit-test
- (eval
-  `{and
-    ,@(map [|x| `{let ((foo '((((the-caaaar)
-                                the-cadaar)
-                               (the-caadar)
-                               ())
-                              ((the-caaadr) the-cadadr)
-                              (the-caaddr)
-                              ()
-                              )))
-                   {setf! (,x foo) 10}
-                   (equal? (,x foo) 10)}]
-           '(car
-             cdr
-             caar cadr
-             cdar cddr
-             caaar caadr cadar caddr
-             cdaar cdadr cddar cdddr
-             caaaar caaadr caadar caaddr
-             cadaar cadadr caddar cadddr
-             cdaaar cdaadr cdadar cdaddr
-             cddaar cddadr cdddar cddddr
-             ))})
- }
-;;; \end{code}
-;;;
-;;; \subsubsection*{Suffixed By -set!}
-;;; \noindent Test updating procedures where the updating procedure is
-;;; the name of the getting procedure, suffixed by '-set!'\footnote{As a reminder, ``stream-a'',
-;;; ``make-stream'', and ``stream-a-set!'' are not meant to be used
-;;;    directly.  But for the purposes of testing ``setf!'', it sufficies to use them directly.}.
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1
-          {setf! (stream-a s) 10}}
-         '{stream-a-set! s 10})
- {begin
-   {let ((a (make-stream 1 2)))
-     {setf! (stream-a a) 10}
-     (equal? (make-stream 10 2)
-             a)}}
- }
-;;; \end{code}
-;;;
-;;;
-;;;
-;;; \subsubsection*{-ref Replaced By -set!}
-;;; \noindent Test updating procedures where the updating procedure is
-;;; the name of the getting procedure, with the ``-ref'' suffix removed, replaced
-;;; with ``-set''.
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1
-          {setf! (string-ref s 0) #\q}}
-         '{string-set! s 0 #\q})
- {let ((s "foobar"))
-   {setf! (string-ref s 0) #\q}
-   (equal? s "qoobar")}
- (equal? {macroexpand-1
-          {setf! (vector-ref v 2) 4}}
-         '{vector-set! v 2 4})
- {let ((v (vector 1 2 '() "")))
-   {setf! (vector-ref v 2) 4}
-   (equal? v
-           (vector 1 2 4 ""))}
- }
-;;; \end{code}
-;;;
-;;; \newpage
-;;; \section{mutate!}
-;;;  Like ``setf!'', ``mutate!'' takes a generalized variable
-;;;  as input, but it additionally takes a procedure to be applied
-;;;  to the value of the generalized variable; the result of the application
-;;;  will be stored back into the generalized variable\footnote{``mutate!'' is
-;;; used in similar contexts as Common Lisp's
-;;;   ``define-modify-macro'' would be, but it is more general, as
-;;;   it allows the new procedure to remain anonymous, as compared
-;;;   to making a new name like ``toggle'' \cite[p. 169]{onlisp}.}.
-;;;
-;;; \index{mutate"!}
-;;; \begin{code}
-{define-macro mutate!
-  [|exp f|
-   (if (symbol? exp)
-       [`{begin
-           {setf! ,exp (,f ,exp)}
-           ,exp}]
-       [{let* ((atom-or-binding (map [|x| (if (atom? x)
-					      [x]
-					      [(list (gensym) x)])]
-				     (cdr exp)))
-               (args-to-setf (map [|x| (if (atom? x)
-					   [x]
-					   [(car x)])]
-				  atom-or-binding)))
-          `{let ,(filter (complement atom?) atom-or-binding)
-             {setf! (,(car exp) ,@args-to-setf)
-                    (,f (,(car exp) ,@args-to-setf))}
-             (,(car exp) ,@args-to-setf)}}])]}
-;;; \end{code}
-;;;
-;;;
-;;;
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1 {mutate! foo not}}
-         '{begin
-            {setf! foo (not foo)}
-            foo})
- {let ((foo #t))
-   {and
-    {begin
-      {mutate! foo not}
-      (equal? foo #f)}
-    {begin
-      {mutate! foo not}
-      (equal? foo #t)}}}
- }
-;;; \end{code}
-;;;
-;;;
-;;;
-;;;
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1 {mutate! foo [|n| (+ n 1)]}}
-         '{begin
-            {setf! foo ([|n| (+ n 1)] foo)}
-            foo})
- {let ((foo 1))
-   {mutate! foo [|n| (+ n 1)]}
-   (equal? foo
-           2)}
- (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
-         '{let ()
-            {setf! (vector-ref foo 0)
-                   ([|n| (+ n 1)] (vector-ref foo 0))}
-            (vector-ref foo 0)})
- {let ((foo (vector 0 0 0)))
-   {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
-   (equal? foo
-           (vector 1 0 0))}
- {let ((foo (vector 0 0 0)))
-   {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
-   (equal? foo
-           (vector 0 0 1))}
- }
-;;; \end{code}
-;;;
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1
-          {mutate! (vector-ref foo {begin
-                                     {setf! index (+ 1 index)}
-                                     index})
-                   [|n| (+ n 1)]}}
-         '{let ((gensymed-var1 {begin
-                                 {setf! index (+ 1 index)}
-                                 index}))
-            {setf! (vector-ref foo gensymed-var1)
-                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1))}
-            (vector-ref foo gensymed-var1)})
- {let ((foo (vector 0 0 0))
-       (index 1))
-   {mutate! (vector-ref foo {begin
-                              {setf! index (+ 1 index)}
-                              index})
-            [|n| (+ n 1)]}
-   {and (equal? foo
-                (vector 0 0 1))
-        (equal? index
-                2)}}
- }
-;;; \end{code}
-;;;
-;;;
-;;; \newpage
-;;; \section{destructuring-bind}
-;;;
-;;;  \label{sec:dbind}
-;;; \index{destructuring-bind}
-;;;
-;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple variables
-;;;  may be bound to values based on their positions within a (possibly nested) list.
-;;;  Look at the tests
-;;;  at the end of the section for an example.
-;;;
-;;; ``destructuring-bind'' is a complicated macro which can be decomposed into a regular
-;;;  procedure named ``tree-of-accessors'', and the macro ``destructuring-bind''\footnote{
-;;;   This poses a small problem.  ``tree-of-accessors'' is not macroexpanded as it a not a
-;;;  macro, therefore it does not have access to the compile-time ``gensym'' procedure
-;;;  which allows macro-expansions to be tested.  To allow ``tree-of-accessors'' to
-;;;  be tested independently, as well as part of ``destructuring-bind'', ``tree-of-accessors''
-;;;  takes a procedure named ``gensym'' as an argument, defaulting to whatever value
-;;;  ``gensym'' is by default in the environment.
-;;;
-;;;  }.
-;;;
-;;; \begin{code}
-{define tree-of-accessors
-  [|pat lst #!key (gensym gensym) (n 0)|
-   {cond ((null? pat)                '())
-         ((symbol? pat)              `((,pat (drop ,n ,lst))))
-         ((equal? (car pat) '#!rest) `((,(cadr pat) (drop ,n
-                                                          ,lst))))
-         (else
-          (cons {let ((p (car pat)))
-                  (if (symbol? p)
-                      [`(,p (list-ref ,lst ,n))]
-                      [{let ((var (gensym)))
-                         (cons `(,var (list-ref ,lst ,n))
-                               (tree-of-accessors p
-                                                  var
-                                                  gensym: gensym
-                                                  n: 0))}])}
-                (tree-of-accessors (cdr pat)
-                                   lst
-                                   gensym: gensym
-                                   n: (+ 1 n))))}]}
-;;; \end{code}
-;;;
-;;; \begin{code}
-{unit-test
- (equal? (tree-of-accessors '() 'gensym-for-list)
-         '())
- (equal? (tree-of-accessors 'a 'gensym-for-list)
-         '((a (drop 0 gensym-for-list))))
- (equal? (tree-of-accessors '(#!rest d) 'gensym-for-list)
-         '((d (drop 0 gensym-for-list))))
- (equal? (tree-of-accessors '(a) 'gensym-for-list)
-         '((a (list-ref gensym-for-list 0))))
- (equal? (tree-of-accessors '(a . b) 'gensym-for-list)
-         '((a (list-ref gensym-for-list 0))
-           (b (drop 1 gensym-for-list))))
- }
-;;; \end{code}
-;;;
-;;; \begin{code}
-{unit-test
- (equal? (tree-of-accessors '(a (b c))
-                            'gensym-for-list
-                            gensym: ['gensymed-var1])
-         '((a (list-ref gensym-for-list 0))
-           ((gensymed-var1 (list-ref gensym-for-list 1))
-            (b (list-ref gensymed-var1 0))
-            (c (list-ref gensymed-var1 1)))))
- }
-;;; \end{code}
-;;;
-;;;
-;;; Although ``tree-of-accessors'' appears to be victim of the multiple-evaluation
-;;; problem that macros may have, ``tree-of-accessors'' is completely safe to use
-;;; as long as the caller does not directly pass a list to ``tree-of-accessors''.
-;;; The only caller of ``tree-of-accessors'' is ``destructuring-bind'', which passes
-;;; a symbol to ``tree-of-accessors''.  Therefore ``destructuring-bind'' does not
-;;; fall victim to unintended multiple evaluations.
-;;;
-;;; \begin{code}
-{define-macro destructuring-bind
-  [|pat lst #!rest body|
-   {let ((glst (gensym)))
-     `{let ((,glst ,lst))
-        ,{let create-nested-lets ((bindings
-                                   (tree-of-accessors pat
-                                                      glst
-                                                      gensym: gensym)))
-           (if (null? bindings)
-               [`{begin ,@body}]
-               [`{let ,(map [|b| (if (pair? (car b))
-                                     [(car b)]
-                                     [b])]
-                            bindings)
-                   ,(create-nested-lets (flatmap [|b| (if (pair? (car b))
-                                                          [(cdr b)]
-                                                          ['()])]
-                                                 bindings))}])}}}]}
-;;; \end{code}
-;;;
-;;; \cite[p. 232]{onlisp}
-;;;
-;;;
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1
-          {destructuring-bind (a (b . c) #!rest d)
-                              '(1 (2 3) 4 5)
-                              (list a b c d)}}
-         '{let ((gensymed-var1 '(1 (2 3) 4 5)))
-            {let ((a (list-ref gensymed-var1 0))
-                  (gensymed-var2 (list-ref gensymed-var1 1))
-                  (d (drop 2 gensymed-var1)))
-              {let ((b (list-ref gensymed-var2 0))
-                    (c (drop 1 gensymed-var2)))
-                {begin (list a b c d)}}}})
- (equal? {destructuring-bind (a (b . c) #!rest d)
-                             '(1 (2 3) 4 5)
-                             (list a b c d)}
-         '(1 2 (3) (4 5)))
- (equal? {destructuring-bind (trueList falseList)
-                             (partition '(3 2 5 4 1)
-                                        [|x| (<= x 3)])
-                             trueList}
-         '(1 2 3))
- (equal? {destructuring-bind (trueList falseList)
-                             (partition '(3 2 5 4 1)
-                                        [|x| (<= x 3)])
-                             falseList}
-         '(4 5))
- }
-;;; \end{code}
 ;;;
