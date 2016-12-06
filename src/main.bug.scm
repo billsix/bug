@@ -2030,6 +2030,354 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
+;;; \chapter{Macros}
+;;;  \label{sec:macros}
+;;;
+;;;  Although many concepts first implemented in Lisp (conditional expressions,
+;;;  garbage collection, procedures as first-class objects)
+;;;  have been appropriated into mainstream languages, the one feature of Lisp which
+;;;  remains difficult for other languages to copy is also Lisp's best:  macros.
+;;;  A Lisp macro is a procedure which takes unevaluated Lisp code as a parameter and
+;;;  transforms it into a new form of unevaluated code before further evaluation.
+;;;  Essentially, they are a facility
+;;;  by which a programmer may augment the compiler with new functionality \emph{while
+;;;  the compiler is compiling.}
+;;;
+;;;  Mastery of macros is required to understand all subsequent chapters of this book.
+;;;  Should the reader have difficulty with the remainder of the book, the author
+;;;  recommends reading
+;;;  ``On Lisp'' by Paul Graham \cite{onlisp}.
+;;;
+;;;
+;;; \newpage
+;;; \section{compose}
+;;;
+;;; \index{compose}
+;;; \begin{code}
+{define-macro compose
+  [|#!rest fs|
+   (if (null? fs)
+       ['identity]
+       [{let* ((last-fn-is-lambda-literal
+                {and (list? (last fs))
+                     (equal? 'lambda
+                             (car (last fs)))})
+               (args (if last-fn-is-lambda-literal
+                         [(cadr (last fs))]
+                         [(gensym)])))
+          `(lambda ,(if last-fn-is-lambda-literal
+                        [args]
+                        [`(#!rest ,args)])
+             ,{let compose ((fs fs))
+                (if (null? (cdr fs))
+                    [(if last-fn-is-lambda-literal
+                         [`{begin ,@(cddar fs)}]
+                         [`(apply ,(car fs)
+                                  ,args)])]
+                    [`(,(car fs)
+                       ,(compose (cdr fs)))])})}])]}
+;;; \end{code}
+;;;
+;;; \noindent \cite[p. 66]{onlisp}
+;;;
+;;;
+;;; \begin{itemize}
+;;;   \item On line 1, the ``libbug-private\#define-macro'' macro\footnote{defined in
+;;;     section ~\ref{sec:libbugdefinemacro}}
+;;;     is invoked.  Besides defining the macro, ``libbug-private\#define-macro''
+;;;     also exports the
+;;;     namespace definition and the macro definitions to external files,
+;;;     for consumption by programs which link against libbug.
+;;;
+;;; \end{itemize}
+;;;
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1 (compose)}
+         'identity)
+ (equal? ((eval {macroexpand-1 (compose)}) 5)
+         5)
+ (equal? ((compose) 5)
+         5)
+ }
+;;; \end{code}
+;;;
+;;;
+;;; Macro-expansions occur during compile-time, so how should a programmer
+;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
+;;; as a procedure which transforms lists into lists, and as such is able
+;;; to be tested\footnote{
+;;; ``macroexpand-1'' expands the unevaluated code passed to the
+;;; macro into a new unevaluated form, which would have been compiled by the compiler
+;;; if ``macroexpand-1'' had been absent.  But, how should ``gensyms''
+;;; evaluate, since by definition it creates symbols which cannot be typed
+;;; by the programmer
+;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
+;;; is overridden by a procedure
+;;; which expands into typable symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
+;;; call during a macro-expansion generates a new, unique symbol.  Although the generated symbol
+;;; may clash with symbols in the expanded code, this does not break ``gensym'' for
+;;; run-time evaluation, since run-time ``gensym'' remains the same.
+;;; Although testing code within libbug ``eval''s code generated from ``macroexpand-1'',
+;;; the author advises against doing such in compiled code.
+;;; }.
+;;;
+;;;
+;;;
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1 (compose [|x| (* x 2)])}
+         '[|x| {begin (* x 2)}])
+ (equal? ((eval {macroexpand-1 (compose [|x| (* x 2)])})
+          5)
+         10)
+ (equal? ((compose [|x| (* x 2)])
+          5)
+         10)
+ }
+{unit-test
+ (equal? {macroexpand-1 (compose [|x| (+ x 1)]
+                                 [|y| (* y 2)])}
+         '[|y|
+           ([|x| (+ x 1)]
+            {begin (* y 2)})])
+ (equal? ((compose [|x| (+ x 1)]
+                   [|y| (* y 2)])
+          5)
+         11)
+ }
+{unit-test
+ (equal? {macroexpand-1 (compose [|x| (/ x 13)]
+                                 [|y| (+ y 1)]
+                                 [|z| (* z 2)])}
+         '[|z|
+           ([|x| (/ x 13)]
+            ([|y| (+ y 1)]
+             {begin (* z 2)}))])
+ (equal? ((compose [|x| (/ x 13)]
+                   [|y| (+ y 1)]
+                   [|z| (* z 2)])
+          5)
+         11/13)
+ }
+{unit-test
+ (equal? {macroexpand-1 (compose not +)}
+         '[|#!rest gensymed-var1|
+           (not (apply + gensymed-var1))])
+ (equal? ((compose not +) 1 2)
+         #f)
+ }
+;;;
+;;; \end{code}
+;;;
+;;; \newpage
+;;; \section{aif}
+;;;
+;;; \index{aif}
+;;; \begin{code}
+{define-macro aif
+  [|bool body|
+   `{let ((bug#it ,bool))
+      (if bug#it
+          [,body]
+          [#f])}]}
+;;; \end{code}
+;;;
+;;; Although variable capture \cite[p. 118-132]{onlisp} is generally avoided,
+;;; there are instances in which variable capture is desirable \cite[p. 189-198]{onlisp}.
+;;; Within libbug, varibles intended for capture are fully qualified with a namespace
+;;; to ensure that the variable is captured.
+;;;
+;;; \noindent \cite[p. 191]{onlisp}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {aif (+ 5 10) (* 2 bug#it)}
+         30)
+ (equal? {aif #f (* 2 bug#it)}
+         #f)
+ (equal? {macroexpand-1 {aif (+ 5 10)
+                             (* 2 bug#it)}}
+         '{let ((bug#it (+ 5 10)))
+            (if bug#it
+                [(* 2 bug#it)]
+                [#f])})
+ }
+;;; \end{code}
+;;;
+;;;
+;;; \newpage
+;;; \section{with-gensyms}
+;;;   ``with-gensyms'' is a macro to be invoked from other macros.  It is a utility
+;;;    to minimize repetitive calls to ``gensym''.
+;;;
+;;; \index{with-gensyms}
+;;; \begin{code}
+{define-macro with-gensyms
+  [|symbols #!rest body|
+   `{let ,(map [|symbol| `(,symbol (gensym))]
+               symbols)
+      ,@body}]}
+;;; \end{code}
+;;;
+;;; \noindent \cite[p. 145]{onlisp}
+;;;
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1 {with-gensyms (foo bar baz)
+                                      `{begin
+                                         (pp ,foo)
+                                         (pp ,bar)
+                                         (pp ,baz)}}}
+         '{let ((foo (gensym))
+                (bar (gensym))
+                (baz (gensym)))
+            `{begin
+               (pp ,foo)
+               (pp ,bar)
+               (pp ,baz)}})
+ }
+;;; \end{code}
+;;;
+;;; \newpage
+;;; \section{once-only}
+;;; \index{once-only}
+;;;
+;;; Sometimes macros need to put two or more copies of an argument
+;;; into the generated code.
+;;; But that can possibly cause that form to be evaluated multiple times,
+;;; which is seldom expected by the caller.
+;;;
+;;;
+;;; \begin{examplecode}
+;;;> {define-macro double [|x| `(+ ,x ,x)]}
+;;;> {double 5}
+;;;10
+;;; \end{examplecode}
+;;;
+;;; The caller of ``double'' should reasonably expect the argument to ``double''
+;;; only to be evaluated once only, because that's how Scheme usually works.
+;;;
+;;; \begin{examplecode}
+;;;> {define foo 5}
+;;;> {double {begin {set! foo (+ foo 1)}
+;;;                 foo}}
+;;;13
+;;; \end{examplecode}
+;;;
+;;; ``once-only'' allows a macro-writer to ensure that a variable is evaluated
+;;; only once in the generated code.
+;;;
+;;; \begin{examplecode}
+;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
+;;;> {define foo 5}
+;;;> {double {begin {set! foo (+ foo 1)}
+;;;                 foo}}
+;;;12
+;;; \end{examplecode}
+;;;
+;;;
+;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  Code
+;;; which generates code which generates code.  Unlike
+;;; ``with-gensyms'' which wraps its argument with a new context to be used for
+;;; later macro-expansions, ``once-only'' needs to defer binding the variable to a
+;;; ``gensym''-ed variable until the second macro-expansion.  As such, it is the
+;;; most difficult macro is this book.
+;;;
+;;; \begin{code}
+{define-macro once-only
+  [|symbols #!rest body|
+   {let ((gensyms (map [|s| (gensym)]
+                       symbols)))
+     `(list 'let
+            (append ,@(map [|g s| `(if (atom? ,s)
+                                       ['()]
+                                       [(list (list (quote ,g)
+                                                    ,s))])]
+                           gensyms
+                           symbols))
+            ,(append (list 'let
+                           (map [|s g| (list s
+                                             `(if (atom? ,s)
+                                                  [,s]
+                                                  [(quote ,g)]))]
+                                symbols
+                                gensyms))
+                     body))}]}
+;;; \end{code}
+;;;
+;;; \cite[p. 854]{paip}
+;;;
+;;; ``atom''s are handled as a special case to minimize the creation
+;;; of ``gensym''ed variables since evaluation of ``atom''s
+;;; causes no side effects, thus causes no problems from multiple evaluation.
+;;;
+;;; \subsubsection*{First Macro-expansion}
+;;; \begin{code}
+{unit-test
+ (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y ,x)}}
+         `(list 'let
+                (append (if (atom? x)
+                            ['()]
+                            [(list (list 'gensymed-var1 x))])
+                        (if (atom? y)
+                            ['()]
+                            [(list (list 'gensymed-var2 y))]))
+                {let ((x (if (atom? x)
+                             [x]
+                             ['gensymed-var1]))
+                      (y (if (atom? y)
+                             [y]
+                             ['gensymed-var2))))
+                  `(+ ,x ,y ,x)}))
+ }
+;;; \end{code}
+;;;
+;;;
+;;; \subsubsection*{The Second Macro-expansion}
+;;; \begin{code}
+{unit-test
+ (equal? (eval `{let ((x 5)
+                      (y 6))
+                  ,{macroexpand-1
+                    {once-only (x y)
+                               `(+ ,x ,y ,x)}}})
+         `{let () (+ 5 6 5)})
+ (equal? (eval `{let ((x '(car foo))
+                      (y 6))
+                  ,{macroexpand-1
+                    {once-only (x y)
+                               `(+ ,x ,y ,x)}}})
+         '{let ((gensymed-var1 (car foo)))
+            (+ gensymed-var1 6 gensymed-var1)})
+ (equal? (eval `{let ((x '(car foo))
+                      (y '(baz)))
+                  ,{macroexpand-1
+                    {once-only (x y)
+                               `(+ ,x ,y ,x)}}})
+         '{let ((gensymed-var1 (car foo))
+                (gensymed-var2 (baz)))
+            (+ gensymed-var1 gensymed-var2 gensymed-var1)})
+ }
+;;; \end{code}
+;;;
+;;;
+;;; \subsubsection*{The Evaluation of the twice-expanded Code}
+;;; \begin{code}
+{unit-test
+ (equal? (eval (eval `{let ((x 5)
+                            (y 6))
+                        ,{macroexpand-1
+                          {once-only (x y)
+                                     `(+ ,x ,y ,x)}}}))
+         16)
+ }
+;;; \end{code}
+;;;
+;;; \newpage
 ;;; \chapter{Streams}
 ;;;
 ;;; Streams are sequential collections like lists, but the
@@ -2597,354 +2945,6 @@
 ;;; \newpage
 ;;;
 ;;;
-;;; \chapter{Macros}
-;;;  \label{sec:macros}
-;;;
-;;;  Although many concepts first implemented in Lisp (conditional expressions,
-;;;  garbage collection, procedures as first-class objects)
-;;;  have been appropriated into mainstream languages, the one feature of Lisp which
-;;;  remains difficult for other languages to copy is also Lisp's best:  macros.
-;;;  A Lisp macro is a procedure which takes unevaluated Lisp code as a parameter and
-;;;  transforms it into a new form of unevaluated code before further evaluation.
-;;;  Essentially, they are a facility
-;;;  by which a programmer may augment the compiler with new functionality \emph{while
-;;;  the compiler is compiling.}
-;;;
-;;;  Mastery of macros is required to understand all subsequent chapters of this book.
-;;;  Should the reader have difficulty with the remainder of the book, the author
-;;;  recommends reading
-;;;  ``On Lisp'' by Paul Graham \cite{onlisp}.
-;;;
-;;;
-;;; \newpage
-;;; \section{compose}
-;;;
-;;; \index{compose}
-;;; \begin{code}
-{define-macro compose
-  [|#!rest fs|
-   (if (null? fs)
-       ['identity]
-       [{let* ((last-fn-is-lambda-literal
-                {and (list? (last fs))
-                     (equal? 'lambda
-                             (car (last fs)))})
-               (args (if last-fn-is-lambda-literal
-                         [(cadr (last fs))]
-                         [(gensym)])))
-          `(lambda ,(if last-fn-is-lambda-literal
-                        [args]
-                        [`(#!rest ,args)])
-             ,{let compose ((fs fs))
-                (if (null? (cdr fs))
-                    [(if last-fn-is-lambda-literal
-                         [`{begin ,@(cddar fs)}]
-                         [`(apply ,(car fs)
-                                  ,args)])]
-                    [`(,(car fs)
-                       ,(compose (cdr fs)))])})}])]}
-;;; \end{code}
-;;;
-;;; \noindent \cite[p. 66]{onlisp}
-;;;
-;;;
-;;; \begin{itemize}
-;;;   \item On line 1, the ``libbug-private\#define-macro'' macro\footnote{defined in
-;;;     section ~\ref{sec:libbugdefinemacro}}
-;;;     is invoked.  Besides defining the macro, ``libbug-private\#define-macro''
-;;;     also exports the
-;;;     namespace definition and the macro definitions to external files,
-;;;     for consumption by programs which link against libbug.
-;;;
-;;; \end{itemize}
-;;;
-;;;
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1 (compose)}
-         'identity)
- (equal? ((eval {macroexpand-1 (compose)}) 5)
-         5)
- (equal? ((compose) 5)
-         5)
- }
-;;; \end{code}
-;;;
-;;;
-;;; Macro-expansions occur during compile-time, so how should a programmer
-;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
-;;; as a procedure which transforms lists into lists, and as such is able
-;;; to be tested\footnote{
-;;; ``macroexpand-1'' expands the unevaluated code passed to the
-;;; macro into a new unevaluated form, which would have been compiled by the compiler
-;;; if ``macroexpand-1'' had been absent.  But, how should ``gensyms''
-;;; evaluate, since by definition it creates symbols which cannot be typed
-;;; by the programmer
-;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
-;;; is overridden by a procedure
-;;; which expands into typable symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
-;;; call during a macro-expansion generates a new, unique symbol.  Although the generated symbol
-;;; may clash with symbols in the expanded code, this does not break ``gensym'' for
-;;; run-time evaluation, since run-time ``gensym'' remains the same.
-;;; Although testing code within libbug ``eval''s code generated from ``macroexpand-1'',
-;;; the author advises against doing such in compiled code.
-;;; }.
-;;;
-;;;
-;;;
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1 (compose [|x| (* x 2)])}
-         '[|x| {begin (* x 2)}])
- (equal? ((eval {macroexpand-1 (compose [|x| (* x 2)])})
-          5)
-         10)
- (equal? ((compose [|x| (* x 2)])
-          5)
-         10)
- }
-{unit-test
- (equal? {macroexpand-1 (compose [|x| (+ x 1)]
-                                 [|y| (* y 2)])}
-         '[|y|
-           ([|x| (+ x 1)]
-            {begin (* y 2)})])
- (equal? ((compose [|x| (+ x 1)]
-                   [|y| (* y 2)])
-          5)
-         11)
- }
-{unit-test
- (equal? {macroexpand-1 (compose [|x| (/ x 13)]
-                                 [|y| (+ y 1)]
-                                 [|z| (* z 2)])}
-         '[|z|
-           ([|x| (/ x 13)]
-            ([|y| (+ y 1)]
-             {begin (* z 2)}))])
- (equal? ((compose [|x| (/ x 13)]
-                   [|y| (+ y 1)]
-                   [|z| (* z 2)])
-          5)
-         11/13)
- }
-{unit-test
- (equal? {macroexpand-1 (compose not +)}
-         '[|#!rest gensymed-var1|
-           (not (apply + gensymed-var1))])
- (equal? ((compose not +) 1 2)
-         #f)
- }
-;;;
-;;; \end{code}
-;;;
-;;; \newpage
-;;; \section{aif}
-;;;
-;;; \index{aif}
-;;; \begin{code}
-{define-macro aif
-  [|bool body|
-   `{let ((bug#it ,bool))
-      (if bug#it
-          [,body]
-          [#f])}]}
-;;; \end{code}
-;;;
-;;; Although variable capture \cite[p. 118-132]{onlisp} is generally avoided,
-;;; there are instances in which variable capture is desirable \cite[p. 189-198]{onlisp}.
-;;; Within libbug, varibles intended for capture are fully qualified with a namespace
-;;; to ensure that the variable is captured.
-;;;
-;;; \noindent \cite[p. 191]{onlisp}
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {aif (+ 5 10) (* 2 bug#it)}
-         30)
- (equal? {aif #f (* 2 bug#it)}
-         #f)
- (equal? {macroexpand-1 {aif (+ 5 10)
-                             (* 2 bug#it)}}
-         '{let ((bug#it (+ 5 10)))
-            (if bug#it
-                [(* 2 bug#it)]
-                [#f])})
- }
-;;; \end{code}
-;;;
-;;;
-;;; \newpage
-;;; \section{with-gensyms}
-;;;   ``with-gensyms'' is a macro to be invoked from other macros.  It is a utility
-;;;    to minimize repetitive calls to ``gensym''.
-;;;
-;;; \index{with-gensyms}
-;;; \begin{code}
-{define-macro with-gensyms
-  [|symbols #!rest body|
-   `{let ,(map [|symbol| `(,symbol (gensym))]
-               symbols)
-      ,@body}]}
-;;; \end{code}
-;;;
-;;; \noindent \cite[p. 145]{onlisp}
-;;;
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1 {with-gensyms (foo bar baz)
-                                      `{begin
-                                         (pp ,foo)
-                                         (pp ,bar)
-                                         (pp ,baz)}}}
-         '{let ((foo (gensym))
-                (bar (gensym))
-                (baz (gensym)))
-            `{begin
-               (pp ,foo)
-               (pp ,bar)
-               (pp ,baz)}})
- }
-;;; \end{code}
-;;;
-;;; \newpage
-;;; \section{once-only}
-;;; \index{once-only}
-;;;
-;;; Sometimes macros need to put two or more copies of an argument
-;;; into the generated code.
-;;; But that can possibly cause that form to be evaluated multiple times,
-;;; which is seldom expected by the caller.
-;;;
-;;;
-;;; \begin{examplecode}
-;;;> {define-macro double [|x| `(+ ,x ,x)]}
-;;;> {double 5}
-;;;10
-;;; \end{examplecode}
-;;;
-;;; The caller of ``double'' should reasonably expect the argument to ``double''
-;;; only to be evaluated once only, because that's how Scheme usually works.
-;;;
-;;; \begin{examplecode}
-;;;> {define foo 5}
-;;;> {double {begin {set! foo (+ foo 1)}
-;;;                 foo}}
-;;;13
-;;; \end{examplecode}
-;;;
-;;; ``once-only'' allows a macro-writer to ensure that a variable is evaluated
-;;; only once in the generated code.
-;;;
-;;; \begin{examplecode}
-;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
-;;;> {define foo 5}
-;;;> {double {begin {set! foo (+ foo 1)}
-;;;                 foo}}
-;;;12
-;;; \end{examplecode}
-;;;
-;;;
-;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  Code
-;;; which generates code which generates code.  Unlike
-;;; ``with-gensyms'' which wraps its argument with a new context to be used for
-;;; later macro-expansions, ``once-only'' needs to defer binding the variable to a
-;;; ``gensym''-ed variable until the second macro-expansion.  As such, it is the
-;;; most difficult macro is this book.
-;;;
-;;; \begin{code}
-{define-macro once-only
-  [|symbols #!rest body|
-   {let ((gensyms (map [|s| (gensym)]
-                       symbols)))
-     `(list 'let
-            (append ,@(map [|g s| `(if (atom? ,s)
-                                       ['()]
-                                       [(list (list (quote ,g)
-                                                    ,s))])]
-                           gensyms
-                           symbols))
-            ,(append (list 'let
-                           (map [|s g| (list s
-                                             `(if (atom? ,s)
-                                                  [,s]
-                                                  [(quote ,g)]))]
-                                symbols
-                                gensyms))
-                     body))}]}
-;;; \end{code}
-;;;
-;;; \cite[p. 854]{paip}
-;;;
-;;; ``atom''s are handled as a special case to minimize the creation
-;;; of ``gensym''ed variables since evaluation of ``atom''s
-;;; causes no side effects, thus causes no problems from multiple evaluation.
-;;;
-;;; \subsubsection*{First Macro-expansion}
-;;; \begin{code}
-{unit-test
- (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y ,x)}}
-         `(list 'let
-                (append (if (atom? x)
-                            ['()]
-                            [(list (list 'gensymed-var1 x))])
-                        (if (atom? y)
-                            ['()]
-                            [(list (list 'gensymed-var2 y))]))
-                {let ((x (if (atom? x)
-                             [x]
-                             ['gensymed-var1]))
-                      (y (if (atom? y)
-                             [y]
-                             ['gensymed-var2))))
-                  `(+ ,x ,y ,x)}))
- }
-;;; \end{code}
-;;;
-;;;
-;;; \subsubsection*{The Second Macro-expansion}
-;;; \begin{code}
-{unit-test
- (equal? (eval `{let ((x 5)
-                      (y 6))
-                  ,{macroexpand-1
-                    {once-only (x y)
-                               `(+ ,x ,y ,x)}}})
-         `{let () (+ 5 6 5)})
- (equal? (eval `{let ((x '(car foo))
-                      (y 6))
-                  ,{macroexpand-1
-                    {once-only (x y)
-                               `(+ ,x ,y ,x)}}})
-         '{let ((gensymed-var1 (car foo)))
-            (+ gensymed-var1 6 gensymed-var1)})
- (equal? (eval `{let ((x '(car foo))
-                      (y '(baz)))
-                  ,{macroexpand-1
-                    {once-only (x y)
-                               `(+ ,x ,y ,x)}}})
-         '{let ((gensymed-var1 (car foo))
-                (gensymed-var2 (baz)))
-            (+ gensymed-var1 gensymed-var2 gensymed-var1)})
- }
-;;; \end{code}
-;;;
-;;;
-;;; \subsubsection*{The Evaluation of the twice-expanded Code}
-;;; \begin{code}
-{unit-test
- (equal? (eval (eval `{let ((x 5)
-                            (y 6))
-                        ,{macroexpand-1
-                          {once-only (x y)
-                                     `(+ ,x ,y ,x)}}}))
-         16)
- }
-;;; \end{code}
-;;;
-;;; \newpage
 ;;; \chapter{Generalized Assignment}
 ;;;  \label{sec:endinglibbug}
 ;;; \section{setf!}
