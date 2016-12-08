@@ -331,7 +331,7 @@
 ;;;     used.
 ;;;  \item
 ;;;   On lines 7-10, check that the caller of ``bug\#if'' is passing
-;;;   lambdas, i.e. has not forgetten that ``if'' is namespaced to ``bug''.
+;;;   lambdas, i.e. has not forgotten that ``if'' is namespaced to ``bug''.
 ;;;  \item
 ;;;    On line 14, if the caller of ``bug\#if'' has not passed lambdas,
 ;;;    error at compile-time.

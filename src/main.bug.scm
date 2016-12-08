@@ -53,7 +53,7 @@
 ;;; \begin{document}
 ;;; \bibliographystyle{alpha}
 ;;; % Article top matter
-;;; \title{Computation At Compile-Time \\
+;;; \title{Computation at Compile-Time \\
 ;;;    \vspace{4 mm} \large{and the Implementation of Libbug}}
 ;;;
 ;;; \author{Bill Six}
@@ -2828,8 +2828,8 @@
 ;;; Streams are sequential collections like lists, but the
 ;;; ``cdr'' of each pair must be a zero-argument lambda expression.  This lambda
 ;;; expression will be automatically applied when ``(stream-cdr s)'' is evaluated.
-;;; This techique allows a programmer to create seemingly infinite data structures,
-;;; such as the definion of ``integers-from'' and ``primes''.
+;;; This technique allows a programmer to create seemingly infinite data structures,
+;;; such as the definition of ``integers-from'' and ``primes''.
 ;;; For more information, consult \cite{sicp}\footnote{although, they
 ;;; define ``stream-cons'' as syntax instead of passing a lambda
 ;;; to the second argument}.
