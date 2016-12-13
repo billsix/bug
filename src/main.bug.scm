@@ -246,7 +246,7 @@
 ;;; compile-time test framework written in only 9 lines of code!
 ;;; Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
-;;; ``literate programming''\footnote{http://lmgtfy.com/?q=literate+programming}
+;;; ``literate programming''
 ;;; style, so that a program can be read linearly in a book form.
 ;;;
 ;;; \section{Prerequisites}
