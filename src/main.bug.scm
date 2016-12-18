@@ -3376,3 +3376,21 @@
  }
 ;;; \end{code}
 ;;;
+;;; \newpage
+;;; \section{The End of Compilation}
+;;;
+;;;
+;;; At the beginning of the book, in chapter~\ref{sec:beginninglibbug}, ``bug-language.scm''
+;;; was imported, so that ``libbug-private\#define'', and ``libbug-private\#define-macro'' could be used.
+;;; This chapter is the end of the file ``main.bug.scm''.  However, as will be shown
+;;; in the next chapter, ``bug-languge.scm'' opened files for writing during compile-time,
+;;; and they must be closed, accomplished by executing ``at-end-of-compilation''.
+;;;
+;;; \label{sec:call-end-of-compilation}
+;;; \begin{code}
+{at-compile-time
+ (at-end-of-compilation)}
+;;; \end{code}
+;;;
+;;;
+;;;
