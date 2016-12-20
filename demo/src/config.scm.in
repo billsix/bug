@@ -38,5 +38,5 @@
 {##define-macro define-macro
   (lambda (#!rest args)
    `{at-both-times
-     {##define ,@args}})}
+     {##define-macro ,@args}})}
 

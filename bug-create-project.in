@@ -6,9 +6,9 @@ AUTHOR=${3:-"John Doe <john@doe.com>"}
 
 
 display_usage() {
-	echo "libbug-create-project requires 3 arguments."
-	echo "\nUsage:\nlibbug-create-project project-name initial-version-number author \n"
-	echo "Example:\nlibbug-create-project $PROJECTNAME $VERSION \"$AUTHOR\""
+	echo "bug-create-project requires 3 arguments."
+	echo "\nUsage:\nbug-create-project project-name initial-version-number author \n"
+	echo "Example:\nbug-create-project $PROJECTNAME $VERSION \"$AUTHOR\""
 	}
 
 # if less than three arguments supplied, display usage
@@ -19,7 +19,7 @@ then
 fi
 
 
-cp -r @prefix@/share/libbug/demo/ $PROJECTNAME
+cp -r @prefix@/share/@PACKAGE_NAME@/demo/ $PROJECTNAME
 
 cd $PROJECTNAME
 find . -type f -iname '*' | xargs sed -i -e "s/bug-demo/$PROJECTNAME/g"
@@ -27,4 +27,4 @@ find . -type f -iname '*' | xargs sed -i -e "s/0.0.1/$VERSION/g"
 find . -type f -iname '*' | xargs sed -i -e "s/William Emerison Six <billsix@gmail.com>/$AUTHOR/g"
 
 mv src/bug-demo.bug.scm src/$PROJECTNAME.bug.scm
-
+sed -i -e '/^;;/ d' src/$PROJECTNAME.bug.scm

@@ -17,7 +17,7 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
 		 src/config.scm
 		 pkgconfig/libbug.pc
-                 libbug-create-project
+                 bug-create-project
 ])
 
 

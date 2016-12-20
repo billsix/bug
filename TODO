@@ -1,7 +1,3 @@
 - Make the demo project make a loadable library, so that the user can interact
   with their code via bug-gsi
-- Remove copyright from the generated projects
-- Make man page for libbug-create-project
-
-- Ensure that the descriptions of the namespace stuff matches the changes I just made.
 - Perhaps save the tests so that the user can query for the tests for a procedure in gsi.

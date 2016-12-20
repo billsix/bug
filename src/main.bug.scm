@@ -404,7 +404,7 @@
 ;;; \section{Creating Your Own Project}
 ;;;
 ;;; \begin{examplecode}
-;;;$ libbug-create-project testProject 1.0 "Jane Doe <jane@doe.com"
+;;;$ bug-create-project testProject 1.0 "Jane Doe <jane@doe.com"
 ;;;$ cd testProject/
 ;;;$ ./autogen.sh
 ;;;$ ./configure --prefix=$BUILD_DIR
@@ -2037,18 +2037,22 @@
 ;;;  garbage collection, procedures as first-class objects)
 ;;;  have been appropriated into mainstream languages, the one feature of Lisp which
 ;;;  remains difficult for other languages to copy is also Lisp's best:  macros.
-;;;  A Lisp macro is a procedure which takes unevaluated Lisp code as a parameter and
+;;;  A Lisp macro is procedure for application at compile-time which takes unevaluated Lisp
+;;;  code as a parameter and
 ;;;  transforms it into a new form of unevaluated code before further evaluation.
 ;;;  Essentially, they are a facility
 ;;;  by which a programmer may augment the compiler with new functionality \emph{while
 ;;;  the compiler is compiling.}
 ;;;
-;;;  Manipulating unevaluated code introduces a few problems.  First, a ``new'' variable
-;;;  name, generated from the macro, inserted into the generated code may clash
+;;;  Transforming unevaluated code into new code introduces a few problems.
+;;;  First, if the macro needs to create a new variable within the expanded code,
+;;;  the new variable must have a name, which will be generated during macro-expansion.
+;;;  This new name inserted into the generated code may clash
 ;;;  with a variable name in the input form; resulting in expanded code which does
 ;;;  not function correctly.  Second, if
 ;;;  unevaluated code which causes side-effects is inserted more than once into
-;;;  the generated code, the expanded code will likely have unintended side-effects.
+;;;  the generated code, the expanded code will likely have unintended side-effects
+;;;  from the caller of the macro's point of view.
 ;;;
 ;;;  The first problem is solved using ``gensym''s.  The second problem is solved
 ;;;  using ``once-only''.
@@ -2115,12 +2119,12 @@
 ;;;
 ;;;
 ;;; Macro-expansions occur during compile-time, so how should a programmer
-;;; test them?  Libbug provides ``macroexpand-1'' which treats the macro
+;;; test the resulting form?  Libbug provides ``macroexpand-1'' which treats the macro
 ;;; as a procedure which transforms lists into lists, and as such is able
 ;;; to be tested\footnote{
 ;;; ``macroexpand-1'' expands the unevaluated code passed to the
 ;;; macro into a new unevaluated form, which would have been compiled by the compiler
-;;; if ``macroexpand-1'' had been absent.  But, how should ``gensyms''
+;;; if ``macroexpand-1'' had been absent.  But, how should ``gensym''
 ;;; evaluate, since by definition it creates symbols which cannot be typed
 ;;; by the programmer
 ;;; into a program?  During the expansion of ``macroexpand-1'', ``gensym''
@@ -2128,7 +2132,7 @@
 ;;; which expands into typable symbols like ``gensymed-var1'', ``gensymed-var2'', etc.  Each
 ;;; call during a macro-expansion generates a new, unique symbol.  Although the generated symbol
 ;;; may clash with symbols in the expanded code, this does not break ``gensym'' for
-;;; run-time evaluation, since run-time ``gensym'' remains the same.
+;;; run-time evaluation, since run-time ``gensym'' remains not overridden.
 ;;; Although testing code within libbug ``eval''s code generated from ``macroexpand-1'',
 ;;; the author advises against doing such in compiled code.
 ;;; }.
@@ -2257,7 +2261,8 @@
 ;;;
 ;;; Sometimes macros need to put two or more copies of an argument
 ;;; into the generated code.
-;;; But that can possibly cause that form to be evaluated multiple times,
+;;; But that can cause that form to be evaluated multiple times,
+;;; possibly with side-effects,
 ;;; which is seldom expected by the caller.
 ;;;
 ;;;
@@ -2291,7 +2296,7 @@
 ;;;
 ;;; Like ``with-gensyms'', ``once-only'' is a macro to be used by other macros.  Code
 ;;; which generates code which generates code.  Unlike
-;;; ``with-gensyms'' which wraps its argument with a new context to be used for
+;;; ``with-gensyms'', which wraps its argument with a new context to be used for
 ;;; later macro-expansions, ``once-only'' needs to defer binding the variable to a
 ;;; ``gensym''-ed variable until the second macro-expansion.  As such, it is the
 ;;; most difficult macro is this book.
@@ -2633,14 +2638,6 @@
 ;;;
 ;;; \begin{code}
 {unit-test
- (equal? {macroexpand-1 {mutate! foo [|n| (+ n 1)]}}
-         '{begin
-            {setf! foo ([|n| (+ n 1)] foo)}
-            foo})
- {let ((foo 1))
-   {mutate! foo [|n| (+ n 1)]}
-   (equal? foo
-           2)}
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
          '{let ()
             {setf! (vector-ref foo 0)
