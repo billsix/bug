@@ -526,16 +526,15 @@
         ,(string->symbol (string-append (symbol->string name)
                                         "-expand"))
         (lambda ,(cadr lambda-value)
-          {let ((gensym-count 0))
-            {let ((gensym
-                   [{begin
-                      {set! gensym-count
-                            (+ 1 gensym-count)}
-                      (string->symbol
-                       (string-append
-                        "gensymed-var"
-                        (number->string gensym-count)))}]))
-              (list 'quote ,@(cddr lambda-value))}})}}
+          {let ((gensym {let ((gensym-count 0))
+                          [{begin
+                             {set! gensym-count
+                                   (+ 1 gensym-count)}
+                             (string->symbol
+                              (string-append
+                               "gensymed-var"
+                               (number->string gensym-count)))}]}))
+            (list 'quote ,@(cddr lambda-value))})}}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -547,49 +546,47 @@
 ;;; be defined within libbug itself.  Firstly, create the expander.
 ;;;
 ;;; \begin{code}
-   {let ((gensym-count (gensym)))
-     `{begin
+   `{begin
 ;;; \end{code}
 ;;;
 ;;; \noindent Namespace the procedure and the expander.
 ;;;
 ;;; \begin{code}
-        {libbug-private#namespace ,name}
-        {libbug-private#namespace
-         ,(string->symbol
-           (string-append (symbol->string name)
-                          "-expand"))}
+      {libbug-private#namespace ,name}
+      {libbug-private#namespace
+       ,(string->symbol
+         (string-append (symbol->string name)
+                        "-expand"))}
 ;;; \end{code}
 ;;;
 ;;; \noindent Create the expander similarly to the previous section.
 ;;;
 ;;; \begin{code}
-        {at-both-times
-         {##define-macro
-           ,(string->symbol
-             (string-append (symbol->string name)
-                            "-expand"))
-           (lambda ,(cadr lambda-value)
-             {let ((,gensym-count 0))
-               {let ((gensym
-                      [{begin
-                         {set! ,gensym-count
-                               (+ 1 ,gensym-count)}
-                         (string->symbol
-                          (string-append
-                           "gensymed-var"
-                           (number->string ,gensym-count)))}]))
-                 (list 'quote ,@(cddr lambda-value))}})}}
+      {at-both-times
+       {##define-macro
+         ,(string->symbol
+           (string-append (symbol->string name)
+                          "-expand"))
+         (lambda ,(cadr lambda-value)
+           {let ((gensym {let ((gensym-count 0))
+                           [{begin
+                              {set! gensym-count
+                                    (+ 1 gensym-count)}
+                              (string->symbol
+                               (string-append
+                                "gensymed-var"
+                                (number->string gensym-count)))}]}))
+             (list 'quote ,@(cddr lambda-value))})}}
 ;;; \end{code}
 ;;;
 ;;; \noindent Now that the macroexpander procedure has been defined, define the macro.
 ;;;
 ;;;
 ;;; \begin{code}
-        {at-both-times
-         {##define-macro
-           ,name
-           ,lambda-value}}}}]}
+      {at-both-times
+       {##define-macro
+         ,name
+         ,lambda-value}}}]}
 ;;;
 ;;; \end{code}
 ;;;
