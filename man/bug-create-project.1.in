@@ -1,6 +1,6 @@
 .\" Manpage for bug-gsi.
 .\" Contact billsix@gmail.com to correct errors or typos.
-.TH man 1 "19 May 2015" "0.0.1" "bug-gsi man page"
+.TH man 1 "@BUG_BUILD_DATE@" "@PACKAGE_VERSION@" "bug-create-project man page"
 .SH NAME
 bug-create-project \- Bill's Utilities for Gambit - Create Project
 .SH SYNOPSIS

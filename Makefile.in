@@ -16,6 +16,7 @@ all:
 	cd src && $(MAKE) $@
 	bzip2 -f -k man/bug-gscpp.1
 	bzip2 -f -k man/bug-gsi.1
+	bzip2 -f -k man/bug-create-project.1
 
 install:
 	cd bug-gsc/ && $(MAKE) $@
@@ -24,6 +25,7 @@ install:
 	install -d $(DESTDIR)$(mandir)/man1
 	install -m 0744 man/bug-gscpp.1.bz2  $(DESTDIR)$(mandir)/man1/
 	install -m 0744 man/bug-gsi.1.bz2  $(DESTDIR)$(mandir)/man1/
+	install -m 0744 man/bug-create-project.1.bz2  $(DESTDIR)$(mandir)/man1/
 	install -d $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo
 	install -m 0644 demo/AUTHORS  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0644 demo/COPYING  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
@@ -47,6 +49,7 @@ uninstall:
 	-rm $(DESTDIR)$(bindir)/bug-create-project
 	-rm $(DESTDIR)$(mandir)/man1/bug-gscpp.1.bz2
 	-rm $(DESTDIR)$(mandir)/man1/bug-gsi.1.bz2
+	-rm $(DESTDIR)$(mandir)/man1/bug-create-project.1.bz2
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/AUTHORS
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/COPYING
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/ChangeLog
@@ -71,7 +74,7 @@ $(distdir).tar.gz : $(distdir)
 $(distdir): FORCE
 	mkdir $(distdir)
 	cd $(distdir) ; \
-	git clone ../../bug . ; \
+	git clone ../ . ; \
 	rm -rf .git* ; \
 	cp ../configure.ac . ; \
 	cp ../configure . ; \
@@ -119,8 +122,7 @@ FORCE:
 	-rm -rf $(distdir) >/dev/null 2>&1
 
 clean:
-	git clean -f -d
-	rm -rf autom4te.cache/
+	git clean -fdx
 
 
 .PHONY: FORCE all clean install uninstall

@@ -1,6 +1,6 @@
 .\" Manpage for bug-gscpp.
 .\" Contact billsix@gmail.com to correct errors or typos.
-.TH man 1 "19 May 2015" "0.0.1" "bug-gscpp man page"
+.TH man 1 "@BUG_BUILD_DATE@" "@PACKAGE_VERSION@" "bug-gscpp man page"
 .SH NAME
 bug-gscpp \- Bill's Utilities for Gambit - scheme preprocessor
 .SH SYNOPSIS

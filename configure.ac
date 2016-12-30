@@ -14,6 +14,9 @@ AC_CONFIG_FILES([Makefile
                  bug-gsc/Makefile
                  bug-gsc/bug-gsi-config.h
 		 demo/env.sh
+                 man/bug-create-project.1
+                 man/bug-gscpp.1
+                 man/bug-gsi.1
                  src/Makefile
 		 src/config.scm
 		 pkgconfig/libbug.pc
@@ -64,6 +67,8 @@ if test "$ENABLE_PDF" = yes; then
 fi
 AC_SUBST(ENABLE_PDF)
 
+BUG_BUILD_DATE=$(date +'%d %B %Y')
+AC_SUBST(BUG_BUILD_DATE)
 
 AC_SUBST(ac_unique_file)
 AC_CONFIG_SRCDIR(src/config.scm.in)
