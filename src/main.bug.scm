@@ -2445,18 +2445,19 @@
           ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
           ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
           ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
-          (else `(,((symbol-lift-list
-                     [|l -set! -ref|
-                      (append!
-                       (if (equal? (reverse -ref)
-                                   (take 4 (reverse l)))
-                           [(reverse (drop 4
-                                           (reverse l)))]
-                           [l])
-                       -set!)])
-                    (car exp)
-                    '-set!
-                    '-ref)
+          (else `(,{let ((append-set!
+                          (symbol-lift-list
+                           [|l -set! -ref|
+                            (append!
+                             (if (equal? (reverse -ref)
+                                         (take 4 (reverse l)))
+                                 [(reverse (drop 4
+                                                 (reverse l)))]
+                                 [l])
+                             -set!)])))
+                     (append-set! (car exp)
+                                  '-set!
+                                  '-ref)}
                   ,@(cdr exp)
                   ,val))}])]}
 ;;; \end{code}
