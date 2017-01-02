@@ -243,7 +243,7 @@
 ;;; control structures,
 ;;; general-purpose evaluation at compile-time,
 ;;; and a
-;;; compile-time test framework written in only 9 lines of code!
+;;; compile-time test framework written in only 7 lines of code!
 ;;; Programs written using libbug optionally may be
 ;;; programmed in a relatively unobstructive
 ;;; ``literate programming''
@@ -2078,7 +2078,7 @@
                (args (if last-fn-is-lambda-literal
                          [(cadr (last fs))]
                          [(gensym)])))
-          `(lambda ,(if last-fn-is-lambda-literal
+          `{lambda ,(if last-fn-is-lambda-literal
                         [args]
                         [`(#!rest ,args)])
              ,{let compose ((fs fs))
@@ -2088,7 +2088,7 @@
                          [`(apply ,(car fs)
                                   ,args)])]
                     [`(,(car fs)
-                       ,(compose (cdr fs)))])})}])]}
+                       ,(compose (cdr fs)))])}}}])]}
 ;;; \end{code}
 ;;;
 ;;; \noindent \cite[p. 66]{onlisp}

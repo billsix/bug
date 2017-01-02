@@ -351,7 +351,7 @@
     (eval
      `(if {and ,@tests}
           [''noop]
-          [(for-each pp (cons "Test Failed" ',tests))
+          [(for-each pp '("Test Failed" ,@tests))
            (error "Tests Failed")]))]}}
 ;;; \end{code}
 ;;;
@@ -424,7 +424,7 @@
 ;;; \begin{code}
       {##define-macro
         ,name
-        (lambda ,(cadr lambda-value)
+        {lambda ,(cadr lambda-value)
           ,(list 'quasiquote
                  `{##let ()
                     (##include "~~lib/gambit#.scm")
@@ -434,7 +434,7 @@
                                       (caaddr lambda-value))}
                          [(car (cdaddr lambda-value))]
                          [(append (list 'unquote)
-                                  (cddr lambda-value))])}))}
+                                  (cddr lambda-value))])})}}
 ;;; \end{code}
 ;;;
 ;;;
@@ -525,7 +525,7 @@
       {##define-macro
         ,(string->symbol (string-append (symbol->string name)
                                         "-expand"))
-        (lambda ,(cadr lambda-value)
+        {lambda ,(cadr lambda-value)
           {let ((gensym {let ((gensym-count 0))
                           [{begin
                              {set! gensym-count
@@ -534,7 +534,7 @@
                               (string-append
                                "gensymed-var"
                                (number->string gensym-count)))}]}))
-            (list 'quote ,@(cddr lambda-value))})}}
+            (list 'quote ,@(cddr lambda-value))}}}}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -567,7 +567,7 @@
          ,(string->symbol
            (string-append (symbol->string name)
                           "-expand"))
-         (lambda ,(cadr lambda-value)
+         {lambda ,(cadr lambda-value)
            {let ((gensym {let ((gensym-count 0))
                            [{begin
                               {set! gensym-count
@@ -576,7 +576,7 @@
                                (string-append
                                 "gensymed-var"
                                 (number->string gensym-count)))}]}))
-             (list 'quote ,@(cddr lambda-value))})}}
+             (list 'quote ,@(cddr lambda-value))}}}}
 ;;; \end{code}
 ;;;
 ;;; \noindent Now that the macroexpander procedure has been defined, define the macro.
