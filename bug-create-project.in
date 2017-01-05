@@ -32,5 +32,6 @@ sed -i -e '/^;;/ d' src/$PROJECTNAME.bug.scm
 #for some strange reason on OS X, this script works correctly, but sed seems to be creating new files
 # which a '-e' suffixed.  I'm lazy for now, just remove them
 
-find . -type f -iname '*-e' | xargs rm
+for x in $(find . -type f -iname '*-e') ; do rm $x ; done
+
 
