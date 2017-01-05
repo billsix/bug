@@ -12,7 +12,7 @@ includedir=@includedir@
 datarootdir = @datarootdir@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
-∑ENABLE_PDF = @ENABLE_PDF@
+ENABLE_PDF = @ENABLE_PDF@
 docdir = @docdir@
 pdfdir = @pdfdir@
 
