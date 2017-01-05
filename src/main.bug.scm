@@ -2030,7 +2030,7 @@
 ;;; \end{code}
 ;;;
 ;;; \newpage
-;;; \chapter{Basic Macros}
+;;; \chapter{Macros}
 ;;;  \label{sec:macros}
 ;;;
 ;;;  Although many concepts first implemented in Lisp (conditional expressions,
