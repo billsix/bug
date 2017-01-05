@@ -10,6 +10,8 @@ bindir=@bindir@
 libdir=@libdir@
 includedir=@includedir@
 datarootdir = @datarootdir@
+LIB_EXTENSION = @LIB_EXTENSION@
+SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
 
 all: bug-demo
 
@@ -25,7 +27,7 @@ all: bug-demo
 bug-demo: bug-demo.bug.scm bug-demo.scm
 	gsc -link -l @LIBBUG_INCLUDE_DIR@libbug bug-demo.scm
 	gsc -obj bug-demo.c bug-demo_.c
-	$(CC)  -o bug-demo bug-demo.o bug-demo_.o @LIBBUG_LIB_DIR@/libbug.so -lgambit -lm -ldl -lutil 
+	$(CC)  -o bug-demo bug-demo.o bug-demo_.o @LIBBUG_LIB_DIR@/libbug$(LIB_EXTENSION) -lgambit -lm -ldl -lutil 
 
 
 install:

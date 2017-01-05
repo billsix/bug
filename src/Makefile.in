@@ -12,11 +12,11 @@ includedir=@includedir@
 datarootdir = @datarootdir@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
-ENABLE_PDF = @ENABLE_PDF@
+∑ENABLE_PDF = @ENABLE_PDF@
 docdir = @docdir@
 pdfdir = @pdfdir@
 
-OBJECTS_TO_BUILD =  @PACKAGE_NAME@.so @PACKAGE_NAME@.o1
+OBJECTS_TO_BUILD =  @PACKAGE_NAME@$(LIB_EXTENSION) @PACKAGE_NAME@.o1
 
 ifeq ($(ENABLE_PDF),yes)
   OBJECTS_TO_BUILD += bug.pdf
@@ -52,7 +52,7 @@ bug.pdf: bug.tex
 @PACKAGE_NAME@.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
 	gsc -link -o @PACKAGE_NAME@.c main
 
-@PACKAGE_NAME@.so: @PACKAGE_NAME@.c main.c
+@PACKAGE_NAME@$(LIB_EXTENSION): @PACKAGE_NAME@.c main.c
 	gsc -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
 	$(CC) $(SHARED_LIB_FLAG) -lgambit  @PACKAGE_NAME@.o main.o -o @PACKAGE_NAME@$(LIB_EXTENSION)
 

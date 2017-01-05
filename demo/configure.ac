@@ -18,5 +18,22 @@ AC_SUBST(LIBBUG_LOADABLE_LIBS)
 export LIBBUG_LIB_DIR=$(pkg-config --variable=libdir libbug)
 AC_SUBST(LIBBUG_LIB_DIR)
 
+case "$target_os" in
+     mingw* | cygwin*)
+             LIB_EXTENSION=".dll"
+             ;;
+    darwin*)
+             LIB_EXTENSION=".dylib"
+             SHARED_LIB_FLAG="-dynamiclib"
+             ;;
+          *)
+             LIB_EXTENSION=".so"
+             SHARED_LIB_FLAG="-shared"
+             ;;
+esac
+
+AC_SUBST(LIB_EXTENSION)
+AC_SUBST(SHARED_LIB_FLAG)
+
 
 AC_OUTPUT

@@ -28,3 +28,9 @@ find . -type f -iname '*' | xargs sed -i -e "s/William Emerison Six <billsix@gma
 
 mv src/bug-demo.bug.scm src/$PROJECTNAME.bug.scm
 sed -i -e '/^;;/ d' src/$PROJECTNAME.bug.scm
+
+#for some strange reason on OS X, this script works correctly, but sed seems to be creating new files
+# which a '-e' suffixed.  I'm lazy for now, just remove them
+
+find . -type f -iname '*-e' | xargs rm
+
