@@ -37,7 +37,7 @@
 ;;; \begin{itemize}
 ;;;   \item On lines 4-5, the unevaluated code which is passed to
 ;;;  ``at-compile-time'' is evaluated during macro-expansion, thus
-;;;  at compile-time.  The macro-expansion expands into ``{quote noop}'', so the
+;;;  at compile-time.  The macro-expansion expands into ``\{quote noop\}'', so the
 ;;;  form will not evaluate at run-time.
 ;;; \end{itemize}
 ;;;
