@@ -260,7 +260,7 @@
 ;;; \cite{onlisp}\footnote{available on-line for no cost}.
 ;;; The other books listed in the bibliography, all of which inspired ideas for this
 ;;; book, are recommended reading but are
-;;; not necessary to understand the content of this book.
+;;; not necessary to understand the contents of this book.
 ;;;
 ;;; \section{Order of Parts}
 ;;;  This book is a ``literate program'', meaning that the source code of libbug is

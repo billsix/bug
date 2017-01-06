@@ -8,7 +8,8 @@
 ;;; \chapter{Computation At Compile-Time}
 ;;;  \label{sec:buglang}
 ;;;
-;;; This chapter, which was evaluated before the previous chapters, provides
+;;; This chapter\footnote{The contents of which is found in
+;;; ``src/bug-language.bug.scm''.}, which was evaluated before the previous chapters, provides
 ;;; the foundation for computation at compile-time.  Although
 ;;; the most prevalent code in the previous chapters which executed at compile-time
 ;;; was for testing, many other computations occurred during compile-time
