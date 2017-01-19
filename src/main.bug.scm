@@ -367,7 +367,7 @@
 ;;; export PATH=$GAMBIT_HOME/bin:$PATH
 ;;; export LIBRARY_PATH=$GAMBIT_HOME/lib:$LIBRARY_PATH
 ;;; export LD_LIBRARY_PATH=$GAMBIT_HOME/lib:$LD_LIBRARY_PATH
-;;; export CPATH=$GAMBIT_HOME/lib:$CPATH
+;;; export CPATH=$GAMBIT_HOME/include:$CPATH
 ;;; \end{examplecode}
 ;;;
 ;;; To compile the book and library, execute the following on the command line:
@@ -404,8 +404,9 @@
 ;;; \section{Creating Your Own Project}
 ;;;
 ;;; \begin{examplecode}
-;;;$ bug-create-project testProject 1.0 "Jane Doe <jane@doe.com"
+;;;$ bug-create-project testProject 1.0 "Jane Doe <jane@doe.com>"
 ;;;$ cd testProject/
+;;;$ source env.sh
 ;;;$ ./autogen.sh
 ;;;$ ./configure --prefix=$BUILD_DIR
 ;;;....
