@@ -361,15 +361,6 @@
 ;;; Autoconf, Automake, and Gambit
 ;;; Scheme\footnote{http://gambitscheme.org} version 4.8 or newer.
 ;;;
-;;; After installing Gambit, you should set the following environment variables.
-;;;
-;;; \begin{examplecode}
-;;; export PATH=$GAMBIT_HOME/bin:$PATH
-;;; export LIBRARY_PATH=$GAMBIT_HOME/lib:$LIBRARY_PATH
-;;; export LD_LIBRARY_PATH=$GAMBIT_HOME/lib:$LD_LIBRARY_PATH
-;;; export CPATH=$GAMBIT_HOME/include:$CPATH
-;;; \end{examplecode}
-;;;
 ;;; To compile the book and library, execute the following on the command line:
 ;;;
 ;;; \begin{examplecode}
@@ -425,7 +416,7 @@
 ;;;(2 3 5 7 11 13 17 19 23 29)
 ;;; \end{examplecode}
 ;;;
-;;; Of particular note is that a "FIRST 10 PRIMES", and the 10 values, were printed
+;;; Of particular note is that a ``FIRST 10 PRIMES'', and the 10 values, were printed
 ;;; during the compilation of the source code in the "make" phase.
 ;;;
 ;;; \section{Comparison of Compile-Time Computations in Other Languages}
@@ -1245,7 +1236,7 @@
 ;;; \begin{code}
 {define append!
   [|#!rest ls|
-   {let ((append! [|first-list second-list|
+   {let ((append! [|second-list first-list|
                    (if (null? first-list)
                        [second-list]
                        [{let ((head first-list))
@@ -1254,7 +1245,7 @@
                                 [{set-cdr! first-list second-list}]
                                 [(append! (cdr first-list))])}
                           head}])]))
-     (fold-right append! '() ls)}]}
+     (fold-left append! '() (reverse ls))}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -1313,15 +1304,12 @@
 ;;; \begin{code}
 {define take
   [|n l|
-   (if (< n 0)
+   (if {or (null? l)
+           (<= n 0)}
        ['()]
-       [{let take ((n n) (l l))
-          (if {or (null? l)
-                  (= n 0)}
-              ['()]
-              [(cons (car l)
-                     (take (- n 1)
-                           (cdr l)))])}])]}
+       [(cons (car l)
+              (take (- n 1)
+                    (cdr l)))])]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1375,14 +1363,11 @@
 ;;; \begin{code}
 {define drop
   [|n l|
-   (if (< n 0)
+   (if {or (null? l)
+           (<= n 0)}
        [l]
-       [{let drop ((n n) (l l))
-          (if {or (null? l)
-                  (= n 0)}
-              [l]
-              [(drop (- n 1)
-                     (cdr l))])}])]}
+       [(drop (- n 1)
+              (cdr l))])]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -1794,6 +1779,7 @@
 ;;; \end{code}
 ;;;
 ;;;
+;;;
 ;;; \newpage
 ;;; \section{reverse!}
 ;;;   Reverses the list more efficiently by mutating cons cells
@@ -1830,7 +1816,6 @@
           (equal? x '(1))}}}
  }
 ;;; \end{code}
-;;;
 ;;;
 ;;;
 ;;;
@@ -2045,7 +2030,8 @@
 ;;;  by which a programmer may augment the compiler with new functionality \emph{while
 ;;;  the compiler is compiling.}
 ;;;
-;;;  Transforming unevaluated code into new code introduces a few problems.
+;;;  Transforming unevaluated code into new code introduces a few problems of which
+;;;  the macro writer must be aware.
 ;;;  First, if the macro needs to create a new variable within the expanded code,
 ;;;  the new variable must have a name, which will be generated during macro-expansion.
 ;;;  This new name inserted into the generated code may clash
@@ -2074,6 +2060,7 @@
        ['identity]
        [{let* ((last-fn-is-lambda-literal
                 {and (list? (last fs))
+                     (not (null? (last fs)))
                      (equal? 'lambda
                              (car (last fs)))})
                (args (if last-fn-is-lambda-literal
@@ -2597,9 +2584,7 @@
 {define-macro mutate!
   [|exp f|
    (if (symbol? exp)
-       [`{begin
-           {setf! ,exp (,f ,exp)}
-           ,exp}]
+       [`{setf! ,exp (,f ,exp)}]
        [{let* ((atom-or-binding (map [|x| (if (atom? x)
 					      [x]
 					      [(list (gensym) x)])]
@@ -2610,8 +2595,7 @@
                                              atom-or-binding)))
           `{let ,(filter (complement atom?) atom-or-binding)
              {setf! (,(car exp) ,@args-of-generalized-var)
-                    (,f (,(car exp) ,@args-of-generalized-var))}
-             (,(car exp) ,@args-of-generalized-var)}}])]}
+                    (,f (,(car exp) ,@args-of-generalized-var))}}}])]}
 ;;; \end{code}
 ;;;
 ;;;
@@ -2620,9 +2604,7 @@
 ;;; \begin{code}
 {unit-test
  (equal? {macroexpand-1 {mutate! foo not}}
-         '{begin
-            {setf! foo (not foo)}
-            foo})
+         '{setf! foo (not foo)})
  {let ((foo #t))
    {and
     {begin
@@ -2643,8 +2625,7 @@
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
          '{let ()
             {setf! (vector-ref foo 0)
-                   ([|n| (+ n 1)] (vector-ref foo 0))}
-            (vector-ref foo 0)})
+                   ([|n| (+ n 1)] (vector-ref foo 0))}})
  {let ((foo (vector 0 0 0)))
    {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
    (equal? foo
@@ -2668,8 +2649,7 @@
                                  {setf! index (+ 1 index)}
                                  index}))
             {setf! (vector-ref foo gensymed-var1)
-                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1))}
-            (vector-ref foo gensymed-var1)})
+                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1))}})
  {let ((foo (vector 0 0 0))
        (index 1))
    {mutate! (vector-ref foo {begin
@@ -2690,8 +2670,8 @@
 ;;;  \label{sec:dbind}
 ;;; \index{destructuring-bind}
 ;;;
-;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple variables
-;;;  may be bound to values based on their positions within a (possibly nested) list.
+;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple values
+;;;  may be bound to variables based on their positions within a (possibly nested) list.
 ;;;  Look at the tests
 ;;;  at the end of the section for an example.
 ;;;
@@ -3086,7 +3066,7 @@
 {define stream-take
   [|n s|
    (if {or (stream-null? s)
-           (= n 0)}
+           (<= n 0)}
        [stream-null]
        [(stream-cons (stream-car s)
                      [(stream-take (- n 1)
@@ -3235,14 +3215,11 @@
 ;;; \begin{code}
 {define stream-drop
   [|n s|
-   (if (< n 0)
+   (if {or (stream-null? s)
+           (<= n 0)}
        [s]
-       [{let stream-drop ((n n) (s s))
-          (if {or (stream-null? s)
-                  (= n 0)}
-              [s]
-              [(stream-drop (- n 1)
-                            (stream-cdr s))])}])]}
+       [(stream-drop (- n 1)
+                     (stream-cdr s))])]}
 ;;; \end{code}
 ;;;
 ;;;
