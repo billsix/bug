@@ -2670,8 +2670,8 @@
 ;;;  \label{sec:dbind}
 ;;; \index{destructuring-bind}
 ;;;
-;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple values
-;;;  may be bound to variables based on their positions within a (possibly nested) list.
+;;; ``destructuring-bind'' is a generalization of ``let'', in which multiple variables
+;;;  may be bound to values based on their positions within a (possibly nested) list.
 ;;;  Look at the tests
 ;;;  at the end of the section for an example.
 ;;;
@@ -2739,12 +2739,14 @@
 ;;; \end{code}
 ;;;
 ;;;
-;;; Although ``tree-of-accessors'' appears to be victim of the multiple-evaluation
-;;; problem that macros may have, ``tree-of-accessors'' is completely safe to use
-;;; as long as the caller does not directly pass a list to ``tree-of-accessors''.
-;;; The only caller of ``tree-of-accessors'' is ``destructuring-bind'', which passes
-;;; a symbol to ``tree-of-accessors''.  Therefore ``destructuring-bind'' does not
-;;; fall victim to unintended multiple evaluations.
+;;; Although a call to ``tree-of-accessors'' by a macro could be a victim
+;;; of the multiple-evaluation
+;;; problem that macros may have, the only caller of ``tree-of-accessors'' is
+;;; ``destructuring-bind'', which passes
+;;; a ``gensymed'' symbol to ``tree-of-accessors''.  Therefore ``destructuring-bind'' does not
+;;; fall victim to unintended multiple evaluations\footnote{Although the author would like to inline
+;;; ``tree-of-accessors'' into the definition of ``destructuring-bind'', thus making it safe,
+;;; he could not determine how to write tests for a nested definition.}.
 ;;;
 ;;; \begin{code}
 {define-macro destructuring-bind
@@ -2829,7 +2831,8 @@
 ;;;  accessor procedures ``stream-a'', ``stream-d'', and updating procedures ``stream-a-set!'' and
 ;;; ``stream-d-set!''.
 ;;;  For streams, none of these generated procedures are intended to be
-;;; evaluated directly by the programmer. Instead, the following
+;;; used directly by the programmer. Instead, ``stream-cons'', ``stream-car'',
+;;; and ``stream-cdr''
 ;;; are to be used.
 ;;;
 ;;; \section{stream-cons}
@@ -2894,6 +2897,9 @@
 ;;;
 ;;; \section{stream-null}
 ;;;
+;;; The sentinel value for streams is the same value as the sentinel value
+;;; for lists.
+;;;
 ;;; \index{stream-null}
 ;;; \begin{code}
 {define stream-null
@@ -2902,6 +2908,8 @@
 ;;; \end{code}
 ;;;
 ;;; \section{stream-null?}
+;;;
+;;; But to test for the sentinel value, use ``stream-null?''.
 ;;;
 ;;; \index{stream-null?}
 ;;; \begin{code}
@@ -2931,8 +2939,7 @@
    (if (null? l)
        [stream-null]
        [(stream-cons (car l)
-                     [(list->stream
-                       (cdr l))])])]}
+                     [(list->stream (cdr l))])])]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -2963,8 +2970,7 @@
    (if (stream-null? s)
        ['()]
        [(cons (stream-car s)
-              (stream->list
-               (stream-cdr s)))])]}
+              (stream->list (stream-cdr s)))])]}
 ;;; \end{code}
 ;;;
 ;;; \begin{code}
@@ -3101,9 +3107,8 @@
          [stream-null]
          [{let ((first (stream-car s)))
             (if (p? first)
-                [(stream-cons
-                  first
-                  [(stream-filter (stream-cdr s))])]
+                [(stream-cons first
+			      [(stream-filter (stream-cdr s))])]
                 [(stream-filter (stream-cdr s))])}])}]}
 ;;; \end{code}
 ;;;
