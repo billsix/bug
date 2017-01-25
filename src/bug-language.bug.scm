@@ -32,7 +32,7 @@
   [|#!rest forms|
    (eval `{begin
             ,@forms})
-   `{quote noop}]}
+   '{quote noop}]}
 ;;; \end{code}
 ;;;
 ;;; \begin{itemize}
@@ -95,7 +95,6 @@
 ;;;         ['cdr]))
 ;;;   '(1 2)}
 ;;;(2)
-;;;>
 ;;; \end{examplecode}
 ;;;
 ;;;
@@ -107,23 +106,27 @@
 ;;; in the Gambit interpreter).
 ;;; But programs which link against libug will require libbug's
 ;;; macro definitions and namespace declarations, both of which are not
-;;; compiled into the libraries.  Rather than manually copying all of them to
+;;; compiled into the library.  Rather than manually copying all of them to
 ;;; external files, why not generate them during compile-time?
 ;;;
-;;; Open one file for the namespaces, ``libbug\#.scm'', and one for the macros,
-;;; ``libbug-macros.scm''.  These files will be pure Gambit scheme code, no
-;;; libbug-syntax enhancements.
+;;; At compile time, open one file for the namespaces (``libbug\#.scm'') and one for the macros
+;;; (``libbug-macros.scm'').  These files will be pure Gambit scheme code, no
+;;; libbug syntax enhancements.
 ;;;
 ;;; \begin{code}
 {at-compile-time
 ;;; \end{code}
 ;;;
+;;; \footnote{All of the code through section~\ref{sec:endOfLinkAgainstLibbug}
+;;; is done at compile-time.  The author chose to use subsection numbers to indicate
+;;; scope for code which spans multiple pages.}
+;;;
 ;;; \subsection{Create File for Namespaces}
 ;;;
 ;;;  The previous three macros are currently namespaced within libbug, but
-;;;  external projects which will use libbug may need these namespace
+;;;  external projects which link against libbug may need these namespace
 ;;;  mappings as well.  Towards that goal, open a file
-;;;  during compile-time and then write those namespace mappings
+;;;  during compile-time and write the namespace mappings
 ;;;  to the file.
 ;;;
 ;;; \begin{code}
@@ -143,10 +146,9 @@
 ;;; \subsection{Create File for Macro Definitions}
 ;;;
 ;;;
-;;;  The previous three macros are currently available throughout the
-;;;  definition of libbug,
+;;;  The previous three macros are available within libbug,
 ;;;  but not to programs which link against libbug.  To rectify that, open a file
-;;;  during compile-time, and write those macro definitions
+;;;  during compile-time, and write the macro definitions
 ;;;  to the file.
 ;;;
 ;;;
@@ -169,7 +171,7 @@
       [|#!rest forms|
        (eval `{begin
                 ,@forms})
-       `{quote noop}]}
+       '{quote noop}]}
     {##define-macro at-both-times
       [|#!rest forms|
        (eval `{begin
@@ -220,10 +222,10 @@
     (close-output-port libbug-headers-file)
     (force-output libbug-macros-file)
     (close-output-port libbug-macros-file)]}
- ;; close the call to at-compile-time
  }
 ;;; \end{code}
 ;;;
+;;; \label{sec:endOfLinkAgainstLibbug}
 ;;;
 ;;; \newpage
 ;;; \section{libbug-private\#write-and-eval}
@@ -296,6 +298,8 @@
     [|pred ifTrue ifFalse|
      {##if {and (list? ifTrue)
                 (list? ifFalse)
+                (not (null? ifTrue))
+                (not (null? ifFalse))
                 (equal? 'lambda (car ifTrue))
                 (equal? 'lambda (car ifFalse))}
            (list '##if pred
@@ -313,13 +317,13 @@
 ;;;     line 1 set the namespace of ``if'' to ``bug\#if'', ``\#\#if'' must be
 ;;;     used.
 ;;;  \item
-;;;   On lines 7-10, check that the caller of ``bug\#if'' is passing
+;;;   On lines 7-12, check that the caller of ``bug\#if'' is passing
 ;;;   lambdas, i.e. has not forgotten that ``if'' is namespaced to ``bug''.
 ;;;  \item
-;;;    On line 14, if the caller of ``bug\#if'' has not passed lambdas,
+;;;    On line 16, if the caller of ``bug\#if'' has not passed lambdas,
 ;;;    error at compile-time.
 ;;;  \item
-;;;   On line 11-13, evaluate the body of the appropriate lambda, depending
+;;;   On line 13-15, evaluate the body of the appropriate lambda, depending
 ;;;   on whether the predicate is true or false.
 ;;;
 ;;; \end{itemize}
@@ -338,7 +342,7 @@
 ;;;         an unevaluated list of tests.
 ;;;  \item  ``eval'' the tests at compile-time.
 ;;;     If any test evaluates to false, force the compiler to exit in error, producing
-;;;     and appropriate error message.  If all of the tests pass, the Gambit compiler
+;;;     an appropriate error message.  If all of the tests pass, the Gambit compiler
 ;;;     continues compiling subsequent definitions.
 ;;; \end{itemize}
 ;;;
@@ -375,12 +379,12 @@
        {##define ,name ,body}}}]}
 ;;; \end{code}
 ;;;
-;;; ``libbug-private\#define'' defines the procedure/data at compile-time
-;;; at run-time, and exports the namespace mapping to the appropriate file.
+;;; ``libbug-private\#define'' defines the procedure/data both at both compile-time
+;;; and run-time, and exports the namespace mapping to the appropriate file.
 ;;; ``libbug-private\#define'' itself is not exported to the macros file.
 ;;;
 ;;;  On line 6-7, the definition occurs at both compile-time and run-time,
-;;;  ensuring that the procedure is available for evaluation of tests.
+;;;  ensuring that the procedure is available for evaluation of tests during compile-time.
 ;;;
 ;;; \newpage
 ;;; \section{libbug-private\#define-macro}
@@ -409,6 +413,8 @@
   [|name lambda-value|
 ;;; \end{code}
 ;;; \subsection{Write the Macro to File}
+;;;
+;;;  \label{sec:writemacrotofile}
 ;;;
 ;;; \begin{code}
    (write
@@ -441,7 +447,7 @@
 ;;;
 ;;;
 ;;; \begin{itemize}
-;;;   \item On line 3, the written-to-file lambda value shall have the same
+;;;   \item On line 3, the lambda value written to file shall have the same
 ;;;         argument list as the argument list passed to ``libbug-private\#define-macro''
 ;;;
 ;;; \begin{examplecode}
@@ -455,7 +461,7 @@
 ;;;         to the file.  In the case that the ``lambda-value'' argument was not
 ;;;         actually intended to be quasiquoted, unquote the lambda's body (which is
 ;;;         done on line 12-13), thereby negating the quasi-quoting from line 4.
-;;;   \item On lines 4-5, rather than nesting quasiquotes, line 4 uses a technique
+;;;   \item On lines 4-5, rather than nesting quasiquotes, use the technique
 ;;;         of replacing a would-be nested quasiquote with ``,(list 'quasiquote `(...)''.
 ;;;         This makes the code more readable \cite[p. 854]{paip}.  Should the reader
 ;;;         be interested in learning more about nested quasiquotes, Appendix C
@@ -492,17 +498,21 @@
 ;;;         the form, and ``unquote'' it.
 ;;;
 ;;; \begin{examplecode}
-;;;    > (append (list 'unquote ) (cddr '[|foo bar| (+ 5 5)]))
+;;;    > (append (list 'unquote) (cddr '[|foo bar| (+ 5 5)]))
 ;;;    ,(+ 5 5)
 ;;; \end{examplecode}
 ;;;
 ;;;  Remember, this value gets wrapped in a quasiquote from line 4
 ;;;
 ;;; \begin{examplecode}
-;;;    > (list 'quasiquote (append (list 'unquote )
+;;;    > (list 'quasiquote (append (list 'unquote)
 ;;;                                (cddr '[|foo bar|
 ;;;                                          (+ 5 5)])))
 ;;;    `,(+ 5 5)
+;;;    > (eval (list 'quasiquote (append (list 'unquote)
+;;;                                      (cddr '[|foo bar|
+;;;                                                (+ 5 5)])))
+;;;    10
 ;;; \end{examplecode}
 ;;;
 ;;;
@@ -510,17 +520,18 @@
 ;;;
 ;;;
 ;;;
-;;; \subsubsection{Macro to Expand Macro Invocations}
+;;; \subsubsection{Define a Macro-Expander}
 ;;;
-;;; In order to be able to test the macro transformation before evaluation of the
-;;; expanded
-;;; code, create the macro with ``-expand''
-;;; suffixed to the ``name'', using the same procedure body as
-;;; the ``lambda-value''s body, but ``quote'' the result of the macro-expansion
-;;; so that the compiler will return the unevaluated form.  Locally define ``gensym'' in this generated
-;;; procedure so that tests may be written\footnote{``\#\#gensym'', by definition,
-;;; creates a unique symbol which the programmer could never input, which is why it
-;;; needs to be overridden for testing macro-expansions. }.
+;;; In order to be able to test the macro-expansions effectively, a programmer
+;;; needs to be able to access the code generated from the macro as a data structure.
+;;; For each macro defined, create a new macro with the same name suffixed with ``-expand'',
+;;; whose body is the same procedure as
+;;; ``lambda-value''s body, but the result of evaluating that body is ``quoted''.
+;;; In this new procedure's local environment, define ``gensym''
+;;; so that tests may be written\footnote{``\#\#gensym'' by definition
+;;; creates a unique symbol which the programmer can not directly input, making testing of the macro-expansion
+;;; impossible.
+;;; Thus, the problem is solved by locally defining a new ``gensym'' procedure.}.
 ;;;
 ;;; \begin{code}
       {##define-macro
@@ -528,23 +539,24 @@
                                         "-expand"))
         {lambda ,(cadr lambda-value)
           {let ((gensym {let ((gensym-count 0))
-                          [{begin
-                             {set! gensym-count
-                                   (+ 1 gensym-count)}
-                             (string->symbol
-                              (string-append
-                               "gensymed-var"
-                               (number->string gensym-count)))}]}))
+                          [{set! gensym-count
+				 (+ 1 gensym-count)}
+			   (string->symbol
+			    (string-append
+			     "gensymed-var"
+			     (number->string gensym-count)))]}))
             (list 'quote ,@(cddr lambda-value))}}}}
 ;;; \end{code}
+;;;
+;;; Finish writing the macro to file which was started in section~\ref{sec:writemacrotofile}.
 ;;;
 ;;; \begin{code}
     libbug-macros-file)
    (newline libbug-macros-file)
 ;;; \end{code}
 ;;; \subsection{Define Macro and Run Tests Within Libbug}
-;;; Now that the macro has been exported to a file, now the macro must
-;;; be defined within libbug itself.  Firstly, create the expander.
+;;; The macro has been exported to a file for use by projects which link against libbug,
+;;; but it must also be defined during compilation.
 ;;;
 ;;; \begin{code}
    `{begin
@@ -554,10 +566,9 @@
 ;;;
 ;;; \begin{code}
       {libbug-private#namespace ,name}
-      {libbug-private#namespace
-       ,(string->symbol
-         (string-append (symbol->string name)
-                        "-expand"))}
+      {libbug-private#namespace ,(string->symbol
+				  (string-append (symbol->string name)
+						 "-expand"))}
 ;;; \end{code}
 ;;;
 ;;; \noindent Create the expander similarly to the previous section.
@@ -570,17 +581,16 @@
                           "-expand"))
          {lambda ,(cadr lambda-value)
            {let ((gensym {let ((gensym-count 0))
-                           [{begin
-                              {set! gensym-count
-                                    (+ 1 gensym-count)}
-                              (string->symbol
-                               (string-append
-                                "gensymed-var"
-                                (number->string gensym-count)))}]}))
+                           [{set! gensym-count
+				  (+ 1 gensym-count)}
+			    (string->symbol
+			     (string-append
+			      "gensymed-var"
+			      (number->string gensym-count)))]}))
              (list 'quote ,@(cddr lambda-value))}}}}
 ;;; \end{code}
 ;;;
-;;; \noindent Now that the macroexpander procedure has been defined, define the macro.
+;;; \noindent Define the macro.
 ;;;
 ;;;
 ;;; \begin{code}
@@ -594,14 +604,14 @@
 ;;; \newpage
 ;;; \section{macroexpand-1}
 ;;;
-;;; ``macroexpand-1'' allows the programmer to test macro-expansion by writing
+;;; ``macroexpand-1'' is syntactic sugar which allows the programmer to test macro-expansion by writing
 ;;;
 ;;; \begin{examplecode}
 ;;;(equal? {macroexpand-1 {aif (+ 5 10)
-;;;                            (* 2 it)}}
-;;;       '{let ((it (+ 5 10)))
-;;;          (if it
-;;;              [(* 2 it)]
+;;;                            (* 2 bug#it)}}
+;;;       '{let ((bug#it (+ 5 10)))
+;;;          (if bug#it
+;;;              [(* 2 bug#it)]
 ;;;              [#f])})
 ;;; \end{examplecode}
 ;;;
@@ -609,10 +619,10 @@
 ;;;
 ;;; \begin{examplecode}
 ;;;(equal? {aif-expand (+ 5 10)
-;;;                    (* 2 it))}
-;;;       '{let ((it (+ 5 10)))
-;;;          (if it
-;;;              [(* 2 it)]
+;;;                    (* 2 bug#it))}
+;;;       '{let ((bug#it (+ 5 10)))
+;;;          (if bug#it
+;;;              [(* 2 bug#it)]
 ;;;              [#f])})
 ;;; \end{examplecode}
 ;;;
@@ -635,9 +645,8 @@
 ;;; \index{libbug-private\#define-structure}
 ;;;
 ;;; Like ``\#\#define-structure'', but additionally writes the namespaces
-;;; to file\footnote{In the following, \#\#define-structure is defined at
-;;; compile-time, because Gambit does not define \#\#define-structure at compile
-;;; time.}.
+;;; to file\footnote{In the following, ``\#\#define-structure'' is defined at
+;;; compile-time, because Gambit does not define ``\#\#define-structure'' at compile-time.}.
 ;;;
 ;;; \begin{code}
 {at-compile-time
