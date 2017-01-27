@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([libbug],[0.0.8], [billsix@gmail.com])
+AC_INIT([libbug],[0.1.0], [billsix@gmail.com])
 # Checks for programs.
 AC_CONFIG_HEADER([config.h])
 AC_PROG_CC

@@ -1,4 +1,4 @@
-;;; %Copyright 2014-2016 - William Emerison Six
+;;; %Copyright 2014-2017 - William Emerison Six
 ;;; %All rights reserved
 ;;; %Distributed under LGPL 2.1 or Apache 2.0
 ;;;
@@ -61,7 +61,7 @@
 ;;; \maketitle
 ;;; \null\vfill
 ;;; \noindent
-;;; Copyright \textcopyright 2014-2016 -- William Emerison Six\\
+;;; Copyright \textcopyright 2014-2017 -- William Emerison Six\\
 ;;; All rights reserved \\
 ;;; Distributed under LGPL 2.1 or Apache 2.0 \\
 ;;; Source code - http://github.com/billsix/bug \\
