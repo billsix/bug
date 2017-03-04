@@ -54,7 +54,7 @@ bug.pdf: bug.tex
 
 @PACKAGE_NAME@$(LIB_EXTENSION): @PACKAGE_NAME@.c main.c
 	gsc -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
-	$(CC) $(SHARED_LIB_FLAG) -lgambit  @PACKAGE_NAME@.o main.o -o @PACKAGE_NAME@$(LIB_EXTENSION)
+	$(CC) $(SHARED_LIB_FLAG) -lgambit  @PACKAGE_NAME@.o main.o -o @PACKAGE_NAME@$(LIB_EXTENSION).$(version)
 
 @PACKAGE_NAME@.o1.c: bug-language.scm main.scm
 	gsc -link -flat -o @PACKAGE_NAME@.o1.c main  > /dev/null
@@ -66,7 +66,9 @@ bug.pdf: bug.tex
 
 install:
 	install -d $(DESTDIR)$(libdir)
-	install -m 0755 @PACKAGE_NAME@$(LIB_EXTENSION) $(DESTDIR)$(libdir)
+	install -m 0755 @PACKAGE_NAME@$(LIB_EXTENSION).$(version) $(DESTDIR)$(libdir)
+	ln -sf $(DESTDIR)$(libdir)/@PACKAGE_NAME@$(LIB_EXTENSION).$(version) $(DESTDIR)$(libdir)/@PACKAGE_NAME@$(LIB_EXTENSION)
+	install -m 0755 @PACKAGE_NAME@$(LIB_EXTENSION).$(version) $(DESTDIR)$(libdir)
 	install -m 0755 @PACKAGE_NAME@.o1 $(DESTDIR)$(libdir)
 	install -d $(DESTDIR)$(includedir)/$(package)/
 	install -m 0644 @PACKAGE_NAME@.c $(DESTDIR)$(includedir)/$(package)/
@@ -77,7 +79,7 @@ ifeq ($(ENABLE_PDF),yes)
 	install -m 0644 bug.pdf $(DESTDIR)$(pdfdir)/$(package)/
 endif
 uninstall:
-	-rm $(DESTDIR)$(libdir)/@PACKAGE_NAME@$(LIB_EXTENSION)
+	-rm $(DESTDIR)$(libdir)/@PACKAGE_NAME@$(LIB_EXTENSION).$(version)
 	-rm $(DESTDIR)$(libdir)/@PACKAGE_NAME@.o1
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@.c
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@#.scm
