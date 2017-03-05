@@ -147,7 +147,7 @@
 ;;;specified using a data structure of Lisp; because the compiler
 ;;;is an interpreter capable of being augmented.
 ;;;Upon finishing compilation, the
-;;;compiler has \emph{become} the very program it is compiling.
+;;;compiler has _become_ the very program it is compiling.
 ;;;
 ;;;== Introduction
 ;;;
@@ -2032,8 +2032,8 @@
 ;;;code as a parameter and
 ;;;transforms it into a new form of unevaluated code before further evaluation.
 ;;;Essentially, they are a facility
-;;;by which a programmer may augment the compiler with new functionality \emph{while
-;;;the compiler is compiling.}
+;;;by which a programmer may augment the compiler with new functionality _while
+;;;the compiler is compiling_.
 ;;;
 ;;;Transforming unevaluated code into new code introduces a few problems of which
 ;;;the macro writer must be aware.
@@ -2331,7 +2331,7 @@
 ;;;of "gensym"ed variables since evaluation of "atom"s
 ;;;causes no side effects, thus causes no problems from multiple evaluation.
 ;;;
-;;;===== First Macro-expansion
+;;;==== First Macro-expansion
 ;;;[source,Lisp,linenums]
 ;;;----
 {unit-test
@@ -2354,7 +2354,7 @@
 ;;;----
 ;;;
 ;;;
-;;;===== The Second Macro-expansion
+;;;==== The Second Macro-expansion
 ;;;[source,Lisp,linenums]
 ;;;----
 {unit-test
@@ -2383,7 +2383,7 @@
 ;;;----
 ;;;
 ;;;
-;;;===== The Evaluation of the twice-expanded Code
+;;;==== The Evaluation of the twice-expanded Code
 ;;;[source,Lisp,linenums]
 ;;;----
 {unit-test
@@ -2407,7 +2407,7 @@
 ;;;"Rather than thinking about two distinct functions that respectively
 ;;;access and update a storage location somehow deduced from their arguments,
 ;;;we can instead simply think of a call to the access function with given
-;;;arguments as a \emph{name} for the storage location." \cite[p. 123-124]{cl}
+;;;arguments as a _name_ for the storage location." \cite[p. 123-124]{cl}
 ;;;
 ;;;Create a macro named "setf!" which invokes the appropriate
 ;;;"setting" procedure, based on the given "accessing" procedure footnote:[The
@@ -2468,7 +2468,7 @@
                   ,val))}])]}
 ;;;----
 ;;;
-;;;===== Updating a Variable Directly
+;;;==== Updating a Variable Directly
 ;;;
 ;;;[source,Lisp,linenums]
 ;;;----
