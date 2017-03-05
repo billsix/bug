@@ -19,7 +19,7 @@ pdfdir = @pdfdir@
 OBJECTS_TO_BUILD =  @PACKAGE_NAME@$(LIB_EXTENSION) @PACKAGE_NAME@.o1
 
 ifeq ($(ENABLE_PDF),yes)
-  OBJECTS_TO_BUILD += bug.pdf
+  OBJECTS_TO_BUILD += bug.html
 endif
 
 all: $(OBJECTS_TO_BUILD)
@@ -44,10 +44,8 @@ bug.tex: main.bug.scm bug-language.bug.scm bug-appedicies.tex
 	cat bug-appedicies.tex >> bug.tex
 	git log | head  -n 1 | cut -d ' ' -f 2   > version.tex
 
-bug.pdf: bug.tex
-	pdflatex bug.tex
-	makeindex bug.idx
-	pdflatex bug.tex
+bug.html: bug.tex
+	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n bug.tex
 
 @PACKAGE_NAME@.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
 	gsc -link -o @PACKAGE_NAME@.c main
@@ -76,7 +74,7 @@ install:
 	install -m 0644 @PACKAGE_NAME@-macros.scm $(DESTDIR)$(includedir)/$(package)/
 ifeq ($(ENABLE_PDF),yes)
 	install -d $(DESTDIR)$(pdfdir)/$(package)
-	install -m 0644 bug.pdf $(DESTDIR)$(pdfdir)/$(package)/
+	install -m 0644 bug.html $(DESTDIR)$(pdfdir)/$(package)/
 endif
 uninstall:
 	-rm $(DESTDIR)$(libdir)/@PACKAGE_NAME@$(LIB_EXTENSION).$(version)
@@ -85,7 +83,7 @@ uninstall:
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@#.scm
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@-macros.scm
 ifeq ($(ENABLE_PDF),yes)
-	-rm $(DESTDIR)$(pdfdir)/$(package)/bug.pdf
+	-rm $(DESTDIR)$(pdfdir)/$(package)/bug.html
 endif
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@
