@@ -31,15 +31,15 @@ install:
 	install -m 0644 demo/COPYING  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0644 demo/ChangeLog  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0644 demo/INSTALL  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
-	install -m 0644 demo/Makefile.in  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
+	install -m 0644 demo/Makefile.am  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0644 demo/NEWS  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0644 demo/README  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0744 demo/autogen.sh  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0644 demo/configure.ac  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -m 0744 demo/env.sh  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
 	install -d $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/
-	install -m 0644 demo/src/Makefile.in  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/
-	install -m 0644 demo/src/bug-demo.bug.scm  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/
+	install -m 0644 demo/src/Makefile.am  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/
+	install -m 0644 demo/src/bugdemo.bug.scm  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/
 	install -m 0644 demo/src/config.scm.in  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/
 	mkdir -p $(DESTDIR)$(libdir)/pkgconfig/
 	install -m 0644 pkgconfig/@PACKAGE_NAME@.pc $(DESTDIR)$(libdir)/pkgconfig/
@@ -54,14 +54,14 @@ uninstall:
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/COPYING
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/ChangeLog
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/INSTALL
-	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/Makefile.in
+	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/Makefile.am
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/NEWS
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/README
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/autogen.sh
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/configure.ac
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/env.sh
-	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/Makefile.in
-	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/bug-demo.bug.scm
+	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/Makefile.am
+	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/bugdemo.bug.scm
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/src/config.scm.in
 	-rm $(DESTDIR)$(libdir)/pkgconfig/@PACKAGE_NAME@.pc
 
