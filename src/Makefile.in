@@ -15,8 +15,10 @@ SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
 ENABLE_PDF = @ENABLE_PDF@
 docdir = @docdir@
 pdfdir = @pdfdir@
+LIBRARY_NAME = @LIBRARY_NAME@
+SO_FLAGS = @SO_FLAGS@
 
-OBJECTS_TO_BUILD =  @PACKAGE_NAME@$(LIB_EXTENSION).$(version) @PACKAGE_NAME@.o1
+OBJECTS_TO_BUILD =  $(LIBRARY_NAME) @PACKAGE_NAME@.o1
 
 ifeq ($(ENABLE_PDF),yes)
   OBJECTS_TO_BUILD += bug.pdf
@@ -52,9 +54,9 @@ bug.pdf: bug.tex
 @PACKAGE_NAME@.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
 	gsc -link -o @PACKAGE_NAME@.c main
 
-@PACKAGE_NAME@$(LIB_EXTENSION).$(version): @PACKAGE_NAME@.c main.c
+$(LIBRARY_NAME): @PACKAGE_NAME@.c main.c
 	gsc -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
-	$(CC) $(SHARED_LIB_FLAG) -Wl,-soname=@PACKAGE_NAME@$(LIB_EXTENSION).$(version) -lgambit  @PACKAGE_NAME@.o main.o -o @PACKAGE_NAME@$(LIB_EXTENSION).$(version)
+	$(CC) $(SHARED_LIB_FLAG) $(SO_FLAGS) -lgambit  @PACKAGE_NAME@.o main.o -o $(LIBRARY_NAME)
 
 @PACKAGE_NAME@.o1.c: bug-language.scm main.scm
 	gsc -link -flat -o @PACKAGE_NAME@.o1.c main  > /dev/null
@@ -66,7 +68,7 @@ bug.pdf: bug.tex
 
 install:
 	install -d $(DESTDIR)$(libdir)
-	install -m 0755 @PACKAGE_NAME@$(LIB_EXTENSION).$(version) $(DESTDIR)$(libdir)
+	install -m 0755 $(LIBRARY_NAME) $(DESTDIR)$(libdir)
 	install -m 0755 @PACKAGE_NAME@.o1 $(DESTDIR)$(libdir)
 	install -d $(DESTDIR)$(includedir)/$(package)/
 	install -m 0644 @PACKAGE_NAME@.c $(DESTDIR)$(includedir)/$(package)/
@@ -77,7 +79,7 @@ ifeq ($(ENABLE_PDF),yes)
 	install -m 0644 bug.pdf $(DESTDIR)$(pdfdir)/$(package)/
 endif
 uninstall:
-	-rm $(DESTDIR)$(libdir)/@PACKAGE_NAME@$(LIB_EXTENSION).$(version)
+	-rm $(DESTDIR)$(libdir)/$(LIBRARY_NAME))
 	-rm $(DESTDIR)$(libdir)/@PACKAGE_NAME@.o1
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@.c
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@#.scm

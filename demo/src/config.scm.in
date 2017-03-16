@@ -2,7 +2,7 @@
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 
-{namespace ("bug-demo-configuration#"
+{namespace ("bugdemo-configuration#"
 	    package
 	    version
 	    prefix
@@ -15,7 +15,7 @@
 {define ac_unique_file "@ac_unique_file@"}
 
 ;; set the namespace for the project
-(namespace ("bug-demo#"))
+(namespace ("bugdemo#"))
 ;; but use default Gambit procedures
 (##include "~~lib/gambit#.scm")
 ;; and also use libbug's

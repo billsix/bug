@@ -27,19 +27,27 @@ AC_CONFIG_FILES([Makefile
 case "$target_os" in
      mingw* | cygwin*)
              LIB_EXTENSION=".dll"
+	     LIBRARY_NAME=$PACKAGE_NAME$LIB_EXTENSION
+	     SO_FLAGS=
              ;;
     darwin*)
              LIB_EXTENSION=".dylib"
              SHARED_LIB_FLAG="-dynamiclib"
+	     LIBRARY_NAME=$PACKAGE_NAME$LIB_EXTENSION
+	     SO_FLAGS=
              ;;
           *)
              LIB_EXTENSION=".so"
              SHARED_LIB_FLAG="-shared"
+	     LIBRARY_NAME=$PACKAGE_NAME$LIB_EXTENSION.$PACKAGE_VERSION
+	     SO_FLAGS=-Wl,-soname=$LIBRARY_NAME
              ;;
 esac
 
 AC_SUBST(LIB_EXTENSION)
 AC_SUBST(SHARED_LIB_FLAG)
+AC_SUBST(LIBRARY_NAME)
+AC_SUBST(SO_FLAGS)
 
 
 AC_CHECK_PROG(GSC_CHECK,gsc,yes)

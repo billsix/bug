@@ -1,10 +1,11 @@
 AC_PREREQ([2.68])
 
-AC_INIT([bug-demo], [0.0.1], [William Emerison Six <billsix@gmail.com>], [bug-demo])
+AC_INIT([bugdemo], [0.0.1], [William Emerison Six <billsix@gmail.com>], [bugdemo])
 AC_CANONICAL_SYSTEM
-AC_CONFIG_SRCDIR([src/bug-demo.bug.scm])
+AC_CONFIG_SRCDIR([src/bugdemo.bug.scm])
 AC_CONFIG_HEADER([config.h])
 AC_CHECK_HEADER([stdio.h])
+AM_INIT_AUTOMAKE()
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_CONFIG_FILES([Makefile
@@ -35,5 +36,6 @@ esac
 AC_SUBST(LIB_EXTENSION)
 AC_SUBST(SHARED_LIB_FLAG)
 
+LDFLAGS+="$LIBBUG_LIB_DIR/libbug$LIB_EXTENSION -lgambit -lm -ldl -lutil"
 
 AC_OUTPUT

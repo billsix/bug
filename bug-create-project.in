@@ -22,11 +22,11 @@ fi
 cp -r @prefix@/share/@PACKAGE_NAME@/demo/ $PROJECTNAME
 
 cd $PROJECTNAME
-find . -type f -iname '*' | xargs sed -i -e "s/bug-demo/$PROJECTNAME/g"
+find . -type f -iname '*' | xargs sed -i -e "s/bugdemo/$PROJECTNAME/g"
 find . -type f -iname '*' | xargs sed -i -e "s/0.0.1/$VERSION/g"
 find . -type f -iname '*' | xargs sed -i -e "s/William Emerison Six <billsix@gmail.com>/$AUTHOR/g"
 
-mv src/bug-demo.bug.scm src/$PROJECTNAME.bug.scm
+mv src/bugdemo.bug.scm src/$PROJECTNAME.bug.scm
 sed -i -e '/^;;/ d' src/$PROJECTNAME.bug.scm
 
 #for some strange reason on OS X, this script works correctly, but sed seems to be creating new files
