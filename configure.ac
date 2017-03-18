@@ -39,7 +39,7 @@ case "$target_os" in
           *)
              LIB_EXTENSION=".so"
              SHARED_LIB_FLAG="-shared"
-	     LIBRARY_NAME=$PACKAGE_NAME$LIB_EXTENSION.$PACKAGE_VERSION
+	     LIBRARY_NAME=$PACKAGE_NAME$LIB_EXTENSION
 	     SO_FLAGS=-Wl,-soname=$LIBRARY_NAME
              ;;
 esac
