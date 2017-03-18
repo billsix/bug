@@ -50,6 +50,7 @@ AC_SUBST(LIBRARY_NAME)
 AC_SUBST(SO_FLAGS)
 
 
+
 AC_CHECK_PROG(GSC_CHECK,gsc,yes)
 if test x"$GSC_CHECK" != x"yes" ; then
     AC_MSG_ERROR([Please install Gambit before installing.])
