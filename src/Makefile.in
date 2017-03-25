@@ -38,16 +38,19 @@ all: $(OBJECTS_TO_BUILD)
 	gsc -obj $<
 
 
-bug.tex: main.bug.scm bug-language.bug.scm bug-appedicies.tex
-	../bug-gsc/bug2tex main.bug.scm bug.tex
-	../bug-gsc/bug2tex bug-language.bug.scm bug-language.tex
-	cat bug-language.tex >> bug.tex
-	rm bug-language.tex
-	cat bug-appedicies.tex >> bug.tex
-	git log | head  -n 1 | cut -d ' ' -f 2   > version.tex
+bug.asciidoc: main.bug.scm bug-language.bug.scm bug-appedicies.asciidoc
+	../bug-gsc/bug2tex main.bug.scm bug.asciidoc
+	../bug-gsc/bug2tex bug-language.bug.scm bug-language.asciidoc
+	cat bug-language.asciidoc >> bug.asciidoc
+	rm bug-language.asciidoc
+	cat bug-appedicies.asciidoc >> bug.asciidoc
+	git log | head  -n 1 | cut -d ' ' -f 2   > version.asciidoc
 
-bug.html: bug.tex
-	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n bug.tex
+bug.html: bug.asciidoc
+	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n bug.asciidoc
+
+bug.pdf: bug.asciidoc
+	a2x -b pdf bug.asciidoc
 
 @PACKAGE_NAME@.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
 	gsc -link -o @PACKAGE_NAME@.c main

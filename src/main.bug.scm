@@ -5,15 +5,15 @@
 ;;;
 ;;;
 
-;;;%Copyright 2014-2017 - William Emerison Six
-;;;%All rights reserved
-;;;%Distributed under LGPL 2.1 or Apache 2.0
+;;;//Copyright 2014-2017 - William Emerison Six
+;;;//All rights reserved
+;;;//Distributed under LGPL 2.1 or Apache 2.0
 ;;;
 ;;;Copyright \textcopyright 2014-2017 -- William Emerison Six
 ;;;All rights reserved
 ;;;Distributed under LGPL 2.1 or Apache 2.0
 ;;;Source code - http://github.com/billsix/bug
-;;;Book generated from Git commit ID - \input{version.tex}
+;;;
 ;;;
 ;;;Licensed under the Apache License, Version 2.0 (the "License");
 ;;;you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@
 ;;;What do I mean by that?  Let's say you're looking at source code with which
 ;;;you are unfamiliar, such as the following:
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;{define permutations
 ;;; [|l|
@@ -105,7 +105,7 @@
 ;;;exit in error, like a type error in a
 ;;;statically-typed language.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;{unit-test
 ;;;(satisfies?
@@ -198,7 +198,7 @@
 ;;;Code which is part of libbug will be outlined and
 ;;;will have line numbers on the left.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;; This is part of libbug.
 ;;;----
@@ -207,7 +207,7 @@
 ;;;Example code which is not part of libbug will not be outlined nor will it have line
 ;;;numbers.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;(+ 1 ("This is NOT part of libbug"))
 ;;;----
@@ -218,7 +218,7 @@
 ;;;syntactic extensions.]
 ;;;Such examples will look like the following:
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;> (+ 1 2)
 ;;;3
@@ -232,19 +232,19 @@
 ;;;==== Syntactic Conventions
 ;;;In libbug, the notation
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;(fun arg1 arg2)
 ;;;----
 ;;;
 ;;;
-;;; means evaluate "fun", "arg1"
+;;;means evaluate "fun", "arg1"
 ;;;and "arg2" in any order, then apply "fun" to "arg1" and "arg2";
 ;;;standard Scheme semantics for invoking a procedure.  But since macros
 ;;;are not normal procedures and do
 ;;;not necessarily respect those semantics, in libbug, the notation
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;{fun1 arg1 arg2}
 ;;;----
@@ -254,7 +254,7 @@
 ;;;the reader that the standard evaluation rules do not necessarily
 ;;;apply.  For instance, in
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;{define x 5}
 ;;;----
@@ -266,7 +266,7 @@
 ;;;Not all macro applications use \{\}.  If the macro always respects Scheme's standard
 ;;;order of evaluation, macro application may use standard Scheme notation:
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;((compose [|x| (* x 2)]) 5)
 ;;;----
@@ -284,7 +284,7 @@
 ;;;
 ;;;To compile the book and library, execute the following on the command line:
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;$ ./autogen.sh
 ;;;$ ./configure --prefix=$BUG_HOME --enable-pdf
@@ -301,19 +301,17 @@
 ;;;
 ;;;After installing libbug, you should set the following environment variables.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
-;;;
 ;;;export PATH=$BUG_HOME/bin:$PATH
 ;;;export PKG_CONFIG_PATH=$BUG_HOME/lib/pkgconfig/
 ;;;export LD_LIBRARY_PATH=$BUG_HOME/lib:$LD_LIBRARY_PATH
 ;;;export LIBRARY_PATH=$BUG_HOME/lib:$LIBRARY_PATH
-;;;
 ;;;----
 ;;;
 ;;;=== Creating Your Own Project
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;$ bug-create-project testProject 1.0 "Jane Doe <jane@doe.com>"
 ;;;$ cd testProject/
@@ -377,7 +375,7 @@
 ;;;procedure-defining procedures will be explained
 ;;;incrementally.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 (include "bug-language.scm")
 {##namespace ("libbug-private#" define define-macro define-structure)}
@@ -399,7 +397,7 @@
 ;;;which evaluates to the symbol 'noop.
 ;;;
 ;;;\index{noop}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define noop
   ['noop]}
@@ -413,7 +411,7 @@
 ;;;which expands lambda literals
 ;;;into lambdas.  In this case, "bug-gscpp" expands
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;['noop]
 ;;;----
@@ -421,13 +419,13 @@
 ;;;
 ;;;into
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;(lambda () 'noop)
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (noop) 'noop)}
@@ -455,21 +453,21 @@
 ;;;
 ;;;\index{identity}
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define identity
   [|x| x]}
 ;;;----
 ;;;- On line 2, "bug-gscpp" expands
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;[|x| x]
 ;;;----
 ;;;
 ;;;to
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;(lambda (x) x)
 ;;;----
@@ -482,7 +480,7 @@
 ;;;
 ;;;"unit-test" can take more than one test as parameters.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? "foo" (identity "foo"))
@@ -497,7 +495,7 @@
 ;;;
 ;;;\label{sec:langiffirstuse}
 ;;;\index{all?}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define all?
   [|l|
@@ -513,7 +511,7 @@
 ;;;"Church Booleans" \cite[p. 58]{tapl}, and that "bug\#if" is just syntactic sugar:
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;{define #t [|t f| (t)]}
 ;;;{define #f [|t f| (f)]}
@@ -526,7 +524,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (all? '())
@@ -555,7 +553,7 @@
 ;;;  a procedure.].
 ;;;
 ;;;\index{satisfies?}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define satisfies?
   [|f list-of-pairs|
@@ -567,7 +565,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -603,7 +601,7 @@
 ;;;  is a predicate, meaning a procedure which returns true or false.]
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define while
   [|pred? body|
@@ -616,7 +614,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  {let ((a 0))
@@ -643,7 +641,7 @@
 ;;;
 ;;;
 ;;;\index{numeric-if}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define numeric-if
   [|n #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
@@ -658,7 +656,7 @@
 ;;;
 ;;;Keyword arguments are optionally passed to the procedure, and use the following syntax.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -690,7 +688,7 @@
 ;;;
 ;;;=== atom?
 ;;;\index{atom?}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define atom?
   [|x|
@@ -701,12 +699,12 @@
        (char? x)}]}
 ;;;----
 ;;;
-;;; footnote:[Within libbug, a parameter named "x" usually means the parameter can
-;;;  be of any type.]
+;;;footnote:[Within libbug, a parameter named "x" usually means the parameter can
+;;;be of any type.]
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -731,7 +729,7 @@
 ;;;=== complement
 ;;;
 ;;;\index{complement}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define complement
   [|f|
@@ -742,7 +740,7 @@
 ;;;\cite[p. 63]{onlisp}
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -772,7 +770,7 @@
 ;;;a list.].
 ;;;
 ;;;\index{copy}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define copy
   [|l|
@@ -782,7 +780,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  {let ((a '(1 2 3 4 5)))
@@ -799,7 +797,7 @@
 ;;;Will not terminate on a circular list.
 ;;;
 ;;;\index{proper?}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define proper?
   [|l|
@@ -810,7 +808,7 @@
             [#f])])]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -832,7 +830,7 @@
 ;;;
 ;;;
 ;;;\index{first}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define first
   [|l #!key (onNull noop)|
@@ -844,7 +842,7 @@
 ;;;\cite[p. 59]{ss}
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -866,7 +864,7 @@
 ;;;
 ;;;=== but-first
 ;;;\index{but-first}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define but-first
   [|l #!key (onNull noop)|
@@ -878,7 +876,7 @@
 ;;;\cite[p. 59]{ss}
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -898,7 +896,7 @@
 ;;;
 ;;;=== last
 ;;;\index{last}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define last
   [|l #!key (onNull noop)|
@@ -913,7 +911,7 @@
 ;;;\cite[p. 59]{ss}
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -935,7 +933,7 @@
 ;;;
 ;;;=== but-last
 ;;;\index{but-last}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define but-last
   [|l #!key (onNull noop)|
@@ -951,7 +949,7 @@
 ;;;\cite[p. 59]{ss}
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -975,7 +973,7 @@
 ;;;
 ;;;=== filter
 ;;;\index{filter}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define filter
   [|p? l|
@@ -991,7 +989,7 @@
 ;;;\cite[p. 331]{ss} footnote:[Simply Scheme has an excellent discussion on section
 ;;;on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}]. \cite[p. 115]{sicp}.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1012,7 +1010,7 @@
 ;;;
 ;;;=== remove
 ;;;\index{remove}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define remove
   [|x l|
@@ -1020,7 +1018,7 @@
            l)]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1038,7 +1036,7 @@
 ;;;is an accumulated value.].
 ;;;
 ;;;\index{fold-left}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define fold-left
   [|f acc l|
@@ -1055,7 +1053,7 @@
 ;;;
 ;;;\cite[p. 121]{sicp}
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1072,7 +1070,7 @@
 ;;;"fold-left".  To understand how "fold-left" really works, understand
 ;;;how it works with non-commutative procedures, such as "-".
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
  (satisfies?
   [|l| (fold-left - 5 l)]
@@ -1091,7 +1089,7 @@
 ;;;starting from the "right" side of the list
 ;;;
 ;;;\index{fold-right}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define fold-right
   [|f acc l|
@@ -1104,7 +1102,7 @@
 ;;;
 ;;;\cite[p. 116 (named "accumulate")]{sicp}
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1133,7 +1131,7 @@
 ;;;of "fold-left"s accumulator is an element in the resulting list of "scan-left".
 ;;;
 ;;;\index{scan-left}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define scan-left
   [|f acc l|
@@ -1152,7 +1150,7 @@
                            (cdr last-cell)})}])}}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1188,7 +1186,7 @@
 ;;;efficient computation at the expense of mutating the input.
 ;;;
 ;;;\index{append"!}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define append!
   [|#!rest ls|
@@ -1204,7 +1202,7 @@
      (fold-left append! '() (reverse ls))}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (append! '()
@@ -1228,7 +1226,7 @@
 ;;;
 ;;;=== flatmap
 ;;;\index{flatmap}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define flatmap
   [|f l|
@@ -1238,7 +1236,7 @@
 ;;;\cite[p. 123]{sicp}
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1260,7 +1258,7 @@
 ;;;
 ;;;=== take
 ;;;\index{take}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define take
   [|n l|
@@ -1273,7 +1271,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1291,7 +1289,7 @@
 ;;;
 ;;;=== take-while
 ;;;\index{take-while}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define take-while
   [|p? l|
@@ -1305,7 +1303,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1323,7 +1321,7 @@
 ;;;
 ;;;=== drop
 ;;;\index{drop}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define drop
   [|n l|
@@ -1335,7 +1333,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1352,7 +1350,7 @@
 ;;;
 ;;;=== drop-while
 ;;;\index{drop-while}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define drop-while
   [|p? l|
@@ -1365,7 +1363,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1384,7 +1382,7 @@
 ;;;
 ;;;=== enumerate-interval
 ;;;\index{enumerate-interval}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define enumerate-interval
   [|low high #!key (step 1)|
@@ -1395,7 +1393,7 @@
                 (enumerate-interval (+ low step)))])}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (enumerate-interval 1 10)
@@ -1408,7 +1406,7 @@
 ;;;=== any?
 ;;;
 ;;;\index{any?}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define any?
   [|l|
@@ -1419,7 +1417,7 @@
             [(any? (cdr l))])])]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1437,7 +1435,7 @@
 ;;;
 ;;;=== zip
 ;;;\index{zip}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define zip
   [|#!rest lsts|
@@ -1448,7 +1446,7 @@
                 (zip (map cdr lsts)))])}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (zip '() '())
@@ -1469,7 +1467,7 @@
  }
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (zip '() '() '())
@@ -1483,7 +1481,7 @@
  }
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (zip '() '() '() '())
@@ -1501,7 +1499,7 @@
 ;;;
 ;;;=== zip-with
 ;;;\index{zip-with}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define zip-with
   [|f #!rest lsts|
@@ -1512,7 +1510,7 @@
                 (zip (map cdr lsts)))])}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (zip-with +
@@ -1542,7 +1540,7 @@
  }
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (zip-with +
@@ -1558,7 +1556,7 @@
  }
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (zip-with +
@@ -1579,7 +1577,7 @@
 ;;;
 ;;;=== permutations
 ;;;\index{permutations}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define permutations
   [|l|
@@ -1593,7 +1591,7 @@
                         l)])}])]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1623,7 +1621,7 @@
 ;;;The inverse of list-ref.
 ;;;
 ;;;\index{ref-of}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define ref-of
   [|l x #!key (onMissing noop)|
@@ -1638,7 +1636,7 @@
                    [(ref-of (cdr l) (+ index 1))])])}])]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1652,7 +1650,7 @@
  }
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1666,7 +1664,7 @@
  }
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  {let ((l '(a b c d e f g)))
@@ -1690,7 +1688,7 @@
 ;;;
 ;;;
 ;;;\index{partition}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define partition
   [|l p?|
@@ -1709,7 +1707,7 @@
                             (cons head falseList))])}])}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1725,7 +1723,7 @@
 ;;;In section~\ref{sec:dbind}, "destructuring-bind" allows for a more convenient syntax when
 ;;;using "partition".
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;> {destructuring-bind (trueList falseList)
 ;;;                     (partition '(3 2 5 4 1)
@@ -1742,7 +1740,7 @@
 ;;;
 ;;;=== sort
 ;;;\index{sort}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define sort
   [|l comparison?|
@@ -1757,7 +1755,7 @@
                            (sort (cadr p))))}])}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1775,7 +1773,7 @@
 ;;;Reverses the list more efficiently by mutating cons cells
 ;;;
 ;;;\index{reverse"!}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define reverse!
   [|l|
@@ -1791,7 +1789,7 @@
                  (reverse! rest current-cons-cell)}])}])]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1828,7 +1826,7 @@
 ;;;
 ;;;
 ;;;\index{string-lift-list}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define string-lift-list
   [|f|
@@ -1844,14 +1842,14 @@
 ;;;=== string-reverse
 ;;;
 ;;;\index{string-reverse}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define string-reverse
   (string-lift-list reverse!)}
 ;;;
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1868,7 +1866,7 @@
 ;;;=== string-take
 ;;;
 ;;;\index{string-take}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define string-take
   [|n s|
@@ -1877,7 +1875,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1892,7 +1890,7 @@
 ;;;=== string-drop
 ;;;
 ;;;\index{string-drop}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define string-drop
   [|n s|
@@ -1901,7 +1899,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1924,7 +1922,7 @@
 ;;;be treated as integers.
 ;;;
 ;;;\index{character-lift-integer}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define character-lift-integer
   [|f|
@@ -1935,7 +1933,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1951,7 +1949,7 @@
 ;;;=== string-map
 ;;;
 ;;;\index{string-map}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define string-map
   [|f s|
@@ -1963,7 +1961,7 @@
 ;;;
 ;;;The "Caesar Cipher". \cite[p. 30]{crypto}.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1995,7 +1993,7 @@
 ;;;
 ;;;
 ;;;\index{symbol-lift-list}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define symbol-lift-list
   [|f|
@@ -2006,7 +2004,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -2058,7 +2056,7 @@
 ;;;=== compose
 ;;;
 ;;;\index{compose}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro compose
   [|#!rest fs|
@@ -2098,7 +2096,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 (compose)}
@@ -2133,7 +2131,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 (compose [|x| (* x 2)])}
@@ -2184,7 +2182,7 @@
 ;;;=== aif
 ;;;
 ;;;\index{aif}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro aif
   [|bool body|
@@ -2201,7 +2199,7 @@
 ;;;
 ;;;\cite[p. 191]{onlisp}
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {aif (+ 5 10) (* 2 bug#it)}
@@ -2224,7 +2222,7 @@
 ;;;to minimize repetitive calls to "gensym".
 ;;;
 ;;;\index{with-gensyms}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro with-gensyms
   [|symbols #!rest body|
@@ -2235,7 +2233,7 @@
 ;;;
 ;;;\cite[p. 145]{onlisp}
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {with-gensyms (foo bar baz)
@@ -2264,7 +2262,7 @@
 ;;;which is seldom expected by the caller.
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;> {define-macro double [|x| `(+ ,x ,x)]}
 ;;;> {double 5}
@@ -2274,7 +2272,7 @@
 ;;;The caller of "double" should reasonably expect the argument to "double"
 ;;;only to be evaluated once only, because that's how Scheme usually works.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;> {define foo 5}
 ;;;> {double {begin {set! foo (+ foo 1)}
@@ -2285,7 +2283,7 @@
 ;;;"once-only" allows a macro-writer to ensure that a variable is evaluated
 ;;;only once in the generated code.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 ;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
 ;;;> {define foo 5}
@@ -2302,7 +2300,7 @@
 ;;;"gensym"-ed variable until the second macro-expansion.  As such, it is the
 ;;;most difficult macro is this book.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro once-only
   [|symbols #!rest body|
@@ -2332,7 +2330,7 @@
 ;;;causes no side effects, thus causes no problems from multiple evaluation.
 ;;;
 ;;;==== First Macro-expansion
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y ,x)}}
@@ -2355,7 +2353,7 @@
 ;;;
 ;;;
 ;;;==== The Second Macro-expansion
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (eval `{let ((x 5)
@@ -2384,7 +2382,7 @@
 ;;;
 ;;;
 ;;;==== The Evaluation of the twice-expanded Code
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (eval (eval `{let ((x 5)
@@ -2414,7 +2412,7 @@
 ;;;implementation is inspired by \cite{setf}.].
 ;;;
 ;;;\index{setf"!}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro setf!
   [|exp val|
@@ -2470,7 +2468,7 @@
 ;;;
 ;;;==== Updating a Variable Directly
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2485,7 +2483,7 @@
 ;;;===== Updating Car, Cdr, ... Through Cddddr
 ;;;Test updating "car".
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2499,7 +2497,7 @@
 ;;;
 ;;;Test updating "cdr".
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2516,7 +2514,7 @@
 ;;;repetitive.  Instead, create a list which has an element at each of those
 ;;;accessor procedures, and test each.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (eval
@@ -2549,7 +2547,7 @@
 ;;;Test updating procedures where the updating procedure is
 ;;;the name of the getting procedure, suffixed by '-set!'.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {at-compile-time
  {##define-structure foo bar}}
@@ -2573,7 +2571,7 @@
 ;;;the name of the getting procedure, with the "-ref" suffix removed, replaced
 ;;;with "-set".
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2604,7 +2602,7 @@
 ;;;to making a new name like "toggle" \cite[p. 169]{onlisp}.].
 ;;;
 ;;;\index{mutate"!}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro mutate!
   [|exp f|
@@ -2626,7 +2624,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {mutate! foo not}}
@@ -2646,7 +2644,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
@@ -2665,7 +2663,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2712,7 +2710,7 @@
 ;;;takes a procedure named "gensym" as an argument, defaulting to whatever value
 ;;;"gensym" is by default in the environment.].
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define tree-of-accessors
   [|pat lst #!key (gensym gensym) (n 0)|
@@ -2737,7 +2735,7 @@
                                      (+ 1 n))))}}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (tree-of-accessors '() 'gensym-for-list)
@@ -2754,7 +2752,7 @@
  }
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (tree-of-accessors '(a (b c))
@@ -2777,7 +2775,7 @@
 ;;;"tree-of-accessors" into the definition of "destructuring-bind", thus making it safe,
 ;;;he could not determine how to write tests for a nested definition.].
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro destructuring-bind
   [|pat lst #!rest body|
@@ -2803,7 +2801,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2852,7 +2850,7 @@
 ;;;takes the name of the datatype and a variable
 ;;;number of fields as parameters.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-structure stream
   a
@@ -2874,7 +2872,7 @@
 ;;;
 ;;;
 ;;;\index{stream-cons}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define-macro stream-cons
   [|a d|
@@ -2895,7 +2893,7 @@
 ;;;Get the first element of the stream.
 ;;;
 ;;;\index{stream-car}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-car
   stream-a}
@@ -2907,7 +2905,7 @@
 ;;;Forces the evaluation of the next element of the stream.
 ;;;
 ;;;\index{stream-cdr}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-cdr
   [|s|
@@ -2916,7 +2914,7 @@
 ;;;
 ;;;\cite[p. 321]{sicp}.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  {let ((s (stream-cons 1 [2])))
@@ -2937,7 +2935,7 @@
 ;;;for lists.
 ;;;
 ;;;\index{stream-null}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-null
   '()
@@ -2949,14 +2947,14 @@
 ;;;But to test for the sentinel value, use "stream-null?".
 ;;;
 ;;;\index{stream-null?}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-null?
   null?}
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (stream-null?
@@ -2972,7 +2970,7 @@
 ;;;Converts a list into a stream.
 ;;;
 ;;;\index{list-\textgreater stream}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define list->stream
   [|l|
@@ -2982,7 +2980,7 @@
                      [(list->stream (cdr l))])])]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  {let ((foo (list->stream '(1 2 3))))
@@ -3005,7 +3003,7 @@
 ;;;Converts a stream into a list.
 ;;;
 ;;;\index{stream-\textgreater list}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream->list
   [|s|
@@ -3015,7 +3013,7 @@
               (stream->list (stream-cdr s)))])]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3030,7 +3028,7 @@
 ;;;The analogous procedure of "list-ref".
 ;;;
 ;;;\index{stream-ref}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-ref
   [|s n #!key (onOutOfBounds noop)|
@@ -3047,7 +3045,7 @@
 ;;;
 ;;;\cite[p. 319]{sicp}.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3082,7 +3080,7 @@
 ;;;Creates an infinite footnote:[bounded by memory constraints of course. Scheme
 ;;;isn't a Turing machine.] stream of integers.
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define integers-from
   [|n|
@@ -3092,7 +3090,7 @@
 ;;;\cite[p. 326]{sicp}.
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3115,7 +3113,7 @@
 ;;;
 ;;;=== stream-take
 ;;;\index{stream-take}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-take
   [|n s|
@@ -3128,7 +3126,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3148,7 +3146,7 @@
 ;;;The analogous procedure of filter.
 ;;;
 ;;;\index{stream-filter}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-filter
   [|p? s|
@@ -3163,7 +3161,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal?  (stream->list
@@ -3176,7 +3174,7 @@
 ;;;Understanding the following tests is crucial to understanding
 ;;;the definition of "primes".
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3208,7 +3206,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3241,7 +3239,7 @@
 ;;;
 ;;;=== primes
 ;;;\index{primes}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define primes
   {let sieve-of-eratosthenes ((s (integers-from 2)))
@@ -3257,7 +3255,7 @@
 ;;;\cite[p. 327]{sicp}.
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3272,7 +3270,7 @@
 ;;;
 ;;;=== stream-drop
 ;;;\index{stream-drop}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-drop
   [|n s|
@@ -3284,7 +3282,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3310,7 +3308,7 @@
 ;;;
 ;;;=== stream-drop-while
 ;;;\index{stream-drop-while}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-drop-while
   [|p? s|
@@ -3323,7 +3321,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3348,7 +3346,7 @@
 ;;;The analogous procedure of "map".
 ;;;
 ;;;\index{stream-map}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-map
   [|f #!rest list-of-streams|
@@ -3362,7 +3360,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3381,7 +3379,7 @@
 ;;;
 ;;;=== stream-enumerate-interval
 ;;;\index{stream-enumerate-interval}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-enumerate-interval
   [|low high #!key (step 1)|
@@ -3392,7 +3390,7 @@
                        [(stream-enumerate-interval (+ low step))])])}]}
 ;;;----
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3406,7 +3404,7 @@
 ;;;
 ;;;=== stream-take-while
 ;;;\index{stream-take-while}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {define stream-take-while
   [|p? s|
@@ -3421,7 +3419,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3445,7 +3443,7 @@
 ;;;and they must be closed, accomplished by executing "at-end-of-compilation".
 ;;;
 ;;;\label{sec:call-end-of-compilation}
-;;;[source,Lisp,linenums]
+;;;[source,txt,linenums]
 ;;;----
 {at-compile-time
  (at-end-of-compilation)}
