@@ -59,6 +59,7 @@ $(LIBRARY_NAME): @PACKAGE_NAME@.c main.c
 	gsc -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
 	$(CC) $(SHARED_LIB_FLAG) $(SO_FLAGS) -lgambit  @PACKAGE_NAME@.o main.o -o $(LIBRARY_NAME)
 
+
 @PACKAGE_NAME@.o1.c: bug-language.scm main.scm
 	gsc -link -flat -o @PACKAGE_NAME@.o1.c main  > /dev/null
 
@@ -80,7 +81,7 @@ ifeq ($(ENABLE_PDF),yes)
 	install -m 0644 bug.html $(DESTDIR)$(pdfdir)/$(package)/
 endif
 uninstall:
-	-rm $(DESTDIR)$(libdir)/$(LIBRARY_NAME))
+	-rm $(DESTDIR)$(libdir)/$(LIBRARY_NAME)
 	-rm $(DESTDIR)$(libdir)/@PACKAGE_NAME@.o1
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@.c
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@#.scm

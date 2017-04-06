@@ -177,6 +177,7 @@
        (eval `{begin
                 ,@forms})
        '{quote noop}]}
+    {at-compile-time (##include \"" bug-configuration#libbugsharp "\")}
     {##define-macro at-both-times
       [|#!rest forms|
        (eval `{begin
