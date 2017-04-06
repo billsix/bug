@@ -30,7 +30,9 @@ of the shortest (7 lines total).
 Open Source
 -----------
 Copyright 2014-2017 William Emerison Six
+
 All rights reserved
+
 Licensed under either LGPL v2.1 (LGPL.txt), or Apache 2.0 (LICENSE-2.0.txt).
 
 
