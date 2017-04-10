@@ -56,7 +56,7 @@ bug.pdf: bug.tex
 
 $(LIBRARY_NAME): @PACKAGE_NAME@.c main.c
 	gsc -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
-	$(CC) $(SHARED_LIB_FLAG) $(SO_FLAGS) -lgambit  @PACKAGE_NAME@.o main.o -o $(LIBRARY_NAME)
+	$(CC) $(SHARED_LIB_FLAG) -o $(LIBRARY_NAME)  @PACKAGE_NAME@.o main.o -lgambit $(SO_FLAGS)
 
 
 @PACKAGE_NAME@.o1.c: bug-language.scm main.scm

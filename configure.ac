@@ -27,8 +27,9 @@ AC_CONFIG_FILES([Makefile
 case "$target_os" in
      mingw* | cygwin*)
              LIB_EXTENSION=".dll"
+             SHARED_LIB_FLAG="-shared"
 	     LIBRARY_NAME=$PACKAGE_NAME$LIB_EXTENSION
-	     SO_FLAGS=
+	     SO_FLAGS=-lws2_32
              ;;
     darwin*)
              LIB_EXTENSION=".dylib"
