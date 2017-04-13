@@ -20,6 +20,7 @@
 
 int main(int argc, char** argv)
 {
+#ifndef _WIN32
   int pipe_from_buggscpp_to_gsi[2];
   // create a communication channel between the
   // output of buggscpp and the input of gsi
@@ -66,5 +67,6 @@ int main(int argc, char** argv)
       // execute gsi, using stdin and stdout
       int returnCode = execlp("gsi","gsi","-:d-,tE","-e", gsi_prelude,"-", NULL);
     }
+#endif
   return 0;
 }
