@@ -1,3 +1,5 @@
+GSC=gsc
+
 # @configure_input@
 
 package = @PACKAGE_NAME@
@@ -32,10 +34,10 @@ all: $(OBJECTS_TO_BUILD)
 
 
 %.c : %.scm
-	gsc -c $<
+	$(GSC) -c $<
 
 %.o : %.c
-	gsc -obj $<
+	$(GSC) -obj $<
 
 
 bug.tex: main.bug.scm bug-language.bug.scm bug-appedicies.tex
@@ -52,18 +54,18 @@ bug.pdf: bug.tex
 	pdflatex bug.tex
 
 @PACKAGE_NAME@.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
-	gsc -link -o @PACKAGE_NAME@.c main
+	$(GSC) -link -o @PACKAGE_NAME@.c main
 
 $(LIBRARY_NAME): @PACKAGE_NAME@.c main.c
-	gsc -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
+	$(GSC) -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
 	$(CC) $(SHARED_LIB_FLAG) -o $(LIBRARY_NAME)  @PACKAGE_NAME@.o main.o -lgambit $(SO_FLAGS)
 
 
 @PACKAGE_NAME@.o1.c: bug-language.scm main.scm
-	gsc -link -flat -o @PACKAGE_NAME@.o1.c main  > /dev/null
+	$(GSC) -link -flat -o @PACKAGE_NAME@.o1.c main  > /dev/null
 
 @PACKAGE_NAME@.o1: @PACKAGE_NAME@.o1.c main.c
-	gsc -obj -cc-options "-D___DYNAMIC" @PACKAGE_NAME@.o1.c main.c
+	$(GSC) -obj -cc-options "-D___DYNAMIC" @PACKAGE_NAME@.o1.c main.c
 	$(CC) $(SHARED_LIB_FLAG)  -lgambit @PACKAGE_NAME@.o1.o main.o -o @PACKAGE_NAME@.o1
 
 
