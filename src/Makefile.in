@@ -58,7 +58,8 @@ bug.pdf: bug.asciidoc
 	$(GSC) -link -o @PACKAGE_NAME@.c main
 
 $(LIBRARY_NAME): @PACKAGE_NAME@.c main.c
-	$(GSC) -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c main.c
+	$(GSC) -obj -cc-options "-D___SHARED" @PACKAGE_NAME@.c
+	$(GSC) -obj -cc-options "-D___SHARED" main.c
 	$(CC) $(SHARED_LIB_FLAG) -o $(LIBRARY_NAME)  @PACKAGE_NAME@.o main.o -lgambit $(SO_FLAGS)
 
 
@@ -66,7 +67,8 @@ $(LIBRARY_NAME): @PACKAGE_NAME@.c main.c
 	$(GSC) -link -flat -o @PACKAGE_NAME@.o1.c main  > /dev/null
 
 @PACKAGE_NAME@.o1: @PACKAGE_NAME@.o1.c main.c
-	$(GSC) -obj -cc-options "-D___DYNAMIC" @PACKAGE_NAME@.o1.c main.c
+	$(GSC) -obj -cc-options "-D___DYNAMIC" @PACKAGE_NAME@.o1.c
+	$(GSC) -obj -cc-options "-D___DYNAMIC" main.c
 	$(CC) $(SHARED_LIB_FLAG)  -lgambit @PACKAGE_NAME@.o1.o main.o -o @PACKAGE_NAME@.o1
 
 
