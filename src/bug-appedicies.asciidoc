@@ -174,7 +174,7 @@ int fact(unsigned int n){
  ``3 * factorial\textless2\textgreater::value''.
  This recursion terminates on ``factorial\textless0\textgreater::value''
  on line 7\footnote{Even though
- the base case of ``factorial\textless0\textgreater'' is lexically specified 
+ the base case of ``factorial\textless0\textgreater'' is lexically specified
  after the more general
  case of ``factorial\textless n\textgreater'', templates expand the most
  specific case first.  So the compiler will terminate.}.
@@ -322,107 +322,107 @@ And most importantly, thanks to my wife Teresa, for everything.
 \end{itemize}
 
  \bibliography{abbr_long,pubext}
-\begin{thebibliography}{9}
 
-\bibitem[Abelson96]{sicp}
-  Abelon, Harold, Gerald Jay Sussman, and Julie Sussman.
-  \emph{Structure and Interpretation of Computer Programs},
+
+
+[bibliography]
+Bibliography
+------------
+
+[bibliography]
+- [[[sicp]]] Abelon, Harold, Gerald Jay Sussman, and Julie Sussman.
+  'Structure and Interpretation of Computer Programs',
   The MIT Press, Massachusetts,
   Second Edition,
   1996.
-\bibitem[Abrahams2004]{ctm}
+
+- [[[ctm]]]
   Abrahams, David and Aleksey Gurtovoy
-  \emph{C++ Template Metaprogramming},
+  'C++ Template Metaprogramming',
   Addison Wesley
   2004.
 
-\bibitem[Church51]{calculi}
+- [[[calculi]]]
   Church, Alonzo
-  \emph{The Calculi of Lambda-Conversion},
+  'The Calculi of Lambda-Conversion',
   Princeton University Press, New Jersey,
   Second Printing,
   1951.
 
-\bibitem[Dybvig03]{schemeprogramminglanguage}
+- [[[schemeprogramminglanguage]]]
   Dybvig, R. Kent.
-  \emph{The Scheme Programming Language},
+  'The Scheme Programming Language',
   The MIT Press, Massachusetts,
   Third Edition,
   2003.
 
-\bibitem[Feeley12]{evalduringmacroexpansion}
+- [[[evalduringmacroexpansion]]]
   Feeley, Marc. https://mercure.iro.umontreal.ca/pipermail/gambit-list/2012-April/005917.html, 2012
 
-\bibitem[Friedman96]{littleschemer}
+- [[[littleschemer]]]
   Friedman, Daniel P., and Matthias Felleisen
-  \emph{The Scheme Programming Language},
+  'The Scheme Programming Language',
   The MIT Press, Massachusetts,
   Fourth Edition,
   1996.
-\bibitem[Graham94]{onlisp}
+- [[[onlisp]]]
   Graham, Paul.
-  \emph{On Lisp},
+  'On Lisp',
   Prentice Hall, New Jersey,
   1994.
 
-\bibitem[Graham96]{ansicl}
+- [[[ansicl]]]
   Graham, Paul.
-  \emph{ANSI Common Lisp},
+  'ANSI Common Lisp',
   Prentice Hall, New Jersey,
   1996.
 
-\bibitem[Harvey01]{ss}
+- [[[ss]]]
   Harvey, Brian and Matthew Wright.
-  \emph{Simply Scheme - Introducing Computer Science},
+  'Simply Scheme - Introducing Computer Science',
   The MIT Press, Massachusetts,
   Second Edition,
   2001.
 
-\bibitem[Hopcroft01]{hmu2001}
+- [[[hmu2001]]]
   Hopcroft, John E., Rajeev Motwani, and Jeffrey D. Ullman.
-  \emph{Introduction to Automata Theory, Languages, and Computation},
+  'Introduction to Automata Theory, Languages, and Computation',
   Addison Wesley, Massachusetts,
   Second Edition,
   2001.
 
-\bibitem[Kiselyov98]{setf}
+- [[[setf]]]
   Kiselyov, Oleg. http://okmij.org/ftp/Scheme/setf.txt , 1998.
-\bibitem[Knuth97]{taocp}
+
+- [[[taocp]]]
   Knuth, Donald E.
-  \emph{The Art Of Computer Programming, Volume 1},
+  'The Art Of Computer Programming, Volume 1',
   Addison Wesley, Massachusetts,
   Third Edition,
   1997.
-\bibitem[Norvig92]{paip}
+
+- [[[paip]]]
   Norvig, Peter
-  \emph{Paradigms of Artificial Intelligence Programming: Case Studies in Common Lisp},
+  'Paradigms of Artificial Intelligence Programming: Case Studies in Common Lisp',
   San Francisco, CA
   1992.
-\bibitem[Pierce02]{tapl}
+
+- [[[tapl]]]
   Pierce, Benjamin C.
-  \emph{Types and Programming Languages},
+  'Types and Programming Languages',
   The MIT Press
   Cambridge, Massachusetts
   2002.
-\bibitem[Stallings03]{crypto}
+
+- [[[crypto]]]
   Stallings, William
-  \emph{Cryptography and Network Security},
+  'Cryptography and Network Security',
   Pearson Education, Upper Saddle River, New Jersey,
   Third Edition,
   2002.
-\bibitem[Steele90]{cl}
+
+- [[[cl]]]
   Steele Jr, Guy L.
-  \emph{Common Lisp the Language},
+  'Common Lisp the Language',
   Digital Press,
   1990.
-
-
-
-
-\end{thebibliography}
-
-\cleardoublepage
-
- \printindex
-
-\end{document}  %End of document.
