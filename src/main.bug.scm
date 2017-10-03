@@ -146,7 +146,7 @@
 ;;;read "Simply Scheme"footnote:[available on-line for no cost]
 ;;;or "The Little Schemer".  Since libbug uses Gambit Scheme's
 ;;;Common Lisp-style macros, the author recommends reading "On Lisp"
-;;;\cite{onlisp} footnote:[available on-line for no cost].
+;;;<<<onlisp>>> footnote:[available on-line for no cost].
 ;;;The other books listed in the bibliography, all of which inspired ideas for this
 ;;;book, are recommended reading but are
 ;;;not necessary to understand the contents of this book.
@@ -424,7 +424,7 @@
 ;;;
 ;;;=== identity
 ;;;"identity" is a procedure of one argument which evaluates to
-;;;its argument. \cite[p. 2]{calculi}
+;;;its argument. <<<calculi>>>
 ;;;
 ;;;\index{identity}
 ;;;
@@ -483,7 +483,7 @@
 ;;;- On line 3, "if", which is currently namespaced to "bug\#if"
 ;;;footnote:[defined in section~\ref{sec:langif}], takes
 ;;;lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
-;;;"Church Booleans" \cite[p. 58]{tapl}, and that "bug\#if" is just syntactic sugar:
+;;;"Church Booleans" <<<tapl>>>, and that "bug\#if" is just syntactic sugar:
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -627,7 +627,7 @@
             [(ifNegative)])])]}
 ;;;----
 ;;;
-;;;\cite[p. 150, called "nif"]{onlisp}
+;;;<<<onlisp>>>
 ;;;
 ;;;Keyword arguments are optionally passed to the procedure, and use the following syntax.
 ;;;
@@ -712,7 +712,7 @@
     (not (apply f args))]]}
 ;;;----
 ;;;
-;;;\cite[p. 63]{onlisp}
+;;;<<<onlisp>>>
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -764,7 +764,7 @@
  }
 ;;;----
 ;;;
-;;;For a thorough description of "equal?" vs "eq?", see \cite[p. 122-129]{schemeprogramminglanguage}.
+;;;For a thorough description of "equal?" vs "eq?", see <<<schemeprogramanguage>>>.
 ;;;
 ;;;
 ;;;=== proper?
@@ -814,7 +814,7 @@
        [(car l)])]}
 ;;;----
 ;;;
-;;;\cite[p. 59]{ss}
+;;;<<<ss>>>
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -848,7 +848,7 @@
        [(cdr l)])]}
 ;;;----
 ;;;
-;;;\cite[p. 59]{ss}
+;;;<<<ss>>>
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -883,7 +883,7 @@
               [(last (cdr l))])}])]}
 ;;;----
 ;;;
-;;;\cite[p. 59]{ss}
+;;;<<<ss>>>
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -921,7 +921,7 @@
                      (but-last (cdr l)))])}])]}
 ;;;----
 ;;;
-;;;\cite[p. 59]{ss}
+;;;<<<ss>>>
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -961,8 +961,8 @@
                 [(filter (cdr l))])}])}]}
 ;;;----
 ;;;
-;;;\cite[p. 331]{ss} footnote:[Simply Scheme has an excellent discussion on section
-;;;on Higher-Order Functions and their combinations \cite[p. 103-125]{ss}]. \cite[p. 115]{sicp}.
+;;;<<<ss>>> footnote:[Simply Scheme has an excellent discussion on section
+;;;on Higher-Order Functions and their combinations <<<ss>>>]. <<<sicp>>>.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -1026,7 +1026,7 @@
 ;;;
 ;;;
 ;;;
-;;;\cite[p. 121]{sicp}
+;;;<<<sicp>>>
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -1075,7 +1075,7 @@
              (fold-right (cdr l)))])}]}
 ;;;----
 ;;;
-;;;\cite[p. 116 (named "accumulate")]{sicp}
+;;;<<<sicp>>>
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -1208,7 +1208,7 @@
    (fold-left append! '() (map f l))]}
 ;;;----
 ;;;
-;;;\cite[p. 123]{sicp}
+;;;<<<sicp>>>
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -1585,11 +1585,11 @@
     ))}
 ;;;----
 ;;;
-;;;Inspired by \cite[p. 124]{sicp}, although I think they have a slight
+;;;Inspired by <<<sicp>>>, although I think they have a slight
 ;;;mistake in their code.  Given their definition (permutations '())
 ;;;evaluates to '(()), instead of '().
 ;;;
-;;;See also \cite[p. 45]{taocp}
+;;;See also <<<taocp>>>
 ;;;
 ;;;
 ;;;=== ref-of
@@ -1934,7 +1934,7 @@
 ;;;----
 ;;;
 ;;;
-;;;The "Caesar Cipher". \cite[p. 30]{crypto}.
+;;;The "Caesar Cipher". <<<crypto>>>.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -2024,7 +2024,7 @@
 ;;;
 ;;;For a much fuller explanation of the aforementioned problems, the author
 ;;;recommends reading
-;;;"On Lisp" by Paul Graham \cite{onlisp}.
+;;;"On Lisp" by Paul Graham <<<onlisp>>>.
 ;;;
 ;;;
 ;;;
@@ -2058,7 +2058,7 @@
                        ,(compose (cdr fs)))])}}}])]}
 ;;;----
 ;;;
-;;;\cite[p. 66]{onlisp}
+;;;<<<onlisp>>>
 ;;;
 ;;;
 ;;;- On line 1, the "libbug-private\#define-macro" macro footnote:[defined in
@@ -2167,12 +2167,12 @@
           [#f])}]}
 ;;;----
 ;;;
-;;;Although variable capture \cite[p. 118-132]{onlisp} is generally avoided,
-;;;there are instances in which variable capture is desirable \cite[p. 189-198]{onlisp}.
+;;;Although variable capture <<<onlisp>>> is generally avoided,
+;;;there are instances in which variable capture is desirable <<<onlisp>>>.
 ;;;Within libbug, variables intended for capture are fully qualified with a namespace
 ;;;to ensure that the variable is captured.
 ;;;
-;;;\cite[p. 191]{onlisp}
+;;;<<<onlisp>>>
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -2206,7 +2206,7 @@
       ,@body}]}
 ;;;----
 ;;;
-;;;\cite[p. 145]{onlisp}
+;;;<<<onlisp>>>
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -2298,7 +2298,7 @@
                      body))}]}
 ;;;----
 ;;;
-;;;\cite[p. 854]{paip}
+;;;<<<paip>>>
 ;;;
 ;;;"atom"s are handled as a special case to minimize the creation
 ;;;of "gensym"ed variables since evaluation of "atom"s
@@ -2380,11 +2380,11 @@
 ;;;"Rather than thinking about two distinct functions that respectively
 ;;;access and update a storage location somehow deduced from their arguments,
 ;;;we can instead simply think of a call to the access function with given
-;;;arguments as a _name_ for the storage location." \cite[p. 123-124]{cl}
+;;;arguments as a _name_ for the storage location." <<<cl>>>
 ;;;
 ;;;Create a macro named "setf!" which invokes the appropriate
 ;;;"setting" procedure, based on the given "accessing" procedure footnote:[The
-;;;implementation is inspired by \cite{setf}.].
+;;;implementation is inspired by <<<setf>>>.].
 ;;;
 ;;;\index{setf"!}
 ;;;[source,txt,linenums]
@@ -2574,7 +2574,7 @@
 ;;;used in similar contexts as Common Lisp's
 ;;;"define-modify-macro" would be, but it is more general, as
 ;;;it allows the new procedure to remain anonymous, as compared
-;;;to making a new name like "toggle" \cite[p. 169]{onlisp}.].
+;;;to making a new name like "toggle" <<<onlisp>>>.].
 ;;;
 ;;;\index{mutate"!}
 ;;;[source,txt,linenums]
@@ -2772,7 +2772,7 @@
                                                  bindings))}])}}}]}
 ;;;----
 ;;;
-;;;\cite[p. 232]{onlisp}
+;;;<<<onlisp>>>
 ;;;
 ;;;
 ;;;
@@ -2815,7 +2815,7 @@
 ;;;expression will be automatically applied when "(stream-cdr s)" is evaluated.
 ;;;This technique allows a programmer to create seemingly infinite data structures,
 ;;;such as the definition of "integers-from" and "primes".
-;;;For more information, consult \cite{sicp} footnote:[although, they
+;;;For more information, consult <<<sicp>>> footnote:[although, they
 ;;;define "stream-cons" as syntax instead of passing a lambda
 ;;;to the second argument].
 ;;;
@@ -2860,7 +2860,7 @@
                 lambda as its second argument.")])]}
 ;;;----
 ;;;
-;;;\cite[p. 321]{sicp}.
+;;;<<<sicp>>>.
 ;;;
 ;;;
 ;;;
@@ -2874,7 +2874,7 @@
   stream-a}
 ;;;----
 ;;;
-;;;\cite[p. 321]{sicp}.
+;;;<<<sicp>>>.
 ;;;
 ;;;=== stream-cdr
 ;;;Forces the evaluation of the next element of the stream.
@@ -2887,7 +2887,7 @@
    {force (stream-d s)}]}
 ;;;----
 ;;;
-;;;\cite[p. 321]{sicp}.
+;;;<<<sicp>>>.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -3018,7 +3018,7 @@
                                 (- n 1))])])}])]}
 ;;;----
 ;;;
-;;;\cite[p. 319]{sicp}.
+;;;<<<sicp>>>.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -3062,7 +3062,7 @@
    (stream-cons n [(integers-from (+ n 1))])]}
 ;;;----
 ;;;
-;;;\cite[p. 326]{sicp}.
+;;;<<<sicp>>>.
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -3227,7 +3227,7 @@
                               (stream-cdr s)))])}}
 ;;;----
 ;;;
-;;;\cite[p. 327]{sicp}.
+;;;<<<sicp>>>.
 ;;;
 ;;;
 ;;;[source,txt,linenums]

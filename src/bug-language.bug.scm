@@ -22,7 +22,7 @@
 ;;;=== at-compile-time
 ;;;``at-compile-time'' is a macro which ``eval''s the form during macro-expansion,
 ;;;but evaluates to the symbol ``noop'', thus not affecting
-;;;run-time \cite{evalduringmacroexpansion}.
+;;;run-time <<<evalduringmacroexpansion>>>.
 ;;;``Eval''ing during macro-expansion is how the compiler may be augmented with new procedures,
 ;;;thus treating the compiler as an interpreter.
 ;;;
@@ -478,9 +478,9 @@
 ;;;        done on line 12-13), thereby negating the quasi-quoting from line 4.
 ;;;  \item On lines 4-5, rather than nesting quasiquotes, use the technique
 ;;;        of replacing a would-be nested quasiquote with ``,(list 'quasiquote `(...)''.
-;;;        This makes the code more readable \cite[p. 854]{paip}.  Should the reader
+;;;        This makes the code more readable <<<paip>>>.  Should the reader
 ;;;        be interested in learning more about nested quasiquotes, Appendix C
-;;;        of \cite[p. 960]{cl} is a great reference.
+;;;        of <<<cl>>> is a great reference.
 ;;;  \item On lines 5-7, ensure that the currently unevaluated form will be
 ;;;        evaluated using libbug's namespaces.
 ;;;        Line 5 create a bounded
@@ -713,4 +713,3 @@
                      )}}}]}
 ;;;----
 ;;;
-

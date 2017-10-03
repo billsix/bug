@@ -22,11 +22,11 @@
  In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
  Motwani, and Ullman define language as ``A set of strings all of which are chosen
  from some $\Sigma^{\star}$, where $\Sigma$ is a particular alphabet, is called
- a language'' \cite[p. 30]{hmu2001}.
+ a language'' <<<hmu2001>>>.
  % They further state ``In automata theory, a
  % problem is the question
  % of deciding whether a given string is a member of some particular
- % language''. \cite[p. 31]{hmu2001}.
+ % language''. <<<hmu2001>>>.
  Plainly, that means that an ``alphabet'' is a set of characters (for instance, ASCII), and
  that a computer ``language'' is defined as all of the possible sequences of characters
  from that alphabet which are able to be compiled successfully.
@@ -285,7 +285,7 @@ int fact(unsigned int n){
  C++ template metaprogramming relies exclusively on recursion for repetition (it has no
  looping construct), it has no mutable state, and it lacks the ability to do input/output
  (I/O)\footnote{For the masochist who wants to know more about C++'s compile-time language,
- I recommend \cite{ctm} }
+ I recommend <<<ctm>>> }
 
  In contrast, the compile-time
  language in libbug is the exact same language as the one that the compiler
