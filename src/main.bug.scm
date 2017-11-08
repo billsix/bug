@@ -36,14 +36,14 @@
 ;;;the generated machine code.
 ;;;...Ummm, still not right...  This book is about viewing a compiler not only
 ;;;as a means of translating source code into machine code,
-;;; but also viewing it as an interpreter capable of any
+;;;but also viewing it as an interpreter capable of any
 ;;;general purpose computation.  ...Closer, but who cares?... I think I got it
 ;;;now. This is a book about "Testing at Compile-Time"!
 ;;;
 ;;;What do I mean by that?  Let's say you're looking at source code with which
 ;;;you are unfamiliar, such as the following:
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;{define permutations
 ;;; [|l|
@@ -81,7 +81,7 @@
 ;;;exit in error, like a type error in a
 ;;;statically-typed language.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;{unit-test
 ;;;(satisfies?
@@ -116,7 +116,7 @@
 ;;;be in the executable?  And won't they run every time I execute the program?
 ;;;That would be unacceptable as it would both increase the size of the binary and
 ;;;slow down the program at start up.  Fortunately the
-;;;answer to both questions is no, because in chapter~\ref{sec:buglang} I show how to specify
+;;;answer to both questions is no, because in chapter <<buglang>> I show how to specify
 ;;;that certain code should be interpreted by the compiler instead of being
 ;;;compiled.  Lisp implementations such as Gambit are particularly well
 ;;;suited for this style of programming because unevaluated Lisp code is
@@ -182,7 +182,7 @@
 ;;;Example code which is not part of libbug will not be outlined nor will it have line
 ;;;numbers.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;(+ 1 ("This is NOT part of libbug"))
 ;;;----
@@ -193,7 +193,7 @@
 ;;;syntactic extensions.]
 ;;;Such examples will look like the following:
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;> (+ 1 2)
 ;;;3
@@ -207,7 +207,7 @@
 ;;;==== Syntactic Conventions
 ;;;In libbug, the notation
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;(fun arg1 arg2)
 ;;;----
@@ -219,7 +219,7 @@
 ;;;are not normal procedures and do
 ;;;not necessarily respect those semantics, in libbug, the notation
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;{fun1 arg1 arg2}
 ;;;----
@@ -229,7 +229,7 @@
 ;;;the reader that the standard evaluation rules do not necessarily
 ;;;apply.  For instance, in
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;{define x 5}
 ;;;----
@@ -259,7 +259,7 @@
 ;;;
 ;;;To compile the book and library, execute the following on the command line:
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;$ ./autogen.sh
 ;;;$ ./configure --prefix=$BUG_HOME --enable-pdf
@@ -276,7 +276,7 @@
 ;;;
 ;;;After installing libbug, you should set the following environment variables.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;export PATH=$BUG_HOME/bin:$PATH
 ;;;export PKG_CONFIG_PATH=$BUG_HOME/lib/pkgconfig/
@@ -286,7 +286,7 @@
 ;;;
 ;;;=== Creating Your Own Project
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;$ bug-create-project testProject 1.0 "Jane Doe <jane@doe.com>"
 ;;;$ cd testProject/
@@ -316,21 +316,21 @@
 ;;;
 ;;;What exactly is computation at compile-time?  An introduction
 ;;;to the topic is provided
-;;;in Appendix~\ref{sec:appendix1}
+;;;in Appendix <<appendix1>>
 ;;;demonstrated
 ;;;in languages of more widespread use (C and C++),
 ;;;along with a comparison
 ;;;of their expressive power.
 ;;;
 ;;;
-;;;\part{The Implementation of Libbug}
+;;;= The Implementation of Libbug
 ;;;
 ;;;== Introductory Procedures
-;;; \label{sec:beginninglibbug}
+;;;[[beginninglibbug]]
 ;;;
 ;;;This chapter begins the definition of libbug's standard library of Scheme procedures and
-;;;macros footnote:[The code within chapters~\ref{sec:beginninglibbug}
-;;;through ~\ref{sec:endinglibbug} (inclusive) is found in
+;;;macros footnote:[The code within chapters <<beginninglibbug>>
+;;;through  <<endinglibbug>> (inclusive) is found in
 ;;;"src/main.bug.scm".], along with tests which are run as part of the
 ;;;compilation process.  If any test fails, the compiler will exit in error,
 ;;;much like a type error in a statically-typed language.
@@ -345,7 +345,7 @@
 ;;;"libbug-private\#\#define-structure" footnote:[Per convention
 ;;;within libbug, procedures namespaced to "libbug-private" are not compiled into the library;
 ;;;such procedures are meant for private use within the implementation
-;;;of libbug.], which  are implemented in Chapter~\ref{sec:buglang}.
+;;;of libbug.], which  are implemented in Chapter <<buglang>>.
 ;;;How they are implemented is not relevant yet, since the use of these
 ;;;procedure-defining procedures will be explained
 ;;;incrementally.
@@ -357,7 +357,7 @@
 {##namespace ("bug#" if)}
 ;;;----
 ;;;- On line 1, the code which makes computation at compile-time possible
-;;;is imported. That code is defined in Chapter~\ref{sec:buglang}.
+;;;is imported. That code is defined in Chapter <<buglang>>.
 ;;;- On line 2, Gambit's "\#\#namespace" procedure is invoked, ensuring
 ;;;that all unnamespaced uses of "define", "define-macro",
 ;;;and "define-structure" will use libbug's version of those procedures
@@ -367,18 +367,19 @@
 ;;;
 ;;;
 ;;;=== noop
+;;;indexterm:[noop]
+;;;
 ;;;The first definition is "noop" (meaning "no operation"), a procedure which
 ;;;takes zero arguments and
 ;;;which evaluates to the symbol 'noop.
 ;;;
-;;;\index{noop}
 ;;;[source,txt,linenums]
 ;;;----
 {define noop
   ['noop]}
 ;;;----
 ;;;
-;;;- On line 1, the libbug-private\#define macro footnote:[defined in section ~\ref{sec:libbugdefine}]
+;;;- On line 1, the libbug-private\#define macro footnote:[defined in section  <<libbugdefine>>]
 ;;;is invoked.
 ;;;- On line 1, the variable name "noop".
 ;;;- On line 2, the lambda literal to be stored into the variable.
@@ -386,7 +387,7 @@
 ;;;which expands lambda literals
 ;;;into lambdas.  In this case, "bug-gscpp" expands
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;['noop]
 ;;;----
@@ -394,7 +395,7 @@
 ;;;
 ;;;into
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;(lambda () 'noop)
 ;;;----
@@ -417,9 +418,9 @@
 ;;;library.
 ;;;
 ;;;"noop" does not look useful at first glance, but it is used when
-;;; a procedure of zero arguments is required but the resulting value of it is not.
-;;; For instance, "noop" is used as a default "exception-handler" for many
-;;; procedures within libbug.
+;;;a procedure of zero arguments is required but the resulting value of it is not.
+;;;For instance, "noop" is used as a default "exception-handler" for many
+;;;procedures within libbug.
 ;;;
 ;;;
 ;;;=== identity
@@ -468,7 +469,7 @@
 ;;;Like regular Scheme's "and", but takes a list instead of a variable number of arguments, and
 ;;;all elements of the list are evaluated before "all?" is applied.
 ;;;
-;;;\label{sec:langiffirstuse}
+;;[[langiffirstuse]]
 ;;;\index{all?}
 ;;;[source,txt,linenums]
 ;;;----
@@ -481,12 +482,12 @@
             [#f])])]}
 ;;;----
 ;;;- On line 3, "if", which is currently namespaced to "bug\#if"
-;;;footnote:[defined in section~\ref{sec:langif}], takes
+;;;footnote:[defined in section <<langif>>], takes
 ;;;lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
 ;;;"Church Booleans" <<<tapl>>>, and that "bug\#if" is just syntactic sugar:
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;{define #t [|t f| (t)]}
 ;;;{define #f [|t f| (f)]}
@@ -525,7 +526,7 @@
 ;;;with varying inputs and outputs, as was done for "all?"?  Instead, provide
 ;;;the procedure and a list
 ;;;of input/output pairs footnote:[Within libbug, a parameter named "f" usually means the parameter is
-;;;  a procedure.].
+;;;a procedure.].
 ;;;
 ;;;\index{satisfies?}
 ;;;[source,txt,linenums]
@@ -573,7 +574,7 @@
 ;;;languages provide primitives from which you can create
 ;;;those looping constructs yourself?  "Take the red pill."  footnote:[Within libbug,
 ;;;a parameter named "pred?" or "p?" usually means the parameter
-;;;  is a predicate, meaning a procedure which returns true or false.]
+;;;is a predicate, meaning a procedure which returns true or false.]
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -609,10 +610,10 @@
 ;;;
 ;;;
 ;;;=== numeric-if
-;;;  A conditional expression for numbers, based on their sign. "numeric-if"
-;;;  uses Gambit's keyword syntax.  "ifPositive", "ifZero", and "ifNegative" are
-;;;  optional arguments, each with their default value as the value in the "noop"
-;;;  variable.
+;;;A conditional expression for numbers, based on their sign. "numeric-if"
+;;;uses Gambit's keyword syntax.  "ifPositive", "ifZero", and "ifNegative" are
+;;;optional arguments, each with their default value as the value in the "noop"
+;;;variable.
 ;;;
 ;;;
 ;;;\index{numeric-if}
@@ -1819,10 +1820,10 @@
     ))}
 ;;;----
 ;;;
-;;;In section~\ref{sec:dbind}, "destructuring-bind" allows for a more convenient syntax when
+;;;In section <<dbind>>, "destructuring-bind" allows for a more convenient syntax when
 ;;;using "partition".
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;> {destructuring-bind (trueList falseList)
 ;;;                     (partition '(3 2 5 4 1)
@@ -2119,7 +2120,7 @@
 ;;;
 ;;;
 ;;;== Macros
-;;;\label{sec:macros}
+;;[[macros]]
 ;;;
 ;;;Although many concepts first implemented in Lisp (conditional expressions,
 ;;;garbage collection, procedures as first-class objects)
@@ -2186,7 +2187,7 @@
 ;;;
 ;;;
 ;;;- On line 1, the "libbug-private\#define-macro" macro footnote:[defined in
-;;;section ~\ref{sec:libbugdefinemacro}]
+;;;section  <<libbugdefinemacro>>]
 ;;;is invoked.  Besides defining the macro, "libbug-private\#define-macro"
 ;;;also exports the
 ;;;namespace definition and the macro definitions to external files,
@@ -2361,7 +2362,7 @@
 ;;;which is seldom expected by the caller.
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;> {define-macro double [|x| `(+ ,x ,x)]}
 ;;;> {double 5}
@@ -2371,7 +2372,7 @@
 ;;;The caller of "double" should reasonably expect the argument to "double"
 ;;;only to be evaluated once only, because that's how Scheme usually works.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;> {define foo 5}
 ;;;> {double {begin {set! foo (+ foo 1)}
@@ -2382,7 +2383,7 @@
 ;;;"once-only" allows a macro-writer to ensure that a variable is evaluated
 ;;;only once in the generated code.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,txt]
 ;;;----
 ;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
 ;;;> {define foo 5}
@@ -2498,7 +2499,7 @@
 ;;;
 ;;;== Generalized Assignment
 ;;;
-;;;\label{sec:endinglibbug}
+;;[[endinglibbug]]
 ;;;
 ;;;=== setf!
 ;;;"Rather than thinking about two distinct functions that respectively
@@ -2795,7 +2796,7 @@
 ;;;
 ;;;=== destructuring-bind
 ;;;
-;;; \label{sec:dbind}
+;;;[[dbind]]
 ;;;\index{destructuring-bind}
 ;;;
 ;;;"destructuring-bind" is a generalization of "let", in which multiple variables
@@ -2948,7 +2949,7 @@
 ;;;
 ;;;=== Stream structure
 ;;;
-;;;"libbug-private\#define-structure" footnote:[defined in section~\ref{sec:definestructure}]
+;;;"libbug-private\#define-structure" footnote:[defined in section <<definestructure>>]
 ;;;takes the name of the datatype and a variable
 ;;;number of fields as parameters.
 ;;;
@@ -3538,18 +3539,20 @@
 ;;;=== The End of Compilation
 ;;;
 ;;;
-;;;At the beginning of the book, in chapter~\ref{sec:beginninglibbug}, "bug-language.scm"
+;;;At the beginning of the book, in chapter <<beginninglibbug>>, "bug-language.scm"
 ;;;was imported, so that "libbug-private\#define", and "libbug-private\#define-macro" could be used.
 ;;;This chapter is the end of the file "main.bug.scm".  However, as will be shown
 ;;;in the next chapter, "bug-languge.scm" opened files for writing during compile-time,
 ;;;and they must be closed, accomplished by executing "at-end-of-compilation".
 ;;;
-;;;\label{sec:call-end-of-compilation}
+;;[[call-end-of-compilation
 ;;;[source,txt,linenums]
 ;;;----
 {at-compile-time
  (at-end-of-compilation)}
 ;;;----
 ;;;
+;;;[index]
+;;;== Index
 ;;;
 ;;;

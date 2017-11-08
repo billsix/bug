@@ -7,10 +7,10 @@
 ;;;= Foundations Of Libbug
 ;;;
 ;;;== Computation At Compile-Time
-;;; \label{sec:buglang}
+;;;[[buglang]]
 ;;;
-;;;This chapter\footnote{The contents of which is found in
-;;;``src/bug-language.bug.scm''.}, which was evaluated before the previous chapters, provides
+;;;This chapterfootnote:[The contents of which is found in
+;;;"src/bug-language.bug.scm''.], which was evaluated before the previous chapters, provides
 ;;;the foundation for computation at compile-time.  Although
 ;;;the most prevalent code in the previous chapters which executed at compile-time
 ;;;was for testing, many other computations occurred during compile-time
@@ -20,10 +20,10 @@
 ;;;
 ;;;
 ;;;=== at-compile-time
-;;;``at-compile-time'' is a macro which ``eval''s the form during macro-expansion,
-;;;but evaluates to the symbol ``noop'', thus not affecting
+;;;"at-compile-time" is a macro which "eval"s the form during macro-expansion,
+;;;but evaluates to the symbol "noop", thus not affecting
 ;;;run-time <<<evalduringmacroexpansion>>>.
-;;;``Eval''ing during macro-expansion is how the compiler may be augmented with new procedures,
+;;;"Eval"ing during macro-expansion is how the compiler may be augmented with new procedures,
 ;;;thus treating the compiler as an interpreter.
 ;;;
 ;;;\index{at-compile-time}
@@ -37,17 +37,15 @@
    '{quote noop}]}
 ;;;----
 ;;;
-;;;\begin{itemize}
-;;;  \item On lines 4-5, the unevaluated code which is passed to
-;;; ``at-compile-time'' is evaluated during macro-expansion, thus
-;;; at compile-time.  The macro-expansion expands into ``\{quote noop\}'', so the
-;;; form will not evaluate at run-time.
-;;;\end{itemize}
+;;;- On lines 4-5, the unevaluated code which is passed to
+;;;"at-compile-time" is evaluated during macro-expansion, thus
+;;;at compile-time.  The macro-expansion expands into "\{quote noop\}", so the
+;;;form will not evaluate at run-time.
 ;;;
 ;;;=== at-both-times
 ;;;\index{at-both-times}
 ;;;
-;;;``at-both-times'', like ``at-compile-time'', ``eval''s the forms
+;;;"at-both-times", like "at-compile-time", "eval"s the forms
 ;;;in the compile-time environment, but also in the run-time environment.
 ;;;
 ;;;[source,txt,linenums]
@@ -61,17 +59,15 @@
       ,@forms}]}
 ;;;----
 ;;;
-;;;\begin{itemize}
-;;;\item On lines 4-5, evaluation in the compile-time environment
-;;;\item On lines 6-7, evaluation in the run-time environment.  The forms
-;;; are returned unaltered to Gambit's compiler, thus ensuring that
-;;; they are defined in the run-time environment.
-;;;\end{itemize}
+;;;- On lines 4-5, evaluation in the compile-time environment
+;;;- On lines 6-7, evaluation in the run-time environment.  The forms
+;;;are returned unaltered to Gambit's compiler, thus ensuring that
+;;;they are defined in the run-time environment.
 ;;;
 ;;;=== at-compile-time-expand
 ;;;\index{at-compile-time-expand}
 ;;;
-;;;``at-compile-time-expand'' allows any procedure to act as a macro.
+;;;"at-compile-time-expand" allows any procedure to act as a macro.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -82,9 +78,10 @@
             ,@forms})]}
 ;;;----
 ;;;
-;;; This allows the programmer to create ``anonymous'' macros.
+;;;This allows the programmer to create "anonymous" macros.
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;> ({at-compile-time-expand
 ;;;    (if #t
 ;;;        ['car]
@@ -97,22 +94,22 @@
 ;;;        ['cdr]))
 ;;;  '(1 2)}
 ;;;(2)
-;;;\end{examplecode}
+;;;----
 ;;;
 ;;;
 ;;;
 ;;;=== Create Files for Linking Against Libbug
 ;;;
 ;;;Libbug is a collection of procedures and macros.  Building libbug results
-;;;in a dynamic library and a ``loadable'' library (a .o1 file, for loading
+;;;in a dynamic library and a "loadable" library (a .o1 file, for loading
 ;;;in the Gambit interpreter).
 ;;;But programs which link against libug will require libbug's
 ;;;macro definitions and namespace declarations, both of which are not
 ;;;compiled into the library.  Rather than manually copying all of them to
 ;;;external files, why not generate them during compile-time?
 ;;;
-;;;At compile time, open one file for the namespaces (``libbug\#.scm'') and one for the macros
-;;;(``libbug-macros.scm'').  These files will be pure Gambit scheme code, no
+;;;At compile time, open one file for the namespaces ("libbug#.scm") and one for the macros
+;;;("libbug-macros.scm").  These files will be pure Gambit scheme code, no
 ;;;libbug syntax enhancements.
 ;;;
 ;;;[source,txt,linenums]
@@ -120,17 +117,17 @@
 {at-compile-time
 ;;;----
 ;;;
-;;;\footnote{All of the code through section~\ref{sec:endOfLinkAgainstLibbug}
+;;;footnote:[All of the code through section <<endOfLinkAgainstLibbug>>
 ;;;is done at compile-time.  The author chose to use subsection numbers to indicate
-;;;scope for code which spans multiple pages.}
+;;;scope for code which spans multiple pages.]
 ;;;
 ;;;==== Create File for Namespaces
 ;;;
-;;; The previous three macros are currently namespaced within libbug, but
-;;; external projects which link against libbug may need these namespace
-;;; mappings as well.  Towards that goal, open a file
-;;; during compile-time and write the namespace mappings
-;;; to the file.
+;;;The previous three macros are currently namespaced within libbug, but
+;;;external projects which link against libbug may need these namespace
+;;;mappings as well.  Towards that goal, open a file
+;;;during compile-time and write the namespace mappings
+;;;to the file.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -193,20 +190,19 @@
 ;;;----
 ;;;
 ;;;
-;;;\begin{itemize}
-;;;  \item On line 1-3, include the ``config.scm'' file which was preprocessed
-;;;    by Autoconf, so that the installation directory of libbug is known
-;;;    at compile-time.
-;;;  \item On line 13, ``libbug\#.scm'' is imported, so that the generated macros are
-;;;        namespaced correctly in external projects which import libbug.  In the previous section,
-;;;        this file is created at compile-time.  Remember that when ``libbug-macros.scm'' will
-;;;        be imported by an external project, ``libbug\#.scm'' will exist with all
-;;;        of the namespaces defined in libbug\footnote{Marty: ``Well Doc, we can
-;;;   scratch that idea. I mean we can't wait around a year and a half for this
-;;;   thing to get finished.''  Doc Brown:  ``Marty it's perfect, you're just not
-;;;   thinking fourth-dimensionally.  Don't you see, the bridge will exist in 1985.''
-;;;   -Back to the Future 3}.
-;;;\end{itemize}
+;;;- On line 1-3, include the "config.scm" file which was preprocessed
+;;;by Autoconf, so that the installation directory of libbug is known
+;;;at compile-time.
+;;;
+;;;- On line 13, "libbug#.scm" is imported, so that the generated macros are
+;;;namespaced correctly in external projects which import libbug.  In the previous section,
+;;;this file is created at compile-time.  Remember that when "libbug-macros.scm" will
+;;;be imported by an external project, "libbug#.scm" will exist with all
+;;;of the namespaces defined in libbugfootnote:[Marty: "Well Doc, we can
+;;;scratch that idea. I mean we can't wait around a year and a half for this
+;;;thing to get finished."  Doc Brown:  "Marty it's perfect, you're just not
+;;;thinking fourth-dimensionally.  Don't you see, the bridge will exist
+;;;in 1985." -Back to the Future 3].
 ;;;
 ;;;
 ;;;
@@ -215,8 +211,8 @@
 ;;;Create a procedure to be invoked
 ;;;at the end of compilation, to close the compile-time generated
 ;;;files. Also, the namespace within the generated macro file
-;;;is reset to the default namespace\footnote{This procedure
-;;;is called in section~\ref{sec:call-end-of-compilation}}.
+;;;is reset to the default namespacefootnote:[This procedure
+;;;is called in section <<call-end-of-compilation>>].
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -232,23 +228,23 @@
  }
 ;;;----
 ;;;
-;;;\label{sec:endOfLinkAgainstLibbug}
+;;;[[endOfLinkAgainstLibbug]]
 ;;;
 ;;;
-;;;=== libbug-private\#write-and-eval
+;;;=== libbug-private#write-and-eval
 ;;;
 ;;;Now that those files are open, namespaces will be written
-;;;to ``libbug\#.scm'' and macro definitions to ``libbug-macros.scm''.  However, the
+;;;to "libbug#.scm" and macro definitions to "libbug-macros.scm".  However, the
 ;;;code shouldn't have be to duplicated for each context, as was done for
 ;;;the previous three macros.
 ;;;
-;;;Create a macro named ``write-and-eval'' which will write the
+;;;Create a macro named "write-and-eval" which will write the
 ;;;unevaluated form plus a newline to the
 ;;;file, and then return the form so that the compiler actually evaluate
-;;;it\footnote{any procedure which is namespaced to ``libbug-private'' is
-;;; not exported to the namespace file nor the macro file}.
+;;;itfootnote:[any procedure which is namespaced to "libbug-private" is
+;;;not exported to the namespace file nor the macro file].
 ;;;
-;;;\index{libbug-private\#write-and-eval}
+;;;\index{libbug-private#write-and-eval}
 ;;;[source,txt,linenums]
 ;;;----
 {##define-macro libbug-private#write-and-eval
@@ -259,19 +255,19 @@
    form]}
 ;;;----
 ;;;
-;;;``write-and-eval'' writes the form to a file, and evaluates the
+;;;"write-and-eval" writes the form to a file, and evaluates the
 ;;;form only in the run-time context.  For namespaces in libbug, namespaces
 ;;;should be valid at
 ;;;compile-time too.
 ;;;
 ;;;
-;;;=== libbug-private\#namespace
+;;;=== libbug-private#namespace
 ;;;
 ;;;Namespaces for procedures in libbug need to be available at
 ;;;compile-time, run-time, and in the namespace file
 ;;;for inclusion in projects which link to libbug.
 ;;;
-;;;\index{libbug-private\#namespace}
+;;;\index{libbug-private#namespace}
 ;;;[source,txt,linenums]
 ;;;----
 {##define-macro libbug-private#namespace
@@ -288,16 +284,16 @@
 ;;;
 ;;;
 ;;;=== if
-;;;\label{sec:langif}
+;;;[[langif]]
 ;;;In the following, a new version of "if" is defined named
-;;;``bug\#if'', where
-;;;``bug\#if'' takes two zero-argument procedures, treating them
-;;;as Church Booleans.  bug\#if was first used and described
-;;;in section~\ref{sec:langiffirstuse}.
+;;;"bug#if", where
+;;;"bug#if" takes two zero-argument procedures, treating them
+;;;as Church Booleans.  bug#if was first used and described
+;;;in section <<langiffirstuse>>.
 ;;;
 ;;;
 ;;;
-;;;\index{bug\#if}
+;;;\index{bug#if}
 ;;;[source,txt,linenums]
 ;;;----
 {libbug-private#namespace if}
@@ -318,25 +314,22 @@
            (error "bug#if requires two lambda expressions")}]}}}
 ;;;----
 ;;;
-;;;\begin{itemize}
-;;; \item
-;;;    On line 7, ``\#\#if'' is called.  In Gambit's system of namespacing, ``\#\#'
-;;;    is prefixed to a variable name to specify to use the global namespace for
-;;;    that variable.
-;;;    ``bug\#if'' is built on Gambit's implementation of ``if'', but since
-;;;    line 1 set the namespace of ``if'' to ``bug\#if'', ``\#\#if'' must be
-;;;    used.
-;;; \item
-;;;  On lines 7-12, check that the caller of ``bug\#if'' is passing
-;;;  lambdas, i.e. has not forgotten that ``if'' is namespaced to ``bug''.
-;;; \item
-;;;   On line 16, if the caller of ``bug\#if'' has not passed lambdas,
-;;;   error at compile-time.
-;;; \item
-;;;  On line 13-15, evaluate the body of the appropriate lambda, depending
-;;;  on whether the predicate is true or false.
+;;;- On line 7, "##if" is called.  In Gambit's system of namespacing, "##'
+;;;is prefixed to a variable name to specify to use the global namespace for
+;;;that variable.
+;;;"bug#if" is built on Gambit's implementation of "if", but since
+;;;line 1 set the namespace of "if" to "bug#if", "##if" must be
+;;;used.
 ;;;
-;;;\end{itemize}
+;;;- On lines 7-12, check that the caller of "bug#if" is passing
+;;;lambdas, i.e. has not forgotten that "if" is namespaced to "bug".
+;;;
+;;;- On line 16, if the caller of "bug#if" has not passed lambdas,
+;;;error at compile-time.
+;;;
+;;;- On line 13-15, evaluate the body of the appropriate lambda, depending
+;;;on whether the predicate is true or false.
+;;;
 ;;;
 ;;;
 ;;;
@@ -347,14 +340,13 @@
 ;;;Given that the reader now knows how to evaluate at compile-time, implementing
 ;;;a macro to execute tests at compile-time is trivial.
 ;;;
-;;;\begin{itemize}
-;;; \item  Make a macro called ``unit-test'', which takes
-;;;        an unevaluated list of tests.
-;;; \item  ``eval'' the tests at compile-time.
-;;;    If any test evaluates to false, force the compiler to exit in error, producing
-;;;    an appropriate error message.  If all of the tests pass, the Gambit compiler
-;;;    continues compiling subsequent definitions.
-;;;\end{itemize}
+;;;- Make a macro called "unit-test", which takes
+;;;an unevaluated list of tests.
+;;;
+;;;- "eval" the tests at compile-time.
+;;;If any test evaluates to false, force the compiler to exit in error, producing
+;;;an appropriate error message.  If all of the tests pass, the Gambit compiler
+;;;continues compiling subsequent definitions.
 ;;;
 ;;;
 ;;;[source,txt,linenums]
@@ -373,13 +365,13 @@
 ;;;
 ;;;
 ;;;
-;;;=== libbug-private\#define
-;;; ``libbug-private\#define'' is the main procedure-defining procedure used
-;;; throughout libbug.  ``libbug-private\#define'' takes a variable name and
-;;; a value to be stored in the variable.
+;;;=== libbug-private#define
+;;;"libbug-private#define" is the main procedure-defining procedure used
+;;;throughout libbug.  "libbug-private#define" takes a variable name and
+;;;a value to be stored in the variable.
 ;;;
-;;;\label{sec:libbugdefine}
-;;;\index{libbug-private\#define}
+;;;[[libbugdefine]]
+;;;\index{libbug-private#define}
 ;;;[source,txt,linenums]
 ;;;----
 {##define-macro
@@ -391,35 +383,37 @@
        {##define ,name ,body}}}]}
 ;;;----
 ;;;
-;;;``libbug-private\#define'' defines the procedure/data both at both compile-time
+;;;"libbug-private#define" defines the procedure/data both at both compile-time
 ;;;and run-time, and exports the namespace mapping to the appropriate file.
-;;;``libbug-private\#define'' itself is not exported to the macros file.
+;;;"libbug-private#define" itself is not exported to the macros file.
 ;;;
-;;; On line 6-7, the definition occurs at both compile-time and run-time,
-;;; ensuring that the procedure is available for evaluation of tests during compile-time.
+;;;On line 6-7, the definition occurs at both compile-time and run-time,
+;;;ensuring that the procedure is available for evaluation of tests during compile-time.
 ;;;
 ;;;
-;;;=== libbug-private\#define-macro
-;;; Like ``libbug-private\#define'' is built upon ``\#\#define'',
-;;; ``libbug-private\#define-macro'' is built upon ``\#\#define-macro''.
-;;; ``libbug-private\#define-macro''
-;;; ensures that the macro is available both at
-;;; run-time and at compile-time. Macros do not get compiled into
-;;; libraries however, so for other projects to use them they must be exported
-;;; to file.
+;;;=== libbug-private#define-macro
+;;;Like "libbug-private#define" is built upon "##define",
+;;;"libbug-private#define-macro" is built upon "##define-macro".
+;;;"libbug-private#define-macro"
+;;;ensures that the macro is available both at
+;;;run-time and at compile-time. Macros do not get compiled into
+;;;libraries however, so for other projects to use them they must be exported
+;;;to file.
 ;;;
 ;;;The steps will be as follows:
-;;;\begin{itemize}
-;;;  \item Write the macro to file
-;;;  \item Write the macro-expander to file
-;;;  \item Define the macro-expander within libbug
-;;;  \item Define the macro.
-;;;\end{itemize}
+
+;;;- Write the macro to file
+;;;
+;;;- Write the macro-expander to file
+;;;
+;;;- Define the macro-expander within libbug
+;;;
+;;;- Define the macro.
 ;;;
 ;;;
-;;;\label{sec:libbugdefinemacro}
+;;;[[libbugdefinemacro]]
 ;;;
-;;;\index{libbug-private\#define-macro}
+;;;\index{libbug-private#define-macro}
 ;;;[source,txt,linenums]
 ;;;----
 {##define-macro libbug-private#define-macro
@@ -427,7 +421,7 @@
 ;;;----
 ;;;==== Write the Macro to File
 ;;;
-;;; \label{sec:writemacrotofile}
+;;;[[writemacrotofile]]
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -435,12 +429,12 @@
     `{at-both-times
 ;;;----
 ;;;===== Macro Definition
-;;;  The macro definition written to file will be imported as
-;;;  text by other projects
-;;;  which may have different namespace mappings than libbug.
-;;;  To ensure that the macro works correctly in other contexts, the
-;;;  appropriate namespace
-;;;  mappings must be loaded for the definition of this macro definition.
+;;;The macro definition written to file will be imported as
+;;;text by other projects
+;;;which may have different namespace mappings than libbug.
+;;;To ensure that the macro works correctly in other contexts, the
+;;;appropriate namespace
+;;;mappings must be loaded for the definition of this macro definition.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -461,65 +455,73 @@
 ;;;
 ;;;
 ;;;
-;;;\begin{itemize}
-;;;  \item On line 3, the lambda value written to file shall have the same
-;;;        argument list as the argument list passed to ``libbug-private\#define-macro''
+;;;- On line 3, the lambda value written to file shall have the same
+;;;argument list as the argument list passed to "libbug-private#define-macro"
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;   > (cadr '[|foo bar| (quasiquote 5)])
 ;;;   (foo bar)
-;;;\end{examplecode}
+;;;----
 ;;;
 ;;;
-;;;  \item On line 4, the unevaluated form in argument ``lambda-value'' may
-;;;        or may not be quasiquoted.  Either way, write a quasiquoted form
-;;;        to the file.  In the case that the ``lambda-value'' argument was not
-;;;        actually intended to be quasiquoted, unquote the lambda's body (which is
-;;;        done on line 12-13), thereby negating the quasi-quoting from line 4.
-;;;  \item On lines 4-5, rather than nesting quasiquotes, use the technique
-;;;        of replacing a would-be nested quasiquote with ``,(list 'quasiquote `(...)''.
-;;;        This makes the code more readable <<<paip>>>.  Should the reader
-;;;        be interested in learning more about nested quasiquotes, Appendix C
-;;;        of <<<cl>>> is a great reference.
-;;;  \item On lines 5-7, ensure that the currently unevaluated form will be
-;;;        evaluated using libbug's namespaces.
-;;;        Line 5 create a bounded
-;;;        context for namespace mapping.  Line 6 sets standard Gambit namespace
-;;;        mappings, line 7 sets libbug's mappings.
-;;;  \item On line 8-10, check to see if the unevaluated form is quasiquoted.
+;;;- On line 4, the unevaluated form in argument "lambda-value" may
+;;;or may not be quasiquoted.  Either way, write a quasiquoted form
+;;;to the file.  In the case that the "lambda-value" argument was not
+;;;actually intended to be quasiquoted, unquote the lambda's body (which is
+;;;done on line 12-13), thereby negating the quasi-quoting from line 4.
 ;;;
-;;;\begin{examplecode}
+;;;- On lines 4-5, rather than nesting quasiquotes, use the technique
+;;;of replacing a would-be nested quasiquote with ",(list 'quasiquote `(...)".
+;;;This makes the code more readable <<<paip>>>.  Should the reader
+;;;be interested in learning more about nested quasiquotes, Appendix C
+;;;of <<<cl>>> is a great reference.
+;;;
+;;;- On lines 5-7, ensure that the currently unevaluated form will be
+;;;evaluated using libbug's namespaces.
+;;;Line 5 create a bounded
+;;;context for namespace mapping.  Line 6 sets standard Gambit namespace
+;;;mappings, line 7 sets libbug's mappings.
+;;;
+;;;- On line 8-10, check to see if the unevaluated form is quasiquoted.
+;;;
+;;;[source,txt]
+;;;----
 ;;;   > (caaddr '[|foo bar| (quasiquote 5)])
 ;;;   quasiquote
-;;;\end{examplecode}
+;;;----
 ;;;
-;;;  \item On line 11, since it is quasiquoted, grab the content of the
-;;;        list minus the quasiquoting.
+;;;- On line 11, since it is quasiquoted, grab the content of the
+;;;list minus the quasiquoting.
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;   > (car (cdaddr '[|foo bar| (quasiquote 5)]))
 ;;;   5
-;;;\end{examplecode}
+;;;----
 ;;;
-;;; Remember that this value gets wrapped in a quasiquote from line 5
+;;;Remember that this value gets wrapped in a quasiquote from line 5
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;   > (list 'quasiquote (car (cdaddr '[|foo bar|
 ;;;                                        (quasiquote 5)])))
 ;;;   `5
-;;;\end{examplecode}
+;;;----
 ;;;
-;;;  \item On line 12-13, since this is not a quasiquoted form, just grab
-;;;        the form, and ``unquote'' it.
+;;;- On line 12-13, since this is not a quasiquoted form, just grab
+;;;the form, and "unquote" it.
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;   > (append (list 'unquote) (cddr '[|foo bar| (+ 5 5)]))
 ;;;   ,(+ 5 5)
-;;;\end{examplecode}
+;;;----
 ;;;
-;;; Remember, this value gets wrapped in a quasiquote from line 4
+;;;Remember, this value gets wrapped in a quasiquote from line 4
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;   > (list 'quasiquote (append (list 'unquote)
 ;;;                               (cddr '[|foo bar|
 ;;;                                         (+ 5 5)])))
@@ -528,10 +530,9 @@
 ;;;                                     (cddr '[|foo bar|
 ;;;                                               (+ 5 5)])))
 ;;;   10
-;;;\end{examplecode}
+;;;----
 ;;;
 ;;;
-;;;\end{itemize}
 ;;;
 ;;;
 ;;;
@@ -539,14 +540,14 @@
 ;;;
 ;;;In order to be able to test the macro-expansions effectively, a programmer
 ;;;needs to be able to access the code generated from the macro as a data structure.
-;;;For each macro defined, create a new macro with the same name suffixed with ``-expand'',
+;;;For each macro defined, create a new macro with the same name suffixed with "-expand",
 ;;;whose body is the same procedure as
-;;;``lambda-value''s body, but the result of evaluating that body is ``quoted''.
-;;;In this new procedure's local environment, define ``gensym''
-;;;so that tests may be written\footnote{``\#\#gensym'' by definition
+;;;"lambda-value"s body, but the result of evaluating that body is "quoted".
+;;;In this new procedure's local environment, define "gensym"
+;;;so that tests may be writtenfootnote:["##gensym" by definition
 ;;;creates a unique symbol which the programmer can not directly input, making testing of the macro-expansion
 ;;;impossible.
-;;;Thus, the problem is solved by locally defining a new ``gensym'' procedure.}.
+;;;Thus, the problem is solved by locally defining a new "gensym" procedure.].
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -564,7 +565,7 @@
             (list 'quote ,@(cddr lambda-value))}}}}
 ;;;----
 ;;;
-;;;Finish writing the macro to file which was started in section~\ref{sec:writemacrotofile}.
+;;;Finish writing the macro to file which was started in section <<writemacrotofile>>.
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
@@ -625,27 +626,29 @@
 ;;;
 ;;;=== macroexpand-1
 ;;;
-;;;``macroexpand-1'' is syntactic sugar which allows the programmer to test macro-expansion by writing
+;;;"macroexpand-1" is syntactic sugar which allows the programmer to test macro-expansion by writing
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;(equal? {macroexpand-1 {aif (+ 5 10)
 ;;;                           (* 2 bug#it)}}
 ;;;      '{let ((bug#it (+ 5 10)))
 ;;;         (if bug#it
 ;;;             [(* 2 bug#it)]
 ;;;             [#f])})
-;;;\end{examplecode}
+;;;----
 ;;;
 ;;;instead of
 ;;;
-;;;\begin{examplecode}
+;;;[source,txt]
+;;;----
 ;;;(equal? {aif-expand (+ 5 10)
 ;;;                   (* 2 bug#it))}
 ;;;      '{let ((bug#it (+ 5 10)))
 ;;;         (if bug#it
 ;;;             [(* 2 bug#it)]
 ;;;             [#f])})
-;;;\end{examplecode}
+;;;----
 ;;;
 ;;;\index{macroexpand-1}
 ;;;[source,txt,linenums]
@@ -663,12 +666,12 @@
 ;;;
 ;;;
 ;;;=== libbug-private#define-structure
-;;; \label{sec:definestructure}
-;;;\index{libbug-private\#define-structure}
+;;;[[definestructure]]
+;;;\index{libbug-private#define-structure}
 ;;;
-;;;Like ``\#\#define-structure'', but additionally writes the namespaces
-;;;to file\footnote{In the following, ``\#\#define-structure'' is defined at
-;;;compile-time, because Gambit does not define ``\#\#define-structure'' at compile-time.}.
+;;;Like "##define-structure", but additionally writes the namespaces
+;;;to filefootnote:[In the following, "##define-structure" is defined at
+;;;compile-time, because Gambit does not define "##define-structure" at compile-time.].
 ;;;
 ;;;[source,txt,linenums]
 ;;;----
