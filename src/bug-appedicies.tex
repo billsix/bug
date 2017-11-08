@@ -127,7 +127,7 @@ int fact(unsigned int n){
  expressive power?
 
  The following is an example of calculating the factorial of
- 3; using C++ procedures for run-time calulation, and C++'s templates for compile-time
+ 3; using C++ procedures for run-time calculation, and C++'s templates for compile-time
  calculation.
 
  \begin{code}
@@ -174,7 +174,7 @@ int fact(unsigned int n){
  ``3 * factorial\textless2\textgreater::value''.
  This recursion terminates on ``factorial\textless0\textgreater::value''
  on line 7\footnote{Even though
- the base case of ``factorial\textless0\textgreater'' is lexically specified 
+ the base case of ``factorial\textless0\textgreater'' is lexically specified
  after the more general
  case of ``factorial\textless n\textgreater'', templates expand the most
  specific case first.  So the compiler will terminate.}.
