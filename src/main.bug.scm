@@ -1057,6 +1057,26 @@
 ;;;----
 ;;;
 ;;;
+;;;=== sum
+;;;
+;;;\index{sum}
+;;;[source,txt,linenums]
+;;;----
+{define sum
+  [|l|
+   (fold-left + 0 l)]}
+;;;----
+
+;;;[source,txt,linenums]
+;;;----
+{unit-test
+ (satisfies?
+  sum
+  '(( (1)    1)
+    ( (1 2)  3)
+    ( (1 2 3) 6)))
+ }
+;;;----
 ;;;
 ;;;=== fold-right
 ;;;Reduces the list to a scalar by applying the reducing
@@ -1590,6 +1610,81 @@
 ;;;evaluates to '(()), instead of '().
 ;;;
 ;;;See also <<<taocp>>>
+
+;;;=== cartesian-product
+;;;
+;;;\index{cartesian-product}
+;;;[source,txt,linenums]
+;;;----
+{define cartesian-product
+  [|lol|
+   {##define cp
+     [|lol|
+      {cond
+       ((null? (cdr lol))
+        (map list (car lol)))
+       (#t
+        (flatmap [|x| (map [|y| (cons x y)]
+                           (cp (cdr lol)))]
+                 (car lol)))}]}
+   {cond ((null? lol) '())
+         (#t (cp lol))}]}
+;;;----
+
+;;;[source,txt,linenums]
+;;;----
+{unit-test
+ (equal? (cartesian-product '())
+         '())
+ (equal? (cartesian-product '((1 2 3)))
+         '((1) (2) (3)))
+ (equal? (cartesian-product '((1 2 3)
+                              (4 5 6)))
+         '((1 4)
+           (1 5)
+           (1 6)
+           (2 4)
+           (2 5)
+           (2 6)
+           (3 4)
+           (3 5)
+           (3 6)))
+;;;----
+
+;;;[source,txt,linenums]
+;;;----
+ (equal? (cartesian-product '((1 2 3)
+                              (4 5 6)
+                              (7 8 9)))
+         '((1 4 7)
+           (1 4 8)
+           (1 4 9)
+           (1 5 7)
+           (1 5 8)
+           (1 5 9)
+           (1 6 7)
+           (1 6 8)
+           (1 6 9)
+           (2 4 7)
+           (2 4 8)
+           (2 4 9)
+           (2 5 7)
+           (2 5 8)
+           (2 5 9)
+           (2 6 7)
+           (2 6 8)
+           (2 6 9)
+           (3 4 7)
+           (3 4 8)
+           (3 4 9)
+           (3 5 7)
+           (3 5 8)
+           (3 5 9)
+           (3 6 7)
+           (3 6 8)
+           (3 6 9)))
+ }
+;;;----
 ;;;
 ;;;
 ;;;=== ref-of
@@ -1654,6 +1749,35 @@
 ;;;----
 ;;;
 ;;;
+;;;=== list-set!
+;;;
+;;;\index{list-set!}
+;;;[source,txt,linenums]
+;;;----
+;; TODO - handle case where index is too large
+;; N.B this is called list-sef! instead of list-ref-set!
+;;  to facilitate use by setf!, as setf! drops the -ref suffix
+{define list-set!
+  [|l index val|
+   (if (equal? 0 index)
+       [(set-car! l val)]
+       [(list-set! (cdr l) (- index 1) val)])
+   ]}
+;;;----
+
+;;;[source,txt,linenums]
+;;;----
+{unit-test
+ {let ((foo '(bar baz quux)))
+   (list-set! foo 0 'blah)
+   (equal? foo '(blah baz quux))}
+ {let ((foo '(bar baz quux)))
+   (list-set! foo 1 'blah)
+   (equal? foo '(bar blah quux))
+   }
+ }
+;;;----
+
 ;;;
 ;;;
 ;;;=== partition
@@ -2481,6 +2605,9 @@
  {let ((foo '(1 2)))
    {setf! (cdr foo) 10}
    (equal? (cdr foo) 10)}
+ {let ((foo '(bar baz quux)))
+   {setf! (list-ref foo 2) 'blah}
+   (equal? foo '(bar baz blah))}
  }
 ;;;----
 ;;;
