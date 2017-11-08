@@ -43,7 +43,7 @@
 ;;;What do I mean by that?  Let's say you're looking at source code with which
 ;;;you are unfamiliar, such as the following:
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;{define permutations
 ;;; [|l|
@@ -81,7 +81,7 @@
 ;;;exit in error, like a type error in a
 ;;;statically-typed language.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;{unit-test
 ;;;(satisfies?
@@ -173,7 +173,7 @@
 ;;;Code which is part of libbug will be outlined and
 ;;;will have line numbers on the left.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 ;; This is part of libbug.
 ;;;----
@@ -182,7 +182,7 @@
 ;;;Example code which is not part of libbug will not be outlined nor will it have line
 ;;;numbers.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;(+ 1 ("This is NOT part of libbug"))
 ;;;----
@@ -193,21 +193,21 @@
 ;;;syntactic extensions.]
 ;;;Such examples will look like the following:
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;> (+ 1 2)
 ;;;3
 ;;;----
 ;;;
 ;;;
-;;;The line on which the user entered text begins with a "\textgreater".  The result
+;;;The line on which the user entered text begins with a ">".  The result
 ;;;of evaluating that line appears on the subsequent line. In this case, 1 added to 2
 ;;;evaluates to 3.
 ;;;
 ;;;==== Syntactic Conventions
 ;;;In libbug, the notation
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;(fun arg1 arg2)
 ;;;----
@@ -219,7 +219,7 @@
 ;;;are not normal procedures and do
 ;;;not necessarily respect those semantics, in libbug, the notation
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;{fun1 arg1 arg2}
 ;;;----
@@ -229,26 +229,25 @@
 ;;;the reader that the standard evaluation rules do not necessarily
 ;;;apply.  For instance, in
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;{define x 5}
 ;;;----
 ;;;
 ;;;
-;;;\{\} are used because "x"
+;;;{} are used because "x"
 ;;;may be a new variable.  As such, "x" might not currently evaluate to anything.
 ;;;
-;;;Not all macro applications use \{\}.  If the macro always respects Scheme's standard
+;;;Not all macro applications use {}.  If the macro always respects Scheme's standard
 ;;;order of evaluation, macro application may use standard Scheme notation:
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 ;;;((compose [|x| (* x 2)]) 5)
 ;;;----
 ;;;
 ;;;=== Getting the Source Code And Building
-;;;The Scheme source code is located at http://github.com/billsix/bug
-;;;footnote:[This book was generated from git commit \input{version.tex}].
+;;;The Scheme source code is located at http://github.com/billsix/bug.
 ;;;The Scheme files produce the libbug library, as well as this book.
 ;;;Currently the code works on various distributions of Linux, on FreeBSD, and on Mac
 ;;;OS X.  The build currently does not work on Windows.
@@ -268,9 +267,9 @@
 ;;;----
 ;;;
 ;;;- The argument to "prefix" is the location into which libbug
-;;;will be installed when "make install" is executed. "\$BUG\textunderscore HOME" is an
+;;;will be installed when "make install" is executed. "$BUG_HOME" is an
 ;;;environment variable that I have not defined, so the reader should substitute
-;;;"\$BUG\textunderscore HOME" with an actual filesystem path.
+;;;"$BUG_HOME" with an actual filesystem path.
 ;;;- "--enable-pdf" means to build this book as a PDF.  To disable the creation of the PDF,
 ;;;substitute "--enable-pdf=no".
 ;;;
@@ -336,13 +335,13 @@
 ;;;much like a type error in a statically-typed language.
 ;;;
 ;;;To gain such functionality libbug cannot be defined using Gambit Scheme's
-;;;"\#\#define", "\#\#define-macro", and "\#\#define-structure", since
+;;;"##define", "##define-macro", and "##define-structure", since
 ;;;they only define variables and
 ;;;procedures for use at run-time footnote:[well... that statement is not true
-;;;for "\#\#define-macro", but it makes for a simpler explanation upon first reading].
+;;;for "##define-macro", but it makes for a simpler explanation upon first reading].
 ;;;Instead, definitions within
-;;;libbug use "libbug-private\#define", "libbug-private\#define-macro", and
-;;;"libbug-private\#\#define-structure" footnote:[Per convention
+;;;libbug use "libbug-private#define", "libbug-private#define-macro", and
+;;;"libbug-private##define-structure" footnote:[Per convention
 ;;;within libbug, procedures namespaced to "libbug-private" are not compiled into the library;
 ;;;such procedures are meant for private use within the implementation
 ;;;of libbug.], which  are implemented in Chapter <<buglang>>.
@@ -350,7 +349,7 @@
 ;;;procedure-defining procedures will be explained
 ;;;incrementally.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 (include "bug-language.scm")
 {##namespace ("libbug-private#" define define-macro define-structure)}
@@ -358,7 +357,7 @@
 ;;;----
 ;;;- On line 1, the code which makes computation at compile-time possible
 ;;;is imported. That code is defined in Chapter <<buglang>>.
-;;;- On line 2, Gambit's "\#\#namespace" procedure is invoked, ensuring
+;;;- On line 2, Gambit's "##namespace" procedure is invoked, ensuring
 ;;;that all unnamespaced uses of "define", "define-macro",
 ;;;and "define-structure" will use libbug's version of those procedures
 ;;;instead of Gambit's.
@@ -373,13 +372,13 @@
 ;;;takes zero arguments and
 ;;;which evaluates to the symbol 'noop.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define noop
   ['noop]}
 ;;;----
 ;;;
-;;;- On line 1, the libbug-private\#define macro footnote:[defined in section  <<libbugdefine>>]
+;;;- On line 1, the libbug-private#define macro footnote:[defined in section  <<libbugdefine>>]
 ;;;is invoked.
 ;;;- On line 1, the variable name "noop".
 ;;;- On line 2, the lambda literal to be stored into the variable.
@@ -387,7 +386,7 @@
 ;;;which expands lambda literals
 ;;;into lambdas.  In this case, "bug-gscpp" expands
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;['noop]
 ;;;----
@@ -395,13 +394,13 @@
 ;;;
 ;;;into
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;(lambda () 'noop)
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (noop) 'noop)}
@@ -427,36 +426,36 @@
 ;;;"identity" is a procedure of one argument which evaluates to
 ;;;its argument. <<<calculi>>>
 ;;;
-;;;\index{identity}
+;;;(((identity)))
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define identity
   [|x| x]}
 ;;;----
 ;;;- On line 2, "bug-gscpp" expands
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 ;;;[|x| x]
 ;;;----
 ;;;
 ;;;to
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 ;;;(lambda (x) x)
 ;;;----
 ;;;
 ;;;This expansion works with multiple arguments, as long as they are between
-;;;the bar symbols "\textbar"  footnote:[Since "bug-gscpp" uses "\textbar"s for lambda
+;;;the bar symbols "|"  footnote:[Since "bug-gscpp" uses "|"s for lambda
 ;;;literals, Scheme's block comments are not allowed in libbug programs.].
 ;;;
 ;;;
 ;;;
 ;;;"unit-test" can take more than one test as parameters.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? "foo" (identity "foo"))
@@ -469,9 +468,9 @@
 ;;;Like regular Scheme's "and", but takes a list instead of a variable number of arguments, and
 ;;;all elements of the list are evaluated before "all?" is applied.
 ;;;
-;;[[langiffirstuse]]
-;;;\index{all?}
-;;;[source,txt,linenums]
+;;;[[langiffirstuse]]
+;;;(((all?)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define all?
   [|l|
@@ -481,26 +480,26 @@
             [(all? (cdr l))]
             [#f])])]}
 ;;;----
-;;;- On line 3, "if", which is currently namespaced to "bug\#if"
+;;;- On line 3, "if", which is currently namespaced to "bug#if"
 ;;;footnote:[defined in section <<langif>>], takes
-;;;lambda expressions for the two parameters. Libbug pretends that \#t and \#f are
-;;;"Church Booleans" <<<tapl>>>, and that "bug\#if" is just syntactic sugar:
+;;;lambda expressions for the two parameters. Libbug pretends that #t and #f are
+;;;"Church Booleans" <<<tapl>>>, and that "bug#if" is just syntactic sugar:
 ;;;
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;{define #t [|t f| (t)]}
 ;;;{define #f [|t f| (f)]}
 ;;;{define bug#if [|b t f| (b t f)]}
 ;;;----
 ;;;
-;;;As such, "bug\#if" would not be a special form, and is more consistent with the
+;;;As such, "bug#if" would not be a special form, and is more consistent with the
 ;;;rest of libbug.
 ;;;
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (all? '())
@@ -528,8 +527,8 @@
 ;;;of input/output pairs footnote:[Within libbug, a parameter named "f" usually means the parameter is
 ;;;a procedure.].
 ;;;
-;;;\index{satisfies?}
-;;;[source,txt,linenums]
+;;;(((satisfies?)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define satisfies?
   [|f list-of-pairs|
@@ -541,7 +540,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -566,7 +565,7 @@
 ;;;
 ;;;=== while
 ;;;
-;;;\index{while}
+;;;(((while)))
 ;;;
 ;;;Programmers who are new to the Scheme language  may be surprised that
 ;;;the language provides no built-in syntax for looping, such as "for"
@@ -577,7 +576,7 @@
 ;;;is a predicate, meaning a procedure which returns true or false.]
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define while
   [|pred? body|
@@ -590,7 +589,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  {let ((a 0))
@@ -616,8 +615,8 @@
 ;;;variable.
 ;;;
 ;;;
-;;;\index{numeric-if}
-;;;[source,txt,linenums]
+;;;(((numeric-if)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define numeric-if
   [|n #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
@@ -632,7 +631,7 @@
 ;;;
 ;;;Keyword arguments are optionally passed to the procedure, and use the following syntax.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -663,8 +662,8 @@
 ;;;
 ;;;
 ;;;=== atom?
-;;;\index{atom?}
-;;;[source,txt,linenums]
+;;;(((atom?)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define atom?
   [|x|
@@ -680,7 +679,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -704,8 +703,8 @@
 ;;;
 ;;;=== complement
 ;;;
-;;;\index{complement}
-;;;[source,txt,linenums]
+;;;(((complement)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define complement
   [|f|
@@ -716,7 +715,7 @@
 ;;;<<<onlisp>>>
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -745,8 +744,8 @@
 ;;;to which each node points.] footnote:[Within libbug, a parameter named "l" usually means the parameter is
 ;;;a list.].
 ;;;
-;;;\index{copy}
-;;;[source,txt,linenums]
+;;;(((copy)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define copy
   [|l|
@@ -756,7 +755,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  {let ((a '(1 2 3 4 5)))
@@ -772,8 +771,8 @@
 ;;;Tests that the last element of the list is the sentinel value "'()".
 ;;;Will not terminate on a circular list.
 ;;;
-;;;\index{proper?}
-;;;[source,txt,linenums]
+;;;(((proper?)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define proper?
   [|l|
@@ -784,7 +783,7 @@
             [#f])])]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -805,8 +804,8 @@
 ;;;=== first
 ;;;
 ;;;
-;;;\index{first}
-;;;[source,txt,linenums]
+;;;(((first)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define first
   [|l #!key (onNull noop)|
@@ -818,7 +817,7 @@
 ;;;<<<ss>>>
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -839,8 +838,8 @@
 ;;;
 ;;;
 ;;;=== but-first
-;;;\index{but-first}
-;;;[source,txt,linenums]
+;;;(((but-first)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define but-first
   [|l #!key (onNull noop)|
@@ -852,7 +851,7 @@
 ;;;<<<ss>>>
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -871,8 +870,8 @@
 ;;;
 ;;;
 ;;;=== last
-;;;\index{last}
-;;;[source,txt,linenums]
+;;;(((last)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define last
   [|l #!key (onNull noop)|
@@ -887,7 +886,7 @@
 ;;;<<<ss>>>
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -908,8 +907,8 @@
 ;;;
 ;;;
 ;;;=== but-last
-;;;\index{but-last}
-;;;[source,txt,linenums]
+;;;(((but-last)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define but-last
   [|l #!key (onNull noop)|
@@ -925,7 +924,7 @@
 ;;;<<<ss>>>
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -948,8 +947,8 @@
 ;;;
 ;;;
 ;;;=== filter
-;;;\index{filter}
-;;;[source,txt,linenums]
+;;;(((filter)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define filter
   [|p? l|
@@ -965,7 +964,7 @@
 ;;;<<<ss>>> footnote:[Simply Scheme has an excellent discussion on section
 ;;;on Higher-Order Functions and their combinations <<<ss>>>]. <<<sicp>>>.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -985,8 +984,8 @@
 ;;;
 ;;;
 ;;;=== remove
-;;;\index{remove}
-;;;[source,txt,linenums]
+;;;(((remove)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define remove
   [|x l|
@@ -994,7 +993,7 @@
            l)]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1011,8 +1010,8 @@
 ;;;parameter named "acc" usually means the parameter
 ;;;is an accumulated value.].
 ;;;
-;;;\index{fold-left}
-;;;[source,txt,linenums]
+;;;(((fold-left)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define fold-left
   [|f acc l|
@@ -1029,7 +1028,7 @@
 ;;;
 ;;;<<<sicp>>>
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1046,7 +1045,7 @@
 ;;;"fold-left".  To understand how "fold-left" really works, understand
 ;;;how it works with non-commutative procedures, such as "-".
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
  (satisfies?
   [|l| (fold-left - 5 l)]
@@ -1060,15 +1059,15 @@
 ;;;
 ;;;=== sum
 ;;;
-;;;\index{sum}
-;;;[source,txt,linenums]
+;;;(((sum)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define sum
   [|l|
    (fold-left + 0 l)]}
 ;;;----
 
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1084,8 +1083,8 @@
 ;;;procedure repeatedly,
 ;;;starting from the "right" side of the list
 ;;;
-;;;\index{fold-right}
-;;;[source,txt,linenums]
+;;;(((fold-right)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define fold-right
   [|f acc l|
@@ -1098,7 +1097,7 @@
 ;;;
 ;;;<<<sicp>>>
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1126,8 +1125,8 @@
 ;;;Like "fold-left", but every intermediate value
 ;;;of "fold-left"s accumulator is an element in the resulting list of "scan-left".
 ;;;
-;;;\index{scan-left}
-;;;[source,txt,linenums]
+;;;(((scan-left)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define scan-left
   [|f acc l|
@@ -1146,7 +1145,7 @@
                            (cdr last-cell)})}])}}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1181,8 +1180,8 @@
 ;;;Like Scheme's "append", but recycles the last cons cell, so it is a more
 ;;;efficient computation at the expense of mutating the input.
 ;;;
-;;;\index{append"!}
-;;;[source,txt,linenums]
+;;;(((append"!)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define append!
   [|#!rest ls|
@@ -1198,7 +1197,7 @@
      (fold-left append! '() (reverse ls))}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (append! '()
@@ -1221,8 +1220,8 @@
 ;;;
 ;;;
 ;;;=== flatmap
-;;;\index{flatmap}
-;;;[source,txt,linenums]
+;;;(((flatmap)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define flatmap
   [|f l|
@@ -1232,7 +1231,7 @@
 ;;;<<<sicp>>>
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1253,8 +1252,8 @@
 ;;;
 ;;;
 ;;;=== take
-;;;\index{take}
-;;;[source,txt,linenums]
+;;;(((take)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define take
   [|n l|
@@ -1267,7 +1266,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1284,8 +1283,8 @@
 ;;;
 ;;;
 ;;;=== take-while
-;;;\index{take-while}
-;;;[source,txt,linenums]
+;;;(((take-while)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define take-while
   [|p? l|
@@ -1299,7 +1298,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1316,8 +1315,8 @@
 ;;;
 ;;;
 ;;;=== drop
-;;;\index{drop}
-;;;[source,txt,linenums]
+;;;(((drop)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define drop
   [|n l|
@@ -1329,7 +1328,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1345,8 +1344,8 @@
 ;;;
 ;;;
 ;;;=== drop-while
-;;;\index{drop-while}
-;;;[source,txt,linenums]
+;;;(((drop-while)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define drop-while
   [|p? l|
@@ -1359,7 +1358,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1377,8 +1376,8 @@
 ;;;
 ;;;
 ;;;=== enumerate-interval
-;;;\index{enumerate-interval}
-;;;[source,txt,linenums]
+;;;(((enumerate-interval)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define enumerate-interval
   [|low high #!key (step 1)|
@@ -1389,7 +1388,7 @@
                 (enumerate-interval (+ low step)))])}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (enumerate-interval 1 10)
@@ -1401,8 +1400,8 @@
 ;;;
 ;;;=== any?
 ;;;
-;;;\index{any?}
-;;;[source,txt,linenums]
+;;;(((any?)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define any?
   [|l|
@@ -1413,7 +1412,7 @@
             [(any? (cdr l))])])]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1430,8 +1429,8 @@
 ;;;
 ;;;
 ;;;=== zip
-;;;\index{zip}
-;;;[source,txt,linenums]
+;;;(((zip)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define zip
   [|#!rest lsts|
@@ -1442,7 +1441,7 @@
                 (zip (map cdr lsts)))])}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (zip '() '())
@@ -1463,7 +1462,7 @@
  }
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (zip '() '() '())
@@ -1477,7 +1476,7 @@
  }
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (zip '() '() '() '())
@@ -1494,8 +1493,8 @@
 ;;;
 ;;;
 ;;;=== zip-with
-;;;\index{zip-with}
-;;;[source,txt,linenums]
+;;;(((zip-with)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define zip-with
   [|f #!rest lsts|
@@ -1506,7 +1505,7 @@
                 (zip (map cdr lsts)))])}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (zip-with +
@@ -1536,7 +1535,7 @@
  }
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (zip-with +
@@ -1552,7 +1551,7 @@
  }
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (zip-with +
@@ -1572,8 +1571,8 @@
 ;;;
 ;;;
 ;;;=== permutations
-;;;\index{permutations}
-;;;[source,txt,linenums]
+;;;(((permutations)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define permutations
   [|l|
@@ -1587,7 +1586,7 @@
                         l)])}])]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1614,8 +1613,8 @@
 
 ;;;=== cartesian-product
 ;;;
-;;;\index{cartesian-product}
-;;;[source,txt,linenums]
+;;;(((cartesian-product)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define cartesian-product
   [|lol|
@@ -1632,7 +1631,7 @@
          (#t (cp lol))}]}
 ;;;----
 
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (cartesian-product '())
@@ -1652,7 +1651,7 @@
            (3 6)))
 ;;;----
 
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
  (equal? (cartesian-product '((1 2 3)
                               (4 5 6)
@@ -1691,8 +1690,8 @@
 ;;;=== ref-of
 ;;;The inverse of list-ref.
 ;;;
-;;;\index{ref-of}
-;;;[source,txt,linenums]
+;;;(((ref-of)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define ref-of
   [|l x #!key (onMissing noop)|
@@ -1707,7 +1706,7 @@
                    [(ref-of (cdr l) (+ index 1))])])}])]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1721,7 +1720,7 @@
  }
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1735,7 +1734,7 @@
  }
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  {let ((l '(a b c d e f g)))
@@ -1752,8 +1751,8 @@
 ;;;
 ;;;=== list-set!
 ;;;
-;;;\index{list-set!}
-;;;[source,txt,linenums]
+;;;(((list-set!)))
+;;;[source,Scheme,linenums]
 ;;;----
 ;; TODO - handle case where index is too large
 ;; N.B this is called list-sef! instead of list-ref-set!
@@ -1766,7 +1765,7 @@
    ]}
 ;;;----
 
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  {let ((foo '(bar baz quux)))
@@ -1787,8 +1786,8 @@
 ;;;to true or false.
 ;;;
 ;;;
-;;;\index{partition}
-;;;[source,txt,linenums]
+;;;(((partition)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define partition
   [|l p?|
@@ -1807,7 +1806,7 @@
                             (cons head falseList))])}])}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1823,7 +1822,7 @@
 ;;;In section <<dbind>>, "destructuring-bind" allows for a more convenient syntax when
 ;;;using "partition".
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;> {destructuring-bind (trueList falseList)
 ;;;                     (partition '(3 2 5 4 1)
@@ -1839,8 +1838,8 @@
 ;;;
 ;;;
 ;;;=== sort
-;;;\index{sort}
-;;;[source,txt,linenums]
+;;;(((sort)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define sort
   [|l comparison?|
@@ -1855,7 +1854,7 @@
                            (sort (cadr p))))}])}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1872,8 +1871,8 @@
 ;;;=== reverse!
 ;;;Reverses the list more efficiently by mutating cons cells
 ;;;
-;;;\index{reverse"!}
-;;;[source,txt,linenums]
+;;;(((reverse"!)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define reverse!
   [|l|
@@ -1889,7 +1888,7 @@
                  (reverse! rest current-cons-cell)}])}])]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1925,8 +1924,8 @@
 ;;;"s" usually means the parameter is of type string.].
 ;;;
 ;;;
-;;;\index{string-lift-list}
-;;;[source,txt,linenums]
+;;;(((string-lift-list)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define string-lift-list
   [|f|
@@ -1941,15 +1940,15 @@
 ;;;
 ;;;=== string-reverse
 ;;;
-;;;\index{string-reverse}
-;;;[source,txt,linenums]
+;;;(((string-reverse)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define string-reverse
   (string-lift-list reverse!)}
 ;;;
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1965,8 +1964,8 @@
 ;;;
 ;;;=== string-take
 ;;;
-;;;\index{string-take}
-;;;[source,txt,linenums]
+;;;(((string-take)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define string-take
   [|n s|
@@ -1975,7 +1974,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -1989,8 +1988,8 @@
 ;;;
 ;;;=== string-drop
 ;;;
-;;;\index{string-drop}
-;;;[source,txt,linenums]
+;;;(((string-drop)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define string-drop
   [|n s|
@@ -1999,7 +1998,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -2021,8 +2020,8 @@
 ;;;allows the creation of a context in which the characters may
 ;;;be treated as integers.
 ;;;
-;;;\index{character-lift-integer}
-;;;[source,txt,linenums]
+;;;(((character-lift-integer)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define character-lift-integer
   [|f|
@@ -2033,7 +2032,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -2048,8 +2047,8 @@
 ;;;
 ;;;=== string-map
 ;;;
-;;;\index{string-map}
-;;;[source,txt,linenums]
+;;;(((string-map)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define string-map
   [|f s|
@@ -2061,7 +2060,7 @@
 ;;;
 ;;;The "Caesar Cipher". <<<crypto>>>.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -2092,8 +2091,8 @@
 ;;;be treated as lists.
 ;;;
 ;;;
-;;;\index{symbol-lift-list}
-;;;[source,txt,linenums]
+;;;(((symbol-lift-list)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define symbol-lift-list
   [|f|
@@ -2104,7 +2103,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -2155,8 +2154,8 @@
 ;;;
 ;;;=== compose
 ;;;
-;;;\index{compose}
-;;;[source,txt,linenums]
+;;;(((compose)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro compose
   [|#!rest fs|
@@ -2186,9 +2185,9 @@
 ;;;<<<onlisp>>>
 ;;;
 ;;;
-;;;- On line 1, the "libbug-private\#define-macro" macro footnote:[defined in
+;;;- On line 1, the "libbug-private#define-macro" macro footnote:[defined in
 ;;;section  <<libbugdefinemacro>>]
-;;;is invoked.  Besides defining the macro, "libbug-private\#define-macro"
+;;;is invoked.  Besides defining the macro, "libbug-private#define-macro"
 ;;;also exports the
 ;;;namespace definition and the macro definitions to external files,
 ;;;for consumption by programs which link against libbug.
@@ -2196,7 +2195,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 (compose)}
@@ -2231,7 +2230,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 (compose [|x| (* x 2)])}
@@ -2281,8 +2280,8 @@
 ;;;
 ;;;=== aif
 ;;;
-;;;\index{aif}
-;;;[source,txt,linenums]
+;;;(((aif)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro aif
   [|bool body|
@@ -2299,7 +2298,7 @@
 ;;;
 ;;;<<<onlisp>>>
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {aif (+ 5 10) (* 2 bug#it)}
@@ -2321,8 +2320,8 @@
 ;;;"with-gensyms" is a macro to be invoked from other macros.  It is a utility
 ;;;to minimize repetitive calls to "gensym".
 ;;;
-;;;\index{with-gensyms}
-;;;[source,txt,linenums]
+;;;(((with-gensyms)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro with-gensyms
   [|symbols #!rest body|
@@ -2333,7 +2332,7 @@
 ;;;
 ;;;<<<onlisp>>>
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {with-gensyms (foo bar baz)
@@ -2353,7 +2352,7 @@
 ;;;
 ;;;
 ;;;=== once-only
-;;;\index{once-only}
+;;;(((once-only)))
 ;;;
 ;;;Sometimes macros need to put two or more copies of an argument
 ;;;into the generated code.
@@ -2362,7 +2361,7 @@
 ;;;which is seldom expected by the caller.
 ;;;
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;> {define-macro double [|x| `(+ ,x ,x)]}
 ;;;> {double 5}
@@ -2372,7 +2371,7 @@
 ;;;The caller of "double" should reasonably expect the argument to "double"
 ;;;only to be evaluated once only, because that's how Scheme usually works.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;> {define foo 5}
 ;;;> {double {begin {set! foo (+ foo 1)}
@@ -2383,7 +2382,7 @@
 ;;;"once-only" allows a macro-writer to ensure that a variable is evaluated
 ;;;only once in the generated code.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
 ;;;> {define foo 5}
@@ -2400,7 +2399,7 @@
 ;;;"gensym"-ed variable until the second macro-expansion.  As such, it is the
 ;;;most difficult macro is this book.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro once-only
   [|symbols #!rest body|
@@ -2430,7 +2429,7 @@
 ;;;causes no side effects, thus causes no problems from multiple evaluation.
 ;;;
 ;;;==== First Macro-expansion
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y ,x)}}
@@ -2453,7 +2452,7 @@
 ;;;
 ;;;
 ;;;==== The Second Macro-expansion
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (eval `{let ((x 5)
@@ -2482,7 +2481,7 @@
 ;;;
 ;;;
 ;;;==== The Evaluation of the twice-expanded Code
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (eval (eval `{let ((x 5)
@@ -2511,8 +2510,8 @@
 ;;;"setting" procedure, based on the given "accessing" procedure footnote:[The
 ;;;implementation is inspired by <<<setf>>>.].
 ;;;
-;;;\index{setf"!}
-;;;[source,txt,linenums]
+;;;(((setf"!)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro setf!
   [|exp val|
@@ -2568,7 +2567,7 @@
 ;;;
 ;;;==== Updating a Variable Directly
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2583,7 +2582,7 @@
 ;;;===== Updating Car, Cdr, ... Through Cddddr
 ;;;Test updating "car".
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2597,7 +2596,7 @@
 ;;;
 ;;;Test updating "cdr".
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2617,7 +2616,7 @@
 ;;;repetitive.  Instead, create a list which has an element at each of those
 ;;;accessor procedures, and test each.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (eval
@@ -2650,7 +2649,7 @@
 ;;;Test updating procedures where the updating procedure is
 ;;;the name of the getting procedure, suffixed by '-set!'.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {at-compile-time
  {##define-structure foo bar}}
@@ -2674,7 +2673,7 @@
 ;;;the name of the getting procedure, with the "-ref" suffix removed, replaced
 ;;;with "-set".
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2704,8 +2703,8 @@
 ;;;it allows the new procedure to remain anonymous, as compared
 ;;;to making a new name like "toggle" <<<onlisp>>>.].
 ;;;
-;;;\index{mutate"!}
-;;;[source,txt,linenums]
+;;;(((mutate"!)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro mutate!
   [|exp f|
@@ -2727,7 +2726,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {mutate! foo not}}
@@ -2747,7 +2746,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
@@ -2766,7 +2765,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2797,7 +2796,7 @@
 ;;;=== destructuring-bind
 ;;;
 ;;;[[dbind]]
-;;;\index{destructuring-bind}
+;;;(((destructuring-bind)))
 ;;;
 ;;;"destructuring-bind" is a generalization of "let", in which multiple variables
 ;;;may be bound to values based on their positions within a (possibly nested) list.
@@ -2813,7 +2812,7 @@
 ;;;takes a procedure named "gensym" as an argument, defaulting to whatever value
 ;;;"gensym" is by default in the environment.].
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define tree-of-accessors
   [|pat lst #!key (gensym gensym) (n 0)|
@@ -2838,7 +2837,7 @@
                                      (+ 1 n))))}}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (tree-of-accessors '() 'gensym-for-list)
@@ -2855,7 +2854,7 @@
  }
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (tree-of-accessors '(a (b c))
@@ -2878,7 +2877,7 @@
 ;;;"tree-of-accessors" into the definition of "destructuring-bind", thus making it safe,
 ;;;he could not determine how to write tests for a nested definition.].
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro destructuring-bind
   [|pat lst #!rest body|
@@ -2904,7 +2903,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? {macroexpand-1
@@ -2949,18 +2948,18 @@
 ;;;
 ;;;=== Stream structure
 ;;;
-;;;"libbug-private\#define-structure" footnote:[defined in section <<definestructure>>]
+;;;"libbug-private#define-structure" footnote:[defined in section <<definestructure>>]
 ;;;takes the name of the datatype and a variable
 ;;;number of fields as parameters.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define-structure stream
   a
   d}
 ;;;----
 ;;;
-;;;"libbug-private\#define-structure" will create a constructor procedure named "make-stream",
+;;;"libbug-private#define-structure" will create a constructor procedure named "make-stream",
 ;;;accessor procedures "stream-a", "stream-d", and updating procedures "stream-a-set!" and
 ;;;"stream-d-set!".
 ;;;For streams, none of these generated procedures are intended to be
@@ -2974,8 +2973,8 @@
 ;;;lambda value.
 ;;;
 ;;;
-;;;\index{stream-cons}
-;;;[source,txt,linenums]
+;;;(((stream-cons)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define-macro stream-cons
   [|a d|
@@ -2995,8 +2994,8 @@
 ;;;=== stream-car
 ;;;Get the first element of the stream.
 ;;;
-;;;\index{stream-car}
-;;;[source,txt,linenums]
+;;;(((stream-car)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-car
   stream-a}
@@ -3007,8 +3006,8 @@
 ;;;=== stream-cdr
 ;;;Forces the evaluation of the next element of the stream.
 ;;;
-;;;\index{stream-cdr}
-;;;[source,txt,linenums]
+;;;(((stream-cdr)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-cdr
   [|s|
@@ -3017,7 +3016,7 @@
 ;;;
 ;;;<<<sicp>>>.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  {let ((s (stream-cons 1 [2])))
@@ -3037,8 +3036,8 @@
 ;;;The sentinel value for streams is the same value as the sentinel value
 ;;;for lists.
 ;;;
-;;;\index{stream-null}
-;;;[source,txt,linenums]
+;;;(((stream-null)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-null
   '()
@@ -3049,15 +3048,15 @@
 ;;;
 ;;;But to test for the sentinel value, use "stream-null?".
 ;;;
-;;;\index{stream-null?}
-;;;[source,txt,linenums]
+;;;(((stream-null?)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-null?
   null?}
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (stream-null?
@@ -3069,11 +3068,11 @@
 ;;;
 ;;;
 ;;;
-;;;=== list-\textgreater stream
+;;;=== list->stream
 ;;;Converts a list into a stream.
 ;;;
-;;;\index{list-\textgreater stream}
-;;;[source,txt,linenums]
+;;;(((list->stream)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define list->stream
   [|l|
@@ -3083,7 +3082,7 @@
                      [(list->stream (cdr l))])])]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  {let ((foo (list->stream '(1 2 3))))
@@ -3102,11 +3101,11 @@
 ;;;----
 ;;;
 ;;;
-;;;=== stream-\textgreater list
+;;;=== stream->list
 ;;;Converts a stream into a list.
 ;;;
-;;;\index{stream-\textgreater list}
-;;;[source,txt,linenums]
+;;;(((stream->list)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream->list
   [|s|
@@ -3116,7 +3115,7 @@
               (stream->list (stream-cdr s)))])]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3130,8 +3129,8 @@
 ;;;=== stream-ref
 ;;;The analogous procedure of "list-ref".
 ;;;
-;;;\index{stream-ref}
-;;;[source,txt,linenums]
+;;;(((stream-ref)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-ref
   [|s n #!key (onOutOfBounds noop)|
@@ -3148,7 +3147,7 @@
 ;;;
 ;;;<<<sicp>>>.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3178,12 +3177,12 @@
 ;;;
 ;;;
 ;;;=== integers-from
-;;;\index{integers-from}
+;;;(((integers-from)))
 ;;;
 ;;;Creates an infinite footnote:[bounded by memory constraints of course. Scheme
 ;;;isn't a Turing machine.] stream of integers.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {define integers-from
   [|n|
@@ -3193,7 +3192,7 @@
 ;;;<<<sicp>>>.
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3215,8 +3214,8 @@
 ;;;
 ;;;
 ;;;=== stream-take
-;;;\index{stream-take}
-;;;[source,txt,linenums]
+;;;(((stream-take)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-take
   [|n s|
@@ -3229,7 +3228,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3248,8 +3247,8 @@
 ;;;=== stream-filter
 ;;;The analogous procedure of filter.
 ;;;
-;;;\index{stream-filter}
-;;;[source,txt,linenums]
+;;;(((stream-filter)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-filter
   [|p? s|
@@ -3264,7 +3263,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal?  (stream->list
@@ -3277,7 +3276,7 @@
 ;;;Understanding the following tests is crucial to understanding
 ;;;the definition of "primes".
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3309,7 +3308,7 @@
 ;;;
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3341,8 +3340,8 @@
 ;;;
 ;;;
 ;;;=== primes
-;;;\index{primes}
-;;;[source,txt,linenums]
+;;;(((primes)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define primes
   {let sieve-of-eratosthenes ((s (integers-from 2)))
@@ -3358,7 +3357,7 @@
 ;;;<<<sicp>>>.
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3372,8 +3371,8 @@
 ;;;
 ;;;
 ;;;=== stream-drop
-;;;\index{stream-drop}
-;;;[source,txt,linenums]
+;;;(((stream-drop)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-drop
   [|n s|
@@ -3385,7 +3384,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3410,8 +3409,8 @@
 ;;;
 ;;;
 ;;;=== stream-drop-while
-;;;\index{stream-drop-while}
-;;;[source,txt,linenums]
+;;;(((stream-drop-while)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-drop-while
   [|p? s|
@@ -3424,7 +3423,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3448,8 +3447,8 @@
 ;;;=== stream-map
 ;;;The analogous procedure of "map".
 ;;;
-;;;\index{stream-map}
-;;;[source,txt,linenums]
+;;;(((stream-map)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-map
   [|f #!rest list-of-streams|
@@ -3463,7 +3462,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3481,8 +3480,8 @@
 ;;;
 ;;;
 ;;;=== stream-enumerate-interval
-;;;\index{stream-enumerate-interval}
-;;;[source,txt,linenums]
+;;;(((stream-enumerate-interval)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-enumerate-interval
   [|low high #!key (step 1)|
@@ -3493,7 +3492,7 @@
                        [(stream-enumerate-interval (+ low step))])])}]}
 ;;;----
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (equal? (stream->list
@@ -3506,8 +3505,8 @@
 ;;;
 ;;;
 ;;;=== stream-take-while
-;;;\index{stream-take-while}
-;;;[source,txt,linenums]
+;;;(((stream-take-while)))
+;;;[source,Scheme,linenums]
 ;;;----
 {define stream-take-while
   [|p? s|
@@ -3522,7 +3521,7 @@
 ;;;----
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
  (satisfies?
@@ -3540,19 +3539,17 @@
 ;;;
 ;;;
 ;;;At the beginning of the book, in chapter <<beginninglibbug>>, "bug-language.scm"
-;;;was imported, so that "libbug-private\#define", and "libbug-private\#define-macro" could be used.
+;;;was imported, so that "libbug-private#define", and "libbug-private#define-macro" could be used.
 ;;;This chapter is the end of the file "main.bug.scm".  However, as will be shown
 ;;;in the next chapter, "bug-languge.scm" opened files for writing during compile-time,
 ;;;and they must be closed, accomplished by executing "at-end-of-compilation".
 ;;;
 ;;[[call-end-of-compilation
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {at-compile-time
  (at-end-of-compilation)}
 ;;;----
 ;;;
-;;;[index]
-;;;== Index
 ;;;
 ;;;

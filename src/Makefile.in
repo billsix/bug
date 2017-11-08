@@ -14,15 +14,15 @@ includedir=@includedir@
 datarootdir = @datarootdir@
 LIB_EXTENSION = @LIB_EXTENSION@
 SHARED_LIB_FLAG = @SHARED_LIB_FLAG@
-ENABLE_PDF = @ENABLE_PDF@
+ENABLE_HTML = @ENABLE_HTML@
 docdir = @docdir@
-pdfdir = @pdfdir@
+htmldir = @htmldir@
 LIBRARY_NAME = @LIBRARY_NAME@
 SO_FLAGS = @SO_FLAGS@
 
 OBJECTS_TO_BUILD =  $(LIBRARY_NAME) @PACKAGE_NAME@.o1
 
-ifeq ($(ENABLE_PDF),yes)
+ifeq ($(ENABLE_HTML),yes)
   OBJECTS_TO_BUILD += bug.html
 endif
 
@@ -46,13 +46,10 @@ bug.asciidoc: main.bug.scm bug-language.bug.scm bug-appedicies.asciidoc
 	cat bug-language.asciidoc >> bug.asciidoc
 	rm bug-language.asciidoc
 	cat bug-appedicies.asciidoc >> bug.asciidoc
-	git log | head  -n 1 | cut -d ' ' -f 2   > version.asciidoc
 
 bug.html: bug.asciidoc
-	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n bug.asciidoc
+	asciidoc -b html5 -a icons -a toc2 -a theme=volnitsky -n bug.asciidoc
 
-bug.pdf: bug.asciidoc
-	a2x -b pdf bug.asciidoc
 
 @PACKAGE_NAME@.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
 	$(GSC) -link -o @PACKAGE_NAME@.c main
@@ -80,9 +77,9 @@ install:
 	install -m 0644 @PACKAGE_NAME@.c $(DESTDIR)$(includedir)/$(package)/
 	install -m 0644 @PACKAGE_NAME@#.scm $(DESTDIR)$(includedir)/$(package)/
 	install -m 0644 @PACKAGE_NAME@-macros.scm $(DESTDIR)$(includedir)/$(package)/
-ifeq ($(ENABLE_PDF),yes)
-	install -d $(DESTDIR)$(pdfdir)/$(package)
-	install -m 0644 bug.html $(DESTDIR)$(pdfdir)/$(package)/
+ifeq ($(ENABLE_HTML),yes)
+	install -d $(DESTDIR)$(htmldir)/$(package)
+	install -m 0644 bug.html $(DESTDIR)$(htmldir)/$(package)/
 endif
 uninstall:
 	-rm $(DESTDIR)$(libdir)/$(LIBRARY_NAME)
@@ -90,8 +87,8 @@ uninstall:
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@.c
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@#.scm
 	-rm $(DESTDIR)$(includedir)/$(package)/@PACKAGE_NAME@-macros.scm
-ifeq ($(ENABLE_PDF),yes)
-	-rm $(DESTDIR)$(pdfdir)/$(package)/bug.html
+ifeq ($(ENABLE_HTML),yes)
+	-rm $(DESTDIR)$(htmldir)/$(package)/bug.html
 endif
 Makefile: Makefile.in ../config.status
 	cd .. && ./config.status $@

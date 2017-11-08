@@ -59,23 +59,18 @@ fi
 
 
 
-AC_ARG_ENABLE(pdf,
-              AC_HELP_STRING([--enable-pdf],
-                             [build the PDF version of the code (default is NO)]),
-              ENABLE_PDF=$enableval,
-              ENABLE_PDF=no)
-if test "$ENABLE_PDF" = yes; then
-   AC_CHECK_PROG(PDFLATEX_CHECK,pdflatex,yes)
-   if test x"$PDFLATEX_CHECK" != x"yes" ; then
-      AC_MSG_ERROR([Please install "pdflatex" if you want to enable creation of the PDF])
+AC_ARG_ENABLE(html,
+              AC_HELP_STRING([--enable-html],
+                             [build the HTML version of the code (default is NO)]),
+              ENABLE_HTML=$enableval,
+              ENABLE_HTML=no)
+if test "$ENABLE_HTML" = yes; then
+   AC_CHECK_PROG(HTMLLATEX_CHECK,asciidoc,yes)
+   if test x"$HTMLLATEX_CHECK" != x"yes" ; then
+      AC_MSG_ERROR([Please install "asciidoc" if you want to enable creation of the HTML])
    fi
-   AC_CHECK_PROG(MAKEINDEX_CHECK,makeindex,yes)
-   if test x"$MAKEINDEX_CHECK" != x"yes" ; then
-      AC_MSG_ERROR([Please install texlive before installing.])
-   fi
-
 fi
-AC_SUBST(ENABLE_PDF)
+AC_SUBST(ENABLE_HTML)
 
 BUG_BUILD_DATE=$(date +'%d %B %Y')
 AC_SUBST(BUG_BUILD_DATE)
@@ -83,5 +78,3 @@ AC_SUBST(BUG_BUILD_DATE)
 AC_SUBST(ac_unique_file)
 AC_CONFIG_SRCDIR(src/config.scm.in)
 AC_OUTPUT
-
-

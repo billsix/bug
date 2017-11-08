@@ -19,7 +19,7 @@ But first, let's discuss was is meant by the words "language","compiler", and
 
 In "Introduction to Automata Theory, Languages, and Computation", Hopcroft,
 Motwani, and Ullman define language as "A set of strings all of which are chosen
-from some $\Sigma^{\star}$, where $\Sigma$ is a particular alphabet, is called
+from some &#931;^*^, where &#931; is a particular alphabet, is called
 a language" <<<hmu2001>>>.
 
 Plainly, that means that an "alphabet" is a set of characters (for instance, ASCII), and
@@ -46,7 +46,7 @@ they vary in expressive power?
 === C
 Consider the following C code:
 
-[source,txt,linenums]
+[source,C,linenums]
 ----
 #include <stdio.h>
 #define square(x) ((x) * (x))
@@ -83,14 +83,14 @@ This expansion happens before the compiler does anything
 else.  For example, using GCC as a compiler, if you run the C preprocessor
 "cpp" on the above C code, you'll see that
 
-[source,txt,linenums]
+[source,C,linenums]
 ----
   printf("%d\n",square(fact(argc)));
 ----
 
      \noindent expands into
 
-[source,txt,linenums]
+[source,C,linenums]
 ----
   printf("%d\n",((fact(argc)) * (fact(argc))));
 ----
@@ -110,9 +110,9 @@ to be interpreted by the compiler, referencing a variable which is defined
 only during compile-time, to detemine whether or not line 6 should be
 compiled.
 
-=== C++
+=== C&#43;&#43;
 
-C++ inherits C's macros, but with the additional introduction
+C&#43;&#43; inherits C's macros, but with the additional introduction
 of templates, its compile-time language
 incidentally became Turing complete;  meaning that
 anything that can be
@@ -121,10 +121,10 @@ at compile-time.  That's great!  So how does a programmer use this new
 expressive power?
 
 The following is an example of calculating the factorial of
-3; using C++ procedures for run-time calulation, and C++'s templates for compile-time
+3; using C&#43;&#43; procedures for run-time calulation, and C&#43;&#43;'s templates for compile-time
 calculation.
 
-[source,txt,linenums]
+[source,cpp,linenums]
 ----
  #include <iostream>
  template <unsigned int n>
@@ -198,7 +198,7 @@ The drastic difference in the generated code can be observed by using "objdump -
 printing of the compile-time expanded call to factorial<3>::value.
 The immediate value 6 is loaded into the "esi" register; then the second
 two lines call the printing routinefootnote:[at least I assume, because
-I don't completely understand how C++ name-mangling works].
+I don't completely understand how C&#43;&#43; name-mangling works].
 
 
 - The instructions at locations 40086c through 40087d correspond to the
@@ -210,10 +210,10 @@ printing routine is called.
 The compile-time computation worked as expected!
 
 === libbug
-Like C++'s compile-time language, libbug's is Turing complete.  But libbug's compile-time
+Like C&#43;&#43;'s compile-time language, libbug's is Turing complete.  But libbug's compile-time
 language is the exact same language as the run-time language!
 
-[source,txt,linenums]
+[source,Scheme,linenums]
 ----
  {at-both-times
   {define fact
@@ -267,13 +267,13 @@ is called, the result of which is passed to "pp".
 
 
 === Comparison of Power
-Although the compile-time languages both of C++ and of libbug are Turing complete,
+Although the compile-time languages both of C&#43;&#43; and of libbug are Turing complete,
 they vary in actual real-world programming power.  The language used
-for compile-time calculation of "fact" in C++ is a drastically different language than
+for compile-time calculation of "fact" in C&#43;&#43; is a drastically different language than
 the one used for run-time.  Although not fully demonstrated in this book,
-C++ template metaprogramming relies exclusively on recursion for repetition (it has no
+C&#43;&#43; template metaprogramming relies exclusively on recursion for repetition (it has no
 looping construct), it has no mutable state, and it lacks the ability to do input/output
-(I/O) footnote:[For the masochist who wants to know more about the compile-time language of C plus plus, I recommend <<<ctm>>>]
+(I/O) footnote:[For the masochist who wants to know more about the C&#43;&#43;'s compile-time language, I recommend <<<ctm>>>]
 
 In contrast, the compile-time
 language in libbug is the exact same language as the one that the compiler
@@ -325,7 +325,7 @@ Bibliography
 
 - [[[ctm]]]
   Abrahams, David and Aleksey Gurtovoy
-  'C++ Template Metaprogramming',
+  'C&#43;&#43; Template Metaprogramming',
   Addison Wesley
   2004.
 
@@ -413,3 +413,6 @@ Bibliography
   'Common Lisp the Language',
   Digital Press,
   1990.
+
+[index]
+== Example Index

@@ -26,8 +26,8 @@
 ;;;"Eval"ing during macro-expansion is how the compiler may be augmented with new procedures,
 ;;;thus treating the compiler as an interpreter.
 ;;;
-;;;\index{at-compile-time}
-;;;[source,txt,linenums]
+;;;(((at-compile-time)))
+;;;[source,Scheme,linenums]
 ;;;----
 {##namespace ("bug#" at-compile-time)}
 {##define-macro at-compile-time
@@ -43,12 +43,12 @@
 ;;;form will not evaluate at run-time.
 ;;;
 ;;;=== at-both-times
-;;;\index{at-both-times}
+;;;(((at-both-times)))
 ;;;
 ;;;"at-both-times", like "at-compile-time", "eval"s the forms
 ;;;in the compile-time environment, but also in the run-time environment.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {##namespace ("bug#" at-both-times)}
 {##define-macro at-both-times
@@ -65,11 +65,11 @@
 ;;;they are defined in the run-time environment.
 ;;;
 ;;;=== at-compile-time-expand
-;;;\index{at-compile-time-expand}
+;;;(((at-compile-time-expand)))
 ;;;
 ;;;"at-compile-time-expand" allows any procedure to act as a macro.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {##namespace ("bug#" at-compile-time-expand)}
 {##define-macro at-compile-time-expand
@@ -80,7 +80,7 @@
 ;;;
 ;;;This allows the programmer to create "anonymous" macros.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;> ({at-compile-time-expand
 ;;;    (if #t
@@ -112,7 +112,7 @@
 ;;;("libbug-macros.scm").  These files will be pure Gambit scheme code, no
 ;;;libbug syntax enhancements.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {at-compile-time
 ;;;----
@@ -129,7 +129,7 @@
 ;;;during compile-time and write the namespace mappings
 ;;;to the file.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
  {##define libbug-headers-file
    (open-output-file '(path: "libbug#.scm" append: #f))}
@@ -154,7 +154,7 @@
 ;;;
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
  (##include "config.scm")
  {##define bug-configuration#libbugsharp
@@ -214,7 +214,7 @@
 ;;;is reset to the default namespacefootnote:[This procedure
 ;;;is called in section <<call-end-of-compilation>>].
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
  {define at-end-of-compilation
    [(display
@@ -244,8 +244,8 @@
 ;;;itfootnote:[any procedure which is namespaced to "libbug-private" is
 ;;;not exported to the namespace file nor the macro file].
 ;;;
-;;;\index{libbug-private#write-and-eval}
-;;;[source,txt,linenums]
+;;;(((libbug-private#write-and-eval)))
+;;;[source,Scheme,linenums]
 ;;;----
 {##define-macro libbug-private#write-and-eval
   [|port form|
@@ -267,8 +267,8 @@
 ;;;compile-time, run-time, and in the namespace file
 ;;;for inclusion in projects which link to libbug.
 ;;;
-;;;\index{libbug-private#namespace}
-;;;[source,txt,linenums]
+;;;(((libbug-private#namespace)))
+;;;[source,Scheme,linenums]
 ;;;----
 {##define-macro libbug-private#namespace
   [|#!rest to-namespace|
@@ -293,8 +293,8 @@
 ;;;
 ;;;
 ;;;
-;;;\index{bug#if}
-;;;[source,txt,linenums]
+;;;(((bug#if)))
+;;;[source,Scheme,linenums]
 ;;;----
 {libbug-private#namespace if}
 {libbug-private#write-and-eval
@@ -335,7 +335,7 @@
 ;;;
 ;;;=== unit-test
 ;;;
-;;;\index{unit-test}
+;;;(((unit-test)))
 ;;;
 ;;;Given that the reader now knows how to evaluate at compile-time, implementing
 ;;;a macro to execute tests at compile-time is trivial.
@@ -349,7 +349,7 @@
 ;;;continues compiling subsequent definitions.
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {libbug-private#namespace unit-test}
 {libbug-private#write-and-eval
@@ -371,8 +371,8 @@
 ;;;a value to be stored in the variable.
 ;;;
 ;;;[[libbugdefine]]
-;;;\index{libbug-private#define}
-;;;[source,txt,linenums]
+;;;(((libbug-private#define)))
+;;;[source,Scheme,linenums]
 ;;;----
 {##define-macro
   libbug-private#define
@@ -413,8 +413,8 @@
 ;;;
 ;;;[[libbugdefinemacro]]
 ;;;
-;;;\index{libbug-private#define-macro}
-;;;[source,txt,linenums]
+;;;(((libbug-private#define-macro)))
+;;;[source,Scheme,linenums]
 ;;;----
 {##define-macro libbug-private#define-macro
   [|name lambda-value|
@@ -423,7 +423,7 @@
 ;;;
 ;;;[[writemacrotofile]]
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
    (write
     `{at-both-times
@@ -436,7 +436,7 @@
 ;;;appropriate namespace
 ;;;mappings must be loaded for the definition of this macro definition.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
       {##define-macro
         ,name
@@ -458,7 +458,7 @@
 ;;;- On line 3, the lambda value written to file shall have the same
 ;;;argument list as the argument list passed to "libbug-private#define-macro"
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;   > (cadr '[|foo bar| (quasiquote 5)])
 ;;;   (foo bar)
@@ -485,7 +485,7 @@
 ;;;
 ;;;- On line 8-10, check to see if the unevaluated form is quasiquoted.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;   > (caaddr '[|foo bar| (quasiquote 5)])
 ;;;   quasiquote
@@ -494,7 +494,7 @@
 ;;;- On line 11, since it is quasiquoted, grab the content of the
 ;;;list minus the quasiquoting.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;   > (car (cdaddr '[|foo bar| (quasiquote 5)]))
 ;;;   5
@@ -502,7 +502,7 @@
 ;;;
 ;;;Remember that this value gets wrapped in a quasiquote from line 5
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;   > (list 'quasiquote (car (cdaddr '[|foo bar|
 ;;;                                        (quasiquote 5)])))
@@ -512,7 +512,7 @@
 ;;;- On line 12-13, since this is not a quasiquoted form, just grab
 ;;;the form, and "unquote" it.
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;   > (append (list 'unquote) (cddr '[|foo bar| (+ 5 5)]))
 ;;;   ,(+ 5 5)
@@ -520,7 +520,7 @@
 ;;;
 ;;;Remember, this value gets wrapped in a quasiquote from line 4
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;   > (list 'quasiquote (append (list 'unquote)
 ;;;                               (cddr '[|foo bar|
@@ -549,7 +549,7 @@
 ;;;impossible.
 ;;;Thus, the problem is solved by locally defining a new "gensym" procedure.].
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
       {##define-macro
         ,(string->symbol (string-append (symbol->string name)
@@ -567,7 +567,7 @@
 ;;;
 ;;;Finish writing the macro to file which was started in section <<writemacrotofile>>.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
     libbug-macros-file)
    (newline libbug-macros-file)
@@ -576,14 +576,14 @@
 ;;;The macro has been exported to a file for use by projects which link against libbug,
 ;;;but it must also be defined during compilation.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
    `{begin
 ;;;----
 ;;;
 ;;;Namespace the procedure and the expander.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
       {libbug-private#namespace ,name}
       {libbug-private#namespace ,(string->symbol
@@ -593,7 +593,7 @@
 ;;;
 ;;;Create the expander similarly to the previous section.
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
       {at-both-times
        {##define-macro
@@ -614,7 +614,7 @@
 ;;;Define the macro.
 ;;;
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
       {at-both-times
        {##define-macro
@@ -628,7 +628,7 @@
 ;;;
 ;;;"macroexpand-1" is syntactic sugar which allows the programmer to test macro-expansion by writing
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;(equal? {macroexpand-1 {aif (+ 5 10)
 ;;;                           (* 2 bug#it)}}
@@ -640,7 +640,7 @@
 ;;;
 ;;;instead of
 ;;;
-;;;[source,txt]
+;;;[source,Scheme]
 ;;;----
 ;;;(equal? {aif-expand (+ 5 10)
 ;;;                   (* 2 bug#it))}
@@ -650,8 +650,8 @@
 ;;;             [#f])})
 ;;;----
 ;;;
-;;;\index{macroexpand-1}
-;;;[source,txt,linenums]
+;;;(((macroexpand-1)))
+;;;[source,Scheme,linenums]
 ;;;----
 {libbug-private#define-macro
  macroexpand-1
@@ -667,13 +667,13 @@
 ;;;
 ;;;=== libbug-private#define-structure
 ;;;[[definestructure]]
-;;;\index{libbug-private#define-structure}
+;;;(((libbug-private#define-structure)))
 ;;;
 ;;;Like "##define-structure", but additionally writes the namespaces
 ;;;to filefootnote:[In the following, "##define-structure" is defined at
 ;;;compile-time, because Gambit does not define "##define-structure" at compile-time.].
 ;;;
-;;;[source,txt,linenums]
+;;;[source,Scheme,linenums]
 ;;;----
 {at-compile-time
  {##define-macro ##define-structure
