@@ -1791,7 +1791,7 @@
 ;;;
 ;;; \newpage
 ;;; \section{list-set!}
-;;; \index{list-set!}
+;;; \index{list-set"!}
 ;;; \begin{code}
 ;; TODO - handle case where index is too large
 ;; N.B this is called list-sef! instead of list-ref-set!
