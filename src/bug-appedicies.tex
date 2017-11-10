@@ -16,7 +16,7 @@
  most compilers are also interpreters for a subset of the language.  This
  appendix provides a baseline demonstration of compile-time computation
  so that the reader may contrast these languages' capabilities with libbug's.
- But first, let's discuss was is meant by the words ``language'',``compiler'', and
+ But first, let's discuss what is meant by the words ``language'',``compiler'', and
  ``interpreter''.
 
  In ``Introduction to Automata Theory, Languages, and Computation'', Hopcroft,
@@ -204,7 +204,7 @@ int fact(unsigned int n){
    \item
  The instructions at memory locations 400850 through 40085a correspond to the
  printing of the compile-time expanded call to factorial\textless3\textgreater::value.
- The immediate value 6 is loaded into the ``esi'' register; then the second
+ The immediate value 6 is loaded into the ``esi'' register; then the following
  two lines call the printing routine\footnote{at least I assume, because
  I don't completely understand how C++ name-mangling works}.
    \item
