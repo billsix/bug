@@ -1,4 +1,4 @@
-;; Copyright 2017 - William Emerison Six
+;; Copyright 2017-2018 - William Emerison Six
 ;;  All rights reserved
 ;;  Distributed under LGPL 2.1 or Apache 2.0
 

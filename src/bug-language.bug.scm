@@ -1,4 +1,4 @@
-;;;//Copyright 2014-2017 - William Emerison Six
+;;;//Copyright 2014-2018 - William Emerison Six
 ;;;//All rights reserved
 ;;;//Distributed under LGPL 2.1 or Apache 2.0
 ;;;
@@ -134,7 +134,7 @@
  {##define libbug-headers-file
    (open-output-file '(path: "libbug#.scm" append: #f))}
  (display
-  ";;;Copyright 2014-2017 - William Emerison Six
+  ";;;Copyright 2014-2018 - William Emerison Six
    ;;; All rights reserved
    ;;; Distributed under LGPL 2.1 or Apache 2.0
    {##namespace (\"bug#\" at-compile-time)}
@@ -164,7 +164,7 @@
    (open-output-file '(path: "libbug-macros.scm" append: #f))}
  (display
   (string-append
-   ";;;Copyright 2014-2017 - William Emerison Six
+   ";;;Copyright 2014-2018 - William Emerison Six
     ;;; All rights reserved
     ;;; Distributed under LGPL 2.1 or Apache 2.0
     (##include \"~~lib/gambit#.scm\")
