@@ -2119,7 +2119,7 @@
 ;;;
 ;;;
 ;;;== Macros
-;;[[macros]]
+;;;[[macros]]
 ;;;
 ;;;Although many concepts first implemented in Lisp (conditional expressions,
 ;;;garbage collection, procedures as first-class objects)
