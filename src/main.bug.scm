@@ -2284,11 +2284,13 @@
 ;;;[source,Scheme,linenums]
 ;;;----
 {define-macro aif
-  [|bool body|
+  [|bool ifTrue #!rest ifFalse|
    `{let ((bug#it ,bool))
       (if bug#it
-          [,body]
-          [#f])}]}
+          ,ifTrue
+          ,@(if (not (null? ifFalse))
+                [ifFalse]
+                [(list '[#f])]))}]}
 ;;;----
 ;;;
 ;;;Although variable capture <<<onlisp>>> is generally avoided,
@@ -2301,16 +2303,32 @@
 ;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
- (equal? {aif (+ 5 10) (* 2 bug#it)}
-         30)
- (equal? {aif #f (* 2 bug#it)}
-         #f)
  (equal? {macroexpand-1 {aif (+ 5 10)
-                             (* 2 bug#it)}}
+                             [(* 2 bug#it)]}}
          '{let ((bug#it (+ 5 10)))
             (if bug#it
                 [(* 2 bug#it)]
                 [#f])})
+ (equal? {aif (+ 5 10)
+              [(* 2 bug#it)]}
+         30)
+ (equal? {aif #f
+              [(* 2 bug#it)]}
+         #f)
+ (equal? {aif #f
+              [(* 2 bug#it)]}
+         #f)
+ (equal? {macroexpand-1 {aif #f
+                             [(* 2 bug#it)]
+                             [5]}}
+         '{let ((bug#it #f))
+            (if bug#it
+                [(* 2 bug#it)]
+                [5])})
+ (equal? {aif #f
+              [(* 2 bug#it)]
+              [5]}
+         5)
  }
 ;;;----
 ;;;
