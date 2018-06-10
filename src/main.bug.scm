@@ -2965,18 +2965,22 @@
    ;; but for now, the environment needs a variable defined
    {##define return-to-callee 'ignore}
    ;; do the work of the generator
-   {##define (eval-until-yield send)
-     {let ((value-passed-to-yield (f [|value|
-                                      (call/cc [|stack-of-yield-exp|
-                                                {setf! eval-until-yield stack-of-yield-exp}
-                                                (return-to-callee value)])])))
-       (return-to-callee 'end-of-generator)}}
+   {##define (eval-f-until-yield send)
+     {begin
+       ;; switch back and forth between the two routines
+       (f [|value|
+           (call/cc [|stack-of-yield-exp|
+                     {setf! eval-f-until-yield stack-of-yield-exp}
+                     (return-to-callee value)])])}
+     ;; all instances of yield have been called, inform the callee
+     ;; that the generator is done
+       (return-to-callee 'end-of-generator)}
    [|#!rest send|
     {call/cc [|stack-of-callee|
               {setf! return-to-callee stack-of-callee}
-              (eval-until-yield (if (null? send)
-                                    ['ignore]
-                                    [(car send)]))]}]]}
+              (eval-f-until-yield (if (null? send)
+                                      ['ignore]
+                                      [(car send)]))]}]]}
 ;;;----
 
 
@@ -2995,8 +2999,8 @@
           (equal? 'event-two (test 10)) ;; send 10 to be the value of "(yield 'event-one)"
           (equal? 'event-three (test 10)) ;; send 10 to be the value of "(yield 'event-two)"
           (equal? 30 (test 10)) ;; send 10 to be the value of "(yield 'event-three)"
-          (equal? 'end-of-generator (test 10)) ;; end of the generator
-          }}}}
+          (equal? 'end-of-generator (test 10))}}}} ;; end of the generator
+
 
 ;;;----
 
