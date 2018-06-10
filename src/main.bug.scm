@@ -2953,6 +2953,88 @@
 ;;;----
 ;;;
 
+;;;== Coroutines
+
+;;;=== make-generator
+
+;;;[source,Scheme,linenums]
+;;;----
+{define make-generator
+  [|f|
+   ;; will be defined to something useful before it is called,
+   ;; but for now, the environment needs a variable defined
+   {##define return-to-callee 'ignore}
+   ;; do the work of the generator
+   {##define (eval-until-yield send)
+     {let ((value-passed-to-yield (f [|value|
+                                      (call/cc [|stack-of-yield-exp|
+                                                {setf! eval-until-yield stack-of-yield-exp}
+                                                (return-to-callee value)])])))
+       (return-to-callee value-passed-to-yield)}}
+   [|#!rest send|
+    {call/cc [|stack-of-callee|
+              {setf! return-to-callee stack-of-callee}
+              (eval-until-yield (if (null? send)
+                                    ['ignore]
+                                    [(car send)]))]}]]}
+;;;----
+
+
+;;;[source,Scheme,linenums]
+;;;----
+{unit-test
+ {begin
+   {let ((test (make-generator
+                [|yield|
+                 {let ((time 0))
+                   {setf! time (+ time (yield 'event-one))}
+                   {setf! time (+ time (yield 'event-two))}
+                   {setf! time (+ time (yield 'event-three))}
+                   (yield time)
+                   'end-of-generator}])))
+     {and (equal? 'event-one (test)) ;; just like python, nothing to send on first use
+          (equal? 'event-two (test 10)) ;; send 10 to be the value of "(yield 'event-one)"
+          (equal? 'event-three (test 10)) ;; send 10 to be the value of "(yield 'event-two)"
+          (equal? 30 (test 10)) ;; send 10 to be the value of "(yield 'event-three)"
+          (equal? 'end-of-generator (test 10)) ;; end of the generator
+          }}}}
+
+;;;----
+
+
+;;;=== generator
+;;;[source,Scheme,linenums]
+;;;----
+{define-macro generator
+  [|body|
+   `(make-generator
+     [|yield|
+      {begin
+        ,body
+        'end-of-generator}])]}
+;;;----
+
+
+;;;[source,Scheme,linenums]
+;;;----
+{unit-test
+ {begin
+   {let ((test (generator
+                 {let ((time 0))
+                   {setf! time (+ time (yield 'event-one))}
+                   {setf! time (+ time (yield 'event-two))}
+                   {setf! time (+ time (yield 'event-three))}
+                   (yield time)}]))
+     {and (equal? 'event-one (test)) ;; just like python, nothing to send on first use
+          (equal? 'event-two (test 10)) ;; send 10 to be the value of "(yield 'event-one)"
+          (equal? 'event-three (test 10)) ;; send 10 to be the value of "(yield 'event-two)"
+          (equal? 30 (test 10)) ;; send 10 to be the value of "(yield 'event-three)"
+          (equal? 'end-of-generator (test 10)) ;; end of the generator
+          }}}}
+;;;----
+
+
+
 ;;;== Streams
 ;;;
 ;;;Streams are sequential collections like lists, but the
