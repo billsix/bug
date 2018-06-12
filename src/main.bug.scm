@@ -2965,41 +2965,65 @@
    ;; but for now, the environment needs a variable defined
    {##define return-to-callee 'ignore}
    ;; do the work of the generator
-   {##define (eval-f-until-yield send)
-     {begin
-       ;; switch back and forth between the two routines
-       (f [|value|
-           (call/cc [|stack-of-yield-exp|
-                     {setf! eval-f-until-yield stack-of-yield-exp}
-                     (return-to-callee value)])])}
-     ;; all instances of yield have been called, inform the callee
-     ;; that the generator is done
-       (return-to-callee 'end-of-generator)}
+   {##define eval-f-until-yield
+     [|#!rest send|
+      ;; switch back and forth between the two routines
+      (f [|value|
+          (call/cc [|stack-of-yield-exp|
+                    {setf! eval-f-until-yield stack-of-yield-exp}
+                    (return-to-callee value)])])
+      ;; all instances of yield have been called, inform the callee
+      ;; that the generator is done
+      (return-to-callee 'end-of-generator)]}
    [|#!rest send|
     {call/cc [|stack-of-callee|
               {setf! return-to-callee stack-of-callee}
-              (eval-f-until-yield (if (null? send)
-                                      ['ignore]
-                                      [(car send)]))]}]]}
+              (apply eval-f-until-yield send)]}]]}
 ;;;----
 
 
 ;;;[source,Scheme,linenums]
 ;;;----
 {unit-test
- {begin
-   {let ((test (make-generator
-                [|yield|
-                 {let ((time 0))
-                   {setf! time (+ time (yield 'event-one))}
-                   {setf! time (+ time (yield 'event-two))}
-                   {setf! time (+ time (yield 'event-three))}
-                   (yield time)}])))
-     {and (equal? 'event-one (test)) ;; just like python, nothing to send on first use
-          (equal? 'event-two (test 10)) ;; send 10 to be the value of "(yield 'event-one)"
-          (equal? 'event-three (test 10)) ;; send 10 to be the value of "(yield 'event-two)"
-          (equal? 30 (test 10)) ;; send 10 to be the value of "(yield 'event-three)"
-          (equal? 'end-of-generator (test 10))}}}} ;; end of the generator
+ {let ((g (make-generator
+           [|yield|
+            {let ((time 0))
+              {setf! time (+ time (yield 'yield-value-one))}
+              (yield 'yield-value-two)
+              {setf! time (+ time (yield 'yield-value-three))}
+              (yield time)}])))
+   {and (equal? 'yield-value-one (g)) ;; just like python, nothing to send on first use
+        (equal? 'yield-value-two (g 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
+        (equal? 'yield-value-three (g)) ;;
+        (equal? 20 (g 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
+        (equal? 'end-of-generator (g))}} ;; end of the generator
+ ;; the generators are independent
+ {let ((g (make-generator
+           [|yield|
+            {let ((time 0))
+              {setf! time (+ time (yield 'yield-value-one))}
+              (yield 'yield-value-two)
+              {setf! time (+ time (yield 'yield-value-three))}
+              (yield time)}]))
+       (g2 (make-generator
+            [|yield|
+             {let ((time 0))
+               {setf! time (+ time (yield 'one))}
+               (yield 'two)
+               {setf! time (+ time (yield 'three))}
+               (yield time)}])))
+   {and (equal? 'yield-value-one (g))
+        (equal? 'one (g2))
+        (equal? 'yield-value-two (g 10))
+        (equal? 'two (g2 1))
+        (equal? 'yield-value-three (g))
+        (equal? 'three (g2))
+        (equal? 20 (g 10))
+        (equal? 2 (g2 1))
+        (equal? 'end-of-generator (g))
+        (equal? 'end-of-generator (g2))
+        }}}
+
 
 
 ;;;----
@@ -3020,19 +3044,25 @@
 ;;;----
 {unit-test
  {begin
-   {let ((test (generator
-                 {let ((time 0))
-                   {setf! time (+ time (yield 'event-one))}
-                   {setf! time (+ time (yield 'event-two))}
-                   {setf! time (+ time (yield 'event-three))}
-                   (yield time)}]))
-     {and (equal? 'event-one (test)) ;; just like python, nothing to send on first use
-          (equal? 'event-two (test 10)) ;; send 10 to be the value of "(yield 'event-one)"
-          (equal? 'event-three (test 10)) ;; send 10 to be the value of "(yield 'event-two)"
-          (equal? 30 (test 10)) ;; send 10 to be the value of "(yield 'event-three)"
-          (equal? 'end-of-generator (test 10)) ;; end of the generator
+   {let ((g (generator
+             {let ((time 0))
+               {setf! time (+ time (yield 'yield-value-one))}
+               {setf! time (+ time (yield 'yield-value-two))}
+               {setf! time (+ time (yield 'yield-value-three))}
+               (yield time)}]))
+     {and (equal? 'yield-value-one (g)) ;; just like python, nothing to send on first use
+          (equal? 'yield-value-two (g 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
+          (equal? 'yield-value-three (g 10)) ;; send 10 to be the value of "(yield 'yield-value-two)"
+          (equal? 30 (g 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
+          (equal? 'end-of-generator (g 10)) ;; end of the generator
           }}}}
 ;;;----
+
+
+
+
+
+
 
 
 
