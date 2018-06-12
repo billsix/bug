@@ -3059,6 +3059,44 @@
 ;;;----
 
 
+;;;=== yield-from
+;;;[source,Scheme,linenums]
+;;;----
+{define yield-from
+  [|g|
+   [|#!rest send|
+    ((generator
+      (yield (apply g send))))]]}
+;;;----
+
+;;;"However, if the subgenerator is to interact properly with the caller in
+;;;the case of calls to send(), throw() and close(), things become considerably
+;;;more difficult. As will be seen later, the necessary code is very complicated,
+;;;and it is tricky to handle all the corner cases correctly."
+;;;
+;;;https://www.python.org/dev/peps/pep-0380/
+;;;
+;;;Not that hard, really.
+
+;;;[source,Scheme,linenums]
+;;;----
+{unit-test
+ {begin
+   {let* ((g (generator
+              {let ((time 0))
+                {setf! time (+ time (yield 'yield-value-one))}
+                {setf! time (+ time (yield 'yield-value-two))}
+                {setf! time (+ time (yield 'yield-value-three))}
+                (yield time)}])
+          (g2 (yield-from g)))
+     {and (equal? 'yield-value-one (g2)) ;; just like python, nothing to send on first use
+          (equal? 'yield-value-two (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
+          (equal? 'yield-value-three (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-two)"
+          (equal? 30 (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
+          (equal? 'end-of-generator (g2 10)) ;; end of the generator
+          }}}}
+;;;----
+
 
 
 
