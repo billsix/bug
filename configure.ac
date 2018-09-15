@@ -11,8 +11,6 @@ AC_PROG_INSTALL
 AC_CANONICAL_SYSTEM
 
 AC_CONFIG_FILES([Makefile
-                 bug-gsc/Makefile
-                 bug-gsc/bug-gsi-config.h
 		 demo/env.sh
                  man/bug-create-project.1
                  man/bug-gscpp.1

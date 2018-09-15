@@ -45,17 +45,17 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;{define permutations
-;;; [|l|
+;;;(define permutations
+;;; (lambda (l)
 ;;;  (if (null? l)
-;;;      ['()]
-;;;      [{let permutations ((l l))
-;;;         (if (null? (cdr l))
-;;;             [(list l)]
-;;;             [(flatmap [|x|
-;;;                        (map [|y| (cons x y)]
-;;;                             (permutations (remove x l)))]
-;;;                       l)])}])]}
+;;;      '()
+;;;      (let permutations ((l l))
+;;;        (if (null? (cdr l))
+;;;            (list l)
+;;;            (flatmap (lambda (x)
+;;;                      (map (lambda (y) (cons x y))
+;;;                           (permutations (remove x l))))
+;;;                     l)]))])))
 ;;;----
 ;;;
 ;;;What does the code do?  How did the author intend for it to be used?
@@ -83,7 +83,7 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;{unit-test
+;;;(unit-test
 ;;;(satisfies?
 ;;; permutations
 ;;; '(
@@ -97,7 +97,7 @@
 ;;;             (2 3 1)
 ;;;             (3 1 2)
 ;;;             (3 2 1)))
-;;;   ))}
+;;;   )))
 ;;;----
 ;;;
 ;;;Why does the collocation of tests with definitions matter?
@@ -221,7 +221,7 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;{fun1 arg1 arg2}
+;;;(fun1 arg1 arg2)
 ;;;----
 ;;;
 ;;;
@@ -231,19 +231,19 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;{define x 5}
+;;;(define x 5)
 ;;;----
 ;;;
 ;;;
-;;;{} are used because "x"
+;;;() are used because "x"
 ;;;may be a new variable.  As such, "x" might not currently evaluate to anything.
 ;;;
-;;;Not all macro applications use {}.  If the macro always respects Scheme's standard
+;;;Not all macro applications use ().  If the macro always respects Scheme's standard
 ;;;order of evaluation, macro application may use standard Scheme notation:
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-;;;((compose [|x| (* x 2)]) 5)
+;;;((compose (lambda (x) (* x 2))) 5)
 ;;;----
 ;;;
 ;;;=== Getting the Source Code And Building
@@ -352,8 +352,7 @@
 ;;;[source,Scheme,linenums]
 ;;;----
 (include "bug-language.scm")
-{##namespace ("libbug-private#" define define-macro define-structure)}
-{##namespace ("bug#" if)}
+(##namespace ("libbug-private#" define define-macro define-structure))
 ;;;----
 ;;;- On line 1, the code which makes computation at compile-time possible
 ;;;is imported. That code is defined in Chapter <<buglang>>.
@@ -374,8 +373,8 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define noop
-  ['noop]}
+(define noop
+  (lambda () 'noop))
 ;;;----
 ;;;
 ;;;- On line 1, the libbug-private#define macro footnote:[defined in section  <<libbugdefine>>]
@@ -402,8 +401,8 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? (noop) 'noop)}
+(unit-test
+ (equal? (noop) 'noop))
 ;;;----
 ;;;
 ;;;- On line 1, an invocation of "unit-test". In this case, "unit-test" takes one
@@ -430,36 +429,17 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define identity
-  [|x| x]}
+(define identity
+  (lambda (x) x))
 ;;;----
-;;;- On line 2, "bug-gscpp" expands
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-;;;[|x| x]
-;;;----
-;;;
-;;;to
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-;;;(lambda (x) x)
-;;;----
-;;;
-;;;This expansion works with multiple arguments, as long as they are between
-;;;the bar symbols "|"  footnote:[Since "bug-gscpp" uses "|"s for lambda
-;;;literals, Scheme's block comments are not allowed in libbug programs.].
-;;;
-;;;
 ;;;
 ;;;"unit-test" can take more than one test as parameters.
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? "foo" (identity "foo"))
- (equal? identity (identity identity))}
+ (equal? identity (identity identity)))
 ;;;----
 ;;;
 ;;;
@@ -472,42 +452,36 @@
 ;;;(((all?)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define all?
-  [|l|
-   (if (null? l)
-       [#t]
-       [(if (car l)
-            [(all? (cdr l))]
-            [#f])])]}
+(define all?
+  (lambda (l)
+    (if (null? l)
+        #t
+        (if (car l)
+            (all? (cdr l))
+            #f))))
 ;;;----
-;;;- On line 3, "if", which is currently namespaced to "bug#if"
-;;;footnote:[defined in section <<langif>>], takes
-;;;lambda expressions for the two parameters. Libbug pretends that #t and #f are
-;;;"Church Booleans" <<<tapl>>>, and that "bug#if" is just syntactic sugar:
+;;;- On line 3, "if", Libbug pretends that #t and #f are
+;;;"Church Booleans" <<<tapl>>>.
 ;;;
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;{define #t [|t f| (t)]}
-;;;{define #f [|t f| (f)]}
-;;;{define bug#if [|b t f| (b t f)]}
+;;;(define #t (lambda (t f) (t)))
+;;;(define #f (lambda (t f) (f)))
 ;;;----
-;;;
-;;;As such, "bug#if" would not be a special form, and is more consistent with the
-;;;rest of libbug.
 ;;;
 ;;;
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (all? '())
  (all? '(1))
  (all? '(#t))
  (all? '(#t #t))
  (not (all? '(#f)))
- (not (all? '(#t #t #t #f)))}
+ (not (all? '(#t #t #t #f))))
 ;;;----
 ;;;
 ;;;Tests in libbug are defined for two purposes.  Firstly, to ensure
@@ -530,11 +504,11 @@
 ;;;(((satisfies?)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define satisfies?
-  [|f list-of-pairs|
-   (all? (map [|pair| (equal? (f (car pair))
-                              (cadr pair))]
-              list-of-pairs))]}
+(define satisfies?
+  (lambda (f list-of-pairs)
+    (all? (map (lambda (pair) (equal? (f (car pair))
+                                      (cadr pair)))
+               list-of-pairs))))
 ;;;----
 ;;;
 ;;;
@@ -542,9 +516,9 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|x| (+ x 1)]
+  (lambda (x) (+ x 1))
   '(
     (0 1)
     (1 2)
@@ -559,7 +533,7 @@
     ((#t #t) #t)
     ((#f) #f)
     ((#t #t #t #f) #f)))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -578,12 +552,12 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define while
-  [|pred? body|
-   {let while ((val 'noop))
-     (if (pred?)
-         [(while (body))]
-         [val])}]}
+(define while
+  (lambda (pred? body)
+    (let while ((val 'noop))
+      (if (pred?)
+          (while (body))
+          val))))
 ;;;----
 ;;;
 ;;;
@@ -591,18 +565,18 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {let ((a 0))
-   {and (equal? (while [(< a 5)]
-                       [{set! a (+ a 1)}])
+(unit-test
+ (let ((a 0))
+   (and (equal? (while (lambda () (< a 5))
+                       (lambda () (set! a (+ a 1))))
                 #!void)
-        (equal? a 5)}}
- {let ((a 0))
-   {and (equal? (while [(< a 5)]
-                       [{set! a (+ a 1)}
-                        'foo])
+        (equal? a 5)))
+ (let ((a 0))
+   (and (equal? (while (lambda () (< a 5))
+                       (lambda () (set! a (+ a 1))
+                               'foo))
                 'foo)
-        (equal? a 5)}}}
+        (equal? a 5))))
 ;;;----
 ;;;
 ;;;
@@ -618,13 +592,13 @@
 ;;;(((numeric-if)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define numeric-if
-  [|n #!key (ifPositive noop) (ifZero noop) (ifNegative noop)|
-   (if (> n 0)
-       [(ifPositive)]
-       [(if (= n 0)
-            [(ifZero)]
-            [(ifNegative)])])]}
+(define numeric-if
+  (lambda (n #!key (ifPositive noop) (ifZero noop) (ifNegative noop))
+    (if (> n 0)
+        (ifPositive)
+        (if (= n 0)
+            (ifZero)
+            (ifNegative)))))
 ;;;----
 ;;;
 ;;;<<<onlisp>>>
@@ -633,28 +607,28 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|n|
-   (numeric-if n
-               ifPositive: ['pos]
-               ifZero: ['zero]
-               ifNegative: ['neg])]
+  (lambda (n)
+    (numeric-if n
+                ifPositive: (lambda () 'pos)
+                ifZero: (lambda () 'zero)
+                ifNegative: (lambda () 'neg)))
   '(
     (5 pos)
     (0 zero)
     (-5 neg)
     ))
  (satisfies?
-  [|n|
-   (numeric-if n
-               ifZero: ['zero])]
+  (lambda (n)
+    (numeric-if n
+                ifZero: (lambda () 'zero)))
   '(
     (5 noop)
     (0 zero)
     (-5 noop)
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -665,13 +639,13 @@
 ;;;(((atom?)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define atom?
-  [|x|
-   {or (number? x)
-       (symbol? x)
-       (boolean? x)
-       (string? x)
-       (char? x)}]}
+(define atom?
+  (lambda (x)
+    (or (number? x)
+        (symbol? x)
+        (boolean? x)
+        (string? x)
+        (char? x))))
 ;;;----
 ;;;
 ;;;footnote:[Within libbug, a parameter named "x" usually means the parameter can
@@ -681,7 +655,7 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   atom?
   '(
@@ -696,7 +670,7 @@
     (() #f)
     ((a) #f)
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -706,10 +680,10 @@
 ;;;(((complement)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define complement
-  [|f|
-   [|#!rest args|
-    (not (apply f args))]]}
+(define complement
+  (lambda (f)
+    (lambda (#!rest args)
+      (not (apply f args)))))
 ;;;----
 ;;;
 ;;;<<<onlisp>>>
@@ -717,7 +691,7 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   pair?
   '(
@@ -730,7 +704,7 @@
     (1 #t)
     ((1 2) #f)
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -747,9 +721,9 @@
 ;;;(((copy)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define copy
-  [|l|
-   (map identity l)]}
+(define copy
+  (lambda (l)
+    (map identity l)))
 ;;;----
 ;;;
 ;;;
@@ -757,11 +731,11 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {let ((a '(1 2 3 4 5)))
-   {and (equal? a (copy a))
-        (not (eq? a (copy a)))}}
- }
+(unit-test
+ (let ((a '(1 2 3 4 5)))
+   (and (equal? a (copy a))
+        (not (eq? a (copy a)))))
+ )
 ;;;----
 ;;;
 ;;;For a thorough description of "equal?" vs "eq?", see <<<schemeprogramanguage>>>.
@@ -774,18 +748,18 @@
 ;;;(((proper?)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define proper?
-  [|l|
-   (if (null? l)
-       [#t]
-       [(if (pair? l)
-            [(proper? (cdr l))]
-            [#f])])]}
+(define proper?
+  (lambda (l)
+    (if (null? l)
+        #t
+        (if (pair? l)
+            (proper? (cdr l))
+            #f))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   proper?
   '(
@@ -794,7 +768,7 @@
     ((1 2) #t)
     (4 #f)
     ((1 2 . 5) #f)
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -807,11 +781,11 @@
 ;;;(((first)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define first
-  [|l #!key (onNull noop)|
-   (if (null? l)
-       [(onNull)]
-       [(car l)])]}
+(define first
+  (lambda (l #!key (onNull noop))
+    (if (null? l)
+        (onNull)
+        (car l))))
 ;;;----
 ;;;
 ;;;<<<ss>>>
@@ -819,7 +793,7 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   first
   '(
@@ -827,11 +801,11 @@
     ((1 2 3) 1)
     ))
  (satisfies?
-  [|l| (first l onNull: [5])]
+  (lambda (l) (first l onNull: (lambda () 5)))
   '(
     (() 5)
     ((1 2 3) 1)
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -841,11 +815,11 @@
 ;;;(((but-first)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define but-first
-  [|l #!key (onNull noop)|
-   (if (null? l)
-       [(onNull)]
-       [(cdr l)])]}
+(define but-first
+  (lambda (l #!key (onNull noop))
+    (if (null? l)
+        (onNull)
+        (cdr l))))
 ;;;----
 ;;;
 ;;;<<<ss>>>
@@ -853,7 +827,7 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   but-first
   '(
@@ -861,11 +835,11 @@
     ((1 2 3) (2 3))
     ))
  (satisfies?
-  [|l| (but-first l onNull: [5])]
+  (lambda (l) (but-first l onNull: (lambda () 5)))
   '(
     (() 5)
     ((1 2 3) (2 3))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -873,14 +847,14 @@
 ;;;(((last)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define last
-  [|l #!key (onNull noop)|
-   (if (null? l)
-       [(onNull)]
-       [{let last ((l l))
+(define last
+  (lambda (l #!key (onNull noop))
+    (if (null? l)
+        (onNull)
+        (let last ((l l))
           (if (null? (cdr l))
-              [(car l)]
-              [(last (cdr l))])}])]}
+              (car l)
+              (last (cdr l)))))))
 ;;;----
 ;;;
 ;;;<<<ss>>>
@@ -888,7 +862,7 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   last
   '(
@@ -897,11 +871,11 @@
     ((2 1) 1)
     ))
  (satisfies?
-  [|l| (last l onNull: [5])]
+  (lambda (l) (last l onNull: (lambda () 5)))
   '(
     (() 5)
     ((2 1) 1)
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -910,15 +884,15 @@
 ;;;(((but-last)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define but-last
-  [|l #!key (onNull noop)|
-   (if (null? l)
-       [(onNull)]
-       [{let but-last ((l l))
+(define but-last
+  (lambda (l #!key (onNull noop))
+    (if (null? l)
+        (onNull)
+        (let but-last ((l l))
           (if (null? (cdr l))
-              ['()]
-              [(cons (car l)
-                     (but-last (cdr l)))])}])]}
+              '()
+              (cons (car l)
+                    (but-last (cdr l))))))))
 ;;;----
 ;;;
 ;;;<<<ss>>>
@@ -926,7 +900,7 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   but-last
   '(
@@ -936,12 +910,12 @@
     ((3 2 1) (3 2))
     ))
  (satisfies?
-  [|l| (but-last l onNull: [5])]
+  (lambda (l) (but-last l onNull: (lambda () 5)))
   '(
     (() 5)
     ((3 2 1) (3 2))
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -950,15 +924,15 @@
 ;;;(((filter)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define filter
-  [|p? l|
-   {let filter ((l l))
-     (if (null? l)
-         ['()]
-         [{let ((first (car l)))
+(define filter
+  (lambda (p? l)
+    (let filter ((l l))
+      (if (null? l)
+          '()
+          (let ((first (car l)))
             (if (p? first)
-                [(cons first (filter (cdr l)))]
-                [(filter (cdr l))])}])}]}
+                (cons first (filter (cdr l)))
+                (filter (cdr l))))))))
 ;;;----
 ;;;
 ;;;<<<ss>>> footnote:[Simply Scheme has an excellent discussion on section
@@ -966,17 +940,17 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (filter [|x| (not (= 4 x))]
-               l)]
+  (lambda (l) (filter (lambda (x) (not (= 4 x)))
+                      l))
   '(
     (() ())
     ((4) ())
     ((1 4) (1))
     ((4 1 4) (1))
     ((2 4 1 4) (2 1))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -987,20 +961,20 @@
 ;;;(((remove)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define remove
-  [|x l|
-   (filter [|y| (not (equal? x y))]
-           l)]}
+(define remove
+  (lambda (x l)
+    (filter (lambda (y) (not (equal? x y)))
+            l)))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (remove 5 l)]
+  (lambda (l) (remove 5 l))
   '(
     ((1 5 2 5 3 5 4 5 5) (1 2 3 4))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -1013,14 +987,14 @@
 ;;;(((fold-left)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define fold-left
-  [|f acc l|
-   {let fold-left ((acc acc) (l l))
-     (if (null? l)
-         [acc]
-         [(fold-left (f acc
+(define fold-left
+  (lambda (f acc l)
+    (let fold-left ((acc acc) (l l))
+      (if (null? l)
+          acc
+          (fold-left (f acc
                         (car l))
-                     (cdr l))])}]}
+                     (cdr l))))))
 ;;;----
 ;;;
 ;;;
@@ -1030,9 +1004,9 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (fold-left + 5 l)]
+  (lambda (l) (fold-left + 5 l))
   '(
     (() 5)
     ((1) 6)
@@ -1048,12 +1022,12 @@
 ;;;[source,Scheme,linenums]
 ;;;----
  (satisfies?
-  [|l| (fold-left - 5 l)]
+  (lambda (l) (fold-left - 5 l))
   '(
     (() 5)
     ((1) 4)
     ((1 2) 2)
-    ((1 2 3 4 5 6) -16)))}
+    ((1 2 3 4 5 6) -16))))
 ;;;----
 ;;;
 ;;;
@@ -1062,20 +1036,20 @@
 ;;;(((sum)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define sum
-  [|l|
-   (fold-left + 0 l)]}
+(define sum
+  (lambda (l)
+    (fold-left + 0 l)))
 ;;;----
 
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   sum
   '(( (1)    1)
     ( (1 2)  3)
     ( (1 2 3) 6)))
- }
+ )
 ;;;----
 ;;;
 ;;;=== fold-right
@@ -1086,22 +1060,22 @@
 ;;;(((fold-right)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define fold-right
-  [|f acc l|
-   {let fold-right ((l l))
-     (if (null? l)
-         [acc]
-         [(f (car l)
-             (fold-right (cdr l)))])}]}
+(define fold-right
+  (lambda (f acc l)
+    (let fold-right ((l l))
+      (if (null? l)
+          acc
+          (f (car l)
+             (fold-right (cdr l)))))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (fold-right + 5 l)]
+  (lambda (l) (fold-right + 5 l))
   '(
     (() 5)
     ((1) 6)
@@ -1109,13 +1083,13 @@
     ((1 2 3 4 5 6) 26)
     ))
  (satisfies?
-  [|l| (fold-right - 5 l)]
+  (lambda (l) (fold-right - 5 l))
   '(
     (() 5)
     ((1) -4)
     ((1 2) 4)
     ((1 2 3 4 5 6) 2)))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1128,28 +1102,28 @@
 ;;;(((scan-left)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define scan-left
-  [|f acc l|
-   {let ((acc-list (list acc)))
-     {let scan-left ((acc acc)
-                     (l l)
-                     (last-cell acc-list))
-       (if (null? l)
-           [acc-list]
-           [{let ((newacc (f acc
+(define scan-left
+  (lambda (f acc l)
+    (let ((acc-list (list acc)))
+      (let scan-left ((acc acc)
+                      (l l)
+                      (last-cell acc-list))
+        (if (null? l)
+            acc-list
+            (let ((newacc (f acc
                              (car l))))
               (scan-left newacc
                          (cdr l)
-                         {begin
-                           {set-cdr! last-cell (list newacc)}
-                           (cdr last-cell)})}])}}]}
+                         (begin
+                           (set-cdr! last-cell (list newacc))
+                           (cdr last-cell)))))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (scan-left + 5 l)]
+  (lambda (l) (scan-left + 5 l))
   '(
     (() (5))
     ((1) (5 6))
@@ -1157,14 +1131,14 @@
     ((1 2 3 4 5 6) (5 6 8 11 15 20 26))
     ))
  (satisfies?
-  [|l| (scan-left - 5 l)]
+  (lambda (l) (scan-left - 5 l))
   '(
     (() (5))
     ((1) (5 4))
     ((1 2) (5 4 2))
     ((1 2 3 4 5 6) (5 4 2 -1 -5 -10 -16))))
  (satisfies?
-  [|l| (scan-left * 1 l)]
+  (lambda (l) (scan-left * 1 l))
   '(
     (() (1))
     ((2) (1 2))
@@ -1172,7 +1146,7 @@
     ((2 3 4) (1 2 6 24))
     ((2 3 4 5 ) (1 2 6 24 120))
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1183,38 +1157,38 @@
 ;;;(((append"!)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define append!
-  [|#!rest ls|
-   {let ((append! [|second-list first-list|
-                   (if (null? first-list)
-                       [second-list]
-                       [{let ((head first-list))
-                          {let append! ((first-list first-list))
-                            (if (null? (cdr first-list))
-                                [{set-cdr! first-list second-list}]
-                                [(append! (cdr first-list))])}
-                          head}])]))
-     (fold-left append! '() (reverse ls))}]}
+(define append!
+  (lambda (#!rest ls)
+    (let ((append! (lambda (second-list first-list)
+                     (if (null? first-list)
+                         second-list
+                         (let ((head first-list))
+                           (let append! ((first-list first-list))
+                             (if (null? (cdr first-list))
+                                 (set-cdr! first-list second-list)
+                                 (append! (cdr first-list))))
+                           head)))))
+      (fold-left append! '() (reverse ls)))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (append! '()
                   '(5))
          '(5))
  (equal? (append! '(1 2 3)
                   '(5))
          '(1 2 3 5))
- {let ((a '(1 2 3))
+ (let ((a '(1 2 3))
        (b '(4 5 6)))
    (append! a b '(7))
-   (equal? a '(1 2 3 4 5 6 7))}
- {let ((a '(1 2 3))
+   (equal? a '(1 2 3 4 5 6 7)))
+ (let ((a '(1 2 3))
        (b '(4 5 6)))
    (append! a b '(7) '(8))
-   (equal? a '(1 2 3 4 5 6 7 8))}
- }
+   (equal? a '(1 2 3 4 5 6 7 8)))
+ )
 ;;;----
 ;;;
 ;;;
@@ -1223,9 +1197,9 @@
 ;;;(((flatmap)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define flatmap
-  [|f l|
-   (fold-left append! '() (map f l))]}
+(define flatmap
+  (lambda (f l)
+    (fold-left append! '() (map f l))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>
@@ -1233,16 +1207,16 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (flatmap [|x| (list x
-                           (+ x 1)
-                           (+ x 2))]
-                l)]
+  (lambda (l) (flatmap (lambda (x) (list x
+                                         (+ x 1)
+                                         (+ x 2)))
+                       l))
   '(
     ((10 20) (10 11 12 20 21 22))
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1255,29 +1229,29 @@
 ;;;(((take)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define take
-  [|n l|
-   (if {or (null? l)
-           (<= n 0)}
-       ['()]
-       [(cons (car l)
+(define take
+  (lambda (n l)
+    (if (or (null? l)
+            (<= n 0))
+        '()
+        (cons (car l)
               (take (- n 1)
-                    (cdr l)))])]}
+                    (cdr l))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|n| (take n '(a b))]
+  (lambda (n) (take n '(a b)))
   '(
     (-1 ())
     (0 ())
     (1 (a))
     (2 (a b))
     (3 (a b))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -1286,30 +1260,30 @@
 ;;;(((take-while)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define take-while
-  [|p? l|
-   {let ((not-p? (complement p?)))
-     {let take-while ((l l))
-       (if {or (null? l)
-               (not-p? (car l))}
-           ['()]
-           [(cons (car l)
-                  (take-while (cdr l)))])}}]}
+(define take-while
+  (lambda (p? l)
+    (let ((not-p? (complement p?)))
+      (let take-while ((l l))
+        (if (or (null? l)
+                (not-p? (car l)))
+            '()
+            (cons (car l)
+                  (take-while (cdr l))))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|x| (take-while [|y| (not (equal? x y))]
-                   '(a b c))]
+  (lambda (x) (take-while (lambda (y) (not (equal? x y)))
+                          '(a b c)))
   '(
     (a ())
     (b (a))
     (c (a b))
     (d (a b c))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -1318,28 +1292,28 @@
 ;;;(((drop)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define drop
-  [|n l|
-   (if {or (null? l)
-           (<= n 0)}
-       [l]
-       [(drop (- n 1)
-              (cdr l))])]}
+(define drop
+  (lambda (n l)
+    (if (or (null? l)
+            (<= n 0))
+        l
+        (drop (- n 1)
+              (cdr l)))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|n| (drop n '(a b))]
+  (lambda (n) (drop n '(a b)))
   '(
     (-1 (a b))
     (0 (a b))
     (1 (b))
     (2 ())
     (3 ())
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -1347,30 +1321,30 @@
 ;;;(((drop-while)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define drop-while
-  [|p? l|
-   {let ((not-p? (complement p?)))
-     {let drop-while ((l l))
-       (if {or (null? l)
-               (not-p? (car l))}
-           [l]
-           [(drop-while (cdr l))])}}]}
+(define drop-while
+  (lambda (p? l)
+    (let ((not-p? (complement p?)))
+      (let drop-while ((l l))
+        (if (or (null? l)
+                (not-p? (car l)))
+            l
+            (drop-while (cdr l)))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|x| (drop-while [|y| (not (equal? x y))]
-                   '(a b c))]
+  (lambda (x) (drop-while (lambda (y) (not (equal? x y)))
+                          '(a b c)))
   '(
     (a (a b c))
     (b (b c))
     (c (c))
     (d ())
     (e ())
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -1379,22 +1353,22 @@
 ;;;(((enumerate-interval)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define enumerate-interval
-  [|low high #!key (step 1)|
-   {let enumerate-interval ((low low))
-     (if (> low high)
-         ['()]
-         [(cons low
-                (enumerate-interval (+ low step)))])}]}
+(define enumerate-interval
+  (lambda (low high #!key (step 1))
+    (let enumerate-interval ((low low))
+      (if (> low high)
+          '()
+          (cons low
+                (enumerate-interval (+ low step)))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (enumerate-interval 1 10)
          '(1 2 3 4 5 6 7 8 9 10))
  (equal? (enumerate-interval 1 10 step: 2)
-         '(1 3 5 7 9))}
+         '(1 3 5 7 9)))
 ;;;----
 ;;;
 ;;;
@@ -1403,18 +1377,18 @@
 ;;;(((any?)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define any?
-  [|l|
-   (if (null? l)
-       [#f]
-       [(if (car l)
-            [#t]
-            [(any? (cdr l))])])]}
+(define any?
+  (lambda (l)
+    (if (null? l)
+        #f
+        (if (car l)
+            #t
+            (any? (cdr l))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   any?
   '(
@@ -1424,7 +1398,7 @@
     ((#t #t) #t)
     ((#f) #f)
     ((#t #t #t #f) #t)))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1432,18 +1406,18 @@
 ;;;(((zip)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define zip
-  [|#!rest lsts|
-   {let zip ((lsts lsts))
-     (if (any? (map null? lsts))
-         ['()]
-         [(cons (map car lsts)
-                (zip (map cdr lsts)))])}]}
+(define zip
+  (lambda (#!rest lsts)
+    (let zip ((lsts lsts))
+      (if (any? (map null? lsts))
+          '()
+          (cons (map car lsts)
+                (zip (map cdr lsts)))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (zip '() '())
          '())
  (equal? (zip '(1) '(4))
@@ -1459,12 +1433,12 @@
          '())
  (equal? (zip '() '(1))
          '())
- }
+ )
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (zip '() '() '())
          '())
  (equal? (zip '(1 2 3)
@@ -1473,12 +1447,12 @@
          '((1 4 7)
            (2 5 8)
            (3 6 9)))
- }
+ )
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (zip '() '() '() '())
          '())
  (equal? (zip '(1 2 3)
@@ -1488,7 +1462,7 @@
          '((1 4 7 10)
            (2 5 8 11)
            (3 6 9 12)))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1496,18 +1470,18 @@
 ;;;(((zip-with)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define zip-with
-  [|f #!rest lsts|
-   {let zip ((lsts lsts))
-     (if (any? (map null? lsts))
-         ['()]
-         [(cons (apply f (map car lsts))
-                (zip (map cdr lsts)))])}]}
+(define zip-with
+  (lambda (f #!rest lsts)
+    (let zip ((lsts lsts))
+      (if (any? (map null? lsts))
+          '()
+          (cons (apply f (map car lsts))
+                (zip (map cdr lsts)))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (zip-with +
                    '()
                    '())
@@ -1532,12 +1506,12 @@
                    '()
                    '(1))
          '())
- }
+ )
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (zip-with +
                    '()
                    '()
@@ -1548,12 +1522,12 @@
                    '(4 5 6)
                    '(7 8 9))
          '(12 15 18))
- }
+ )
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (zip-with +
                    '()
                    '()
@@ -1566,7 +1540,7 @@
                    '(7 8 9)
                    '(10 11 12))
          '(22 26 30))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1574,21 +1548,21 @@
 ;;;(((permutations)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define permutations
-  [|l|
-   (if (null? l)
-       ['()]
-       [{let permutations ((l l))
+(define permutations
+  (lambda (l)
+    (if (null? l)
+        '()
+        (let permutations ((l l))
           (if (null? (cdr l))
-              [(list l)]
-              [(flatmap [|x| (map [|y| (cons x y)]
-                                  (permutations (remove x l)))]
-                        l)])}])]}
+              (list l)
+              (flatmap (lambda (x) (map (lambda (y) (cons x y))
+                                        (permutations (remove x l))))
+                       l))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   permutations
   '(
@@ -1602,7 +1576,7 @@
               (2 3 1)
               (3 1 2)
               (3 2 1)))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;Inspired by <<<sicp>>>, although I think they have a slight
@@ -1616,24 +1590,24 @@
 ;;;(((cartesian-product)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define cartesian-product
-  [|lol|
-   {##define cp
-     [|lol|
-      {cond
-       ((null? (cdr lol))
-        (map list (car lol)))
-       (#t
-        (flatmap [|x| (map [|y| (cons x y)]
-                           (cp (cdr lol)))]
-                 (car lol)))}]}
-   {cond ((null? lol) '())
-         (#t (cp lol))}]}
+(define cartesian-product
+  (lambda (lol)
+    (##define cp
+      (lambda (lol)
+        (cond
+         ((null? (cdr lol))
+          (map list (car lol)))
+         (#t
+          (flatmap (lambda (x) (map (lambda (y) (cons x y))
+                                    (cp (cdr lol))))
+                   (car lol))))))
+    (cond ((null? lol) '())
+          (#t (cp lol)))))
 ;;;----
 
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (cartesian-product '())
          '())
  (equal? (cartesian-product '((1 2 3)))
@@ -1683,7 +1657,7 @@
            (3 6 7)
            (3 6 8)
            (3 6 9)))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1693,59 +1667,59 @@
 ;;;(((ref-of)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define ref-of
-  [|l x #!key (onMissing noop)|
-   (if (null? l)
-       [(onMissing)]
-       [{let ref-of ((l l)
+(define ref-of
+  (lambda (l x #!key (onMissing noop))
+    (if (null? l)
+        (onMissing)
+        (let ref-of ((l l)
                      (index 0))
           (if (equal? (car l) x)
-              [index]
-              [(if (null? (cdr l))
-                   [(onMissing)]
-                   [(ref-of (cdr l) (+ index 1))])])}])]}
+              index
+              (if (null? (cdr l))
+                  (onMissing)
+                  (ref-of (cdr l) (+ index 1))))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|x| (ref-of '(a b c d e f g) x)]
+  (lambda (x) (ref-of '(a b c d e f g) x))
   '(
     (z noop)
     (a 0)
     (b 1)
     (g 6)
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|x| (ref-of '(a b c d e f g)
-               x
-               onMissing: ['missing])]
+  (lambda (x) (ref-of '(a b c d e f g)
+                      x
+                      onMissing: (lambda () 'missing)))
   '(
     (z missing)
     (a 0)
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {let ((l '(a b c d e f g)))
+(unit-test
+ (let ((l '(a b c d e f g)))
    (satisfies?
-    [|x| (list-ref l (ref-of l x))]
+    (lambda (x) (list-ref l (ref-of l x)))
     '(
       (a a)
       (b b)
       (g g)
-      ))}
- }
+      )))
+ )
 ;;;----
 ;;;
 ;;;
@@ -1757,25 +1731,24 @@
 ;; TODO - handle case where index is too large
 ;; N.B this is called list-sef! instead of list-ref-set!
 ;;  to facilitate use by setf!, as setf! drops the -ref suffix
-{define list-set!
-  [|l index val|
-   (if (equal? 0 index)
-       [(set-car! l val)]
-       [(list-set! (cdr l) (- index 1) val)])
-   ]}
+(define list-set!
+  (lambda (l index val)
+    (if (equal? 0 index)
+        (set-car! l val)
+        (list-set! (cdr l) (- index 1) val))))
 ;;;----
 
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {let ((foo '(bar baz quux)))
+(unit-test
+ (let ((foo '(bar baz quux)))
    (list-set! foo 0 'blah)
-   (equal? foo '(blah baz quux))}
- {let ((foo '(bar baz quux)))
+   (equal? foo '(blah baz quux)))
+ (let ((foo '(bar baz quux)))
    (list-set! foo 1 'blah)
    (equal? foo '(bar blah quux))
-   }
- }
+   )
+ )
 ;;;----
 
 ;;;
@@ -1789,34 +1762,34 @@
 ;;;(((partition)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define partition
-  [|l p?|
-   {let partition ((l l)
-                   (trueList '())
-                   (falseList '()))
-     (if (null? l)
-         [(list trueList falseList)]
-         [{let ((head (car l)))
+(define partition
+  (lambda (l p?)
+    (let partition ((l l)
+                    (trueList '())
+                    (falseList '()))
+      (if (null? l)
+          (list trueList falseList)
+          (let ((head (car l)))
             (if (p? head)
-                [(partition (cdr l)
-                            (cons head trueList)
-                            falseList)]
-                [(partition (cdr l)
-                            trueList
-                            (cons head falseList))])}])}]}
+                (partition (cdr l)
+                           (cons head trueList)
+                           falseList)
+                (partition (cdr l)
+                           trueList
+                           (cons head falseList))))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (partition l [|x| (<= x 3)])]
+  (lambda (l) (partition l (lambda (x) (<= x 3))))
   '(
     (() (()
          ()))
     ((3 2 5 4 1) ((1 2 3)
                   (4 5)))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;In section <<dbind>>, "destructuring-bind" allows for a more convenient syntax when
@@ -1824,15 +1797,15 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;> {destructuring-bind (trueList falseList)
+;;;> (destructuring-bind (trueList falseList)
 ;;;                     (partition '(3 2 5 4 1)
-;;;                                [|x| (<= x 3)])
-;;;                     trueList}
+;;;                                (lambda (x) (<= x 3)))
+;;;                     trueList)
 ;;;(1 2 3)
-;;;> {destructuring-bind (trueList falseList)
+;;;> (destructuring-bind (trueList falseList)
 ;;;                     (partition '(3 2 5 4 1)
-;;;                                [|x| (<= x 3)])
-;;;                     falseList}
+;;;                                (lambda (x) (<= x 3)))
+;;;                     falseList)
 ;;;(4 5)
 ;;;----
 ;;;
@@ -1841,28 +1814,28 @@
 ;;;(((sort)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define sort
-  [|l comparison?|
-   {let sort ((l l))
-     (if (null? l)
-         ['()]
-         [{let* ((current-node (car l))
+(define sort
+  (lambda (l comparison?)
+    (let sort ((l l))
+      (if (null? l)
+          '()
+          (let* ((current-node (car l))
                  (p (partition (cdr l)
-                               [|x| (comparison? x current-node)])))
+                               (lambda (x) (comparison? x current-node)))))
             (append! (sort (car p))
                      (cons current-node
-                           (sort (cadr p))))}])}]}
+                           (sort (cadr p)))))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|l| (sort l <)]
+  (lambda (l) (sort l <))
   '(
     (() ())
     ((1 3 2 5 4 0) (0 1 2 3 4 5))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -1874,23 +1847,24 @@
 ;;;(((reverse"!)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define reverse!
-  [|l|
-   (if (null? l)
-       ['()]
-       [{let reverse! ((current-cons-cell l)
+(define reverse!
+  (lambda (l)
+    (if (null? l)
+        '()
+        (let reverse! ((current-cons-cell l)
 		       (reversed-list '()))
           (if (null? (cdr current-cons-cell))
-              [{set-cdr! current-cons-cell reversed-list}
-               current-cons-cell]
-              [{let ((rest (cdr current-cons-cell)))
-                 {set-cdr! current-cons-cell reversed-list}
-                 (reverse! rest current-cons-cell)}])}])]}
+              (begin
+                (set-cdr! current-cons-cell reversed-list)
+                current-cons-cell)
+              (let ((rest (cdr current-cons-cell)))
+                (set-cdr! current-cons-cell reversed-list)
+                (reverse! rest current-cons-cell)))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   reverse!
   '(
@@ -1899,11 +1873,11 @@
     ((2 1) (1 2))
     ((3 2 1) (1 2 3))
     ))
- {let ((x '(1 2 3)))
-   {let ((y (reverse! x)))
-     {and (equal? y '(3 2 1))
-          (equal? x '(1))}}}
- }
+ (let ((x '(1 2 3)))
+   (let ((y (reverse! x)))
+     (and (equal? y '(3 2 1))
+          (equal? x '(1)))))
+ )
 ;;;----
 ;;;
 ;;;
@@ -1920,19 +1894,19 @@
 ;;;Strings are sequences of characters, just as lists are
 ;;;sequences of arbitrary Scheme objects. "string-lift-list"
 ;;;allows the creation of a context in which strings may
-;;;be treated as lists{ footnote:[Within libbug, a parameter named
+;;;be treated as lists( footnote:[Within libbug, a parameter named
 ;;;"s" usually means the parameter is of type string.].
 ;;;
 ;;;
 ;;;(((string-lift-list)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define string-lift-list
-  [|f|
-   [|#!rest s|
-    (list->string
-     (apply f
-            (map string->list s)))]]}
+(define string-lift-list
+  (lambda (f)
+    (lambda (#!rest s)
+      (list->string
+       (apply f
+              (map string->list s))))))
 ;;;
 ;;;----
 ;;;
@@ -1943,14 +1917,14 @@
 ;;;(((string-reverse)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define string-reverse
-  (string-lift-list reverse!)}
+(define string-reverse
+  (string-lift-list reverse!))
 ;;;
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   string-reverse
   '(
@@ -1958,7 +1932,7 @@
     ("foo" "oof")
     ("bar" "rab")
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -1967,23 +1941,23 @@
 ;;;(((string-take)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define string-take
-  [|n s|
-   {let ((string-take-n (string-lift-list [|l| (take n l)])))
-     (string-take-n s)}]}
+(define string-take
+  (lambda (n s)
+    (let ((string-take-n (string-lift-list (lambda (l) (take n l)))))
+      (string-take-n s))))
 ;;;
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|s| (string-take 2 s)]
+  (lambda (s) (string-take 2 s))
   '(
     ("" "")
     ("foo" "fo")
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;=== string-drop
@@ -1991,24 +1965,24 @@
 ;;;(((string-drop)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define string-drop
-  [|n s|
-   {let ((string-drop-n (string-lift-list [|l| (drop n l)])))
-     (string-drop-n s)}]}
+(define string-drop
+  (lambda (n s)
+    (let ((string-drop-n (string-lift-list (lambda (l) (drop n l)))))
+      (string-drop-n s))))
 ;;;
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|s| (string-drop 2 s)]
+  (lambda (s) (string-drop 2 s))
   '(
     ("" "")
     ("foo" "o")
     ("foobar" "obar")
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -2023,25 +1997,25 @@
 ;;;(((character-lift-integer)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define character-lift-integer
-  [|f|
-   [|#!rest c|
-    (integer->char
-     (apply f
-            (map char->integer c)))]]}
+(define character-lift-integer
+  (lambda (f)
+    (lambda (#!rest c)
+      (integer->char
+       (apply f
+              (map char->integer c))))))
 ;;;
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  (character-lift-integer [|i| (+ i 1)])
+  (character-lift-integer (lambda (i) (+ i 1)))
   '(
     (#\a #\b)
     (#\b #\c)
     (#\c #\d)
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -2050,10 +2024,10 @@
 ;;;(((string-map)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define string-map
-  [|f s|
-   {let ((string-map-f (string-lift-list [|l| (map f l)])))
-     (string-map-f s)}]}
+(define string-map
+  (lambda (f s)
+    (let ((string-map-f (string-lift-list (lambda (l) (map f l)))))
+      (string-map-f s))))
 ;;;
 ;;;----
 ;;;
@@ -2062,24 +2036,25 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|s| (string-map [|c| {let ((transform-char
-                               (character-lift-integer
-                                [|base-char c|
-                                 (+ base-char
-                                    (modulo (+ (- c base-char)
-                                               3)
-                                            26))])))
-                          (transform-char #\a c)}]
-                   s)]
+  (lambda (s)
+    (string-map (lambda (c) (let ((transform-char
+                                   (character-lift-integer
+                                    (lambda (base-char c)
+                                      (+ base-char
+                                         (modulo (+ (- c base-char)
+                                                    3)
+                                                 26))))))
+                              (transform-char #\a c)))
+                s))
   '(
     ("" "")
     ("abc" "def")
     ("nop" "qrs")
     ("xyz" "abc")
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -2094,18 +2069,18 @@
 ;;;(((symbol-lift-list)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define symbol-lift-list
-  [|f|
-   [|#!rest sym|
-    (string->symbol
-     (apply (string-lift-list f)
-            (map symbol->string sym)))]]}
+(define symbol-lift-list
+  (lambda (f)
+    (lambda (#!rest sym)
+      (string->symbol
+       (apply (string-lift-list f)
+              (map symbol->string sym))))))
 ;;;
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
   (symbol-lift-list reverse)
   '(
@@ -2114,7 +2089,7 @@
     ))
  (equal? ((symbol-lift-list append!) 'foo 'bar)
          'foobar)
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -2157,29 +2132,29 @@
 ;;;(((compose)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro compose
-  [|#!rest fs|
-   (if (null? fs)
-       ['identity]
-       [{let* ((last-fn-is-lambda-literal
-                {and (list? (last fs))
+(define-macro compose
+  (lambda (#!rest fs)
+    (if (null? fs)
+        'identity
+        (let* ((last-fn-is-lambda-literal
+                (and (list? (last fs))
                      (not (null? (last fs)))
                      (equal? 'lambda
-                             (car (last fs)))})
+                             (car (last fs)))))
                (args (if last-fn-is-lambda-literal
-                         [(cadr (last fs))]
-                         [(gensym)])))
-          `{lambda ,(if last-fn-is-lambda-literal
-                        [args]
-                        [`(#!rest ,args)])
-             ,{let compose ((fs fs))
+                         (cadr (last fs))
+                         (gensym))))
+          `(lambda ,(if last-fn-is-lambda-literal
+                        args
+                        `(#!rest ,args))
+             ,(let compose ((fs fs))
                 (if (null? (cdr fs))
-                    [(if last-fn-is-lambda-literal
-                         [`{begin ,@(cddar fs)}]
-                         [`(apply ,(car fs)
-                                  ,args)])]
-                    [`(,(car fs)
-                       ,(compose (cdr fs)))])}}}])]}
+                    (if last-fn-is-lambda-literal
+                        `(begin ,@(cddar fs))
+                        `(apply ,(car fs)
+                                ,args))
+                    `(,(car fs)
+                      ,(compose (cdr fs))))))))))
 ;;;----
 ;;;
 ;;;<<<onlisp>>>
@@ -2197,14 +2172,14 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1 (compose)}
+(unit-test
+ (equal? (macroexpand-1 (compose))
          'identity)
- (equal? ((eval {macroexpand-1 (compose)}) 5)
+ (equal? ((eval (macroexpand-1 (compose))) 5)
          5)
  (equal? ((compose) 5)
          5)
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -2232,48 +2207,48 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1 (compose [|x| (* x 2)])}
-         '[|x| {begin (* x 2)}])
- (equal? ((eval {macroexpand-1 (compose [|x| (* x 2)])})
+(unit-test
+ (equal? (macroexpand-1 (compose (lambda (x) (* x 2))))
+         '(lambda (x) (begin (* x 2))))
+ (equal? ((eval (macroexpand-1 (compose (lambda (x) (* x 2)))))
           5)
          10)
- (equal? ((compose [|x| (* x 2)])
+ (equal? ((compose (lambda (x) (* x 2)))
           5)
          10)
- }
-{unit-test
- (equal? {macroexpand-1 (compose [|x| (+ x 1)]
-                                 [|y| (* y 2)])}
-         '[|y|
-           ([|x| (+ x 1)]
-            {begin (* y 2)})])
- (equal? ((compose [|x| (+ x 1)]
-                   [|y| (* y 2)])
+ )
+(unit-test
+ (equal? (macroexpand-1 (compose (lambda (x) (+ x 1))
+                                 (lambda (y) (* y 2))))
+         '(lambda (y)
+            ((lambda (x) (+ x 1))
+             (begin (* y 2)))))
+ (equal? ((compose (lambda (x) (+ x 1))
+                   (lambda (y) (* y 2)))
           5)
          11)
- }
-{unit-test
- (equal? {macroexpand-1 (compose [|x| (/ x 13)]
-                                 [|y| (+ y 1)]
-                                 [|z| (* z 2)])}
-         '[|z|
-           ([|x| (/ x 13)]
-            ([|y| (+ y 1)]
-             {begin (* z 2)}))])
- (equal? ((compose [|x| (/ x 13)]
-                   [|y| (+ y 1)]
-                   [|z| (* z 2)])
+ )
+(unit-test
+ (equal? (macroexpand-1 (compose (lambda (x) (/ x 13))
+                                 (lambda (y) (+ y 1))
+                                 (lambda (z) (* z 2))))
+         '(lambda (z)
+            ((lambda (x) (/ x 13))
+             ((lambda (y) (+ y 1))
+              (begin (* z 2))))))
+ (equal? ((compose (lambda (x) (/ x 13))
+                   (lambda (y) (+ y 1))
+                   (lambda (z) (* z 2)))
           5)
          11/13)
- }
-{unit-test
- (equal? {macroexpand-1 (compose not +)}
-         '[|#!rest gensymed-var1|
-           (not (apply + gensymed-var1))])
+ )
+(unit-test
+ (equal? (macroexpand-1 (compose not +))
+         '(lambda (#!rest gensymed-var1)
+            (not (apply + gensymed-var1))))
  (equal? ((compose not +) 1 2)
          #f)
- }
+ )
 ;;;
 ;;;----
 ;;;
@@ -2283,14 +2258,14 @@
 ;;;(((aif)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro aif
-  [|bool ifTrue #!rest ifFalse|
-   `{let ((bug#it ,bool))
-      (if bug#it
-          ,ifTrue
-          ,@(if (not (null? ifFalse))
-                [ifFalse]
-                [(list '[#f])]))}]}
+(define-macro aif
+  (lambda (bool ifTrue #!rest ifFalse)
+    `(let ((bug#it ,bool))
+       (if bug#it
+           ,ifTrue
+           ,@(if (not (null? ifFalse))
+                 ifFalse
+                 (list #f))))))
 ;;;----
 ;;;
 ;;;Although variable capture <<<onlisp>>> is generally avoided,
@@ -2302,34 +2277,34 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1 {aif (+ 5 10)
-                             [(* 2 bug#it)]}}
-         '{let ((bug#it (+ 5 10)))
+(unit-test
+ (equal? (macroexpand-1 (aif (+ 5 10)
+                             (* 2 bug#it)))
+         '(let ((bug#it (+ 5 10)))
             (if bug#it
-                [(* 2 bug#it)]
-                [#f])})
- (equal? {aif (+ 5 10)
-              [(* 2 bug#it)]}
+                (* 2 bug#it)
+                #f)))
+ (equal? (aif (+ 5 10)
+              (* 2 bug#it))
          30)
- (equal? {aif #f
-              [(* 2 bug#it)]}
+ (equal? (aif #f
+              (* 2 bug#it))
          #f)
- (equal? {aif #f
-              [(* 2 bug#it)]}
+ (equal? (aif #f
+              (* 2 bug#it))
          #f)
- (equal? {macroexpand-1 {aif #f
-                             [(* 2 bug#it)]
-                             [5]}}
-         '{let ((bug#it #f))
+ (equal? (macroexpand-1 (aif #f
+                             (* 2 bug#it)
+                             5))
+         '(let ((bug#it #f))
             (if bug#it
-                [(* 2 bug#it)]
-                [5])})
- (equal? {aif #f
-              [(* 2 bug#it)]
-              [5]}
+                (* 2 bug#it)
+                5)))
+ (equal? (aif #f
+              (* 2 bug#it)
+              5)
          5)
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -2341,31 +2316,31 @@
 ;;;(((with-gensyms)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro with-gensyms
-  [|symbols #!rest body|
-   `{let ,(map [|symbol| `(,symbol (gensym))]
-               symbols)
-      ,@body}]}
+(define-macro with-gensyms
+  (lambda (symbols #!rest body)
+    `(let ,(map (lambda (symbol) `(,symbol (gensym)))
+                symbols)
+       ,@body)))
 ;;;----
 ;;;
 ;;;<<<onlisp>>>
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1 {with-gensyms (foo bar baz)
-                                      `{begin
+(unit-test
+ (equal? (macroexpand-1 (with-gensyms (foo bar baz)
+                                      `(begin
                                          (pp ,foo)
                                          (pp ,bar)
-                                         (pp ,baz)}}}
-         '{let ((foo (gensym))
+                                         (pp ,baz))))
+         '(let ((foo (gensym))
                 (bar (gensym))
                 (baz (gensym)))
-            `{begin
+            `(begin
                (pp ,foo)
                (pp ,bar)
-               (pp ,baz)}})
- }
+               (pp ,baz))))
+ )
 ;;;----
 ;;;
 ;;;
@@ -2381,8 +2356,8 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;> {define-macro double [|x| `(+ ,x ,x)]}
-;;;> {double 5}
+;;;> (define-macro double (lambda (x) `(+ ,x ,x)))
+;;;> (double 5)
 ;;;10
 ;;;----
 ;;;
@@ -2391,9 +2366,9 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;> {define foo 5}
-;;;> {double {begin {set! foo (+ foo 1)}
-;;;                foo}}
+;;;> (define foo 5)
+;;;> (double (begin (set! foo (+ foo 1))
+;;;                foo))
 ;;;13
 ;;;----
 ;;;
@@ -2402,10 +2377,10 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;> {define-macro double [|x| {once-only (x) `(+ ,x ,x)}]}
-;;;> {define foo 5}
-;;;> {double {begin {set! foo (+ foo 1)}
-;;;                foo}}
+;;;> (define-macro double (lambda (x) (once-only (x) `(+ ,x ,x))))
+;;;> (define foo 5)
+;;;> (double (begin (set! foo (+ foo 1))
+;;;                foo))
 ;;;12
 ;;;----
 ;;;
@@ -2419,25 +2394,25 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro once-only
-  [|symbols #!rest body|
-   {let ((gensyms (map [|s| (gensym)]
-                       symbols)))
-     `(list 'let
-            (append ,@(map [|g s| `(if (atom? ,s)
-                                       ['()]
-                                       [(list (list (quote ,g)
-                                                    ,s))])]
-                           gensyms
-                           symbols))
-            ,(append (list 'let
-                           (map [|s g| (list s
-                                             `(if (atom? ,s)
-                                                  [,s]
-                                                  [(quote ,g)]))]
-                                symbols
-                                gensyms))
-                     body))}]}
+(define-macro once-only
+  (lambda (symbols #!rest body)
+    (let ((gensyms (map (lambda (s) (gensym))
+                        symbols)))
+      `(list 'let
+             (append ,@(map (lambda (g s) `(if (atom? ,s)
+                                               '()
+                                               (list (list (quote ,g)
+                                                           ,s))))
+                            gensyms
+                            symbols))
+             ,(append (list 'let
+                            (map (lambda (s g) (list s
+                                                     `(if (atom? ,s)
+                                                          ,s
+                                                          (quote ,g))))
+                                 symbols
+                                 gensyms))
+                      body)))))
 ;;;----
 ;;;
 ;;;<<<paip>>>
@@ -2449,66 +2424,66 @@
 ;;;==== First Macro-expansion
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1 {once-only (x y) `(+ ,x ,y ,x)}}
+(unit-test
+ (equal? (macroexpand-1 (once-only (x y) `(+ ,x ,y ,x)))
          `(list 'let
                 (append (if (atom? x)
-                            ['()]
-                            [(list (list 'gensymed-var1 x))])
+                            '()
+                            (list (list 'gensymed-var1 x)))
                         (if (atom? y)
-                            ['()]
-                            [(list (list 'gensymed-var2 y))]))
-                {let ((x (if (atom? x)
-                             [x]
-                             ['gensymed-var1]))
+                            '()
+                            (list (list 'gensymed-var2 y))))
+                (let ((x (if (atom? x)
+                             x
+                             'gensymed-var1))
                       (y (if (atom? y)
-                             [y]
-                             ['gensymed-var2))))
-                  `(+ ,x ,y ,x)}))
- }
+                             y
+                             'gensymed-var2)))
+                  `(+ ,x ,y ,x)))))
 ;;;----
 ;;;
 ;;;
 ;;;==== The Second Macro-expansion
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? (eval `{let ((x 5)
+(unit-test
+ (equal? (eval `(let ((x 5)
                       (y 6))
-                  ,{macroexpand-1
-                    {once-only (x y)
-                               `(+ ,x ,y ,x)}}})
-         `{let () (+ 5 6 5)})
- (equal? (eval `{let ((x '(car foo))
+                  ,(macroexpand-1
+                    (once-only (x y)
+                               `(+ ,x ,y ,x)))))
+         `(let () (+ 5 6 5)))
+ (equal? (eval `(let ((x '(car foo))
                       (y 6))
-                  ,{macroexpand-1
-                    {once-only (x y)
-                               `(+ ,x ,y ,x)}}})
-         '{let ((gensymed-var1 (car foo)))
-            (+ gensymed-var1 6 gensymed-var1)})
- (equal? (eval `{let ((x '(car foo))
+                  ,(macroexpand-1
+                    (once-only (x y)
+                               `(+ ,x ,y ,x)))))
+         '(let ((gensymed-var1 (car foo)))
+            (+ gensymed-var1 6 gensymed-var1)))
+ (equal? (eval `(let ((x '(car foo))
                       (y '(baz)))
-                  ,{macroexpand-1
-                    {once-only (x y)
-                               `(+ ,x ,y ,x)}}})
-         '{let ((gensymed-var1 (car foo))
+                  ,(macroexpand-1
+                    (once-only (x y)
+                               `(+ ,x ,y ,x)))))
+         '(let ((gensymed-var1 (car foo))
                 (gensymed-var2 (baz)))
-            (+ gensymed-var1 gensymed-var2 gensymed-var1)})
- }
+            (+ gensymed-var1 gensymed-var2 gensymed-var1)))
+ )
+
 ;;;----
 ;;;
 ;;;
 ;;;==== The Evaluation of the twice-expanded Code
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? (eval (eval `{let ((x 5)
+(unit-test
+ (equal? (eval (eval `(let ((x 5)
                             (y 6))
-                        ,{macroexpand-1
-                          {once-only (x y)
-                                     `(+ ,x ,y ,x)}}}))
+                        ,(macroexpand-1
+                          (once-only (x y)
+                                     `(+ ,x ,y ,x))))))
          16)
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -2531,70 +2506,70 @@
 ;;;(((setf"!)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro setf!
-  [|exp val|
-   (if (not (pair? exp))
-       [`{set! ,exp ,val}]
-       [{case (car exp)
-          ((car)  `{set-car! ,@(cdr exp) ,val})
-          ((cdr)  `{set-cdr! ,@(cdr exp) ,val})
-          ((caar) `{setf! (car (car ,@(cdr exp))) ,val})
-          ((cadr) `{setf! (car (cdr ,@(cdr exp))) ,val})
-          ((cdar) `{setf! (cdr (car ,@(cdr exp))) ,val})
-          ((cddr) `{setf! (cdr (cdr ,@(cdr exp))) ,val})
-          ((caaar) `{setf! (car (caar ,@(cdr exp))) ,val})
-          ((caadr) `{setf! (car (cadr ,@(cdr exp))) ,val})
-          ((cadar) `{setf! (car (cdar ,@(cdr exp))) ,val})
-          ((caddr) `{setf! (car (cddr ,@(cdr exp))) ,val})
-          ((cdaar) `{setf! (cdr (caar ,@(cdr exp))) ,val})
-          ((cdadr) `{setf! (cdr (cadr ,@(cdr exp))) ,val})
-          ((cddar) `{setf! (cdr (cdar ,@(cdr exp))) ,val})
-          ((cdddr) `{setf! (cdr (cddr ,@(cdr exp))) ,val})
-          ((caaaar) `{setf! (car (caaar ,@(cdr exp))) ,val})
-          ((caaadr) `{setf! (car (caadr ,@(cdr exp))) ,val})
-          ((caadar) `{setf! (car (cadar ,@(cdr exp))) ,val})
-          ((caaddr) `{setf! (car (caddr ,@(cdr exp))) ,val})
-          ((cadaar) `{setf! (car (cdaar ,@(cdr exp))) ,val})
-          ((cadadr) `{setf! (car (cdadr ,@(cdr exp))) ,val})
-          ((caddar) `{setf! (car (cddar ,@(cdr exp))) ,val})
-          ((cadddr) `{setf! (car (cdddr ,@(cdr exp))) ,val})
-          ((cdaaar) `{setf! (cdr (caaar ,@(cdr exp))) ,val})
-          ((cdaadr) `{setf! (cdr (caadr ,@(cdr exp))) ,val})
-          ((cdadar) `{setf! (cdr (cadar ,@(cdr exp))) ,val})
-          ((cdaddr) `{setf! (cdr (caddr ,@(cdr exp))) ,val})
-          ((cddaar) `{setf! (cdr (cdaar ,@(cdr exp))) ,val})
-          ((cddadr) `{setf! (cdr (cdadr ,@(cdr exp))) ,val})
-          ((cdddar) `{setf! (cdr (cddar ,@(cdr exp))) ,val})
-          ((cddddr) `{setf! (cdr (cdddr ,@(cdr exp))) ,val})
-          (else `(,{let ((append-set!
+(define-macro setf!
+  (lambda (exp val)
+    (if (not (pair? exp))
+        `(set! ,exp ,val)
+        (case (car exp)
+          ((car)  `(set-car! ,@(cdr exp) ,val))
+          ((cdr)  `(set-cdr! ,@(cdr exp) ,val))
+          ((caar) `(setf! (car (car ,@(cdr exp))) ,val))
+          ((cadr) `(setf! (car (cdr ,@(cdr exp))) ,val))
+          ((cdar) `(setf! (cdr (car ,@(cdr exp))) ,val))
+          ((cddr) `(setf! (cdr (cdr ,@(cdr exp))) ,val))
+          ((caaar) `(setf! (car (caar ,@(cdr exp))) ,val))
+          ((caadr) `(setf! (car (cadr ,@(cdr exp))) ,val))
+          ((cadar) `(setf! (car (cdar ,@(cdr exp))) ,val))
+          ((caddr) `(setf! (car (cddr ,@(cdr exp))) ,val))
+          ((cdaar) `(setf! (cdr (caar ,@(cdr exp))) ,val))
+          ((cdadr) `(setf! (cdr (cadr ,@(cdr exp))) ,val))
+          ((cddar) `(setf! (cdr (cdar ,@(cdr exp))) ,val))
+          ((cdddr) `(setf! (cdr (cddr ,@(cdr exp))) ,val))
+          ((caaaar) `(setf! (car (caaar ,@(cdr exp))) ,val))
+          ((caaadr) `(setf! (car (caadr ,@(cdr exp))) ,val))
+          ((caadar) `(setf! (car (cadar ,@(cdr exp))) ,val))
+          ((caaddr) `(setf! (car (caddr ,@(cdr exp))) ,val))
+          ((cadaar) `(setf! (car (cdaar ,@(cdr exp))) ,val))
+          ((cadadr) `(setf! (car (cdadr ,@(cdr exp))) ,val))
+          ((caddar) `(setf! (car (cddar ,@(cdr exp))) ,val))
+          ((cadddr) `(setf! (car (cdddr ,@(cdr exp))) ,val))
+          ((cdaaar) `(setf! (cdr (caaar ,@(cdr exp))) ,val))
+          ((cdaadr) `(setf! (cdr (caadr ,@(cdr exp))) ,val))
+          ((cdadar) `(setf! (cdr (cadar ,@(cdr exp))) ,val))
+          ((cdaddr) `(setf! (cdr (caddr ,@(cdr exp))) ,val))
+          ((cddaar) `(setf! (cdr (cdaar ,@(cdr exp))) ,val))
+          ((cddadr) `(setf! (cdr (cdadr ,@(cdr exp))) ,val))
+          ((cdddar) `(setf! (cdr (cddar ,@(cdr exp))) ,val))
+          ((cddddr) `(setf! (cdr (cdddr ,@(cdr exp))) ,val))
+          (else `(,(let ((append-set!
                           (symbol-lift-list
-                           [|l -set! -ref|
-                            (append!
-                             (if (equal? (reverse -ref)
-                                         (take 4 (reverse l)))
-                                 [(reverse (drop 4
-                                                 (reverse l)))]
-                                 [l])
-                             -set!)])))
+                           (lambda (l -set! -ref)
+                             (append!
+                              (if (equal? (reverse -ref)
+                                          (take 4 (reverse l)))
+                                  (reverse (drop 4
+                                                 (reverse l)))
+                                  l)
+                              -set!)))))
                      (append-set! (car exp)
                                   '-set!
-                                  '-ref)}
+                                  '-ref))
                   ,@(cdr exp)
-                  ,val))}])]}
+                  ,val))))))
 ;;;----
 ;;;
 ;;;==== Updating a Variable Directly
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1
-          {setf! foo 10}}
-         '{set! foo 10})
- {let ((a 5))
-   {setf! a 10}
-   (equal? a 10)}
- }
+(unit-test
+ (equal? (macroexpand-1
+          (setf! foo 10))
+         '(set! foo 10))
+ (let ((a 5))
+   (setf! a 10)
+   (equal? a 10))
+ )
 ;;;----
 ;;;
 ;;;===== Updating Car, Cdr, ... Through Cddddr
@@ -2602,31 +2577,31 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1
-          {setf! (car foo) 10}}
-         '{set-car! foo 10})
- {let ((foo '(1 2)))
-   {setf! (car foo) 10}
-   (equal? (car foo) 10)}
- }
+(unit-test
+ (equal? (macroexpand-1
+          (setf! (car foo) 10))
+         '(set-car! foo 10))
+ (let ((foo '(1 2)))
+   (setf! (car foo) 10)
+   (equal? (car foo) 10))
+ )
 ;;;----
 ;;;
 ;;;Test updating "cdr".
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1
-          {setf! (cdr foo) 10}}
-         '{set-cdr! foo 10})
- {let ((foo '(1 2)))
-   {setf! (cdr foo) 10}
-   (equal? (cdr foo) 10)}
- {let ((foo '(bar baz quux)))
-   {setf! (list-ref foo 2) 'blah}
-   (equal? foo '(bar baz blah))}
- }
+(unit-test
+ (equal? (macroexpand-1
+          (setf! (cdr foo) 10))
+         '(set-cdr! foo 10))
+ (let ((foo '(1 2)))
+   (setf! (cdr foo) 10)
+   (equal? (cdr foo) 10))
+ (let ((foo '(bar baz quux)))
+   (setf! (list-ref foo 2) 'blah)
+   (equal? foo '(bar baz blah)))
+ )
 ;;;----
 ;;;
 ;;;Testing all of the "car" through "cddddr" procedures would
@@ -2636,19 +2611,19 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (eval
-  `{and
-    ,@(map [|x| `{let ((foo '((((the-caaaar)
-                                the-cadaar)
-                               (the-caadar)
-                               ())
-                              ((the-caaadr) the-cadadr)
-                              (the-caaddr)
-                              ()
-                              )))
-                   {setf! (,x foo) 10}
-                   (equal? (,x foo) 10)}]
+  `(and
+    ,@(map (lambda (x) `(let ((foo '((((the-caaaar)
+                                       the-cadaar)
+                                      (the-caadar)
+                                      ())
+                                     ((the-caaadr) the-cadadr)
+                                     (the-caaddr)
+                                     ()
+                                     )))
+                          (setf! (,x foo) 10)
+                          (equal? (,x foo) 10)))
            '(car
              cdr
              caar cadr
@@ -2659,8 +2634,8 @@
              cadaar cadadr caddar cadddr
              cdaaar cdaadr cdadar cdaddr
              cddaar cddadr cdddar cddddr
-             ))})
- }
+             ))))
+ )
 ;;;----
 ;;;
 ;;;===== Suffixed By -set!
@@ -2669,19 +2644,19 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{at-compile-time
- {##define-structure foo bar}}
+(at-compile-time
+ (##define-structure foo bar))
 
-{unit-test
- (equal? {macroexpand-1
-          {setf! (foo-bar f) 10}}
-         '{foo-bar-set! f 10})
- {begin
-   {let ((f (make-foo 1)))
-     {setf! (foo-bar f) 10}
+(unit-test
+ (equal? (macroexpand-1
+          (setf! (foo-bar f) 10))
+         '(foo-bar-set! f 10))
+ (begin
+   (let ((f (make-foo 1)))
+     (setf! (foo-bar f) 10)
      (equal? (make-foo 10)
-             f)}}
- }
+             f)))
+ )
 ;;;----
 ;;;
 ;;;
@@ -2693,21 +2668,21 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1
-          {setf! (string-ref s 0) #\q}}
-         '{string-set! s 0 #\q})
- {let ((s "foobar"))
-   {setf! (string-ref s 0) #\q}
-   (equal? s "qoobar")}
- (equal? {macroexpand-1
-          {setf! (vector-ref v 2) 4}}
-         '{vector-set! v 2 4})
- {let ((v (vector 1 2 '() "")))
-   {setf! (vector-ref v 2) 4}
+(unit-test
+ (equal? (macroexpand-1
+          (setf! (string-ref s 0) #\q))
+         '(string-set! s 0 #\q))
+ (let ((s "foobar"))
+   (setf! (string-ref s 0) #\q)
+   (equal? s "qoobar"))
+ (equal? (macroexpand-1
+          (setf! (vector-ref v 2) 4))
+         '(vector-set! v 2 4))
+ (let ((v (vector 1 2 '() "")))
+   (setf! (vector-ref v 2) 4)
    (equal? v
-           (vector 1 2 4 ""))}
- }
+           (vector 1 2 4 "")))
+ )
 ;;;----
 ;;;
 ;;;
@@ -2724,21 +2699,21 @@
 ;;;(((mutate"!)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro mutate!
-  [|exp f|
-   (if (symbol? exp)
-       [`{setf! ,exp (,f ,exp)}]
-       [{let* ((atom-or-binding (map [|x| (if (atom? x)
-					      [x]
-					      [(list (gensym) x)])]
+(define-macro mutate!
+  (lambda (exp f)
+    (if (symbol? exp)
+        `(setf! ,exp (,f ,exp))
+        (let* ((atom-or-binding (map (lambda (x) (if (atom? x)
+					             x
+					             (list (gensym) x)))
 				     (cdr exp)))
-               (args-of-generalized-var (map [|x| (if (atom? x)
-                                                      [x]
-                                                      [(car x)])]
+               (args-of-generalized-var (map (lambda (x) (if (atom? x)
+                                                             x
+                                                             (car x)))
                                              atom-or-binding)))
-          `{let ,(filter (complement atom?) atom-or-binding)
-             {setf! (,(car exp) ,@args-of-generalized-var)
-                    (,f (,(car exp) ,@args-of-generalized-var))}}}])]}
+          `(let ,(filter (complement atom?) atom-or-binding)
+             (setf! (,(car exp) ,@args-of-generalized-var)
+                    (,f (,(car exp) ,@args-of-generalized-var))))))))
 ;;;----
 ;;;
 ;;;
@@ -2746,18 +2721,18 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1 {mutate! foo not}}
-         '{setf! foo (not foo)})
- {let ((foo #t))
-   {and
-    {begin
-      {mutate! foo not}
-      (equal? foo #f)}
-    {begin
-      {mutate! foo not}
-      (equal? foo #t)}}}
- }
+(unit-test
+ (equal? (macroexpand-1 (mutate! foo not))
+         '(setf! foo (not foo)))
+ (let ((foo #t))
+   (and
+    (begin
+      (mutate! foo not)
+      (equal? foo #f))
+    (begin
+      (mutate! foo not)
+      (equal? foo #t))))
+ )
 ;;;----
 ;;;
 ;;;
@@ -2766,47 +2741,47 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1 {mutate! (vector-ref foo 0) [|n| (+ n 1)]}}
-         '{let ()
-            {setf! (vector-ref foo 0)
-                   ([|n| (+ n 1)] (vector-ref foo 0))}})
- {let ((foo (vector 0 0 0)))
-   {mutate! (vector-ref foo 0) [|n| (+ n 1)]}
+(unit-test
+ (equal? (macroexpand-1 (mutate! (vector-ref foo 0) (lambda (n) (+ n 1))))
+         '(let ()
+            (setf! (vector-ref foo 0)
+                   ((lambda (n) (+ n 1)) (vector-ref foo 0)))))
+ (let ((foo (vector 0 0 0)))
+   (mutate! (vector-ref foo 0) (lambda (n) (+ n 1)))
    (equal? foo
-           (vector 1 0 0))}
- {let ((foo (vector 0 0 0)))
-   {mutate! (vector-ref foo 2) [|n| (+ n 1)]}
+           (vector 1 0 0)))
+ (let ((foo (vector 0 0 0)))
+   (mutate! (vector-ref foo 2) (lambda (n) (+ n 1)))
    (equal? foo
-           (vector 0 0 1))}
- }
+           (vector 0 0 1)))
+ )
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1
-          {mutate! (vector-ref foo {begin
-                                     {setf! index (+ 1 index)}
-                                     index})
-                   [|n| (+ n 1)]}}
-         '{let ((gensymed-var1 {begin
-                                 {setf! index (+ 1 index)}
-                                 index}))
-            {setf! (vector-ref foo gensymed-var1)
-                   ([|n| (+ n 1)] (vector-ref foo gensymed-var1))}})
- {let ((foo (vector 0 0 0))
+(unit-test
+ (equal? (macroexpand-1
+          (mutate! (vector-ref foo (begin
+                                     (setf! index (+ 1 index))
+                                     index))
+                   (lambda (n) (+ n 1))))
+         '(let ((gensymed-var1 (begin
+                                 (setf! index (+ 1 index))
+                                 index)))
+            (setf! (vector-ref foo gensymed-var1)
+                   ((lambda (n) (+ n 1)) (vector-ref foo gensymed-var1)))))
+ (let ((foo (vector 0 0 0))
        (index 1))
-   {mutate! (vector-ref foo {begin
-                              {setf! index (+ 1 index)}
-                              index})
-            [|n| (+ n 1)]}
-   {and (equal? foo
+   (mutate! (vector-ref foo (begin
+                              (setf! index (+ 1 index))
+                              index))
+            (lambda (n) (+ n 1)))
+   (and (equal? foo
                 (vector 0 0 1))
         (equal? index
-                2)}}
- }
+                2)))
+ )
 ;;;----
 ;;;
 ;;;
@@ -2832,32 +2807,32 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define tree-of-accessors
-  [|pat lst #!key (gensym gensym) (n 0)|
-   {let tree-of-accessors ((pat pat)
-                           (lst lst)
-                           (n n))
-     {cond ((null? pat)                '())
-           ((symbol? pat)              `((,pat (drop ,n ,lst))))
-           ((equal? (car pat) '#!rest) `((,(cadr pat) (drop ,n
-                                                            ,lst))))
-           (else
-            (cons {let ((p (car pat)))
-                    (if (symbol? p)
-                        [`(,p (list-ref ,lst ,n))]
-                        [{let ((var (gensym)))
+(define tree-of-accessors
+  (lambda (pat lst #!key (gensym gensym) (n 0))
+    (let tree-of-accessors ((pat pat)
+                            (lst lst)
+                            (n n))
+      (cond ((null? pat)                '())
+            ((symbol? pat)              `((,pat (drop ,n ,lst))))
+            ((equal? (car pat) '#!rest) `((,(cadr pat) (drop ,n
+                                                             ,lst))))
+            (else
+             (cons (let ((p (car pat)))
+                     (if (symbol? p)
+                         `(,p (list-ref ,lst ,n))
+                         (let ((var (gensym)))
                            (cons `(,var (list-ref ,lst ,n))
                                  (tree-of-accessors p
                                                     var
-                                                    0))}])}
-                  (tree-of-accessors (cdr pat)
-                                     lst
-                                     (+ 1 n))))}}]}
+                                                    0)))))
+                   (tree-of-accessors (cdr pat)
+                                      lst
+                                      (+ 1 n))))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (tree-of-accessors '() 'gensym-for-list)
          '())
  (equal? (tree-of-accessors 'a 'gensym-for-list)
@@ -2869,20 +2844,20 @@
  (equal? (tree-of-accessors '(a . b) 'gensym-for-list)
          '((a (list-ref gensym-for-list 0))
            (b (drop 1 gensym-for-list))))
- }
+ )
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (tree-of-accessors '(a (b c))
                             'gensym-for-list
-                            gensym: ['gensymed-var1])
+                            gensym: (lambda () 'gensymed-var1))
          '((a (list-ref gensym-for-list 0))
            ((gensymed-var1 (list-ref gensym-for-list 1))
             (b (list-ref gensymed-var1 0))
             (c (list-ref gensymed-var1 1)))))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -2897,24 +2872,24 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro destructuring-bind
-  [|pat lst #!rest body|
-   {let ((glst (gensym)))
-     `{let ((,glst ,lst))
-        ,{let create-nested-lets ((bindings
-                                   (tree-of-accessors pat
-                                                      glst
-                                                      gensym: gensym)))
-           (if (null? bindings)
-               [`{begin ,@body}]
-               [`{let ,(map [|b| (if (pair? (car b))
-                                     [(car b)]
-                                     [b])]
+(define-macro destructuring-bind
+  (lambda (pat lst #!rest body)
+    (let ((glst (gensym)))
+      `(let ((,glst ,lst))
+         ,(let create-nested-lets ((bindings
+                                    (tree-of-accessors pat
+                                                       glst
+                                                       gensym: gensym)))
+            (if (null? bindings)
+                `(begin ,@body)
+                `(let ,(map (lambda (b) (if (pair? (car b))
+                                            (car b)
+                                            b))
                             bindings)
-                   ,(create-nested-lets (flatmap [|b| (if (pair? (car b))
-                                                          [(cdr b)]
-                                                          ['()])]
-                                                 bindings))}])}}}]}
+                   ,(create-nested-lets (flatmap (lambda (b) (if (pair? (car b))
+                                                                 (cdr b)
+                                                                 '()))
+                                                 bindings)))))))))
 ;;;----
 ;;;
 ;;;<<<onlisp>>>
@@ -2923,33 +2898,33 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- (equal? {macroexpand-1
-          {destructuring-bind (a (b . c) #!rest d)
+(unit-test
+ (equal? (macroexpand-1
+          (destructuring-bind (a (b . c) #!rest d)
                               '(1 (2 3) 4 5)
-                              (list a b c d)}}
-         '{let ((gensymed-var1 '(1 (2 3) 4 5)))
-            {let ((a (list-ref gensymed-var1 0))
+                              (list a b c d)))
+         '(let ((gensymed-var1 '(1 (2 3) 4 5)))
+            (let ((a (list-ref gensymed-var1 0))
                   (gensymed-var2 (list-ref gensymed-var1 1))
                   (d (drop 2 gensymed-var1)))
-              {let ((b (list-ref gensymed-var2 0))
+              (let ((b (list-ref gensymed-var2 0))
                     (c (drop 1 gensymed-var2)))
-                {begin (list a b c d)}}}})
- (equal? {destructuring-bind (a (b . c) #!rest d)
+                (begin (list a b c d))))))
+ (equal? (destructuring-bind (a (b . c) #!rest d)
                              '(1 (2 3) 4 5)
-                             (list a b c d)}
+                             (list a b c d))
          '(1 2 (3) (4 5)))
- (equal? {destructuring-bind (trueList falseList)
+ (equal? (destructuring-bind (trueList falseList)
                              (partition '(3 2 5 4 1)
-                                        [|x| (<= x 3)])
-                             trueList}
+                                        (lambda (x) (<= x 3)))
+                             trueList)
          '(1 2 3))
- (equal? {destructuring-bind (trueList falseList)
+ (equal? (destructuring-bind (trueList falseList)
                              (partition '(3 2 5 4 1)
-                                        [|x| (<= x 3)])
-                             falseList}
+                                        (lambda (x) (<= x 3)))
+                             falseList)
          '(4 5))
- }
+ )
 ;;;----
 ;;;
 
@@ -2959,60 +2934,60 @@
 
 ;;;[source,Scheme,linenums]
 ;;;----
-{define make-generator
-  [|f|
-   ;; will be defined to something useful before it is called,
-   ;; but for now, the environment needs a variable defined
-   {##define return-to-callee 'ignore}
-   ;; do the work of the generator
-   {##define eval-f-until-yield
-     [|#!rest send|
-      ;; switch back and forth between the two routines
-      (f [|value|
-          (call/cc [|stack-of-yield-exp|
-                    {setf! eval-f-until-yield stack-of-yield-exp}
-                    (return-to-callee value)])])
-      ;; all instances of yield have been called, inform the callee
-      ;; that the generator is done
-      (return-to-callee 'end-of-generator)]}
-   [|#!rest send|
-    {call/cc [|stack-of-callee|
-              {setf! return-to-callee stack-of-callee}
-              (apply eval-f-until-yield send)]}]]}
+(define make-generator
+  (lambda (f)
+    ;; will be defined to something useful before it is called,
+    ;; but for now, the environment needs a variable defined
+    (##define return-to-callee 'ignore)
+    ;; do the work of the generator
+    (##define eval-f-until-yield
+      (lambda (#!rest send)
+        ;; switch back and forth between the two routines
+        (f (lambda (value)
+             (call/cc (lambda (stack-of-yield-exp)
+                        (setf! eval-f-until-yield stack-of-yield-exp)
+                        (return-to-callee value)))))
+        ;; all instances of yield have been called, inform the callee
+        ;; that the generator is done
+        (return-to-callee 'end-of-generator)))
+    (lambda (#!rest send)
+      (call/cc (lambda (stack-of-callee)
+                 (setf! return-to-callee stack-of-callee)
+                 (apply eval-f-until-yield send))))))
 ;;;----
 
 
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {let ((g (make-generator
-           [|yield|
-            {let ((time 0))
-              {setf! time (+ time (yield 'yield-value-one))}
-              (yield 'yield-value-two)
-              {setf! time (+ time (yield 'yield-value-three))}
-              (yield time)}])))
-   {and (equal? 'yield-value-one (g)) ;; just like python, nothing to send on first use
+(unit-test
+ (let ((g (make-generator
+           (lambda (yield)
+             (let ((time 0))
+               (setf! time (+ time (yield 'yield-value-one)))
+               (yield 'yield-value-two)
+               (setf! time (+ time (yield 'yield-value-three)))
+               (yield time))))))
+   (and (equal? 'yield-value-one (g)) ;; just like python, nothing to send on first use
         (equal? 'yield-value-two (g 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
         (equal? 'yield-value-three (g)) ;;
         (equal? 20 (g 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
-        (equal? 'end-of-generator (g))}} ;; end of the generator
+        (equal? 'end-of-generator (g)))) ;; end of the generator
  ;; the generators are independent
- {let ((g (make-generator
-           [|yield|
-            {let ((time 0))
-              {setf! time (+ time (yield 'yield-value-one))}
-              (yield 'yield-value-two)
-              {setf! time (+ time (yield 'yield-value-three))}
-              (yield time)}]))
+ (let ((g (make-generator
+           (lambda (yield)
+             (let ((time 0))
+               (setf! time (+ time (yield 'yield-value-one)))
+               (yield 'yield-value-two)
+               (setf! time (+ time (yield 'yield-value-three)))
+               (yield time)))))
        (g2 (make-generator
-            [|yield|
-             {let ((time 0))
-               {setf! time (+ time (yield 'one))}
-               (yield 'two)
-               {setf! time (+ time (yield 'three))}
-               (yield time)}])))
-   {and (equal? 'yield-value-one (g))
+            (lambda (yield)
+              (let ((time 0))
+                (setf! time (+ time (yield 'one)))
+                (yield 'two)
+                (setf! time (+ time (yield 'three)))
+                (yield time))))))
+   (and (equal? 'yield-value-one (g))
         (equal? 'one (g2))
         (equal? 'yield-value-two (g 10))
         (equal? 'two (g2 1))
@@ -3022,7 +2997,7 @@
         (equal? 2 (g2 1))
         (equal? 'end-of-generator (g))
         (equal? 'end-of-generator (g2))
-        }}}
+        )))
 
 
 
@@ -3032,41 +3007,41 @@
 ;;;=== generator
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro generator
-  [|body|
-   `(make-generator
-     [|yield|
-      ,body])]}
+(define-macro generator
+  (lambda (body)
+    `(make-generator
+      (lambda (yield)
+        ,body))))
 ;;;----
 
 
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {begin
-   {let ((g (generator
-             {let ((time 0))
-               {setf! time (+ time (yield 'yield-value-one))}
-               {setf! time (+ time (yield 'yield-value-two))}
-               {setf! time (+ time (yield 'yield-value-three))}
-               (yield time)}]))
-     {and (equal? 'yield-value-one (g)) ;; just like python, nothing to send on first use
+(unit-test
+ (begin
+   (let ((g (generator
+             (let ((time 0))
+               (setf! time (+ time (yield 'yield-value-one)))
+               (setf! time (+ time (yield 'yield-value-two)))
+               (setf! time (+ time (yield 'yield-value-three)))
+               (yield time)))))
+     (and (equal? 'yield-value-one (g)) ;; just like python, nothing to send on first use
           (equal? 'yield-value-two (g 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
           (equal? 'yield-value-three (g 10)) ;; send 10 to be the value of "(yield 'yield-value-two)"
           (equal? 30 (g 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
           (equal? 'end-of-generator (g 10)) ;; end of the generator
-          }}}}
+          ))))
 ;;;----
 
 
 ;;;=== yield-from
 ;;;[source,Scheme,linenums]
 ;;;----
-{define yield-from
-  [|g|
-   [|#!rest send|
-    ((generator
-      (yield (apply g send))))]]}
+(define yield-from
+  (lambda (g)
+    (lambda (#!rest send)
+      ((generator
+        (yield (apply g send)))))))
 ;;;----
 
 ;;;"However, if the subgenerator is to interact properly with the caller in
@@ -3080,21 +3055,21 @@
 
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {begin
-   {let* ((g (generator
-              {let ((time 0))
-                {setf! time (+ time (yield 'yield-value-one))}
-                {setf! time (+ time (yield 'yield-value-two))}
-                {setf! time (+ time (yield 'yield-value-three))}
-                (yield time)}])
+(unit-test
+ (begin
+   (let* ((g (generator
+              (let ((time 0))
+                (setf! time (+ time (yield 'yield-value-one)))
+                (setf! time (+ time (yield 'yield-value-two)))
+                (setf! time (+ time (yield 'yield-value-three)))
+                (yield time))))
           (g2 (yield-from g)))
-     {and (equal? 'yield-value-one (g2)) ;; just like python, nothing to send on first use
+     (and (equal? 'yield-value-one (g2)) ;; just like python, nothing to send on first use
           (equal? 'yield-value-two (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
           (equal? 'yield-value-three (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-two)"
           (equal? 30 (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
           (equal? 'end-of-generator (g2 10)) ;; end of the generator
-          }}}}
+          ))))
 ;;;----
 
 
@@ -3123,9 +3098,9 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-structure stream
+(define-structure stream
   a
-  d}
+  d)
 ;;;----
 ;;;
 ;;;"libbug-private#define-structure" will create a constructor procedure named "make-stream",
@@ -3145,15 +3120,15 @@
 ;;;(((stream-cons)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define-macro stream-cons
-  [|a d|
-   (if {and (list? d)
-            (equal? 'lambda (car d))
-            (not (null? (cdr d)))
-            (equal? '() (cadr d))}
-       [`(make-stream ,a {delay ,(caddr d)})]
-       [(error "bug#stream-cons requires a zero-argument \
-                lambda as its second argument.")])]}
+(define-macro stream-cons
+  (lambda (a d)
+    (if (and (list? d)
+             (equal? 'lambda (car d))
+             (not (null? (cdr d)))
+             (equal? '() (cadr d)))
+        `(make-stream ,a (delay ,(caddr d)))
+        (error "bug#stream-cons requires a zero-argument \
+                lambda as its second argument."))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
@@ -3166,8 +3141,8 @@
 ;;;(((stream-car)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-car
-  stream-a}
+(define stream-car
+  stream-a)
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
@@ -3178,23 +3153,23 @@
 ;;;(((stream-cdr)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-cdr
-  [|s|
-   {force (stream-d s)}]}
+(define stream-cdr
+  (lambda (s)
+    (force (stream-d s))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {let ((s (stream-cons 1 [2])))
-   {and
+(unit-test
+ (let ((s (stream-cons 1 (lambda () 2))))
+   (and
     (equal? (stream-car s)
             1)
     (equal? (stream-cdr s)
-            2)}}
- }
+            2)))
+ )
 ;;;----
 ;;;
 ;;;
@@ -3208,9 +3183,9 @@
 ;;;(((stream-null)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-null
+(define stream-null
   '()
-  }
+  )
 ;;;----
 ;;;
 ;;;=== stream-null?
@@ -3220,19 +3195,20 @@
 ;;;(((stream-null?)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-null?
-  null?}
+(define stream-null?
+  null?)
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (stream-null?
   (stream-cdr
-   (stream-cdr (stream-cons 1 [(stream-cons 2
-                                            [stream-null])]))))
- }
+   (stream-cdr (stream-cons 1 (lambda () (stream-cons 2
+                                                      (lambda ()
+                                                        stream-null)))))))
+ )
 ;;;----
 ;;;
 ;;;
@@ -3243,19 +3219,19 @@
 ;;;(((list->stream)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define list->stream
-  [|l|
-   (if (null? l)
-       [stream-null]
-       [(stream-cons (car l)
-                     [(list->stream (cdr l))])])]}
+(define list->stream
+  (lambda (l)
+    (if (null? l)
+        stream-null
+        (stream-cons (car l)
+                     (lambda () (list->stream (cdr l)))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
- {let ((foo (list->stream '(1 2 3))))
-   {and (equal? 1 (stream-car foo))
+(unit-test
+ (let ((foo (list->stream '(1 2 3))))
+   (and (equal? 1 (stream-car foo))
         (equal? 2 ((compose stream-car
                             stream-cdr)
                    foo))
@@ -3266,7 +3242,7 @@
         (stream-null? ((compose stream-cdr
                                 stream-cdr
                                 stream-cdr)
-                       foo))}}}
+                       foo)))))
 ;;;----
 ;;;
 ;;;
@@ -3276,21 +3252,21 @@
 ;;;(((stream->list)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream->list
-  [|s|
-   (if (stream-null? s)
-       ['()]
-       [(cons (stream-car s)
-              (stream->list (stream-cdr s)))])]}
+(define stream->list
+  (lambda (s)
+    (if (stream-null? s)
+        '()
+        (cons (stream-car s)
+              (stream->list (stream-cdr s))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (stream->list
           (list->stream '(1 2 3)))
          '(1 2 3))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -3301,26 +3277,26 @@
 ;;;(((stream-ref)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-ref
-  [|s n #!key (onOutOfBounds noop)|
-   (if (< n 0)
-       [(onOutOfBounds)]
-       [{let stream-ref ((s s) (n n))
+(define stream-ref
+  (lambda (s n #!key (onOutOfBounds noop))
+    (if (< n 0)
+        (onOutOfBounds)
+        (let stream-ref ((s s) (n n))
           (if (equal? n 0)
-              [(stream-car s)]
-              [(if (stream-null? (stream-cdr s))
-                   [(onOutOfBounds)]
-                   [(stream-ref (stream-cdr s)
-                                (- n 1))])])}])]}
+              (stream-car s)
+              (if (stream-null? (stream-cdr s))
+                  (onOutOfBounds)
+                  (stream-ref (stream-cdr s)
+                              (- n 1))))))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|i| (stream-ref (list->stream '(a b c d e)) i)]
+  (lambda (i) (stream-ref (list->stream '(a b c d e)) i))
   '(
     (-1 noop)
     (0 a)
@@ -3329,9 +3305,9 @@
     )
   )
  (satisfies?
-  [|i| (stream-ref (list->stream '(a b c d e))
-                   i
-                   onOutOfBounds: ['out])]
+  (lambda (i) (stream-ref (list->stream '(a b c d e))
+                          i
+                          onOutOfBounds: (lambda () 'out)))
   '(
     (-1 out)
     (0 a)
@@ -3339,7 +3315,7 @@
     (5 out)
     )
   )
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -3353,9 +3329,9 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{define integers-from
-  [|n|
-   (stream-cons n [(integers-from (+ n 1))])]}
+(define integers-from
+  (lambda (n)
+    (stream-cons n (lambda () (integers-from (+ n 1))))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
@@ -3363,22 +3339,22 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|n| (stream-ref (integers-from 0) n)]
+  (lambda (n) (stream-ref (integers-from 0) n))
   '(
     (0 0)
     (1 1)
     (2 2)
     ))
  (satisfies?
-  [|n| (stream-ref (integers-from 5) n)]
+  (lambda (n) (stream-ref (integers-from 5) n))
   '(
     (0 5)
     (1 6)
     (2 7)
     ))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -3386,29 +3362,29 @@
 ;;;(((stream-take)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-take
-  [|n s|
-   (if {or (stream-null? s)
-           (<= n 0)}
-       [stream-null]
-       [(stream-cons (stream-car s)
-                     [(stream-take (- n 1)
-                                   (stream-cdr s))])])]}
+(define stream-take
+  (lambda (n s)
+    (if (or (stream-null? s)
+            (<= n 0))
+        stream-null
+        (stream-cons (stream-car s)
+                     (lambda () (stream-take (- n 1)
+                                             (stream-cdr s)))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|n| (stream->list
-        (stream-take n (integers-from 0)))]
+  (lambda (n) (stream->list
+               (stream-take n (integers-from 0))))
   '(
     (0 ())
     (1 (0))
     (2 (0 1))
     (6 (0 1 2 3 4 5))
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -3419,27 +3395,27 @@
 ;;;(((stream-filter)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-filter
-  [|p? s|
-   {let stream-filter ((s s))
-     (if (stream-null? s)
-         [stream-null]
-         [{let ((first (stream-car s)))
+(define stream-filter
+  (lambda (p? s)
+    (let stream-filter ((s s))
+      (if (stream-null? s)
+          stream-null
+          (let ((first (stream-car s)))
             (if (p? first)
-                [(stream-cons first
-			      [(stream-filter (stream-cdr s))])]
-                [(stream-filter (stream-cdr s))])}])}]}
+                (stream-cons first
+			     (lambda () (stream-filter (stream-cdr s))))
+                (stream-filter (stream-cdr s))))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal?  (stream->list
-           (stream-filter [|x| (not (= 4 x))]
+           (stream-filter (lambda (x) (not (= 4 x)))
                           (list->stream '(1 4 2 4))))
           '(1 2))
- }
+ )
 ;;;----
 ;;;
 ;;;Understanding the following tests is crucial to understanding
@@ -3447,63 +3423,67 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (stream->list
           (stream-take
            10
            (stream-cons
             2
-            [(stream-filter [|n|
-                             (not (equal? 0
-                                          (modulo n 2)))]
-                            (integers-from 2))])))
+            (lambda ()
+              (stream-filter (lambda (n)
+                               (not (equal? 0
+                                            (modulo n 2))))
+                             (integers-from 2))))))
          '(2 3 5 7 9 11 13 15 17 19))
  (equal? (stream->list
           (stream-take
            10
            (stream-cons
             2
-            [(stream-filter [|n|
-                             (not (equal? 0
-                                          (modulo n 2)))]
-                            (stream-cons
-                             3
-                             [(stream-filter [|n|
-                                              (not (equal? 0
-                                                           (modulo n 3)))]
-                                             (integers-from 2))]))])))
+            (lambda () (stream-filter (lambda (n)
+                                        (not (equal? 0
+                                                     (modulo n 2))))
+                                      (stream-cons
+                                       3
+                                       (lambda () (stream-filter (lambda (n)
+                                                                   (not (equal? 0
+                                                                                (modulo n 3))))
+                                                                 (integers-from 2)))))))))
          '(2 3 5 7 11 13 17 19 23 25))
- }
+ )
 ;;;
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (stream->list
           (stream-take
            10
            (stream-cons
             2
-            [(stream-filter
-              [|n|
-               (not (equal? 0
-                            (modulo n 2)))]
-              (stream-cons
-               3
-               [(stream-filter
-                 [|n|
-                  (not (equal? 0
-                               (modulo n 3)))]
-                 (stream-cons
-                  5
-                  [(stream-filter
-                    [|n|
+            (lambda ()
+              (stream-filter
+               (lambda (n)
+                 (not (equal? 0
+                              (modulo n 2))))
+               (stream-cons
+                3
+                (lambda ()
+                  (stream-filter
+                   (lambda (n)
                      (not (equal? 0
-                                  (modulo n 5)))]
-                    (integers-from 2))]))]))])))
+                                  (modulo n 3))))
+                   (stream-cons
+                    5
+                    (lambda ()
+                      (stream-filter
+                       (lambda (n)
+                         (not (equal? 0
+                                      (modulo n 5))))
+                       (integers-from 2))))))))))))
          '(2 3 5 7 11 13 17 19 23 29))
- }
+ )
 ;;;
 ;;;----
 ;;;
@@ -3512,15 +3492,16 @@
 ;;;(((primes)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define primes
-  {let sieve-of-eratosthenes ((s (integers-from 2)))
+(define primes
+  (let sieve-of-eratosthenes ((s (integers-from 2)))
     (stream-cons
      (stream-car s)
-     [(sieve-of-eratosthenes (stream-filter
-                              [|n|
-                               (not (equal? 0
-                                            (modulo n (stream-car s))))]
-                              (stream-cdr s)))])}}
+     (lambda ()
+       (sieve-of-eratosthenes (stream-filter
+                               (lambda (n)
+                                 (not (equal? 0
+                                              (modulo n (stream-car s)))))
+                               (stream-cdr s)))))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
@@ -3528,13 +3509,13 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (stream->list
           (stream-take
            10
            primes))
          '(2 3 5 7 11 13 17 19 23 29))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -3543,23 +3524,23 @@
 ;;;(((stream-drop)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-drop
-  [|n s|
-   (if {or (stream-null? s)
-           (<= n 0)}
-       [s]
-       [(stream-drop (- n 1)
-                     (stream-cdr s))])]}
+(define stream-drop
+  (lambda (n s)
+    (if (or (stream-null? s)
+            (<= n 0))
+        s
+        (stream-drop (- n 1)
+                     (stream-cdr s)))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|n|
-   (stream->list
-    (stream-drop n (list->stream '(a b))))]
+  (lambda (n)
+    (stream->list
+     (stream-drop n (list->stream '(a b)))))
   '(
     (-1 (a b))
     (0 (a b))
@@ -3571,7 +3552,7 @@
           (stream-take 10 (stream-drop 10
                                        primes)))
          '(31 37 41 43 47 53 59 61 67 71))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -3581,33 +3562,33 @@
 ;;;(((stream-drop-while)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-drop-while
-  [|p? s|
-   {let ((not-p? (complement p?)))
-     {let stream-drop-while ((s s))
-       (if {or (stream-null? s)
-               (not-p? (stream-car s))}
-           [s]
-           [(stream-drop-while (stream-cdr s))])}}]}
+(define stream-drop-while
+  (lambda (p? s)
+    (let ((not-p? (complement p?)))
+      (let stream-drop-while ((s s))
+        (if (or (stream-null? s)
+                (not-p? (stream-car s)))
+            s
+            (stream-drop-while (stream-cdr s)))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|x|
-   (stream->list
-    (stream-drop-while [|y| (not (equal? x y))]
-                       (list->stream
-                        '(a b c))))]
+  (lambda (x)
+    (stream->list
+     (stream-drop-while (lambda (y) (not (equal? x y)))
+                        (list->stream
+                         '(a b c)))))
   '(
     (a (a b c))
     (b (b c))
     (c (c))
     (d ())
     (e ())
-    ))}
+    )))
 ;;;----
 ;;;
 ;;;
@@ -3619,31 +3600,31 @@
 ;;;(((stream-map)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-map
-  [|f #!rest list-of-streams|
-   {let stream-map ((list-of-streams list-of-streams))
-     (if (any? (map stream-null? list-of-streams))
-         [stream-null]
-         [(stream-cons
+(define stream-map
+  (lambda (f #!rest list-of-streams)
+    (let stream-map ((list-of-streams list-of-streams))
+      (if (any? (map stream-null? list-of-streams))
+          stream-null
+          (stream-cons
            (apply f
                   (map stream-car list-of-streams))
-           [(stream-map (map stream-cdr list-of-streams))])])}]}
+           (lambda () (stream-map (map stream-cdr list-of-streams))))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (stream->list
-          (stream-map [|x| (+ x 1)]
+          (stream-map (lambda (x) (+ x 1))
                       (list->stream '(1 2 3 4 5))))
          '(2 3 4 5 6))
  (equal? (stream->list
-          (stream-map [|x y| (+ x y)]
+          (stream-map (lambda (x y) (+ x y))
                       (list->stream '(1 2 3 4 5))
                       (list->stream '(1 1 1 1 1))))
          '(2 3 4 5 6))
- }
+ )
 ;;;
 ;;;----
 ;;;
@@ -3652,24 +3633,24 @@
 ;;;(((stream-enumerate-interval)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-enumerate-interval
-  [|low high #!key (step 1)|
-   {let stream-enumerate-interval ((low low))
-     (if (> low high)
-         [stream-null]
-         [(stream-cons low
-                       [(stream-enumerate-interval (+ low step))])])}]}
+(define stream-enumerate-interval
+  (lambda (low high #!key (step 1))
+    (let stream-enumerate-interval ((low low))
+      (if (> low high)
+          stream-null
+          (stream-cons low
+                       (lambda () (stream-enumerate-interval (+ low step))))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (equal? (stream->list
           (stream-enumerate-interval 1 10))
          '(1 2 3 4 5 6 7 8 9 10))
  (equal? (stream->list
           (stream-enumerate-interval 1 10 step: 2))
-         '(1 3 5 7 9))}
+         '(1 3 5 7 9)))
 ;;;----
 ;;;
 ;;;
@@ -3677,30 +3658,30 @@
 ;;;(((stream-take-while)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{define stream-take-while
-  [|p? s|
-   {let ((not-p? (complement p?)))
-     {let stream-take-while ((s s))
-       (if {or (stream-null? s)
-               (not-p? (stream-car s))}
-           [stream-null]
-           [(stream-cons (stream-car s)
-                         [(stream-take-while
-                           (stream-cdr s))])])}}]}
+(define stream-take-while
+  (lambda (p? s)
+    (let ((not-p? (complement p?)))
+      (let stream-take-while ((s s))
+        (if (or (stream-null? s)
+                (not-p? (stream-car s)))
+            stream-null
+            (stream-cons (stream-car s)
+                         (lambda () (stream-take-while
+                                     (stream-cdr s)))))))))
 ;;;----
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{unit-test
+(unit-test
  (satisfies?
-  [|s|
-   (stream->list
-    (stream-take-while [|n| (< n 10)]
-                       s))]
+  (lambda (s)
+    (stream->list
+     (stream-take-while (lambda (n) (< n 10))
+                        s)))
   `((,(integers-from 0)               (0 1 2 3 4 5 6 7 8 9))
     (,(stream-enumerate-interval 1 4) (1 2 3 4))))
- }
+ )
 ;;;----
 ;;;
 ;;;
@@ -3716,8 +3697,8 @@
 ;;[[call-end-of-compilation
 ;;;[source,Scheme,linenums]
 ;;;----
-{at-compile-time
- (at-end-of-compilation)}
+(at-compile-time
+ (at-end-of-compilation))
 ;;;----
 ;;;
 ;;;

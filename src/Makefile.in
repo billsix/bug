@@ -28,11 +28,6 @@ endif
 
 all: $(OBJECTS_TO_BUILD)
 
-
-%.scm : %.bug.scm
-	../bug-gsc/bug-gscpp $< $@
-
-
 %.c : %.scm
 	$(GSC) -c $<
 
@@ -40,9 +35,9 @@ all: $(OBJECTS_TO_BUILD)
 	$(GSC) -obj $<
 
 
-bug.asciidoc: main.bug.scm bug-language.bug.scm bug-appedicies.asciidoc
-	../bug-gsc/bug2tex main.bug.scm bug.asciidoc
-	../bug-gsc/bug2tex bug-language.bug.scm bug-language.asciidoc
+bug.asciidoc: main.scm bug-language.scm bug-appedicies.asciidoc
+	../bug2tex main.scm bug.asciidoc
+	../bug2tex bug-language.scm bug-language.asciidoc
 	cat bug-language.asciidoc >> bug.asciidoc
 	rm bug-language.asciidoc
 	cat bug-appedicies.asciidoc >> bug.asciidoc
@@ -51,7 +46,7 @@ bug.html: bug.asciidoc
 	asciidoc -b html5 -a icons -a toc2 -a theme=volnitsky -n bug.asciidoc
 
 
-@PACKAGE_NAME@.c: bug-language.bug.scm main.bug.scm bug-language.scm main.scm
+@PACKAGE_NAME@.c: bug-language.scm main.scm
 	$(GSC) -link -o @PACKAGE_NAME@.c main
 
 $(LIBRARY_NAME): @PACKAGE_NAME@.c main.c

@@ -29,17 +29,17 @@
 ;;;(((at-compile-time)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{##namespace ("bug#" at-compile-time)}
-{##define-macro at-compile-time
-  [|#!rest forms|
-   (eval `{begin
-            ,@forms})
-   '{quote noop}]}
+(##namespace ("bug#" at-compile-time))
+(##define-macro at-compile-time
+  (lambda (#!rest forms)
+    (eval `(begin
+             ,@forms))
+    '(quote noop)))
 ;;;----
 ;;;
 ;;;- On lines 4-5, the unevaluated code which is passed to
 ;;;"at-compile-time" is evaluated during macro-expansion, thus
-;;;at compile-time.  The macro-expansion expands into "\{quote noop\}", so the
+;;;at compile-time.  The macro-expansion expands into "\(quote noop\)", so the
 ;;;form will not evaluate at run-time.
 ;;;
 ;;;=== at-both-times
@@ -50,13 +50,13 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{##namespace ("bug#" at-both-times)}
-{##define-macro at-both-times
-  [|#!rest forms|
-   (eval `{begin
-            ,@forms})
-   `{begin
-      ,@forms}]}
+(##namespace ("bug#" at-both-times))
+(##define-macro at-both-times
+  (lambda (#!rest forms)
+    (eval `(begin
+             ,@forms))
+    `(begin
+       ,@forms)))
 ;;;----
 ;;;
 ;;;- On lines 4-5, evaluation in the compile-time environment
@@ -71,28 +71,28 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{##namespace ("bug#" at-compile-time-expand)}
-{##define-macro at-compile-time-expand
-  [|#!rest forms|
-   (eval `{begin
-            ,@forms})]}
+(##namespace ("bug#" at-compile-time-expand))
+(##define-macro at-compile-time-expand
+  (lambda (#!rest forms)
+    (eval `(begin
+             ,@forms))))
 ;;;----
 ;;;
 ;;;This allows the programmer to create "anonymous" macros.
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;> ({at-compile-time-expand
+;;;> ((at-compile-time-expand
 ;;;    (if #t
-;;;        ['car]
-;;;        ['cdr])}
+;;;        'car
+;;;        'cdr))
 ;;;  '(1 2))
 ;;;1
-;;;> ({at-compile-time-expand
+;;;> ((at-compile-time-expand
 ;;;    (if #f
-;;;        ['car]
-;;;        ['cdr]))
-;;;  '(1 2)}
+;;;        'car
+;;;        'cdr))
+;;;  '(1 2))
 ;;;(2)
 ;;;----
 ;;;
@@ -114,7 +114,7 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{at-compile-time
+(at-compile-time
 ;;;----
 ;;;
 ;;;footnote:[All of the code through section <<endOfLinkAgainstLibbug>>
@@ -131,15 +131,15 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
- {##define libbug-headers-file
-   (open-output-file '(path: "libbug#.scm" append: #f))}
+ (##define libbug-headers-file
+   (open-output-file '(path: "libbug#.scm" append: #f)))
  (display
   ";;;Copyright 2014-2018 - William Emerison Six
    ;;; All rights reserved
    ;;; Distributed under LGPL 2.1 or Apache 2.0
-   {##namespace (\"bug#\" at-compile-time)}
-   {##namespace (\"bug#\" at-both-times)}
-   {##namespace (\"bug#\" at-compile-time-expand)}
+   (##namespace (\"bug#\" at-compile-time))
+   (##namespace (\"bug#\" at-both-times))
+   (##namespace (\"bug#\" at-compile-time-expand))
    "
   libbug-headers-file)
 ;;;----
@@ -157,11 +157,11 @@
 ;;;[source,Scheme,linenums]
 ;;;----
  (##include "config.scm")
- {##define bug-configuration#libbugsharp
-   (string-append bug-configuration#prefix "/include/libbug/libbug#.scm")}
+ (##define bug-configuration#libbugsharp
+   (string-append bug-configuration#prefix "/include/libbug/libbug#.scm"))
 ;;;
- {##define libbug-macros-file
-   (open-output-file '(path: "libbug-macros.scm" append: #f))}
+ (##define libbug-macros-file
+   (open-output-file '(path: "libbug-macros.scm" append: #f)))
  (display
   (string-append
    ";;;Copyright 2014-2018 - William Emerison Six
@@ -169,24 +169,24 @@
     ;;; Distributed under LGPL 2.1 or Apache 2.0
     (##include \"~~lib/gambit#.scm\")
     (##include \"" bug-configuration#libbugsharp "\")
-    {##define-macro at-compile-time
-      [|#!rest forms|
-       (eval `{begin
-                ,@forms})
-       '{quote noop}]}
-    {at-compile-time (##include \"" bug-configuration#libbugsharp "\")}
-    {##define-macro at-both-times
-      [|#!rest forms|
-       (eval `{begin
-                ,@forms})
-       `{begin
-          ,@forms}]}
-    {##define-macro at-compile-time-expand
-      [|#!rest forms|
-       (eval `{begin
-                ,@forms})]}
+    (##define-macro at-compile-time
+      (lambda (#!rest forms)
+       (eval `(begin
+                ,@forms))
+       '(quote noop)))
+    (at-compile-time (##include \"" bug-configuration#libbugsharp "\"))
+    (##define-macro at-both-times
+      (lambda (#!rest forms)
+       (eval `(begin
+                ,@forms))
+       `(begin
+          ,@forms)))
+    (##define-macro at-compile-time-expand
+      (lambda (#!rest forms)
+       (eval `(begin
+                ,@forms))))
    ")
-  libbug-macros-file)
+  libbug-macros-file))
 ;;;----
 ;;;
 ;;;
@@ -216,16 +216,16 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
- {define at-end-of-compilation
-   [(display
+(define at-end-of-compilation
+  (lambda ()
+    (display
      "
      (##namespace (\"\"))"
      libbug-macros-file)
     (force-output libbug-headers-file)
     (close-output-port libbug-headers-file)
     (force-output libbug-macros-file)
-    (close-output-port libbug-macros-file)]}
- }
+    (close-output-port libbug-macros-file)))
 ;;;----
 ;;;
 ;;;[[endOfLinkAgainstLibbug]]
@@ -247,12 +247,12 @@
 ;;;(((libbug-private#write-and-eval)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{##define-macro libbug-private#write-and-eval
-  [|port form|
-   (eval `{begin
-            (write ',form ,port)
-            (newline ,port)})
-   form]}
+(##define-macro libbug-private#write-and-eval
+  (lambda (port form)
+    (eval `(begin
+             (write ',form ,port)
+             (newline ,port)))
+    form))
 ;;;----
 ;;;
 ;;;"write-and-eval" writes the form to a file, and evaluates the
@@ -270,65 +270,16 @@
 ;;;(((libbug-private#namespace)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{##define-macro libbug-private#namespace
-  [|#!rest to-namespace|
-   {begin
-     (eval `{##namespace ("bug#" ,@to-namespace)})
-     `{begin
-        {libbug-private#write-and-eval
-         libbug-headers-file
-         {##namespace ("bug#" ,@to-namespace)}}}}]}
+(##define-macro libbug-private#namespace
+  (lambda (#!rest to-namespace)
+    (begin
+      (eval `(##namespace ("bug#" ,@to-namespace)))
+      `(begin
+         (libbug-private#write-and-eval
+          libbug-headers-file
+          (##namespace ("bug#" ,@to-namespace)))))))
 ;;;----
 ;;;
-;;;
-;;;
-;;;
-;;;=== if
-;;;[[langif]]
-;;;In the following, a new version of "if" is defined named
-;;;"bug#if", where
-;;;"bug#if" takes two zero-argument procedures, treating them
-;;;as Church Booleans.  bug#if was first used and described
-;;;in section <<langiffirstuse>>.
-;;;
-;;;
-;;;
-;;;(((bug#if)))
-;;;[source,Scheme,linenums]
-;;;----
-{libbug-private#namespace if}
-{libbug-private#write-and-eval
- libbug-macros-file
- {at-both-times
-  {##define-macro if
-    [|pred ifTrue ifFalse|
-     {##if {and (list? ifTrue)
-                (list? ifFalse)
-                (not (null? ifTrue))
-                (not (null? ifFalse))
-                (equal? 'lambda (car ifTrue))
-                (equal? 'lambda (car ifFalse))}
-           (list '##if pred
-                 `{begin ,@(cddr ifTrue)}
-                 `{begin ,@(cddr ifFalse)})
-           (error "bug#if requires two lambda expressions")}]}}}
-;;;----
-;;;
-;;;- On line 7, "##if" is called.  In Gambit's system of namespacing, "##'
-;;;is prefixed to a variable name to specify to use the global namespace for
-;;;that variable.
-;;;"bug#if" is built on Gambit's implementation of "if", but since
-;;;line 1 set the namespace of "if" to "bug#if", "##if" must be
-;;;used.
-;;;
-;;;- On lines 7-12, check that the caller of "bug#if" is passing
-;;;lambdas, i.e. has not forgotten that "if" is namespaced to "bug".
-;;;
-;;;- On line 16, if the caller of "bug#if" has not passed lambdas,
-;;;error at compile-time.
-;;;
-;;;- On line 13-15, evaluate the body of the appropriate lambda, depending
-;;;on whether the predicate is true or false.
 ;;;
 ;;;
 ;;;
@@ -351,16 +302,16 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{libbug-private#namespace unit-test}
-{libbug-private#write-and-eval
+(libbug-private#namespace unit-test)
+(libbug-private#write-and-eval
  libbug-macros-file
- {##define-macro unit-test
-   [|#!rest tests|
-    (eval
-     `(if {and ,@tests}
-          [''noop]
-          [(for-each pp '("Test Failed" ,@tests))
-           (error "Tests Failed")]))]}}
+ (##define-macro unit-test
+   (lambda (#!rest tests)
+     (eval
+      `(if (and ,@tests)
+           ''noop
+           (begin (for-each pp '("Test Failed" ,@tests))
+                  (error "Tests Failed")))))))
 ;;;----
 ;;;
 ;;;
@@ -374,13 +325,13 @@
 ;;;(((libbug-private#define)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{##define-macro
+(##define-macro
   libbug-private#define
-  [|name body|
-   `{begin
-      {libbug-private#namespace ,name}
-      {at-both-times
-       {##define ,name ,body}}}]}
+  (lambda (name body)
+    `(begin
+       (libbug-private#namespace ,name)
+       (at-both-times
+        (##define ,name ,body)))))
 ;;;----
 ;;;
 ;;;"libbug-private#define" defines the procedure/data both at both compile-time
@@ -416,8 +367,8 @@
 ;;;(((libbug-private#define-macro)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{##define-macro libbug-private#define-macro
-  [|name lambda-value|
+(##define-macro libbug-private#define-macro
+  (lambda (name lambda-value)
 ;;;----
 ;;;==== Write the Macro to File
 ;;;
@@ -425,8 +376,8 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-   (write
-    `{at-both-times
+    (write
+     `(at-both-times
 ;;;----
 ;;;===== Macro Definition
 ;;;The macro definition written to file will be imported as
@@ -438,19 +389,19 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-      {##define-macro
-        ,name
-        {lambda ,(cadr lambda-value)
-          ,(list 'quasiquote
-                 `{##let ()
-                    (##include "~~lib/gambit#.scm")
-                    (##include ,bug-configuration#libbugsharp)
-                    ,(if {and (pair? (caddr lambda-value))
-                              (equal? 'quasiquote
-                                      (caaddr lambda-value))}
-                         [(car (cdaddr lambda-value))]
-                         [(append (list 'unquote)
-                                  (cddr lambda-value))])})}}
+       (##define-macro
+         ,name
+         (lambda ,(cadr lambda-value)
+           ,(list 'quasiquote
+                  `(##let ()
+                     (##include "~~lib/gambit#.scm")
+                     (##include ,bug-configuration#libbugsharp)
+                     ,(if (and (pair? (caddr lambda-value))
+                               (equal? 'quasiquote
+                                       (caaddr lambda-value)))
+                          (car (cdaddr lambda-value))
+                          (append (list 'unquote)
+                                  (cddr lambda-value)))))))
 ;;;----
 ;;;
 ;;;
@@ -551,26 +502,26 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-      {##define-macro
-        ,(string->symbol (string-append (symbol->string name)
-                                        "-expand"))
-        {lambda ,(cadr lambda-value)
-          {let ((gensym {let ((gensym-count 0))
-                          [{set! gensym-count
-				 (+ 1 gensym-count)}
+       (##define-macro
+         ,(string->symbol (string-append (symbol->string name)
+                                         "-expand"))
+         (lambda ,(cadr lambda-value)
+           (let ((gensym (let ((gensym-count 0))
+                           (set! gensym-count
+				 (+ 1 gensym-count))
 			   (string->symbol
 			    (string-append
 			     "gensymed-var"
-			     (number->string gensym-count)))]}))
-            (list 'quote ,@(cddr lambda-value))}}}}
+			     (number->string gensym-count))))))
+             (list 'quote ,@(cddr lambda-value))))))
 ;;;----
 ;;;
 ;;;Finish writing the macro to file which was started in section <<writemacrotofile>>.
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-    libbug-macros-file)
-   (newline libbug-macros-file)
+     libbug-macros-file)
+    (newline libbug-macros-file)
 ;;;----
 ;;;==== Define Macro and Run Tests Within Libbug
 ;;;The macro has been exported to a file for use by projects which link against libbug,
@@ -578,37 +529,38 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-   `{begin
+    `(begin
 ;;;----
 ;;;
 ;;;Namespace the procedure and the expander.
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-      {libbug-private#namespace ,name}
-      {libbug-private#namespace ,(string->symbol
-				  (string-append (symbol->string name)
-						 "-expand"))}
+       (libbug-private#namespace ,name)
+       (libbug-private#namespace ,(string->symbol
+				   (string-append (symbol->string name)
+						  "-expand")))
 ;;;----
 ;;;
 ;;;Create the expander similarly to the previous section.
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-      {at-both-times
-       {##define-macro
-         ,(string->symbol
-           (string-append (symbol->string name)
-                          "-expand"))
-         {lambda ,(cadr lambda-value)
-           {let ((gensym {let ((gensym-count 0))
-                           [{set! gensym-count
-				  (+ 1 gensym-count)}
-			    (string->symbol
-			     (string-append
-			      "gensymed-var"
-			      (number->string gensym-count)))]}))
-             (list 'quote ,@(cddr lambda-value))}}}}
+       (at-both-times
+        (##define-macro
+          ,(string->symbol
+            (string-append (symbol->string name)
+                           "-expand"))
+          (lambda ,(cadr lambda-value)
+            (let ((gensym (let ((gensym-count 0))
+                            (lambda ()
+                              (set! gensym-count
+				    (+ 1 gensym-count))
+			      (string->symbol
+			       (string-append
+			        "gensymed-var"
+			        (number->string gensym-count)))))))
+              (list 'quote ,@(cddr lambda-value))))))
 ;;;----
 ;;;
 ;;;Define the macro.
@@ -616,10 +568,10 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-      {at-both-times
-       {##define-macro
-         ,name
-         ,lambda-value}}}]}
+       (at-both-times
+        (##define-macro
+          ,name
+          ,lambda-value)))))
 ;;;
 ;;;----
 ;;;
@@ -630,37 +582,37 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;(equal? {macroexpand-1 {aif (+ 5 10)
-;;;                           (* 2 bug#it)}}
-;;;      '{let ((bug#it (+ 5 10)))
+;;;(equal? (macroexpand-1 (aif (+ 5 10)
+;;;                           (* 2 bug#it)))
+;;;      '(let ((bug#it (+ 5 10)))
 ;;;         (if bug#it
-;;;             [(* 2 bug#it)]
-;;;             [#f])})
+;;;             (* 2 bug#it)
+;;;             #f)))
 ;;;----
 ;;;
 ;;;instead of
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;(equal? {aif-expand (+ 5 10)
-;;;                   (* 2 bug#it))}
-;;;      '{let ((bug#it (+ 5 10)))
+;;;(equal? (aif-expand (+ 5 10)
+;;;                   (* 2 bug#it)))
+;;;      '(let ((bug#it (+ 5 10)))
 ;;;         (if bug#it
-;;;             [(* 2 bug#it)]
-;;;             [#f])})
+;;;             (* 2 bug#it)
+;;;             #f)))
 ;;;----
 ;;;
 ;;;(((macroexpand-1)))
 ;;;[source,Scheme,linenums]
 ;;;----
-{libbug-private#define-macro
+(libbug-private#define-macro
  macroexpand-1
- [|form|
-  {let* ((m (car form))
-         (the-expander (string->symbol
-                        (string-append (symbol->string m)
-                                       "-expand"))))
-    `(,the-expander ,@(cdr form))}]}
+ (lambda (form)
+   (let* ((m (car form))
+          (the-expander (string->symbol
+                         (string-append (symbol->string m)
+                                        "-expand"))))
+     `(,the-expander ,@(cdr form)))))
 ;;;----
 ;;;
 ;;;
@@ -675,44 +627,44 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-{at-compile-time
- {##define-macro ##define-structure
-   [|#!rest args| `{define-structure ,@args}]}}
-{##define-macro
+(at-compile-time
+ (##define-macro ##define-structure
+   (lambda (#!rest args) `(define-structure ,@args))))
+(##define-macro
   libbug-private#define-structure
-  [|name #!rest members|
-   `{begin
-      {libbug-private#namespace
-       ,(string->symbol
-         (string-append "make-"
-                        (symbol->string name)))
-       ,(string->symbol
-         (string-append (symbol->string name)
-                        "?"))
-       ,@(map [|m|
-               (string->symbol
-                (string-append (symbol->string name)
-                               "-"
-                               (symbol->string m)))]
-              members)
-       ,@(map [|m|
-               (string->symbol
-                (string-append (symbol->string name)
-                               "-"
-                               (symbol->string m)
-                               "-set!"))]
-              members)}
-      {at-both-times
-       {##namespace (""
-                     define
-                     define-structure
-                     )}
-       {define-structure ,name ,@members}
-       {##namespace ("libbug-private#"
-                     define
-                     )}
-       {##namespace ("bug#"
-                     define-structure
-                     )}}}]}
+  (lambda (name #!rest members)
+    `(begin
+       (libbug-private#namespace
+        ,(string->symbol
+          (string-append "make-"
+                         (symbol->string name)))
+        ,(string->symbol
+          (string-append (symbol->string name)
+                         "?"))
+        ,@(map (lambda (m)
+                 (string->symbol
+                  (string-append (symbol->string name)
+                                 "-"
+                                 (symbol->string m))))
+               members)
+        ,@(map (lambda (m)
+                 (string->symbol
+                  (string-append (symbol->string name)
+                                 "-"
+                                 (symbol->string m)
+                                 "-set!")))
+               members))
+       (at-both-times
+        (##namespace (""
+                      define
+                      define-structure
+                      ))
+        (define-structure ,name ,@members)
+        (##namespace ("libbug-private#"
+                      define
+                      ))
+        (##namespace ("bug#"
+                      define-structure
+                      ))))))
 ;;;----
 ;;;

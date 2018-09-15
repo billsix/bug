@@ -12,19 +12,13 @@ mandir = @mandir@
 datarootdir = @datarootdir@
 
 all:
-	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
-	bzip2 -f -k man/bug-gscpp.1
-	bzip2 -f -k man/bug-gsi.1
 	bzip2 -f -k man/bug-create-project.1
 
 install:
-	cd bug-gsc/ && $(MAKE) $@
 	cd src && $(MAKE) $@
 	install -m 0755 bug-create-project $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(mandir)/man1
-	install -m 0744 man/bug-gscpp.1.bz2  $(DESTDIR)$(mandir)/man1/
-	install -m 0744 man/bug-gsi.1.bz2  $(DESTDIR)$(mandir)/man1/
 	install -m 0744 man/bug-create-project.1.bz2  $(DESTDIR)$(mandir)/man1/
 	install -d $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo
 	install -m 0644 demo/AUTHORS  $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/
@@ -44,11 +38,8 @@ install:
 	mkdir -p $(DESTDIR)$(libdir)/pkgconfig/
 	install -m 0644 pkgconfig/@PACKAGE_NAME@.pc $(DESTDIR)$(libdir)/pkgconfig/
 uninstall:
-	-cd bug-gsc/ && $(MAKE) $@
 	-cd src && $(MAKE) $@
 	-rm $(DESTDIR)$(bindir)/bug-create-project
-	-rm $(DESTDIR)$(mandir)/man1/bug-gscpp.1.bz2
-	-rm $(DESTDIR)$(mandir)/man1/bug-gsi.1.bz2
 	-rm $(DESTDIR)$(mandir)/man1/bug-create-project.1.bz2
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/AUTHORS
 	-rm $(DESTDIR)$(datarootdir)/@PACKAGE_NAME@/demo/COPYING

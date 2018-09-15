@@ -1,1 +1,0 @@
-char* gsi_prelude =  "(load \"@prefix@/lib/@PACKAGE_NAME@.o1\") (include \"@prefix@/include/@PACKAGE_NAME@/@PACKAGE_NAME@-macros.scm\") (include \"@prefix@/include/@PACKAGE_NAME@/@PACKAGE_NAME@#.scm\")";
