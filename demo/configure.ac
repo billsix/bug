@@ -2,7 +2,7 @@ AC_PREREQ([2.68])
 
 AC_INIT([bugdemo], [0.0.1], [William Emerison Six <billsix@gmail.com>], [bugdemo])
 AC_CANONICAL_SYSTEM
-AC_CONFIG_SRCDIR([src/bugdemo.bug.scm])
+AC_CONFIG_SRCDIR([src/bugdemo.scm])
 AC_CONFIG_HEADER([config.h])
 AC_CHECK_HEADER([stdio.h])
 AM_INIT_AUTOMAKE()
