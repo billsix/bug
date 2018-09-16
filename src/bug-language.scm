@@ -186,7 +186,7 @@
        (eval `(begin
                 ,@forms))))
    ")
-  libbug-macros-file))
+  libbug-macros-file)
 ;;;----
 ;;;
 ;;;
@@ -216,16 +216,16 @@
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
-(define at-end-of-compilation
-  (lambda ()
-    (display
-     "
+ (define at-end-of-compilation
+   (lambda ()
+     (display
+      "
      (##namespace (\"\"))"
-     libbug-macros-file)
-    (force-output libbug-headers-file)
-    (close-output-port libbug-headers-file)
-    (force-output libbug-macros-file)
-    (close-output-port libbug-macros-file)))
+      libbug-macros-file)
+     (force-output libbug-headers-file)
+     (close-output-port libbug-headers-file)
+     (force-output libbug-macros-file)
+     (close-output-port libbug-macros-file))))
 ;;;----
 ;;;
 ;;;[[endOfLinkAgainstLibbug]]
