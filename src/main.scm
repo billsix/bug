@@ -3041,14 +3041,14 @@
 ;;;----
 (define-macro yield-from
   (lambda (g)
-    (with-gensyms (v loop)
-                  `(let ,loop ((,v (,g)))
-                     (if (not (equal? ,v 'end-of-generator))
-                         (begin
-                           (yield ,v)
-                           (,loop (,g)))
-                         #f)))))
-
+    (with-gensyms
+     (v loop)
+     `(let ,loop ((,v (,g)))
+           (if (not (equal? ,v 'end-of-generator))
+               (begin
+                 (yield ,v)
+                 (,loop (,g)))
+               #f)))))
 ;;;----
 
 ;;;"However, if the subgenerator is to interact properly with the caller in
