@@ -460,17 +460,6 @@
             (all? (cdr l))
             #f))))
 ;;;----
-;;;- On line 3, "if", Libbug pretends that #t and #f are
-;;;"Church Booleans" <<<tapl>>>.
-;;;
-;;;
-;;;[source,Scheme]
-;;;----
-;;;(define #t (lambda (t f) (t)))
-;;;(define #f (lambda (t f) (f)))
-;;;----
-;;;
-;;;
 ;;;
 ;;;
 ;;;[source,Scheme,linenums]
