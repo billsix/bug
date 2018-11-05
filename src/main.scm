@@ -2930,11 +2930,13 @@
 
 ;;;== Coroutines
 
-;;;=== make-generator
+;;;=== __make-generator__
 
 ;;;[source,Scheme,linenums]
 ;;;----
-(define make-generator
+(define __make-generator__
+  ;; f is a function which takes one argument, the yield procedure,
+  ;; which this procedure, __make-generator__, provides
   (lambda (f)
     ;; will be defined to something useful before it is called,
     ;; but for now, the environment needs a variable defined
@@ -2960,7 +2962,7 @@
 ;;;[source,Scheme,linenums]
 ;;;----
 (unit-test
- (let ((g (make-generator
+ (let ((g (__make-generator__
            (lambda (yield)
              (let ((time 0))
                (setf! time (+ time (yield 'yield-value-one)))
@@ -2973,14 +2975,14 @@
         (equal? 20 (g 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
         (equal? 'end-of-generator (g)))) ;; end of the generator
  ;; the generators are independent
- (let ((g (make-generator
+ (let ((g (__make-generator__
            (lambda (yield)
              (let ((time 0))
                (setf! time (+ time (yield 'yield-value-one)))
                (yield 'yield-value-two)
                (setf! time (+ time (yield 'yield-value-three)))
                (yield time)))))
-       (g2 (make-generator
+       (g2 (__make-generator__
             (lambda (yield)
               (let ((time 0))
                 (setf! time (+ time (yield 'one)))
@@ -3008,10 +3010,10 @@
 ;;;[source,Scheme,linenums]
 ;;;----
 (define-macro generator
-  (lambda (body)
-    `(make-generator
+  (lambda (#!rest body)
+    `(__make-generator__
       (lambda (yield)
-        ,body))))
+        ,@body))))
 ;;;----
 
 
@@ -3037,11 +3039,16 @@
 ;;;=== yield-from
 ;;;[source,Scheme,linenums]
 ;;;----
-(define yield-from
+(define-macro yield-from
   (lambda (g)
-    (lambda (#!rest send)
-      ((generator
-        (yield (apply g send)))))))
+    (with-gensyms (v loop)
+                  `(let ,loop ((,v (,g)))
+                     (if (not (equal? ,v 'end-of-generator))
+                         (begin
+                           (yield ,v)
+                           (,loop (,g)))
+                         #f)))))
+
 ;;;----
 
 ;;;"However, if the subgenerator is to interact properly with the caller in
@@ -3058,17 +3065,23 @@
 (unit-test
  (begin
    (let* ((g (generator
-              (let ((time 0))
-                (setf! time (+ time (yield 'yield-value-one)))
-                (setf! time (+ time (yield 'yield-value-two)))
-                (setf! time (+ time (yield 'yield-value-three)))
-                (yield time))))
-          (g2 (yield-from g)))
-     (and (equal? 'yield-value-one (g2)) ;; just like python, nothing to send on first use
-          (equal? 'yield-value-two (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
-          (equal? 'yield-value-three (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-two)"
-          (equal? 30 (g2 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
-          (equal? 'end-of-generator (g2 10)) ;; end of the generator
+               (yield 1)
+               (yield 2)
+               (yield 3)))
+          (g2 (generator
+               (yield 'a)
+               (yield 'b)
+               (yield 'c)))
+          (g3 (generator
+               (yield-from g)
+               (yield-from g2))))
+     (and (equal? 1 (g3))
+          (equal? 2 (g3))
+          (equal? 3 (g3))
+          (equal? 'a (g3))
+          (equal? 'b (g3))
+          (equal? 'c (g3))
+          (equal? 'end-of-generator (g3))
           ))))
 ;;;----
 
