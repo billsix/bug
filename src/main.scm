@@ -46,16 +46,15 @@
 ;;;[source,Scheme]
 ;;;----
 ;;;(define permutations
-;;; (lambda (l)
-;;;  (if (null? l)
-;;;      '()
-;;;      (let permutations ((l l))
-;;;        (if (null? (cdr l))
-;;;            (list l)
-;;;            (flatmap (lambda (x)
-;;;                      (map (lambda (y) (cons x y))
-;;;                           (permutations (remove x l))))
-;;;                     l)]))])))
+;;;  (lambda (l)
+;;;    (if (null? l)
+;;;        '()
+;;;        (let permutations ((l l))
+;;;          (if (null? (cdr l))
+;;;              (list l)
+;;;              (flatmap (lambda (x) (map (lambda (y) (cons x y))
+;;;                                        (permutations (remove x l))))
+;;;                       l))))))
 ;;;----
 ;;;
 ;;;What does the code do?  How did the author intend for it to be used?
@@ -188,9 +187,7 @@
 ;;;----
 ;;;
 ;;;
-;;;Some examples within this book show interaction with "bug-gsi"  footnote:[Gambit's
-;;;Read-Evaluate-Print-Loop (REPL), both with libbug's procedures loaded, and with libbug's
-;;;syntactic extensions.]
+;;;Some examples within this book show interaction with "gsi".
 ;;;Such examples will look like the following:
 ;;;
 ;;;[source,Scheme]
@@ -204,47 +201,6 @@
 ;;;of evaluating that line appears on the subsequent line. In this case, 1 added to 2
 ;;;evaluates to 3.
 ;;;
-;;;==== Syntactic Conventions
-;;;In libbug, the notation
-;;;
-;;;[source,Scheme]
-;;;----
-;;;(fun arg1 arg2)
-;;;----
-;;;
-;;;
-;;;means evaluate "fun", "arg1"
-;;;and "arg2" in any order, then apply "fun" to "arg1" and "arg2";
-;;;standard Scheme semantics for invoking a procedure.  But since macros
-;;;are not normal procedures and do
-;;;not necessarily respect those semantics, in libbug, the notation
-;;;
-;;;[source,Scheme]
-;;;----
-;;;(fun1 arg1 arg2)
-;;;----
-;;;
-;;;
-;;;is used to denote to
-;;;the reader that the standard evaluation rules do not necessarily
-;;;apply.  For instance, in
-;;;
-;;;[source,Scheme]
-;;;----
-;;;(define x 5)
-;;;----
-;;;
-;;;
-;;;() are used because "x"
-;;;may be a new variable.  As such, "x" might not currently evaluate to anything.
-;;;
-;;;Not all macro applications use ().  If the macro always respects Scheme's standard
-;;;order of evaluation, macro application may use standard Scheme notation:
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-;;;((compose (lambda (x) (* x 2))) 5)
-;;;----
 ;;;
 ;;;=== Getting the Source Code And Building
 ;;;The Scheme source code is located at http://github.com/billsix/bug.
@@ -261,7 +217,7 @@
 ;;;[source,txt]
 ;;;----
 ;;;$ ./autogen.sh
-;;;$ ./configure --prefix=$BUG_HOME --enable-pdf
+;;;$ ./configure --prefix=$BUG_HOME --enable-html
 ;;;$ make
 ;;;$ make install
 ;;;----
@@ -270,8 +226,8 @@
 ;;;will be installed when "make install" is executed. "$BUG_HOME" is an
 ;;;environment variable that I have not defined, so the reader should substitute
 ;;;"$BUG_HOME" with an actual filesystem path.
-;;;- "--enable-pdf" means to build this book as a PDF.  To disable the creation of the PDF,
-;;;substitute "--enable-pdf=no".
+;;;- "--enable-html" means to build this book as a HTML via asciidoc.  To disable the creation of the html,
+;;;substitute "--enable-html=no".
 ;;;
 ;;;After installing libbug, you should set the following environment variables.
 ;;;
@@ -2919,7 +2875,28 @@
 
 ;;;== Coroutines
 
-;;;=== __make-generator__
+https://en.wikipedia.org/wiki/Coroutine
+
+https://en.wikipedia.org/wiki/Generator_(computer_science)
+
+;;;=== end-of-generator
+
+;;;[source,Scheme,linenums]
+;;;----
+(define end-of-generator
+  (lambda ()
+    'end-of-generator))
+;;;----
+
+;;;=== end-of-generator?
+
+;;;[source,Scheme,linenums]
+;;;----
+(define end-of-generator?
+  (lambda (x) (equal? x (end-of-generator))))
+;;;----
+
+;;;=== \_\_make-generator\_\_
 
 ;;;[source,Scheme,linenums]
 ;;;----
@@ -2927,26 +2904,79 @@
   ;; f is a function which takes one argument, the yield procedure,
   ;; which this procedure, __make-generator__, provides
   (lambda (f)
-    ;; will be defined to something useful before it is called,
-    ;; but for now, the environment needs a variable defined
-    (##define return-to-callee 'ignore)
-    ;; do the work of the generator
-    (##define eval-f-until-yield
-      (lambda (#!rest send)
-        ;; switch back and forth between the two routines
-        (f (lambda (value)
-             (call/cc (lambda (stack-of-yield-exp)
-                        (setf! eval-f-until-yield stack-of-yield-exp)
-                        (return-to-callee value)))))
-        ;; all instances of yield have been called, inform the callee
-        ;; that the generator is done
-        (return-to-callee 'end-of-generator)))
+    ;; each instance of a generator needs two continuations.
+    ;; one for the generator instance, and one for the callee
+    ;; of the generator instance.
+
+    ;; so the definition of yield needs to have references
+    ;; to each of those continuations.
+    ;; create reference to them in  yield's environment
+    ;; even though they will not be bound to useful values
+    ;; until after yield is defined.
+    (##define return-to-callee-continuation 'ignore)
+    (##define continue-with-generator-continuation 'ignore)
+
+    ;; define the implementation "yield" for this generator
+    (##define yield-defined-for-this-generator-instance
+      ;; when yield is appied within the generator, it must
+      ;; return the value to the callee, but must also remember
+      ;; where to resume the next time the generator is applied.
+      ;;
+      ;; though, just like parameter passing in machine code,
+      ;; in which values must be passed on the stack/registers
+      ;; before control is transferred from the caller to the callee,
+      ;; the continuation of the generator must first be captured before
+      ;; invoking the callee's continuation with the yielded value.
+      (lambda (value-to-be-yielded)
+        (call/cc (lambda (yields-continuation)
+                   (setf! continue-with-generator-continuation yields-continuation)
+                   (return-to-callee-continuation value-to-be-yielded)))))
+
+
+    (set! continue-with-generator-continuation
+          (lambda (#!rest send)
+            ;; switch back and forth between the two routines
+            (f yield-defined-for-this-generator-instance)
+            ;; all instances of yield have been called, inform the callee
+            ;; that the generator is done
+            (return-to-callee-continuation (end-of-generator))))
+    ;; this is the code that is invoked every time the generator is applied.
+    ;; if the yield expression is defined in a context in which the evaluation
+    ;; of yield must evaluate to a value, then pass that value to "send".
     (lambda (#!rest send)
-      (call/cc (lambda (stack-of-callee)
-                 (setf! return-to-callee stack-of-callee)
-                 (apply eval-f-until-yield send))))))
+      ;; get the callee's continuation, for use when "yield" is applied
+      ;; within the generator
+      (call/cc (lambda (callees-continuation)
+                 ;; set the callee's continuation into "yield"'s enviroment,
+                 ;; so that it may be called from within yield.
+                 (setf! return-to-callee-continuation callees-continuation)
+                 ;; evaluate f up until the point that yield is invoked.
+
+                 ;; when that occurs, both return-to-callee-continuation
+                 ;; and continue-with-generator-continuation will be
+                 ;; defined correctly.
+                 (apply continue-with-generator-continuation send))))))
 ;;;----
 
+
+;;;[source,Scheme,linenums]
+;;;----
+(unit-test
+ (let ((g (__make-generator__
+           (lambda (yield)
+               (yield 'yield-value-one)
+               (yield 'yield-value-two)
+               (yield 'yield-value-three)))))
+   (and (equal? 'yield-value-one (g))
+        (equal? 'yield-value-two (g))
+        (equal? 'yield-value-three (g))
+        (end-of-generator? (g)))))
+;;;----
+
+;;;Yield may be used in a context in which a value is expected.  Unlike
+;;;Python, which distinguishes between these two cases by using either
+;;;"next" or "send", in this library, the generator is just a regular
+;;;procedure which takes 0 or 1 parameters.
 
 ;;;[source,Scheme,linenums]
 ;;;----
@@ -2962,7 +2992,7 @@
         (equal? 'yield-value-two (g 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
         (equal? 'yield-value-three (g)) ;;
         (equal? 20 (g 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
-        (equal? 'end-of-generator (g)))) ;; end of the generator
+        (end-of-generator? (g))))) ;; end of the generator
  ;; the generators are independent
  (let ((g (__make-generator__
            (lambda (yield)
@@ -2986,12 +3016,9 @@
         (equal? 'three (g2))
         (equal? 20 (g 10))
         (equal? 2 (g2 1))
-        (equal? 'end-of-generator (g))
-        (equal? 'end-of-generator (g2))
-        )))
-
-
-
+        (end-of-generator? (g))
+        (end-of-generator? (g2))
+        ))
 ;;;----
 
 
@@ -3020,7 +3047,7 @@
           (equal? 'yield-value-two (g 10)) ;; send 10 to be the value of "(yield 'yield-value-one)"
           (equal? 'yield-value-three (g 10)) ;; send 10 to be the value of "(yield 'yield-value-two)"
           (equal? 30 (g 10)) ;; send 10 to be the value of "(yield 'yield-value-three)"
-          (equal? 'end-of-generator (g 10)) ;; end of the generator
+          (end-of-generator? (g 10)) ;; end of the generator)
           ))))
 ;;;----
 
@@ -3033,7 +3060,7 @@
     (with-gensyms
      (v loop)
      `(let ,loop ((,v (,g)))
-           (if (not (equal? ,v 'end-of-generator))
+           (if (not (end-of-generator? ,v))
                (begin
                  (yield ,v)
                  (,loop (,g)))
@@ -3062,7 +3089,7 @@
           (equal? 'a (g3))
           (equal? 'b (g3))
           (equal? 'c (g3))
-          (equal? 'end-of-generator (g3))
+          (end-of-generator? (g3))
           ))))
 ;;;----
 
