@@ -13,13 +13,13 @@ Objectively the world's best unit-test framework.
 
 Look, here it is:
 ~~~~
-{##define-macro unit-test
-   [|#!rest tests|
+(##define-macro unit-test
+  (lambda (#!rest tests)
     (eval
-     `(if {and ,@tests}
-          [''noop]
-          [(for-each pp '("Test Failed" ,@tests))
-           (error "Tests Failed")]))]}}
+     `(if (and ,@tests)
+          ''noop
+          (begin (for-each pp '("Test Failed" ,@tests))
+                 (error "Tests Failed"))))))
 ~~~~
 
 The most featureful
@@ -34,5 +34,3 @@ Copyright 2014-2017 William Emerison Six
 All rights reserved
 
 Licensed under either LGPL v2.1 (LGPL.txt), or Apache 2.0 (LICENSE-2.0.txt).
-
-
