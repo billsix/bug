@@ -215,13 +215,14 @@ language is the exact same language as the run-time language!
 
 [source,Scheme,linenums]
 ----
- {at-both-times
-  {define fact
-    [|n| (if (= n 0)
-             [1]
-             [(* n (fact (- n 1)))])]}}
+ (at-both-times
+  (define fact
+    (lambda (n)
+      (if (= n 0)
+          1
+          (* n (fact (- n 1)))))))
 
- (pp {at-compile-time-expand (fact 3)})
+ (pp (at-compile-time-expand (fact 3)))
  (pp (fact 3))
 ----
 
@@ -258,7 +259,7 @@ representation, the previously stated behavior can be verified.
   jump/safe fs=0 global[pp] nargs=1
 ----
 
-- Lines 1-4 correspond to "(pp {at-compile-time-expand (fact 3)})".  The precomputed
+- Lines 1-4 correspond to "(pp (at-compile-time-expand (fact 3)))".  The precomputed
 value of "(fact 3)" is 6, which is directly stored into a GVM register, and
 then the "pp" routine is called to print it.
 

@@ -411,7 +411,7 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;   > (cadr '[|foo bar| (quasiquote 5)])
+;;;   > (cadr '(lambda (foo bar) (quasiquote 5)))
 ;;;   (foo bar)
 ;;;----
 ;;;
@@ -438,7 +438,7 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;   > (caaddr '[|foo bar| (quasiquote 5)])
+;;;   > (caaddr '(lambda (foo bar) (quasiquote 5)))
 ;;;   quasiquote
 ;;;----
 ;;;
@@ -447,7 +447,7 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;   > (car (cdaddr '[|foo bar| (quasiquote 5)]))
+;;;   > (car (cdaddr '(lambda (foo bar) (quasiquote 5))))
 ;;;   5
 ;;;----
 ;;;
@@ -455,8 +455,8 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;   > (list 'quasiquote (car (cdaddr '[|foo bar|
-;;;                                        (quasiquote 5)])))
+;;;   > (list 'quasiquote (car (cdaddr '(lambda (foo bar)
+;;;                                        (quasiquote 5)))))
 ;;;   `5
 ;;;----
 ;;;
@@ -465,7 +465,7 @@
 ;;;
 ;;;[source,Scheme]
 ;;;----
-;;;   > (append (list 'unquote) (cddr '[|foo bar| (+ 5 5)]))
+;;;   > (append (list 'unquote) (cddr '(lambda (foo bar) (+ 5 5))))
 ;;;   ,(+ 5 5)
 ;;;----
 ;;;
@@ -474,12 +474,12 @@
 ;;;[source,Scheme]
 ;;;----
 ;;;   > (list 'quasiquote (append (list 'unquote)
-;;;                               (cddr '[|foo bar|
-;;;                                         (+ 5 5)])))
+;;;                               (cddr '(lambda (foo bar)
+;;;                                            (+ 5 5)))))
 ;;;   `,(+ 5 5)
 ;;;   > (eval (list 'quasiquote (append (list 'unquote)
-;;;                                     (cddr '[|foo bar|
-;;;                                               (+ 5 5)])))
+;;;                                     (cddr '(lambda (foo bar)
+;;;                                               (+ 5 5)))))
 ;;;   10
 ;;;----
 ;;;
