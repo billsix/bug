@@ -621,15 +621,12 @@
 ;;;[[definestructure]]
 ;;;(((libbug-private#define-structure)))
 ;;;
-;;;Like "##define-structure", but additionally writes the namespaces
-;;;to filefootnote:[In the following, "##define-structure" is defined at
-;;;compile-time, because Gambit does not define "##define-structure" at compile-time.].
+;;; Like ``\#\#define-structure'', but additionally writes the namespaces
+;;; to file.
 ;;;
-;;;[source,Scheme,linenums]
-;;;----
-(at-compile-time
- (##define-macro ##define-structure
-   (lambda (#!rest args) `(define-structure ,@args))))
+;;;
+;;;
+;;; \begin{code}
 (##define-macro
   libbug-private#define-structure
   (lambda (name #!rest members)
