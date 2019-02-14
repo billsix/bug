@@ -3093,147 +3093,6 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
           ))))
 ;;;----
 
-
-
-
-
-
-
-
-;;;== Streams
-;;;
-;;;Streams are sequential collections like lists, but the
-;;;"cdr" of each pair must be a zero-argument lambda expression.  This lambda
-;;;expression will be automatically applied when "(stream-cdr s)" is evaluated.
-;;;This technique allows a programmer to create seemingly infinite data structures,
-;;;such as the definition of "integers-from" and "primes".
-;;;For more information, consult <<<sicp>>> footnote:[although, they
-;;;define "stream-cons" as syntax instead of passing a lambda
-;;;to the second argument].
-;;;
-;;;=== Stream structure
-;;;
-;;;"libbug-private#define-structure" footnote:[defined in section <<definestructure>>]
-;;;takes the name of the datatype and a variable
-;;;number of fields as parameters.
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(define-structure stream
-  a
-  d)
-;;;----
-;;;
-;;;"libbug-private#define-structure" will create a constructor procedure named "make-stream",
-;;;accessor procedures "stream-a", "stream-d", and updating procedures "stream-a-set!" and
-;;;"stream-d-set!".
-;;;For streams, none of these generated procedures are intended to be
-;;;used directly by the programmer. Instead, "stream-cons", "stream-car",
-;;;and "stream-cdr"
-;;;are to be used.
-;;;
-;;;=== stream-cons
-;;;
-;;;Like "cons", creates a pair.  The second argument must be a zero-argument
-;;;lambda value.
-;;;
-;;;
-;;;(((stream-cons)))
-;;;[source,Scheme,linenums]
-;;;----
-(define-macro stream-cons
-  (lambda (a d)
-    (if (and (list? d)
-             (equal? 'lambda (car d))
-             (not (null? (cdr d)))
-             (equal? '() (cadr d)))
-        `(make-stream ,a (delay ,(caddr d)))
-        (error "bug#stream-cons requires a zero-argument \
-                lambda as its second argument."))))
-;;;----
-;;;
-;;;<<<sicp>>>.
-;;;
-;;;
-;;;
-;;;=== stream-car
-;;;Get the first element of the stream.
-;;;
-;;;(((stream-car)))
-;;;[source,Scheme,linenums]
-;;;----
-(define stream-car
-  stream-a)
-;;;----
-;;;
-;;;<<<sicp>>>.
-;;;
-;;;=== stream-cdr
-;;;Forces the evaluation of the next element of the stream.
-;;;
-;;;(((stream-cdr)))
-;;;[source,Scheme,linenums]
-;;;----
-(define stream-cdr
-  (lambda (s)
-    (force (stream-d s))))
-;;;----
-;;;
-;;;<<<sicp>>>.
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(unit-test
- (let ((s (stream-cons 1 (lambda () 2))))
-   (and
-    (equal? (stream-car s)
-            1)
-    (equal? (stream-cdr s)
-            2)))
- )
-;;;----
-;;;
-;;;
-;;;
-;;;
-;;;=== stream-null
-;;;
-;;;The sentinel value for streams is the same value as the sentinel value
-;;;for lists.
-;;;
-;;;(((stream-null)))
-;;;[source,Scheme,linenums]
-;;;----
-(define stream-null
-  '()
-  )
-;;;----
-;;;
-;;;=== stream-null?
-;;;
-;;;But to test for the sentinel value, use "stream-null?".
-;;;
-;;;(((stream-null?)))
-;;;[source,Scheme,linenums]
-;;;----
-(define stream-null?
-  null?)
-;;;----
-;;;
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(unit-test
- (stream-null?
-  (stream-cdr
-   (stream-cdr (stream-cons 1 (lambda () (stream-cons 2
-                                                      (lambda ()
-                                                        stream-null)))))))
- )
-;;;----
-;;;
-;;;
-;;;
 ;;;=== list->stream
 ;;;Converts a list into a stream.
 ;;;
@@ -3242,28 +3101,23 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 ;;;----
 (define list->stream
   (lambda (l)
-    (if (null? l)
-        stream-null
-        (stream-cons (car l)
-                     (lambda () (list->stream (cdr l)))))))
+    (generator
+     (let loop ((l l))
+       (if (not (null? l))
+           (begin
+             (yield (car l))
+             (loop (cdr l)))
+           (noop))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
 ;;;----
 (unit-test
- (let ((foo (list->stream '(1 2 3))))
-   (and (equal? 1 (stream-car foo))
-        (equal? 2 ((compose stream-car
-                            stream-cdr)
-                   foo))
-        (equal? 3 ((compose stream-car
-                            stream-cdr
-                            stream-cdr)
-                   foo))
-        (stream-null? ((compose stream-cdr
-                                stream-cdr
-                                stream-cdr)
-                       foo)))))
+   (let ((g (list->stream '(1 2 3))))
+     (and (equal? 1 (g))
+          (equal? 2 (g))
+          (equal? 3 (g))
+          (end-of-generator? (g)))))
 ;;;----
 ;;;
 ;;;
@@ -3275,10 +3129,10 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 ;;;----
 (define stream->list
   (lambda (s)
-    (if (stream-null? s)
-        '()
-        (cons (stream-car s)
-              (stream->list (stream-cdr s))))))
+    (let ((next (s)))
+      (if (end-of-generator? next)
+          '()
+          (cons next (stream->list s))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
@@ -3289,59 +3143,7 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
          '(1 2 3))
  )
 ;;;----
-;;;
-;;;
-;;;
-;;;=== stream-ref
-;;;The analogous procedure of "list-ref".
-;;;
-;;;(((stream-ref)))
-;;;[source,Scheme,linenums]
-;;;----
-(define stream-ref
-  (lambda (s n #!key (onOutOfBounds noop))
-    (if (< n 0)
-        (onOutOfBounds)
-        (let stream-ref ((s s) (n n))
-          (if (equal? n 0)
-              (stream-car s)
-              (if (stream-null? (stream-cdr s))
-                  (onOutOfBounds)
-                  (stream-ref (stream-cdr s)
-                              (- n 1))))))))
-;;;----
-;;;
-;;;<<<sicp>>>.
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(unit-test
- (satisfies?
-  (lambda (i) (stream-ref (list->stream '(a b c d e)) i))
-  '(
-    (-1 noop)
-    (0 a)
-    (4 e)
-    (5 noop)
-    )
-  )
- (satisfies?
-  (lambda (i) (stream-ref (list->stream '(a b c d e))
-                          i
-                          onOutOfBounds: (lambda () 'out)))
-  '(
-    (-1 out)
-    (0 a)
-    (4 e)
-    (5 out)
-    )
-  )
- )
-;;;----
-;;;
-;;;
-;;;
-;;;
+
 ;;;=== integers-from
 ;;;(((integers-from)))
 ;;;
@@ -3352,7 +3154,10 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 ;;;----
 (define integers-from
   (lambda (n)
-    (stream-cons n (lambda () (integers-from (+ n 1))))))
+    (generator
+     (let loop ((n n))
+       (yield n)
+       (loop (+ n 1))))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
@@ -3361,36 +3166,101 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 ;;;[source,Scheme,linenums]
 ;;;----
 (unit-test
- (satisfies?
-  (lambda (n) (stream-ref (integers-from 0) n))
-  '(
-    (0 0)
-    (1 1)
-    (2 2)
-    ))
- (satisfies?
-  (lambda (n) (stream-ref (integers-from 5) n))
-  '(
-    (0 5)
-    (1 6)
-    (2 7)
-    ))
- )
+ (and
+   (let ((g (integers-from 0)))
+     (and (equal? 0 (g))
+          (equal? 1 (g))
+          (equal? 2 (g))
+          (equal? 3 (g))))
+   (let ((g (integers-from 5)))
+     (and (equal? 5 (g))
+          (equal? 6 (g))
+          (equal? 7 (g))
+          (equal? 8 (g))))))
 ;;;----
 ;;;
 ;;;
+;;;=== stream-map
+;;;The analogous procedure of "map".
+;;;
+;;;(((stream-map)))
+;;;[source,Scheme,linenums]
+;;;----
+(define stream-map
+  (lambda (f #!rest list-of-streams)
+    (generator
+     (let stream-map ()
+       (let ((the-values (map (lambda (g) (apply g '()))
+                              list-of-streams)))
+         (if (any? (map end-of-generator? the-values))
+             (end-of-generator)
+             (begin
+               (yield (apply f the-values))
+               (stream-map))))))))
+;;;----
+;;;
+;;;
+;;;[source,Scheme,linenums]
+;;;----
+(unit-test
+ (equal? (stream->list
+          (stream-map (lambda (x) (+ x 1))
+                      (list->stream '(1 2 3 4 5))))
+         '(2 3 4 5 6))
+ (equal? (stream->list
+          (stream-map (lambda (x y) (+ x y))
+                      (list->stream '(1 2 3 4 5))
+                      (list->stream '(1 1 1 1 1))))
+         '(2 3 4 5 6))
+ )
+;;;
+;;;----
+;;;=== stream-filter
+;;;The analogous procedure of filter.
+;;;
+;;;(((stream-filter)))
+;;;[source,Scheme,linenums]
+;;;----
+(define stream-filter
+  (lambda (p? s)
+    (generator
+     (let stream-filter ()
+       (let ((the-value (s)))
+         (if (end-of-generator? the-value)
+             (end-of-generator)
+             (begin
+               (if (p? the-value)
+                   (yield the-value)
+                   (noop))
+               (stream-filter))))))))
+;;;----
+;;;
+;;;
+;;;[source,Scheme,linenums]
+;;;----
+(unit-test
+ (equal?  (stream->list
+           (stream-filter (lambda (x) (not (= 4 x)))
+                          (list->stream '(1 4 2 4))))
+          '(1 2))
+ )
+;;;----
+
 ;;;=== stream-take
 ;;;(((stream-take)))
 ;;;[source,Scheme,linenums]
 ;;;----
 (define stream-take
   (lambda (n s)
-    (if (or (stream-null? s)
-            (<= n 0))
-        stream-null
-        (stream-cons (stream-car s)
-                     (lambda () (stream-take (- n 1)
-                                             (stream-cdr s)))))))
+    (generator
+     (let stream-take ((n n))
+       (let ((the-value (s)))
+         (if (or (end-of-generator? the-value)
+                 (<= n 0))
+             (end-of-generator)
+             (begin
+               (yield the-value)
+               (stream-take (- n 1)))))))))
 ;;;----
 ;;;
 ;;;
@@ -3410,119 +3280,21 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 ;;;
 ;;;
 ;;;
-;;;=== stream-filter
-;;;The analogous procedure of filter.
-;;;
-;;;(((stream-filter)))
-;;;[source,Scheme,linenums]
-;;;----
-(define stream-filter
-  (lambda (p? s)
-    (let stream-filter ((s s))
-      (if (stream-null? s)
-          stream-null
-          (let ((first (stream-car s)))
-            (if (p? first)
-                (stream-cons first
-			     (lambda () (stream-filter (stream-cdr s))))
-                (stream-filter (stream-cdr s))))))))
-;;;----
-;;;
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(unit-test
- (equal?  (stream->list
-           (stream-filter (lambda (x) (not (= 4 x)))
-                          (list->stream '(1 4 2 4))))
-          '(1 2))
- )
-;;;----
-;;;
-;;;Understanding the following tests is crucial to understanding
-;;;the definition of "primes".
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(unit-test
- (equal? (stream->list
-          (stream-take
-           10
-           (stream-cons
-            2
-            (lambda ()
-              (stream-filter (lambda (n)
-                               (not (equal? 0
-                                            (modulo n 2))))
-                             (integers-from 2))))))
-         '(2 3 5 7 9 11 13 15 17 19))
- (equal? (stream->list
-          (stream-take
-           10
-           (stream-cons
-            2
-            (lambda () (stream-filter (lambda (n)
-                                        (not (equal? 0
-                                                     (modulo n 2))))
-                                      (stream-cons
-                                       3
-                                       (lambda () (stream-filter (lambda (n)
-                                                                   (not (equal? 0
-                                                                                (modulo n 3))))
-                                                                 (integers-from 2)))))))))
-         '(2 3 5 7 11 13 17 19 23 25))
- )
-;;;
-;;;----
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(unit-test
- (equal? (stream->list
-          (stream-take
-           10
-           (stream-cons
-            2
-            (lambda ()
-              (stream-filter
-               (lambda (n)
-                 (not (equal? 0
-                              (modulo n 2))))
-               (stream-cons
-                3
-                (lambda ()
-                  (stream-filter
-                   (lambda (n)
-                     (not (equal? 0
-                                  (modulo n 3))))
-                   (stream-cons
-                    5
-                    (lambda ()
-                      (stream-filter
-                       (lambda (n)
-                         (not (equal? 0
-                                      (modulo n 5))))
-                       (integers-from 2))))))))))))
-         '(2 3 5 7 11 13 17 19 23 29))
- )
-;;;
-;;;----
-;;;
-;;;
 ;;;=== primes
 ;;;(((primes)))
 ;;;[source,Scheme,linenums]
 ;;;----
 (define primes
-  (let sieve-of-eratosthenes ((s (integers-from 2)))
-    (stream-cons
-     (stream-car s)
-     (lambda ()
-       (sieve-of-eratosthenes (stream-filter
-                               (lambda (n)
-                                 (not (equal? 0
-                                              (modulo n (stream-car s)))))
-                               (stream-cdr s)))))))
+  (lambda ()
+    (generator
+     (let sieve-of-eratosthenes ((s (integers-from 2)))
+       (let ((prime (s)))
+         (yield prime)
+         (yield-from (sieve-of-eratosthenes
+                      (stream-filter (lambda (n)
+                                       (not (equal? 0
+                                                    (modulo n prime))))
+                                     s))))))))
 ;;;----
 ;;;
 ;;;<<<sicp>>>.
@@ -3534,12 +3306,10 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
  (equal? (stream->list
           (stream-take
            10
-           primes))
+           (primes)))
          '(2 3 5 7 11 13 17 19 23 29))
  )
 ;;;----
-;;;
-;;;
 ;;;
 ;;;=== stream-drop
 ;;;(((stream-drop)))
@@ -3547,11 +3317,12 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 ;;;----
 (define stream-drop
   (lambda (n s)
-    (if (or (stream-null? s)
-            (<= n 0))
-        s
-        (stream-drop (- n 1)
-                     (stream-cdr s)))))
+    (let stream-drop ((n n))
+      (if (<= n 0)
+          s
+          (begin
+            (s)
+            (stream-drop (- n 1)))))))
 ;;;----
 ;;;
 ;;;
@@ -3571,14 +3342,11 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
     ))
  (equal? (stream->list
           (stream-take 10 (stream-drop 10
-                                       primes)))
+                                       (primes))))
          '(31 37 41 43 47 53 59 61 67 71))
  )
 ;;;----
-;;;
-;;;
-;;;
-;;;
+
 ;;;=== stream-drop-while
 ;;;(((stream-drop-while)))
 ;;;[source,Scheme,linenums]
@@ -3586,11 +3354,15 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 (define stream-drop-while
   (lambda (p? s)
     (let ((not-p? (complement p?)))
-      (let stream-drop-while ((s s))
-        (if (or (stream-null? s)
-                (not-p? (stream-car s)))
-            s
-            (stream-drop-while (stream-cdr s)))))))
+      (generator
+       (let stream-drop-while ()
+         (let ((the-value (s)))
+           (if (or (end-of-generator? the-value)
+                   (not-p? the-value))
+               (begin
+                 (yield the-value)
+                 (yield-from s))
+               (stream-drop-while))))))))
 ;;;----
 ;;;
 ;;;
@@ -3612,55 +3384,20 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
     )))
 ;;;----
 ;;;
-;;;
-;;;
-;;;
-;;;=== stream-map
-;;;The analogous procedure of "map".
-;;;
-;;;(((stream-map)))
-;;;[source,Scheme,linenums]
-;;;----
-(define stream-map
-  (lambda (f #!rest list-of-streams)
-    (let stream-map ((list-of-streams list-of-streams))
-      (if (any? (map stream-null? list-of-streams))
-          stream-null
-          (stream-cons
-           (apply f
-                  (map stream-car list-of-streams))
-           (lambda () (stream-map (map stream-cdr list-of-streams))))))))
-;;;----
-;;;
-;;;
-;;;[source,Scheme,linenums]
-;;;----
-(unit-test
- (equal? (stream->list
-          (stream-map (lambda (x) (+ x 1))
-                      (list->stream '(1 2 3 4 5))))
-         '(2 3 4 5 6))
- (equal? (stream->list
-          (stream-map (lambda (x y) (+ x y))
-                      (list->stream '(1 2 3 4 5))
-                      (list->stream '(1 1 1 1 1))))
-         '(2 3 4 5 6))
- )
-;;;
-;;;----
-;;;
-;;;
+
 ;;;=== stream-enumerate-interval
 ;;;(((stream-enumerate-interval)))
 ;;;[source,Scheme,linenums]
 ;;;----
 (define stream-enumerate-interval
   (lambda (low high #!key (step 1))
-    (let stream-enumerate-interval ((low low))
-      (if (> low high)
-          stream-null
-          (stream-cons low
-                       (lambda () (stream-enumerate-interval (+ low step))))))))
+    (generator
+     (let stream-enumerate-interval ((low low))
+       (if (> low high)
+           (end-of-generator)
+           (begin
+             (yield low)
+             (stream-enumerate-interval (+ low step))))))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
@@ -3674,6 +3411,7 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
          '(1 3 5 7 9)))
 ;;;----
 ;;;
+
 ;;;
 ;;;=== stream-take-while
 ;;;(((stream-take-while)))
@@ -3682,13 +3420,15 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
 (define stream-take-while
   (lambda (p? s)
     (let ((not-p? (complement p?)))
-      (let stream-take-while ((s s))
-        (if (or (stream-null? s)
-                (not-p? (stream-car s)))
-            stream-null
-            (stream-cons (stream-car s)
-                         (lambda () (stream-take-while
-                                     (stream-cdr s)))))))))
+      (generator
+       (let stream-take-while ()
+         (let ((the-value (s)))
+           (if (or (end-of-generator? the-value)
+                   (not-p? the-value))
+               (end-of-generator)
+               (begin
+                 (yield the-value)
+                 (stream-take-while)))))))))
 ;;;----
 ;;;
 ;;;
@@ -3704,7 +3444,8 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
     (,(stream-enumerate-interval 1 4) (1 2 3 4))))
  )
 ;;;----
-;;;
+
+
 ;;;
 ;;;=== The End of Compilation
 ;;;
