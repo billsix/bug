@@ -655,14 +655,11 @@
 ;;; \index{libbug-private\#define-structure}
 ;;;
 ;;; Like ``\#\#define-structure'', but additionally writes the namespaces
-;;; to file\footnote{In the following, \#\#define-structure is defined at
-;;; compile-time, because Gambit does not define \#\#define-structure at compile
-;;; time.}.
+;;; to file.
+;;;
+;;;
 ;;;
 ;;; \begin{code}
-{at-compile-time
- {##define-macro ##define-structure
-   [|#!rest args| `{define-structure ,@args}]}}
 {##define-macro
   libbug-private#define-structure
   [|name #!rest members|
