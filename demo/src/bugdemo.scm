@@ -9,7 +9,7 @@
 ;; compile time and at runtime.
 (define first-ten-primes
   (stream->list
-   (stream-take 10 primes)))
+   (stream-take 10 (primes))))
 
 ;; "unit-test" runs at compile-time
 (unit-test

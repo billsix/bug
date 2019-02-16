@@ -2875,9 +2875,9 @@
 
 ;;;== Coroutines
 
-https://en.wikipedia.org/wiki/Coroutine
+;;;https://en.wikipedia.org/wiki/Coroutine
 
-https://en.wikipedia.org/wiki/Generator_(computer_science)
+;;;https://en.wikipedia.org/wiki/Generator_(computer_science)
 
 ;;;=== end-of-generator
 
@@ -3064,7 +3064,7 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
                (begin
                  (yield ,v)
                  (,loop (,g)))
-               #f)))))
+                'noop)))))
 ;;;----
 
 
@@ -3107,7 +3107,7 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
            (begin
              (yield (car l))
              (loop (cdr l)))
-           (noop))))))
+           'noop)))))
 ;;;----
 ;;;
 ;;;[source,Scheme,linenums]
@@ -3231,7 +3231,7 @@ https://en.wikipedia.org/wiki/Generator_(computer_science)
              (begin
                (if (p? the-value)
                    (yield the-value)
-                   (noop))
+                   'noop)
                (stream-filter))))))))
 ;;;----
 ;;;
