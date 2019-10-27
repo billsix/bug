@@ -3061,9 +3061,7 @@
      (v loop)
      `(let ,loop ((,v (,g)))
            (if (not (end-of-generator? ,v))
-               (begin
-                 (yield ,v)
-                 (,loop (,g)))
+                 (,loop (,g (yield ,v)))
                 'noop)))))
 ;;;----
 
@@ -3090,6 +3088,22 @@
           (equal? 'b (g3))
           (equal? 'c (g3))
           (end-of-generator? (g3))
+          )))
+ (begin
+   (let* ((g (generator
+              (yield (+ 3 (yield (+ 2 (yield 1)))))))
+          (g2 (generator
+               (yield (+ 6 (yield (+ 5 (yield 4)))))))
+          (g3 (generator
+               (yield-from g)
+               (yield-from g2))))
+     (and (equal? 1 (g3))
+          (equal? 3 (g3 1))
+          (equal? 6 (g3 3))
+          (equal? 4 (g3))
+          (equal? 9 (g3 4))
+          (equal? 15 (g3 9))
+          (end-of-generator? (g2))
           ))))
 ;;;----
 
